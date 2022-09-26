@@ -1,6 +1,13 @@
 version: "3.9"
 services:
-  web:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+  api:
     build:
       context: .
       dockerfile: ./api/Dockerfile
