@@ -13,12 +13,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from datetime import datetime
+from typing import List, Optional
+
 from pydantic import BaseModel
 
 
-class Meter(BaseModel):
-    id: int
-
+class ORMBase(BaseModel):
     class Config:
         orm_mode = True
+
+
+class Meter(ORMBase):
+    id: int
+    name: str
+    serialnumber: Optional[str] = None
+
+
+class Owner(ORMBase):
+    id: int
+    name: str
+
+
+class Well(ORMBase):
+    id: int
+    name: str
+    location: str
+
+    owner: Optional[Owner] = None
+    meter: Optional[Meter] = None
+
+
+class Reading(ORMBase):
+    id: int
+    timestamp: datetime
+    value: float
+    eread: str
+    repair: str
 # ============= EOF =============================================

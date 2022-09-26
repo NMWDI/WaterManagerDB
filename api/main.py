@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from datetime import datetime
 
 from fastapi import FastAPI, Depends
 
@@ -21,12 +22,31 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.db import Base, Meter
+from api.models import Base, Meter, Well, Owner, Reading
 from api.session import engine, SessionLocal
 
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
+
+def setup_db():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    db = SessionLocal()
+    # if not db.query(Owner).filter_by(name='foo').first():
+
+    db.add(Meter(name='moo'))
+    db.add(Owner(name='foo'))
+    db.commit()
+    # if not db.query(Well).filter_by(name='bar').first():
+    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1))
+
+    db.add(Reading(value=103.31, eread='adsf',
+                   timestamp=datetime.now(),
+                   repair='asdfsadfsa'.encode('utf8')))
+    db.commit()
+    db.close()
+
 
 def get_db():
     db = SessionLocal()
@@ -41,7 +61,25 @@ def read_meters(db: Session = Depends(get_db)):
     return db.query(Meter).all()
 
 
+@app.get('/wells', response_model=List[schemas.Well])
+def read_wells(db: Session = Depends(get_db)):
+    return db.query(Well).all()
+
+
+@app.get('/owners', response_model=List[schemas.Owner])
+def read_owners(db: Session = Depends(get_db)):
+    return db.query(Owner).all()
+
+@app.get('/readings', response_model=List[schemas.Reading])
+def read_readings(db: Session = Depends(get_db)):
+    return db.query(Reading).all()
+
+
 @app.get('/')
 async def index():
     return {"message": "Hello World WaterManagerDBffff"}
+
+
+
+setup_db()
 # ============= EOF =============================================
