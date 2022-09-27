@@ -63,6 +63,7 @@ def setup_db():
 
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
+                   well_id=1,
                    repair='asdfsadfsa'.encode('utf8')))
     db.commit()
     db.close()
@@ -93,6 +94,10 @@ def read_owners(db: Session = Depends(get_db)):
 @app.get('/readings', response_model=List[schemas.Reading])
 def read_readings(db: Session = Depends(get_db)):
     return db.query(Reading).all()
+
+@app.get('/wellreadings/{wellid}', response_model=List[schemas.Reading])
+def read_wellreadings(wellid, db: Session=Depends(get_db)):
+    return db.query(Reading).filter_by(well_id=wellid).all()
 
 
 @app.get('/')

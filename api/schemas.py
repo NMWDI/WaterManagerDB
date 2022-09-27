@@ -51,4 +51,5 @@ class Reading(ORMBase):
     value: float
     eread: str
     repair: str
+    well_id: int
 # ============= EOF =============================================

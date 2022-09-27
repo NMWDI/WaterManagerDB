@@ -15,18 +15,25 @@ const columns: GridColDef[] = [
 }
 ];
 
-const WellTable = ()=> {
+const WellTable = (props)=> {
+   const handleEvent: GridEventListener<'rowClick'> = (
+  params, // GridRowParams
+  event, // MuiEvent<React.MouseEvent<HTMLElement>>
+  details, // GridCallbackDetails
+) => {
+       props.onRowSelect(params.row)
+};
+
    const [tableData, setTableData] = useState([])
   useEffect(()=>{
     let url = 'http://'+process.env.REACT_APP_API_URL+'/wells'
     fetch(url).then((data)=>data.json()).then((data) => setTableData(data))
 
   }, [])
-  console.log(tableData)
 
   return (
             <Box sx={{ height: 400, width: '100%' }}>
-              <DataGrid columns={columns} rows={tableData}/>
+              <DataGrid columns={columns} rows={tableData} onRowClick={handleEvent}/>
             </Box>
         )
 }

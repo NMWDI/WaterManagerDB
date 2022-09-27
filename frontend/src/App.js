@@ -1,14 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
 import WellTable from "./WellTable";
+import ReadingsTable from "./ReadingsTable";
+import WellView from "./Main";
 
 function App() {
   return (
     <div className="App">
-        <div>
-            <h2>Wells</h2>
-            <WellTable/>
-        </div>
+        <WellView/>
     </div>
   );
 }
