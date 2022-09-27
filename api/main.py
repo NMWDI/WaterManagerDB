@@ -20,13 +20,26 @@ from fastapi import FastAPI, Depends
 from typing import List
 
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from api import schemas
 from api.models import Base, Meter, Well, Owner, Reading
 from api.session import engine, SessionLocal
 
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def setup_db():
     Base.metadata.drop_all(bind=engine)
@@ -36,10 +49,15 @@ def setup_db():
     # if not db.query(Owner).filter_by(name='foo').first():
 
     db.add(Meter(name='moo'))
+    db.add(Meter(name='tor'))
+    db.add(Meter(name='hag'))
     db.add(Owner(name='foo'))
+    db.add(Owner(name='john'))
     db.commit()
     # if not db.query(Well).filter_by(name='bar').first():
-    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1))
+    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123'))
+    db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123'))
+    db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123'))
 
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),

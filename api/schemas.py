@@ -39,6 +39,7 @@ class Well(ORMBase):
     id: int
     name: str
     location: str
+    osepod: Optional[str] = None
 
     owner: Optional[Owner] = None
     meter: Optional[Meter] = None
