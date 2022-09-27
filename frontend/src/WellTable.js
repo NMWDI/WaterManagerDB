@@ -18,8 +18,8 @@ const columns: GridColDef[] = [
 const WellTable = ()=> {
    const [tableData, setTableData] = useState([])
   useEffect(()=>{
-
-    fetch("http://localhost:8000/wells").then((data)=>data.json()).then((data) => setTableData(data))
+    let url = 'http://'+process.env.REACT_APP_API_URL+'/wells'
+    fetch(url).then((data)=>data.json()).then((data) => setTableData(data))
 
   }, [])
   console.log(tableData)
