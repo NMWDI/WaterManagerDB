@@ -9,7 +9,6 @@ services:
       - api
     volumes:
       - ./frontend:/app:delegated
-      - /node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
   api:
