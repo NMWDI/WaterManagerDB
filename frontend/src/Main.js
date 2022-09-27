@@ -2,6 +2,8 @@ import {Component} from "react";
 import WellTable from "./WellTable";
 import ReadingsTable from "./ReadingsTable";
 
+
+
 class WellView extends Component{
     constructor(props) {
         super(props);
