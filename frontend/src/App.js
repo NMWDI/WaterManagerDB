@@ -9,6 +9,8 @@ import ReadingsView from "./ReadingsView";
 import MetersView from "./MetersView";
 import Home from "./Home";
 import Topbar from "./Topbar";
+import WorkersView from "./WorkersView";
+import RepairsView from "./RepairsView";
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
           <Route path="/readings" element={<ReadingsView />} />
           <Route path="/meters" element={<MetersView />} />
           <Route path="/wells" element={<WellView />} />
+          <Route path="/workers" element={<WorkersView />} />
+          <Route path="/repairs" element={<RepairsView />} />
           {/*<Route path="/user/:userId" element={<User />} />*/}
           {/*<Route path="/newUser" element={<NewUser />} />*/}
           {/*<Route path="/products" element={<ProductList />} />*/}

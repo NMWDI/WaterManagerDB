@@ -78,7 +78,6 @@ const WellTable = (props)=> {
     const rowIds = selectionModel.map(rowId => parseInt(String(rowId), 10));
     const rowsToDelete = tableData.filter(row => rowIds.includes(row.id));
     setDeletedRows(rowsToDelete);
-
   }}
 
                   columns={columns} rows={tableData} onRowClick={handleEvent}/>

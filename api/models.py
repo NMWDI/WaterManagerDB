@@ -73,4 +73,26 @@ class Owner(Base):
 
     wells = relationship('Well', back_populates='owner')
 
+class Worker(Base):
+    __tablename__ = 'workertbl'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+
+
+class Repair(Base):
+    __tablename__= 'repairtbl'
+    id = Column(Integer, primary_key=True, index=True)
+    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    well_id = Column(Integer, ForeignKey('welltbl.id'))
+    worker_id = Column(Integer, ForeignKey('workertbl.id'))
+
+    timestamp = Column(DateTime)
+    h2o_read = Column(Float)
+    e_read = Column(String)
+    new_read = Column(String)
+    repair_description = Column(LargeBinary)
+    note = Column(LargeBinary)
+
+    meter = relationship('Meter', uselist=False)
+
 # ============= EOF =============================================

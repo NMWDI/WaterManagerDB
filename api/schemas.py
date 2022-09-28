@@ -20,23 +20,22 @@ from pydantic import BaseModel
 
 
 class ORMBase(BaseModel):
+    id: int
+
     class Config:
         orm_mode = True
 
 
 class Meter(ORMBase):
-    id: int
     name: str
     serialnumber: Optional[str] = None
 
 
 class Owner(ORMBase):
-    id: int
     name: str
 
 
 class Well(ORMBase):
-    id: int
     name: str
     location: str
     osepod: Optional[str] = None
@@ -46,10 +45,34 @@ class Well(ORMBase):
 
 
 class Reading(ORMBase):
-    id: int
     timestamp: datetime
     value: float
     eread: str
     repair: str
     well_id: int
+
+
+class Worker(ORMBase):
+    name: str
+
+
+class WorkerCreate(Worker):
+    pass
+
+
+class Repair(ORMBase):
+    h2o_read: Optional[float] = 0
+    e_read: Optional[str] = None
+    new_read: Optional[str] = None
+    repair_description: Optional[str] = None
+    repair_by: Optional[Worker] = None
+    note: Optional[str] = None
+
+
+class RepairCreate(ORMBase):
+    h2o_read: Optional[float] = 0
+    e_read: Optional[str] = None
+    new_read: Optional[str] = None
+    repair_description: Optional[str] = None
+    note: Optional[str] = None
 # ============= EOF =============================================
