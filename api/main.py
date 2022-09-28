@@ -63,7 +63,8 @@ def setup_db():
     db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123'))
     db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123'))
 
-    db.add(Repair(worker_id=1))
+    db.add(Repair(worker_id=1, repair_description='Thasoacsd thasdf eiasdfasd'.encode('utf8'),
+                  note='This ia  noasdfte'.encode('utf8')))
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
                    well_id=1,

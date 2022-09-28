@@ -36,24 +36,24 @@ function Sidebar() {
         <div className="sidebarMenu">
           <h3 className="sidebarTitle">Quick Menu</h3>
           <ul className="sidebarList">
-            <Link to="/readings" className="link">
-              <li className="sidebarListItem">
-                <TableViewIcon className="sidebarIcon" />
-                Readings
-              </li>
-            </Link>
+            {/*<Link to="/readings" className="link">*/}
+            {/*  <li className="sidebarListItem">*/}
+            {/*    <TableViewIcon className="sidebarIcon" />*/}
+            {/*    Readings*/}
+            {/*  </li>*/}
+            {/*</Link>*/}
             <Link to="/meters" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
                 Meters
               </li>
             </Link>
-            <Link to="/wells" className="link">
-              <li className="sidebarListItem">
-                <TableViewIcon className="sidebarIcon" />
-                Wells
-              </li>
-            </Link>
+            {/*<Link to="/wells" className="link">*/}
+            {/*  <li className="sidebarListItem">*/}
+            {/*    <TableViewIcon className="sidebarIcon" />*/}
+            {/*    Wells*/}
+            {/*  </li>*/}
+            {/*</Link>*/}
             <Link to="/workers" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
