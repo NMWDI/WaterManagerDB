@@ -1,7 +1,7 @@
 import {Component} from "react";
 import WellTable from "./WellTable";
 import ReadingsTable from "./ReadingsTable";
-
+import {Box} from "@mui/material";
 
 
 class WellView extends Component{
@@ -19,16 +19,14 @@ class WellView extends Component{
     }
 
     render(){
-        return (<div>
-            <div>
-            <h2>Wells</h2>
-            <WellTable onRowSelect={this.handleRowSelect}/>
-            </div>
-            <div>
-                <h2>Readings</h2>
-                <ReadingsTable readings={this.state.readings}/>
-            </div>
-        </div>)
+        return (<Box sx={{ height: 400, width: '100%' }}>
+                   <h2>Wells</h2>
+                    <WellTable onRowSelect={this.handleRowSelect}/>
+                    <div>
+                        <h2>Readings</h2>
+                        <ReadingsTable readings={this.state.readings}/>
+                    </div>
+        </Box>)
 
     }
 }
