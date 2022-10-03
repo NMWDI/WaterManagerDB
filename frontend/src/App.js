@@ -11,6 +11,7 @@ import Home from "./Home";
 import Topbar from "./Topbar";
 import WorkersView from "./WorkersView";
 import RepairsView from "./RepairsView";
+import StatusBar from "./statusBar";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           {/*<Route path="/newproduct" element={<NewProduct />} />*/}
         </Routes>
       </div>
+       <StatusBar/>
     </Router>
   );
 

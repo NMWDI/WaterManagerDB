@@ -92,6 +92,15 @@ def get_db():
         db.close()
 
 
+@app.get('/api_status', response_model=schemas.Status)
+def read_wells(db: Session = Depends(get_db)):
+    try:
+        db.query(Well).first()
+        return {'ok': True}
+    except BaseException:
+        return
+
+
 @app.get('/wells', response_model=List[schemas.Well])
 def read_wells(db: Session = Depends(get_db)):
     return db.query(Well).all()

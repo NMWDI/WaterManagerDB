@@ -81,4 +81,7 @@ class RepairCreate(ORMBase):
     note: Optional[str] = None
     timestamp: Optional[datetime] = None
 
+
+class Status(BaseModel):
+    ok: bool
 # ============= EOF =============================================
