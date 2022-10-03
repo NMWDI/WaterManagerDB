@@ -51,11 +51,11 @@ def setup_db():
     db = SessionLocal()
     # if not db.query(Owner).filter_by(name='foo').first():
 
-    db.add(Meter(name='moo'))
-    db.add(Meter(name='tor'))
-    db.add(Meter(name='hag'))
-    db.add(Owner(name='foo'))
-    db.add(Owner(name='john'))
+    db.add(Meter(name='moo', serialnumber='92-8-1149'))
+    db.add(Meter(name='tor', serialnumber='92-8-1141'))
+    db.add(Meter(name='hag', serialnumber='92-8-1144'))
+    db.add(Owner(name='Guy & Jackson'))
+    db.add(Owner(name='Spencer'))
     db.add(Worker(name='Default'))
     db.add(Worker(name='Buster'))
     db.add(Worker(name='Alice'))
@@ -67,8 +67,15 @@ def setup_db():
     db.commit()
 
     db.add(Repair(worker_id=1,
-                  well_id=1, repair_description='Thasoacsd thasdf eiasdfasd'.encode('utf8'),
-                  note='This ia  noasdfte'.encode('utf8')))
+                  well_id=1,
+                  h2o_read=638.831,
+                  e_read='E 2412341',
+                  repair_description='''Gasket for saddle
+grease bearing
+PREV MAINT
+Working on Arrivial'''.encode('utf8'),
+                  note='''DIST 107" DISCHG 100%'''.encode('utf8')
+                  ))
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
                    well_id=1,

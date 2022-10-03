@@ -14,14 +14,14 @@ export default function WellsView(){
             setLoaded(true)
             let url = 'http://'+process.env.REACT_APP_API_URL+'/meters'
             fetch(url).then((data)=>data.json()).then((data)=>{
-                let meters = data.map((d)=>({value: d.id, label: d.name}))
+                let meters = data.map((d)=>({value: d.id, label: d.serialnumber}))
                 setavailableMeters(meters)
             })
 
             url = 'http://'+process.env.REACT_APP_API_URL+'/owners'
             fetch(url).then((data)=>data.json()).then((data)=>{
-                let meters = data.map((d)=>({value: d.id, label: d.name}))
-                setavailableOwners(meters)
+                let owners = data.map((d)=>({value: d.id, label: d.name}))
+                setavailableOwners(owners)
             })
         }
     })
@@ -30,23 +30,25 @@ export default function WellsView(){
         urltag={'/wells'}
         tag = {'Well'}
         fields= {[{ field: 'id', headerName: 'ID', width: 90},
-                { field: 'osepod', headerName: 'OSE POD', width: 90 },
-                { field: 'name', headerName: 'Name', width: 90 },
-                { field: 'location', headerName: 'Location', width: 90 },
+                { field: 'osepod', headerName: 'OSE POD', width: 120 },
+                // { field: 'name', headerName: 'Name', width: 90 },
+                { field: 'location', headerName: 'Location', width: 120 },
                 // { field: 'ownername', headerName: 'Owner', width: 90 ,
                 // valueGetter: (params: GridValueGetterParams) => `${params.row.owner?params.row.owner.name: ""}`},
 
                 {field: 'owner_id', headerName: 'Owner', editable:true,
                 type: 'singleSelect', valueOptions: availableOwners,
                     valueFormatter: (params)=>{
-                        let m = availableOwners.filter((m)=>(m.value==params.value))[0]
+                        let m = availableOwners.filter((m)=>(m.value===params.value))[0]
                         return m?m.label:''
-                    }
+                    },
+                    width: 120
                 },
                 {field: 'meter_id', headerName: 'Meter', editable:true,
                 type: 'singleSelect', valueOptions: availableMeters,
                     valueFormatter: (params)=>{
-                        let m = availableMeters.filter((m)=>(m.value==params.value))[0]
+                        // console.log(availableMeters, params.value)
+                        let m = availableMeters.filter((m)=>(m.value===params.value))[0]
                         return m?m.label:''
                     }
                 }
