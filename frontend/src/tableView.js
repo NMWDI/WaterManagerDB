@@ -18,11 +18,17 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 
 function EditToolbar(props) {
-  const { setRows, urltag, tag } = props;
+  const { setRows, urltag, tag, rowGenerator } = props;
 
   const handleClick = () => {
       setRows((orows) => {
-        let newRow = {id: orows[orows.length-1].id+1, name: ''}
+        let newRow
+        let newId = orows[orows.length-1].id+1
+        if (rowGenerator){
+          newRow = rowGenerator(newId)
+        }else{
+          newRow = {id: newId, name: ''}
+        }
         let url = 'http://'+process.env.REACT_APP_API_URL+urltag
         fetch(url, {method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -88,7 +94,7 @@ const [rows, setRows] = React.useState([]);
   };
 
   const processRowUpdate = (newRow) => {
-
+    console.log('patch new row', JSON.stringify(newRow))
     let url = 'http://'+process.env.REACT_APP_API_URL+props.urltag+'/'+newRow.id
     fetch(url, {method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
@@ -182,7 +188,8 @@ const [rows, setRows] = React.useState([]);
           Toolbar: EditToolbar,
         }}
         componentsProps={{
-          toolbar: {setRows:setRows, urltag: props.urltag, tag:props.tag},
+          toolbar: {setRows:setRows, urltag: props.urltag, tag:props.tag,
+            rowGenerator:props.rowGenerator},
         }}
         experimentalFeatures={{ newEditingApi: true }}
       />

@@ -56,7 +56,9 @@ def setup_db():
     db.add(Meter(name='hag'))
     db.add(Owner(name='foo'))
     db.add(Owner(name='john'))
+    db.add(Worker(name='Default'))
     db.add(Worker(name='Buster'))
+    db.add(Worker(name='Alice'))
     db.commit()
     # if not db.query(Well).filter_by(name='bar').first():
     db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123'))
@@ -81,11 +83,6 @@ def get_db():
         db.close()
 
 
-@app.get('/meters', response_model=List[schemas.Meter])
-def read_meters(db: Session = Depends(get_db)):
-    return db.query(Meter).all()
-
-
 @app.get('/wells', response_model=List[schemas.Well])
 def read_wells(db: Session = Depends(get_db)):
     return db.query(Well).all()
@@ -106,24 +103,41 @@ def read_wellreadings(wellid, db: Session = Depends(get_db)):
     return db.query(Reading).filter_by(well_id=wellid).all()
 
 
+# ======  Meters
+@app.get('/meters', response_model=List[schemas.Meter])
+async def read_meters(db: Session = Depends(get_db)):
+    return db.query(Meter).all()
+
+
+@app.patch('/meters/{meter_id}', response_model=schemas.Meter)
+async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(get_db)):
+    return _patch(db, Meter, meter_id, obj)
+
+
 # ======  Repairs
 @app.get('/repairs', response_model=List[schemas.Repair])
-def read_repairs(db: Session = Depends(get_db)):
+async def read_repairs(db: Session = Depends(get_db)):
     return db.query(Repair).all()
 
 
 @app.patch('/repairs/{repair_id}', response_model=schemas.Repair)
-async def patch_worker(repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)):
+async def patch_repairs(repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)):
     return _patch(db, Repair, repair_id, obj)
 
 
-@app.post('/repairs', response_model=schemas.Repair)
+@app.post('/repairs', response_model=schemas.RepairCreate)
 async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db), ):
     db_item = Repair(**repair.dict())
+    db_item.worker_id = 1
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+@app.delete('/repairs/{repair_id}')
+async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
+    return _delete(db, Repair, repair_id)
 
 
 # ======== Worker
@@ -157,10 +171,14 @@ async def index():
     return {"message": "Hello World WaterManagerDBffff"}
 
 
-def _patch(db, table, id, obj):
-    db_item = db.get(table, id)
+def _patch(db, table, dbid, obj):
+    db_item = _get(db, table, dbid)
     for k, v in obj.dict(exclude_unset=True).items():
-        setattr(db_item, k, v)
+        try:
+            setattr(db_item, k, v)
+        except AttributeError:
+            continue
+
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -172,6 +190,21 @@ def _add(db, table, obj):
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
+    return db_item
+
+
+def _delete(db, table, dbid):
+    db_item = _get(db, table, dbid)
+    db.delete(db_item)
+    db.commit()
+    return {"ok": True}
+
+
+def _get(db, table, dbid):
+    db_item = db.get(table, dbid)
+    if not db_item:
+        raise HTTPException(status_code=404, detail=f'{table}.{dbid} not found')
+
     return db_item
 
 

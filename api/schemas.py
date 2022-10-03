@@ -64,9 +64,11 @@ class Repair(ORMBase):
     h2o_read: Optional[float] = 0
     e_read: Optional[str] = None
     new_read: Optional[str] = None
-    repair_description: Optional[str] = None
-    repair_by: Optional[Worker] = None
-    note: Optional[str] = None
+    repair_description: Optional[bytes] = None
+    worker_id: int
+    note: Optional[bytes] = None
+    worker: str
+    timestamp: Optional[datetime] = None
 
 
 class RepairCreate(ORMBase):
@@ -75,4 +77,6 @@ class RepairCreate(ORMBase):
     new_read: Optional[str] = None
     repair_description: Optional[str] = None
     note: Optional[str] = None
+    timestamp: Optional[datetime] = None
+
 # ============= EOF =============================================

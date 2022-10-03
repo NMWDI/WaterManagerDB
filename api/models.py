@@ -15,7 +15,8 @@
 # ===============================================================================
 from typing import Any
 
-from sqlalchemy import Column, Integer, String, ForeignKeyConstraint, ForeignKey, Float, BLOB, DateTime, LargeBinary
+from sqlalchemy import Column, Integer, String, ForeignKeyConstraint, ForeignKey, Float, BLOB, DateTime, LargeBinary, \
+    func
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
 
@@ -86,7 +87,7 @@ class Repair(Base):
     well_id = Column(Integer, ForeignKey('welltbl.id'))
     worker_id = Column(Integer, ForeignKey('workertbl.id'))
 
-    timestamp = Column(DateTime)
+    timestamp = Column(DateTime, default=func.now())
     h2o_read = Column(Float)
     e_read = Column(String)
     new_read = Column(String)
@@ -94,5 +95,13 @@ class Repair(Base):
     note = Column(LargeBinary)
 
     meter = relationship('Meter', uselist=False)
+    repair_by = relationship('Worker', uselist=False)
 
+    @property
+    def worker(self):
+        return self.repair_by.name
+
+    @worker.setter
+    def worker(self, v):
+        self.repair_by.id
 # ============= EOF =============================================
