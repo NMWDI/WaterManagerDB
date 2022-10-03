@@ -39,9 +39,10 @@ class Well(ORMBase):
     name: str
     location: str
     osepod: Optional[str] = None
-
-    owner: Optional[Owner] = None
-    meter: Optional[Meter] = None
+    meter_id: int
+    owner_id: int
+    # owner: Optional[Owner] = None
+    # meter: Optional[Meter] = None
 
 
 class Reading(ORMBase):
@@ -69,6 +70,7 @@ class Repair(ORMBase):
     note: Optional[bytes] = None
     worker: str
     timestamp: Optional[datetime] = None
+    well_id: int
 
 
 class RepairCreate(ORMBase):

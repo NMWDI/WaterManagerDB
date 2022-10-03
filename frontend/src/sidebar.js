@@ -66,6 +66,12 @@ function Sidebar() {
                 Repairs
               </li>
             </Link>
+            <Link to="/wells" className="link">
+              <li className="sidebarListItem">
+                <TableViewIcon className="sidebarIcon" />
+                Wells
+              </li>
+            </Link>
           </ul>
         </div>
 

@@ -11,12 +11,14 @@ function rowGenerator(newId){
         repair_description: null,
         note: null,
         worker: 'Default',
-        timestamp: new Date()
+        timestamp: new Date(),
+        well_id: 1
     }
 }
 
 export default function RepairsView(){
     const [availableWorkers, setavailableWorkers] = useState([])
+    const [availableWells, setavailableWells] = useState([])
     const [loaded, setLoaded] = useState(false)
 
     useEffect(()=>{
@@ -25,9 +27,17 @@ export default function RepairsView(){
             let url = 'http://'+process.env.REACT_APP_API_URL+'/workers'
             fetch(url).then((data)=>data.json()).then((data)=>{
                 let workers = data.map((d)=>({value: d.id, label: d.name}))
-                console.log(data)
-                console.log(workers)
+                // console.log(data)
+                // console.log(workers)
                 setavailableWorkers(workers)
+            })
+
+            url = 'http://'+process.env.REACT_APP_API_URL+'/wells'
+            fetch(url).then((data)=>data.json()).then((data)=>{
+                let wells = data.map((d)=>({value: d.id, label: d.location}))
+                console.log(data)
+                console.log(wells)
+                setavailableWells(wells)
             })
         }
     })
@@ -54,7 +64,15 @@ export default function RepairsView(){
                           {field: 'new_read', headerName: 'New Read', editable:true},
                           {field: 'repair_description', headerName: 'Repair', editable:true},
                           {field: 'note', headerName: 'Note', editable:true},
-                          {field: 'worker_id',
+                     {field: 'well_id', headerName: 'Well',
+                     valueFormatter: (params)=>{
+                         return  availableWells[params.value-1]?availableWells[params.value-1]['label']:''
+                     },
+                         type: 'singleSelect',
+                         valueOptions: availableWells,
+                         editable: true
+                     },
+                            {field: 'worker_id',
                               headerName: 'Repaired By',
                               valueFormatter: (params)=>{
                               return availableWorkers[params.value-1]?availableWorkers[params.value-1]['label']:''

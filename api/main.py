@@ -64,8 +64,10 @@ def setup_db():
     db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123'))
     db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123'))
     db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123'))
+    db.commit()
 
-    db.add(Repair(worker_id=1, repair_description='Thasoacsd thasdf eiasdfasd'.encode('utf8'),
+    db.add(Repair(worker_id=1,
+                  well_id=1, repair_description='Thasoacsd thasdf eiasdfasd'.encode('utf8'),
                   note='This ia  noasdfte'.encode('utf8')))
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
@@ -101,6 +103,12 @@ def read_readings(db: Session = Depends(get_db)):
 @app.get('/wellreadings/{wellid}', response_model=List[schemas.Reading])
 def read_wellreadings(wellid, db: Session = Depends(get_db)):
     return db.query(Reading).filter_by(well_id=wellid).all()
+
+
+# ====== Wells
+@app.patch('/wells/{well_id}', response_model=schemas.Well)
+async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
+    return _patch(db, Well, well_id, obj)
 
 
 # ======  Meters
