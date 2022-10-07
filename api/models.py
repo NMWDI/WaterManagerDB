@@ -117,7 +117,7 @@ class Repair(Base):
     repair_description = Column(LargeBinary)
     note = Column(LargeBinary)
     meter_status_id = Column(Integer, ForeignKey('meterstatus_lutbl.id'))  # pok, np, piro
-    preventive_maintenance = Column(String)
+    preventative_maintenance = Column(String)
 
     meter = relationship('Meter', uselist=False)
     repair_by = relationship('Worker', uselist=False)

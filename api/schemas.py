@@ -28,7 +28,9 @@ class ORMBase(BaseModel):
 
 class Meter(ORMBase):
     name: str
-    serialnumber: Optional[str] = None
+    serial_year: int
+    serial_id: int
+    serial_case_diameter: int
 
 
 class Owner(ORMBase):

@@ -55,12 +55,12 @@ def setup_db():
     db.add(MeterStatusLU(name='POK'))
     db.add(MeterStatusLU(name='NP'))
     db.add(MeterStatusLU(name='PIRO'))
-
+    db.commit()
     # if not db.query(Owner).filter_by(name='foo').first():
 
-    db.add(Meter(name='moo', serialnumber='92-8-1149'))
-    db.add(Meter(name='tor', serialnumber='92-8-1141'))
-    db.add(Meter(name='hag', serialnumber='92-8-1144'))
+    db.add(Meter(name='moo', serial_year=1992, serial_id=1234, serial_case_diameter=4))
+    db.add(Meter(name='tor', serial_year=1992, serial_id=1234, serial_case_diameter=4))
+    db.add(Meter(name='hag', serial_year=1992, serial_id=1234, serial_case_diameter=4))
     db.add(Owner(name='Guy & Jackson'))
     db.add(Owner(name='Spencer'))
     db.add(Worker(name='Default'))
@@ -77,6 +77,8 @@ def setup_db():
                   well_id=1,
                   h2o_read=638.831,
                   e_read='E 2412341',
+                  meter_status_id=1,
+                  preventative_maintenance='',
                   repair_description='''Gasket for saddle
 grease bearing
 PREV MAINT
@@ -86,8 +88,6 @@ Working on Arrivial'''.encode('utf8'),
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
                    well_id=1,
-                   meter_status=0,
-                   preventative_maintenance='',
                    repair='asdfsadfsa'.encode('utf8')))
     db.commit()
     db.close()
