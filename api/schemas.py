@@ -71,6 +71,7 @@ class Repair(ORMBase):
     worker: str
     timestamp: Optional[datetime] = None
     well_id: int
+    meter_status_name: Optional[str] = None
 
 
 class RepairCreate(ORMBase):

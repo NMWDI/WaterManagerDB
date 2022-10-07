@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import schemas
-from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair
+from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU
 from api.session import engine, SessionLocal
 
 app = FastAPI()
@@ -49,6 +49,13 @@ def setup_db():
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
+
+    # build meter status lookup
+    db.add(MeterStatusLU(name='OK'))
+    db.add(MeterStatusLU(name='POK'))
+    db.add(MeterStatusLU(name='NP'))
+    db.add(MeterStatusLU(name='PIRO'))
+
     # if not db.query(Owner).filter_by(name='foo').first():
 
     db.add(Meter(name='moo', serialnumber='92-8-1149'))
@@ -79,6 +86,8 @@ Working on Arrivial'''.encode('utf8'),
     db.add(Reading(value=103.31, eread='adsf',
                    timestamp=datetime.now(),
                    well_id=1,
+                   meter_status=0,
+                   preventative_maintenance='',
                    repair='asdfsadfsa'.encode('utf8')))
     db.commit()
     db.close()
