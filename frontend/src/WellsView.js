@@ -2,12 +2,21 @@ import * as React from 'react'
 import {GridValueGetterParams} from "@mui/x-data-grid";
 import TableView from "./tableView";
 import {useEffect, useState} from "react";
+import MapView from "./MapView";
+import {useMap} from "react-leaflet";
 
+function useCenter(row){
+            console.log('asfdasdfasfd', row, [row.longitude, row.latitude])
+            const map = useMap();
+            // map.setView([row.longitude, row.latitude], 10);
+        }
 
 export default function WellsView(){
     const [availableMeters, setavailableMeters] = useState([])
     const [availableOwners, setavailableOwners] = useState([])
     const [loaded, setLoaded] = useState(false)
+    const [center, setCenter] = useState([34,-105.5])
+
 
     useEffect(()=>{
         if (!loaded){
@@ -26,7 +35,9 @@ export default function WellsView(){
         }
     })
     return (
+        <div>
         <TableView
+            onRowSelect={useCenter}
         urltag={'/wells'}
         tag = {'Well'}
         fields= {[{ field: 'id', headerName: 'ID', width: 90},
@@ -57,6 +68,11 @@ export default function WellsView(){
                 // }
                 ]}
         />
+            <div>
+                <MapView
+                    center={center} zoom={13}/>
+            </div>
+    </div>
     )
 }
 

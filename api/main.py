@@ -51,10 +51,10 @@ def setup_db():
     db = SessionLocal()
 
     # build meter status lookup
-    db.add(MeterStatusLU(name='OK'))
-    db.add(MeterStatusLU(name='POK'))
-    db.add(MeterStatusLU(name='NP'))
-    db.add(MeterStatusLU(name='PIRO'))
+
+    db.add(MeterStatusLU(name='POK', description='Pump OK'))
+    db.add(MeterStatusLU(name='NP', description='Not Pumping'))
+    db.add(MeterStatusLU(name='PIRO', description='Pump ON, Register Off'))
     db.commit()
     # if not db.query(Owner).filter_by(name='foo').first():
 
@@ -68,9 +68,12 @@ def setup_db():
     db.add(Worker(name='Alice'))
     db.commit()
     # if not db.query(Well).filter_by(name='bar').first():
-    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123'))
-    db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123'))
-    db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123'))
+    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123', latitude=3,
+                longitude=-106))
+    db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123', latitude=35.5,
+                longitude=-105.1))
+    db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123', latitude=36,
+                longitude=-105.5))
     db.commit()
 
     db.add(Repair(worker_id=1,
@@ -108,6 +111,11 @@ def read_wells(db: Session = Depends(get_db)):
         return {'ok': True}
     except BaseException:
         return
+
+
+@app.get('/meter_status_lu', response_model=List[schemas.MeterStatusLU])
+def read_meter_status_lu(db: Session = Depends(get_db)):
+    return db.query(MeterStatusLU).all()
 
 
 @app.get('/wells', response_model=List[schemas.Well])

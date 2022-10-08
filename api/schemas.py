@@ -43,6 +43,8 @@ class Well(ORMBase):
     osepod: Optional[str] = None
     meter_id: int
     owner_id: int
+    latitude: float
+    longitude: float
     # owner: Optional[Owner] = None
     # meter: Optional[Meter] = None
 
@@ -73,7 +75,8 @@ class Repair(ORMBase):
     worker: str
     timestamp: Optional[datetime] = None
     well_id: int
-    meter_status_name: Optional[str] = None
+    meter_status_id: int
+    preventative_maintenance: Optional[str] = None
 
 
 class RepairCreate(ORMBase):
@@ -83,8 +86,16 @@ class RepairCreate(ORMBase):
     repair_description: Optional[str] = None
     note: Optional[str] = None
     timestamp: Optional[datetime] = None
+    meter_status_id = int
+    preventative_maintenance = str
 
 
 class Status(BaseModel):
     ok: bool
+
+
+class MeterStatusLU(ORMBase):
+    id: int
+    name: str
+    description: str
 # ============= EOF =============================================

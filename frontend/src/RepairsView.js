@@ -16,8 +16,10 @@ function rowGenerator(newId){
     }
 }
 
+
 export default function RepairsView(){
     const [availableWorkers, setavailableWorkers] = useState([])
+    const [availableMeterStatus, setavailableMeterStatus] = useState([])
     const [availableWells, setavailableWells] = useState([])
     const [loaded, setLoaded] = useState(false)
 
@@ -27,17 +29,19 @@ export default function RepairsView(){
             let url = 'http://'+process.env.REACT_APP_API_URL+'/workers'
             fetch(url).then((data)=>data.json()).then((data)=>{
                 let workers = data.map((d)=>({value: d.id, label: d.name}))
-                // console.log(data)
-                // console.log(workers)
                 setavailableWorkers(workers)
             })
 
             url = 'http://'+process.env.REACT_APP_API_URL+'/wells'
             fetch(url).then((data)=>data.json()).then((data)=>{
                 let wells = data.map((d)=>({value: d.id, label: d.location}))
-                console.log(data)
-                console.log(wells)
                 setavailableWells(wells)
+            })
+
+            url = 'http://'+process.env.REACT_APP_API_URL+'/meter_status_lu'
+            fetch(url).then((data)=>data.json()).then((data)=>{
+                let items = data.map((d)=>({value: d.id, label: d.name}))
+                setavailableMeterStatus(items)
             })
         }
     })
@@ -64,6 +68,17 @@ export default function RepairsView(){
                           {field: 'new_read', headerName: 'New Read', editable:true},
                           {field: 'repair_description', headerName: 'Repair', editable:true},
                           {field: 'note', headerName: 'Note', editable:true},
+                          {field: 'meter_status_id', headerName: 'Meter Status',
+                              valueFormatter: (params)=>{
+                         return  availableMeterStatus[params.value-1]?availableMeterStatus[params.value-1]['label']:''
+                     },
+                         type: 'singleSelect',
+                         valueOptions: availableMeterStatus,
+                              editable:true},
+                          {field: 'preventative_maintenance',
+                              headerName: 'Preventative Maintenance', editable:true,
+                          },
+
                      {field: 'well_id', headerName: 'Well',
                      valueFormatter: (params)=>{
                          return  availableWells[params.value-1]?availableWells[params.value-1]['label']:''

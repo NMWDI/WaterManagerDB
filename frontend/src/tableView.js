@@ -58,6 +58,14 @@ const [rows, setRows] = React.useState([]);
 
   }, [])
 
+  const handleEvent: GridEventListener<'rowClick'> = (
+  params, // GridRowParams
+  event, // MuiEvent<React.MouseEvent<HTMLElement>>
+  details, // GridCallbackDetails
+  ) => {
+       props.onRowSelect(params.row)
+  };
+
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
   };
@@ -180,6 +188,7 @@ const [rows, setRows] = React.useState([]);
         rows={rows}
         columns={columns}
         editMode="row"
+        onRowClick={handleEvent}
         rowModesModel={rowModesModel}
         onRowEditStart={handleRowEditStart}
         onRowEditStop={handleRowEditStop}
