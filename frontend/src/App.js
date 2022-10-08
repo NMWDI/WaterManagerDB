@@ -35,7 +35,6 @@ function App() {
           {/*<Route path="/newproduct" element={<NewProduct />} />*/}
         </Routes>
       </div>
-       <StatusBar/>
     </Router>
   );
 

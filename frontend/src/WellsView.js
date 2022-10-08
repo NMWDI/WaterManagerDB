@@ -1,22 +1,28 @@
 import * as React from 'react'
 import {GridValueGetterParams} from "@mui/x-data-grid";
 import TableView from "./tableView";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import MapView from "./MapView";
 import {useMap} from "react-leaflet";
 
-function useCenter(row){
-            console.log('asfdasdfasfd', row, [row.longitude, row.latitude])
-            const map = useMap();
-            // map.setView([row.longitude, row.latitude], 10);
-        }
-
+// function useCenter(row){
+//             console.log('asfdasdfasfd', row, [row.longitude, row.latitude])
+//             const map = useMap();
+//             // map.setView([row.longitude, row.latitude], 10);
+//         }
+const defaultZoom = 10
+const defaultCenter = [34,-105.5]
 export default function WellsView(){
     const [availableMeters, setavailableMeters] = useState([])
     const [availableOwners, setavailableOwners] = useState([])
     const [loaded, setLoaded] = useState(false)
-    const [center, setCenter] = useState([34,-105.5])
+    const [zoom, setZoom] = useState(10)
 
+    const mapRef = useRef();
+    function handleOnSetView(params){
+        const { current = {} } = mapRef;
+        current.setView([params.latitude, params.longitude], zoom);
+    }
 
     useEffect(()=>{
         if (!loaded){
@@ -37,7 +43,7 @@ export default function WellsView(){
     return (
         <div>
         <TableView
-            onRowSelect={useCenter}
+            onRowSelect={handleOnSetView}
         urltag={'/wells'}
         tag = {'Well'}
         fields= {[{ field: 'id', headerName: 'ID', width: 90},
@@ -70,7 +76,8 @@ export default function WellsView(){
         />
             <div>
                 <MapView
-                    center={center} zoom={13}/>
+                    mapRef={mapRef}
+                    center={defaultCenter} zoom={defaultZoom}/>
             </div>
     </div>
     )

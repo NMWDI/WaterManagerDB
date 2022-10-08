@@ -7,7 +7,6 @@ import './css/leaflet.css'
 //   return null;
 // }
 export default function MapView(props){
-    console.log(props)
     return (
         <div>
             <link
@@ -17,6 +16,7 @@ export default function MapView(props){
                 crossOrigin=""
             />
             <MapContainer
+                ref={props.mapRef}
             center={props.center} zoom={props.zoom} scrollWheelZoom={false}>
                 {/*<ChangeView {props.center} zoom={props.zoom}/>*/}
               <TileLayer
