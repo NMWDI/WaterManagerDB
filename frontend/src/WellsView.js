@@ -21,7 +21,10 @@ export default function WellsView(){
     const mapRef = useRef();
     function handleOnSetView(params){
         const { current = {} } = mapRef;
-        current.setView([params.latitude, params.longitude], zoom);
+
+        let center = [params.latitude, params.longitude]
+        L.marker(center).addTo(current);
+        current.setView(center, zoom);
     }
 
     useEffect(()=>{
