@@ -28,9 +28,10 @@ class ORMBase(BaseModel):
 
 class Meter(ORMBase):
     name: str
-    serial_year: int
-    serial_id: int
-    serial_case_diameter: int
+    serial_number: str
+    # serial_year: int
+    # serial_id: int
+    # serial_case_diameter: int
 
 
 class Owner(ORMBase):
@@ -77,6 +78,7 @@ class Repair(ORMBase):
     well_id: int
     meter_status_id: int
     preventative_maintenance: Optional[str] = None
+    meter_serialnumber: Optional[str] = None
 
 
 class RepairCreate(ORMBase):

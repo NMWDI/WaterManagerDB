@@ -44,6 +44,11 @@ class Meter(Base):
 
     well = relationship('Well', back_populates='meter')
 
+    @property
+    def serial_number(self):
+        print('asdfasdf', self.serial_year)
+        return f'{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}'
+
 
 class Well(Base):
     __tablename__ = 'welltbl'
@@ -106,7 +111,7 @@ class MeterStatusLU(Base):
 class Repair(Base):
     __tablename__ = 'repairtbl'
     id = Column(Integer, primary_key=True, index=True)
-    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    # meter_id = Column(Integer, ForeignKey('metertbl.id'))
     well_id = Column(Integer, ForeignKey('welltbl.id'))
     worker_id = Column(Integer, ForeignKey('workertbl.id'))
 
@@ -119,9 +124,16 @@ class Repair(Base):
     meter_status_id = Column(Integer, ForeignKey('meterstatus_lutbl.id'))  # pok, np, piro
     preventative_maintenance = Column(String)
 
-    meter = relationship('Meter', uselist=False)
+    well = relationship('Well', uselist=False)
     repair_by = relationship('Worker', uselist=False)
     meter_status = relationship('MeterStatusLU', uselist=False)
+
+    @property
+    def meter_serialnumber(self):
+        # print('kkklklkl', self.meter_id)
+        # return 'asdfasdfasfdsa'
+        # print('asdfas', f'{self.meter.serial_year}-{self.meter.serial_case_diameter}-{self.meter.serial_id}')
+        return self.well.meter.serial_number
 
     @property
     def meter_status_name(self):

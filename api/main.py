@@ -59,8 +59,8 @@ def setup_db():
     # if not db.query(Owner).filter_by(name='foo').first():
 
     db.add(Meter(name='moo', serial_year=1992, serial_id=1234, serial_case_diameter=4))
-    db.add(Meter(name='tor', serial_year=1992, serial_id=1234, serial_case_diameter=4))
-    db.add(Meter(name='hag', serial_year=1992, serial_id=1234, serial_case_diameter=4))
+    db.add(Meter(name='tor', serial_year=1992, serial_id=2235, serial_case_diameter=4))
+    db.add(Meter(name='hag', serial_year=1992, serial_id=3236, serial_case_diameter=4))
     db.add(Owner(name='Guy & Jackson'))
     db.add(Owner(name='Spencer'))
     db.add(Worker(name='Default'))

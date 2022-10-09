@@ -63,7 +63,9 @@ const [rows, setRows] = React.useState([]);
   event, // MuiEvent<React.MouseEvent<HTMLElement>>
   details, // GridCallbackDetails
   ) => {
+    if (props.onRowSelect){
        props.onRowSelect(params.row)
+    }
   };
 
   const handleRowEditStart = (params, event) => {

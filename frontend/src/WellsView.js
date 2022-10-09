@@ -32,7 +32,7 @@ export default function WellsView(){
             setLoaded(true)
             let url = 'http://'+process.env.REACT_APP_API_URL+'/meters'
             fetch(url).then((data)=>data.json()).then((data)=>{
-                let meters = data.map((d)=>({value: d.id, label: d.serialnumber}))
+                let meters = data.map((d)=>({value: d.id, label: d.serial_number}))
                 setavailableMeters(meters)
             })
 
@@ -65,9 +65,10 @@ export default function WellsView(){
                     width: 120
                 },
                 {field: 'meter_id', headerName: 'Meter', editable:true,
+                    width: 120,
                 type: 'singleSelect', valueOptions: availableMeters,
                     valueFormatter: (params)=>{
-                        // console.log(availableMeters, params.value)
+                        console.log(availableMeters, params.value)
                         let m = availableMeters.filter((m)=>(m.value===params.value))[0]
                         return m?m.label:''
                     }
