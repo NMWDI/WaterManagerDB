@@ -45,7 +45,7 @@ export default function WellsView(){
         }
     })
     return (
-        <div class='flex-container'>
+        <div className='flex-container'>
             <div className='flex-child'>
                 <TableView
                     onRowSelect={handleOnSetView}
