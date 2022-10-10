@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 from fastapi import FastAPI, Depends, HTTPException
 
@@ -86,12 +86,33 @@ def setup_db():
 grease bearing
 PREV MAINT
 Working on Arrivial'''.encode('utf8'),
+                  note='''DIST 107" DISCHG 100%'''.encode('utf8'),
+                  timestamp=datetime.now()
+                  ))
+
+    db.add(Repair(worker_id=1,
+                  timestamp=datetime.now()-timedelta(days=365),
+                  well_id=1,
+                  h2o_read=638000.831,
+                  e_read='E 241da2341',
+                  meter_status_id=1,
+                  preventative_maintenance='',
+                  repair_description='''a
+    Working on Arrivial'''.encode('utf8'),
                   note='''DIST 107" DISCHG 100%'''.encode('utf8')
                   ))
-    db.add(Reading(value=103.31, eread='adsf',
-                   timestamp=datetime.now(),
-                   well_id=1,
-                   repair='asdfsadfsa'.encode('utf8')))
+    db.add(Repair(worker_id=1,
+                  timestamp=datetime.now() - timedelta(days=2*365),
+                  well_id=1,
+                  h2o_read=638000.831,
+                  e_read='E 241da2341',
+                  meter_status_id=1,
+                  preventative_maintenance='',
+                  repair_description='''
+        Working on Arrivial'''.encode('utf8'),
+                  note='''DIST 107" DISCHG 100%'''.encode('utf8')
+                  ))
+
     db.commit()
     db.close()
 
@@ -102,6 +123,17 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.get('/repair_report', response_model=List[schemas.Repair])
+def read_repair_report(after_date: date = None, after: datetime = None, db: Session = Depends(get_db)):
+    q = db.query(Repair)
+    if after_date:
+        q = q.filter(Repair.timestamp > datetime.fromordinal(after_date.toordinal()))
+    elif after:
+        q = q.filter(Repair.timestamp > after)
+
+    return q.all()
 
 
 @app.get('/api_status', response_model=schemas.Status)
