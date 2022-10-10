@@ -33,6 +33,7 @@ origins = [
     "http://localhost:8000",
     "http://34.106.112.233:8000",
     "http://34.106.112.233:3000"
+    "http://pvacd.newmexicowaterdata.org:3000"
 ]
 
 app.add_middleware(
