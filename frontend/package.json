@@ -14,8 +14,7 @@
     "yarn": "^1.22.19"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "webpack"
+    "start": "react-scripts start"
   },
   "browserslist": {
     "production": [
