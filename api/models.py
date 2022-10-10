@@ -54,7 +54,6 @@ class Well(Base):
     __tablename__ = 'welltbl'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    location = Column(String)
 
     township = Column(Integer)
     range = Column(Integer)
@@ -73,6 +72,10 @@ class Well(Base):
     meter = relationship('Meter', uselist=False, back_populates='well')
     owner = relationship('Owner', back_populates='wells')
     readings = relationship('Reading', back_populates='well')
+
+    @property
+    def location(self):
+        return f'{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}'
 
 
 class Reading(Base):
@@ -128,6 +131,13 @@ class Repair(Base):
     repair_by = relationship('Worker', uselist=False)
     meter_status = relationship('MeterStatusLU', uselist=False)
 
+    @property
+    def well_name(self):
+        return self.well.name
+
+    @property
+    def well_location(self):
+        return self.well.location
     @property
     def meter_serialnumber(self):
         # print('kkklklkl', self.meter_id)

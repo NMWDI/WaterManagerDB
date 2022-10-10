@@ -12,7 +12,8 @@ function rowGenerator(newId){
         note: null,
         worker: 'Default',
         timestamp: new Date(),
-        well_id: 1
+        well_id: 1,
+        meter_status_id: 1
     }
 }
 
@@ -68,7 +69,7 @@ export default function RepairsView(){
                           {field: 'new_read', headerName: 'New Read', editable:true},
                           {field: 'repair_description', headerName: 'Repair', editable:true},
                           {field: 'note', headerName: 'Note', editable:true},
-                          {field: 'meter_serialnumber', headerName: 'Meter'},
+                          {field: 'meter_serialnumber', headerName: 'Meter', width: 120},
                           {field: 'meter_status_id', headerName: 'Meter Status',
                               valueFormatter: (params)=>{
                          return  availableMeterStatus[params.value-1]?availableMeterStatus[params.value-1]['label']:''

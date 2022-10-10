@@ -68,11 +68,11 @@ def setup_db():
     db.add(Worker(name='Alice'))
     db.commit()
     # if not db.query(Well).filter_by(name='bar').first():
-    db.add(Well(name='bar', owner_id=1, location='123.123.123', meter_id=1, osepod='RA-1234-123', latitude=3,
+    db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3, meter_id=1, osepod='RA-1234-123', latitude=3,
                 longitude=-106))
-    db.add(Well(name='bag', owner_id=2, location='323.123.123', meter_id=2, osepod='RA-1234-123', latitude=35.5,
+    db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1, meter_id=2, osepod='RA-1234-123', latitude=35.5,
                 longitude=-105.1))
-    db.add(Well(name='bat', owner_id=1, location='5123.123.123', meter_id=3, osepod='RA-1234-123', latitude=36,
+    db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2, meter_id=3, osepod='RA-1234-123', latitude=36,
                 longitude=-105.5))
     db.commit()
 
@@ -125,7 +125,7 @@ def get_db():
         db.close()
 
 
-@app.get('/repair_report', response_model=List[schemas.Repair])
+@app.get('/repair_report', response_model=List[schemas.RepairReport])
 def read_repair_report(after_date: date = None, after: datetime = None, db: Session = Depends(get_db)):
     q = db.query(Repair)
     if after_date:

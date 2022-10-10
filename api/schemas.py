@@ -81,6 +81,12 @@ class Repair(ORMBase):
     meter_serialnumber: Optional[str] = None
 
 
+class RepairReport(Repair):
+    well_name: str
+    well_location: str
+    meter_status_name: str
+
+
 class RepairCreate(ORMBase):
     h2o_read: Optional[float] = 0
     e_read: Optional[str] = None

@@ -72,7 +72,7 @@ export default function WellsView(){
                             width: 120,
                             type: 'singleSelect', valueOptions: availableMeters,
                             valueFormatter: (params) => {
-                                console.log(availableMeters, params.value)
+                                // console.log(availableMeters, params.value)
                                 let m = availableMeters.filter((m) => (m.value === params.value))[0]
                                 return m ? m.label : ''
                             }
