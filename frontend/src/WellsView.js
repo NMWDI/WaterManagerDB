@@ -4,12 +4,8 @@ import TableView from "./tableView";
 import {useEffect, useRef, useState} from "react";
 import MapView from "./MapView";
 import {useMap} from "react-leaflet";
+import L from 'leaflet'
 
-// function useCenter(row){
-//             console.log('asfdasdfasfd', row, [row.longitude, row.latitude])
-//             const map = useMap();
-//             // map.setView([row.longitude, row.latitude], 10);
-//         }
 const defaultZoom = 10
 const defaultCenter = [34,-105.5]
 export default function WellsView(){
@@ -17,14 +13,19 @@ export default function WellsView(){
     const [availableOwners, setavailableOwners] = useState([])
     const [loaded, setLoaded] = useState(false)
     const [zoom, setZoom] = useState(10)
+    const [markers, setMarkers] = useState([])
 
     const mapRef = useRef();
     function handleOnSetView(params){
         const { current = {} } = mapRef;
+        //
+        let cen = [params.latitude, params.longitude]
+        // console.log('center',center)
+        // L.marker(center).addTo(current);
+        // setMarkers([L.latLng(cen[0], cen[1])])
+        setMarkers([cen])
+        current.setView(cen, zoom);
 
-        let center = [params.latitude, params.longitude]
-        L.marker(center).addTo(current);
-        current.setView(center, zoom);
     }
 
     useEffect(()=>{
@@ -44,46 +45,53 @@ export default function WellsView(){
         }
     })
     return (
-        <div>
-        <TableView
-            onRowSelect={handleOnSetView}
-        urltag={'/wells'}
-        tag = {'Well'}
-        fields= {[{ field: 'id', headerName: 'ID', width: 90},
-                { field: 'osepod', headerName: 'OSE POD', width: 120 },
-                // { field: 'name', headerName: 'Name', width: 90 },
-                { field: 'location', headerName: 'Location', width: 120 },
-                // { field: 'ownername', headerName: 'Owner', width: 90 ,
-                // valueGetter: (params: GridValueGetterParams) => `${params.row.owner?params.row.owner.name: ""}`},
+        <div class='flex-container'>
+            <div className='flex-child'>
+                <TableView
+                    onRowSelect={handleOnSetView}
+                    urltag={'/wells'}
+                    tag={'Well'}
+                    fields={[{field: 'id', headerName: 'ID', width: 90},
+                        {field: 'osepod', headerName: 'OSE POD', width: 120},
+                        // { field: 'name', headerName: 'Name', width: 90 },
+                        {field: 'location', headerName: 'Location', width: 120},
+                        // { field: 'ownername', headerName: 'Owner', width: 90 ,
+                        // valueGetter: (params: GridValueGetterParams) => `${params.row.owner?params.row.owner.name: ""}`},
 
-                {field: 'owner_id', headerName: 'Owner', editable:true,
-                type: 'singleSelect', valueOptions: availableOwners,
-                    valueFormatter: (params)=>{
-                        let m = availableOwners.filter((m)=>(m.value===params.value))[0]
-                        return m?m.label:''
-                    },
-                    width: 120
-                },
-                {field: 'meter_id', headerName: 'Meter', editable:true,
-                    width: 120,
-                type: 'singleSelect', valueOptions: availableMeters,
-                    valueFormatter: (params)=>{
-                        console.log(availableMeters, params.value)
-                        let m = availableMeters.filter((m)=>(m.value===params.value))[0]
-                        return m?m.label:''
-                    }
-                }
-                // {field: 'metername', headerName: 'Meter', width: 90,
-                // valueGetter: (params: GridValueGetterParams) => `${params.row.meter?params.row.meter.name: ""}`
-                // }
-                ]}
-        />
-            <div>
-                <MapView
-                    mapRef={mapRef}
-                    center={defaultCenter} zoom={defaultZoom}/>
+                        {
+                            field: 'owner_id', headerName: 'Owner', editable: true,
+                            type: 'singleSelect', valueOptions: availableOwners,
+                            valueFormatter: (params) => {
+                                let m = availableOwners.filter((m) => (m.value === params.value))[0]
+                                return m ? m.label : ''
+                            },
+                            width: 120
+                        },
+                        {
+                            field: 'meter_id', headerName: 'Meter', editable: true,
+                            width: 120,
+                            type: 'singleSelect', valueOptions: availableMeters,
+                            valueFormatter: (params) => {
+                                console.log(availableMeters, params.value)
+                                let m = availableMeters.filter((m) => (m.value === params.value))[0]
+                                return m ? m.label : ''
+                            }
+                        }
+                        // {field: 'metername', headerName: 'Meter', width: 90,
+                        // valueGetter: (params: GridValueGetterParams) => `${params.row.meter?params.row.meter.name: ""}`
+                        // }
+                    ]}
+                />
             </div>
-    </div>
+            <div className="flex-child">
+                <MapView
+                    markers={markers}
+                    mapRef={mapRef}
+                    center={defaultCenter}
+                    zoom={defaultZoom}/>
+            </div>
+        </div>
+
     )
 }
 

@@ -17,19 +17,16 @@ export default function MapView(props){
             />
             <MapContainer
                 ref={props.mapRef}
-            center={props.center} zoom={props.zoom} scrollWheelZoom={false}>
-                {/*<ChangeView {props.center} zoom={props.zoom}/>*/}
+                center={props.center}
+                zoom={props.zoom} scrollWheelZoom={false}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={[51.505, -0.09]}>
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-              </Marker>
+
+                {props.markers.map((position,idx)=> <Marker key={`marker-${idx}`} position={{lat: position[0],
+                lng: position[1]}}></Marker>)}
             </MapContainer>
         </div>
-
     )
 }
