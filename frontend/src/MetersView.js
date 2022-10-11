@@ -9,9 +9,14 @@ import {fetchAPI} from "./util.js";
 export default function MetersView(){
     function handleRowSelect(params){
         fetchAPI('/repairs?meter_id='+params.id, setRows)
-    }
 
+        fetchAPI('/meter_history/'+params.id, (data)=>{
+            console.log(data, data[data.length-1].well_id)
+            setWellId(data[data.length-1].well_id)
+        })
+    }
     const [rows, setRows] = useState([])
+    const [well_id, setWellId] = useState(null)
 
     return (<div style={{width: "100%"}}>
         <TableView urltag={'/meters'}
@@ -23,7 +28,9 @@ export default function MetersView(){
                             width: 125,
                             editable: true},]}
         />
-        <RepairsView rows={rows}/>
+        <RepairsView
+            well_id={well_id}
+            rows={rows}/>
     </div>
 
   )

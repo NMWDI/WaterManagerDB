@@ -46,7 +46,6 @@ class Meter(Base):
 
     @property
     def serial_number(self):
-        print('asdfasdf', self.serial_year)
         return f'{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}'
 
 

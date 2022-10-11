@@ -80,6 +80,12 @@ class Repair(ORMBase):
     meter_serialnumber: Optional[str] = None
 
 
+class MeterHistory(ORMBase):
+    well_id: int
+    timestamp: datetime
+    meter_id: int
+    note: Optional[bytes] = None
+
 class RepairReport(Repair):
     well_name: str
     well_location: str
@@ -93,8 +99,9 @@ class RepairCreate(ORMBase):
     repair_description: Optional[str] = None
     note: Optional[str] = None
     timestamp: Optional[datetime] = None
-    meter_status_id = int
-    preventative_maintenance = str
+    meter_status_id: Optional[int] = 1
+    preventative_maintenance: str
+    well_id: int
 
 
 class Status(BaseModel):

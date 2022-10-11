@@ -1,30 +1,20 @@
 import * as React from 'react';
 
 import TableView from "./tableView";
-import {useEffect, useState} from "react";
-function rowGenerator(newId){
-    return {id: newId,
-        h2o_read: 0,
-        worker_id: 1,
-        e_read: null,
-        new_read: null,
-        repair_description: null,
-        note: null,
-        worker: 'Default',
-        timestamp: new Date(),
-        well_id: 1,
-        meter_status_id: 1
-    }
-}
+import {useEffect, useRef, useState} from "react";
+
 
 import {fetchAPI, makeAPIPath} from './util'
+
 
 export default function RepairsView(props){
 
     const [availableWorkers, setavailableWorkers] = useState([])
     const [availableMeterStatus, setavailableMeterStatus] = useState([])
     const [availableWells, setavailableWells] = useState([])
+    // const [nrepairs, setnrepairs] = useState(0)
     // const [loaded, setLoaded] = useState(false)
+    const nrepairs = useRef(0)
 
     useEffect(()=>{
         // if (!loaded){
@@ -44,7 +34,29 @@ export default function RepairsView(props){
         // }
     }, [])
 
+    useEffect(()=>{
+        fetchAPI('/nrepairs', (data)=>{
+            nrepairs.current=data
+             })
+        }, [])
 
+    function rowGenerator(newId){
+        let nid = nrepairs.current+1
+        nrepairs.current++
+    return {id: nid,
+        h2o_read: 0,
+        worker_id: 1,
+        e_read: null,
+        new_read: null,
+        repair_description: null,
+        note: null,
+        worker: 'Default',
+        timestamp: new Date(),
+        well_id: props.well_id?props.well_id:1,
+        meter_status_id: 1,
+        preventative_maintenance: ''
+    }
+}
 
   return (
       <TableView

@@ -187,6 +187,10 @@ def read_wells(db: Session = Depends(get_db)):
         return
 
 
+@app.get('/meter_history/{meter_id}', response_model=List[schemas.MeterHistory])
+async def read_meter_history(meter_id, db: Session = Depends(get_db)):
+    return db.query(MeterHistory).filter_by(meter_id=meter_id).all()
+
 @app.get('/meter_status_lu',
          description='Return list of MeterStatus codes and definitions',
          response_model=List[schemas.MeterStatusLU])
@@ -236,10 +240,7 @@ async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(
 def parse_location(location_str):
     return location_str.split('.')
 
-
-# ======  Repairs
-@app.get('/repairs', response_model=List[schemas.Repair],  tags=['repairs'])
-async def read_repairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
+def repair_query(db, location, well_id, meter_id):
     q = db.query(Repair)
     q = q.join(Well)
 
@@ -253,8 +254,21 @@ async def read_repairs(location: str = None, well_id: int = None, meter_id: int 
         q = q.filter(Well.township == t).filter(Well.range == r).filter(Well.section == s).filter(
             Well.quarter == qu).filter(
             Well.half_quarter == hq)
+    return q
+
+
+# ======  Repairs
+@app.get('/repairs', response_model=List[schemas.Repair],  tags=['repairs'])
+async def read_repairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
+    q = repair_query(db, location, well_id, meter_id)
 
     return q.all()
+
+
+@app.get('/nrepairs', response_model=int,  tags=['repairs'])
+async def read_nrepairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
+    q = repair_query(db, location, well_id, meter_id)
+    return q.count()
 
 
 @app.patch('/repairs/{repair_id}', response_model=schemas.Repair,  tags=['repairs'])
@@ -264,6 +278,8 @@ async def patch_repairs(repair_id: int, obj: schemas.Repair, db: Session = Depen
 
 @app.post('/repairs', response_model=schemas.RepairCreate, tags=['repairs'])
 async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
+    print(repair.dict())
+
     db_item = Repair(**repair.dict())
     db_item.worker_id = 1
     db.add(db_item)
