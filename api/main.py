@@ -69,11 +69,14 @@ def setup_db():
     db.add(Worker(name='Alice'))
     db.commit()
     # if not db.query(Well).filter_by(name='bar').first():
-    db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3, meter_id=1, osepod='RA-1234-123', latitude=3,
+    db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3, meter_id=1,
+                osepod='RA-1234-123', latitude=3,
                 longitude=-106))
-    db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1, meter_id=2, osepod='RA-1234-123', latitude=35.5,
+    db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1, meter_id=2,
+                osepod='RA-1234-123', latitude=35.5,
                 longitude=-105.1))
-    db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2, meter_id=3, osepod='RA-1234-123', latitude=36,
+    db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2, meter_id=3,
+                osepod='RA-1234-123', latitude=36,
                 longitude=-105.5))
     db.commit()
 
@@ -92,7 +95,7 @@ Working on Arrivial'''.encode('utf8'),
                   ))
 
     db.add(Repair(worker_id=1,
-                  timestamp=datetime.now()-timedelta(days=365),
+                  timestamp=datetime.now() - timedelta(days=365),
                   well_id=1,
                   h2o_read=638000.831,
                   e_read='E 241da2341',
@@ -103,8 +106,8 @@ Working on Arrivial'''.encode('utf8'),
                   note='''DIST 107" DISCHG 100%'''.encode('utf8')
                   ))
     db.add(Repair(worker_id=1,
-                  timestamp=datetime.now() - timedelta(days=2*365),
-                  well_id=1,
+                  timestamp=datetime.now() - timedelta(days=2 * 365),
+                  well_id=2,
                   h2o_read=638000.831,
                   e_read='E 241da2341',
                   meter_status_id=1,
@@ -188,10 +191,27 @@ async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(
     return _patch(db, Meter, meter_id, obj)
 
 
+def parse_location(location_str):
+    return location_str.split('.')
+
+
 # ======  Repairs
 @app.get('/repairs', response_model=List[schemas.Repair])
-async def read_repairs(db: Session = Depends(get_db)):
-    return db.query(Repair).all()
+async def read_repairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
+    q = db.query(Repair)
+    q = q.join(Well)
+
+    if meter_id is not None:
+        q = q.filter(Well.meter_id == meter_id)
+    elif well_id is not None:
+        q = q.filter(Well.id == well_id)
+    elif location is not None:
+        t, r, s, qu, hq = parse_location(location)
+        q = q.filter(Well.township == t).filter(Well.range == r).filter(Well.section == s).filter(
+            Well.quarter == qu).filter(
+            Well.half_quarter == hq)
+
+    return q.all()
 
 
 @app.patch('/repairs/{repair_id}', response_model=schemas.Repair)
