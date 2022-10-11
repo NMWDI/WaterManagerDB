@@ -15,8 +15,8 @@ services:
       - REACT_APP_API_URL=http://localhost:8000
   api:
     build:
-      context: .
-      dockerfile: ./api/Dockerfile
+      context: ./api/
+      dockerfile: ./Dockerfile
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --reload'
     ports:
       - "8000:8000"
