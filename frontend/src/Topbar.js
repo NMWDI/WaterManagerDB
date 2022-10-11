@@ -8,7 +8,7 @@ function Topbar() {
     <div className="topbar">
       <div className="topbarWrapper">
         <div className="topLeft">
-          <span className="logo">WaterManager</span>
+          <span className="logo">Meter Manager</span>
         </div>
         <div className="topRight">
           {/*<div className="topbarIconContainer">*/}

@@ -5,7 +5,7 @@ class Home extends Component{
     render() {
         return (
             <Box sx={{ height: 400, width: '100%' }}>
-                <h1>Welcome to the WaterManager Application</h1>
+                <h1>Welcome to the Meter Manager Application</h1>
 
             </Box>
         );
