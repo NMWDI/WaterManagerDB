@@ -42,12 +42,24 @@ class Meter(Base):
 
     deployed = Column(Boolean)
 
-    well = relationship('Well', back_populates='meter')
+    # well = relationship('Well', back_populates='meter')
 
     @property
     def serial_number(self):
         print('asdfasdf', self.serial_year)
         return f'{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}'
+
+
+class MeterHistory(Base):
+    __tablename__ = 'meterhistorytbl'
+    id = Column(Integer, primary_key=True, index=True)
+
+    well_id = Column(Integer, ForeignKey('welltbl.id'))
+    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    timestamp = Column(DateTime, default=func.now())
+    note = Column(LargeBinary)
+
+    meter = relationship('Meter', uselist=False)
 
 
 class Well(Base):
@@ -66,12 +78,13 @@ class Well(Base):
     longitude = Column(Float)
 
     owner_id = Column(Integer, ForeignKey('ownertbl.id'))
-    meter_id = Column(Integer, ForeignKey('metertbl.id'), nullable=True)
     osepod = Column(String)
 
-    meter = relationship('Meter', uselist=False, back_populates='well')
+    # meter = relationship('Meter', uselist=False, back_populates='well')
     owner = relationship('Owner', back_populates='wells')
     readings = relationship('Reading', back_populates='well')
+
+    meter_history = relationship('MeterHistory', uselist=False)
 
     @property
     def location(self):
@@ -138,12 +151,10 @@ class Repair(Base):
     @property
     def well_location(self):
         return self.well.location
+
     @property
     def meter_serialnumber(self):
-        # print('kkklklkl', self.meter_id)
-        # return 'asdfasdfasfdsa'
-        # print('asdfas', f'{self.meter.serial_year}-{self.meter.serial_case_diameter}-{self.meter.serial_id}')
-        return self.well.meter.serial_number
+        return self.well.meter_history.meter.serial_number
 
     @property
     def meter_status_name(self):

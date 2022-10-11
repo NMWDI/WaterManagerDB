@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import schemas
-from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU
+from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU, MeterHistory
 from api.session import engine, SessionLocal
 
 tags_metadata = [{'name': 'wells',
@@ -70,33 +70,42 @@ def setup_db():
     db = SessionLocal()
 
     # build meter status lookup
-
     db.add(MeterStatusLU(name='POK', description='Pump OK'))
     db.add(MeterStatusLU(name='NP', description='Not Pumping'))
     db.add(MeterStatusLU(name='PIRO', description='Pump ON, Register Off'))
     db.commit()
-    # if not db.query(Owner).filter_by(name='foo').first():
 
+    # add meters
     db.add(Meter(name='moo', serial_year=1992, serial_id=1234, serial_case_diameter=4))
     db.add(Meter(name='tor', serial_year=1992, serial_id=2235, serial_case_diameter=4))
     db.add(Meter(name='hag', serial_year=1992, serial_id=3236, serial_case_diameter=4))
+
+    # add owners
     db.add(Owner(name='Guy & Jackson'))
     db.add(Owner(name='Spencer'))
-    db.add(Worker(name='Default'))
-    db.add(Worker(name='Buster'))
-    db.add(Worker(name='Alice'))
+
+    # add workers
+    for name in ('Default', 'Buster', 'Alice'):
+        db.add(Worker(name=name))
+
     db.commit()
-    # if not db.query(Well).filter_by(name='bar').first():
-    db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3, meter_id=1,
+
+    # add wells
+    db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3,
                 osepod='RA-1234-123', latitude=3,
                 longitude=-106))
-    db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1, meter_id=2,
+    db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1,
                 osepod='RA-1234-123', latitude=35.5,
                 longitude=-105.1))
-    db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2, meter_id=3,
+    db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2,
                 osepod='RA-1234-123', latitude=36,
                 longitude=-105.5))
     db.commit()
+
+    # add meter history
+    db.add(MeterHistory(well_id=1, meter_id=1))
+    db.add(MeterHistory(well_id=2, meter_id=2))
+    db.add(MeterHistory(well_id=3, meter_id=3))
 
     db.add(Repair(worker_id=1,
                   well_id=1,
@@ -126,12 +135,23 @@ Working on Arrivial'''.encode('utf8'),
     db.add(Repair(worker_id=1,
                   timestamp=datetime.now() - timedelta(days=2 * 365),
                   well_id=2,
-                  h2o_read=638000.831,
+                  h2o_read=300.831,
                   e_read='E 241da2341',
                   meter_status_id=1,
                   preventative_maintenance='',
                   repair_description='''
         Working on Arrivial'''.encode('utf8'),
+                  note='''DIST 107" DISCHG 100%'''.encode('utf8')
+                  ))
+    db.add(Repair(worker_id=3,
+                  timestamp=datetime.now() - timedelta(days=2 * 360),
+                  well_id=3,
+                  h2o_read=8002.22,
+                  e_read='E 341',
+                  meter_status_id=1,
+                  preventative_maintenance='',
+                  repair_description='''
+            Working on Arrivial'''.encode('utf8'),
                   note='''DIST 107" DISCHG 100%'''.encode('utf8')
                   ))
 
@@ -224,7 +244,8 @@ async def read_repairs(location: str = None, well_id: int = None, meter_id: int 
     q = q.join(Well)
 
     if meter_id is not None:
-        q = q.filter(Well.meter_id == meter_id)
+        q = q.join(MeterHistory)
+        q = q.filter(MeterHistory.meter_id == meter_id)
     elif well_id is not None:
         q = q.filter(Well.id == well_id)
     elif location is not None:

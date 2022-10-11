@@ -42,7 +42,6 @@ class Well(ORMBase):
     name: str
     location: str
     osepod: Optional[str] = None
-    meter_id: int
     owner_id: int
     latitude: float
     longitude: float
