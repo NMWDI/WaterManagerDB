@@ -42,7 +42,9 @@ title = "PVACD Meter API"
 
 app = FastAPI(title=title,
               description=description,
-              openapi_tags=tags_metadata)
+              openapi_tags=tags_metadata,
+              version='0.2.0')
+
 origins = [
     "http://localhost",
     "http://localhost:3000",

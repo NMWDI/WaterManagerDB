@@ -49,13 +49,16 @@ function EditToolbar(props) {
 
 
 export default function TableView(props){
-const [rows, setRows] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
   const [rowModesModel, setRowModesModel] = React.useState({});
 
   useEffect(()=>{
-    fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
-
-  }, [])
+    if (props.rows){
+      setRows(props.rows)
+    }else{
+      fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
+    }
+  }, [props])
 
   const handleEvent: GridEventListener<'rowClick'> = (
   params, // GridRowParams

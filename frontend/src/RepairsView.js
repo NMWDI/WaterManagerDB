@@ -19,7 +19,9 @@ function rowGenerator(newId){
 
 import makeAPIPath from './util'
 
-export default function RepairsView(){
+export default function RepairsView(props){
+
+    console.log('asfdsdfsadfasd', props)
     const [availableWorkers, setavailableWorkers] = useState([])
     const [availableMeterStatus, setavailableMeterStatus] = useState([])
     const [availableWells, setavailableWells] = useState([])
@@ -52,6 +54,7 @@ export default function RepairsView(){
           rowGenerator={rowGenerator}
           urltag={'/repairs'}
           tag={'Repair'}
+          rows={props.rows}
           fields={[{ field: 'id', headerName: 'ID', width: 90},
                           {field: 'timestamp',
                               type: 'dateTime',
