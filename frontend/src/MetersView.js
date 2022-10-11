@@ -4,15 +4,11 @@ import * as React from 'react';
 import TableView from "./tableView";
 import RepairsView from "./RepairsView";
 import {useState} from "react";
-import makeAPIPath from "./util";
+import {fetchAPI} from "./util.js";
 
 export default function MetersView(){
     function handleRowSelect(params){
-        console.log('meardsf', params)
-        fetch(makeAPIPath('/repairs?meter_id='+params.id)).then((data)=>data.json()).then((data)=>{
-            console.log('fff', data)
-            setRows(data)
-        })
+        fetchAPI('/repairs?meter_id='+params.id, setRows)
     }
 
     const [rows, setRows] = useState([])

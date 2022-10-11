@@ -5,7 +5,6 @@ import Sidebar from "./sidebar";
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import WellView from "./WellsView";
-import ReadingsView from "./ReadingsView";
 import MetersView from "./MetersView";
 import Home from "./Home";
 import Topbar from "./Topbar";
@@ -23,7 +22,6 @@ function App() {
         <Sidebar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/readings" element={<ReadingsView />} />
           <Route path="/meters" element={<MetersView />} />
           <Route path="/wells" element={<WellView />} />
           <Route path="/workers" element={<WorkersView />} />

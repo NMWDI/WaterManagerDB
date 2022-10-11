@@ -1,15 +1,13 @@
 import {useEffect, useState} from "react";
 
-import makeAPIPath from './util'
+import {fetchAPI, makeAPIPath} from './util'
 
 export default function StatusBar(){
     const [status, setStatus] = useState('OK')
 
     const tick = async ()=>{
-        fetch(makeAPIPath('/api_status')).then((data)=>data.json()).then((data)=>{
-                console.log(data['ok'])
-                setStatus(data['ok']?'OK':'Not Connected')
-            })
+        fetchAPI('/api_status', (data)=>{setStatus(data['ok']?'OK':'Not Connected')})
+
     }
     useEffect(()=>{
         tick()

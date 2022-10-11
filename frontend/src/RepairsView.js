@@ -17,35 +17,32 @@ function rowGenerator(newId){
     }
 }
 
-import makeAPIPath from './util'
+import {fetchAPI, makeAPIPath} from './util'
 
 export default function RepairsView(props){
 
-    console.log('asfdsdfsadfasd', props)
     const [availableWorkers, setavailableWorkers] = useState([])
     const [availableMeterStatus, setavailableMeterStatus] = useState([])
     const [availableWells, setavailableWells] = useState([])
-    const [loaded, setLoaded] = useState(false)
+    // const [loaded, setLoaded] = useState(false)
 
     useEffect(()=>{
-        if (!loaded){
-            setLoaded(true)
-            fetch(makeAPIPath('/workers')).then((data)=>data.json()).then((data)=>{
-                let workers = data.map((d)=>({value: d.id, label: d.name}))
-                setavailableWorkers(workers)
+        // if (!loaded){
+        //     setLoaded(true)
+
+            fetchAPI('/workers', (data)=>{
+                setavailableWorkers(data.map((d)=>({value: d.id, label: d.name})))
             })
 
-            fetch(makeAPIPath('/wells')).then((data)=>data.json()).then((data)=>{
-                let wells = data.map((d)=>({value: d.id, label: d.location}))
-                setavailableWells(wells)
+            fetchAPI('/wells', (data)=>{
+                setavailableWells(data.map((d)=>({value: d.id, label: d.location})))
             })
 
-            fetch(makeAPIPath('/meter_status_lu')).then((data)=>data.json()).then((data)=>{
-                let items = data.map((d)=>({value: d.id, label: d.name}))
-                setavailableMeterStatus(items)
+            fetchAPI('/meter_status_lu', (data)=>{
+                setavailableMeterStatus(data.map((d)=>({value: d.id, label: d.name})))
             })
-        }
-    })
+        // }
+    }, [])
 
 
 

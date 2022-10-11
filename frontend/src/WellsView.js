@@ -5,7 +5,7 @@ import {useEffect, useRef, useState} from "react";
 import MapView from "./MapView";
 import {useMap} from "react-leaflet";
 import L from 'leaflet'
-import makeAPIPath from './util'
+import {fetchAPI, makeAPIPath} from './util'
 
 const defaultZoom = 10
 const defaultCenter = [34,-105.5]
@@ -33,12 +33,12 @@ export default function WellsView(){
         if (!loaded){
             setLoaded(true)
 
-            fetch(makeAPIPath('/meters')).then((data)=>data.json()).then((data)=>{
+            fetchAPI('/meters', (data)=>{
                 let meters = data.map((d)=>({value: d.id, label: d.serial_number}))
                 setavailableMeters(meters)
             })
 
-            fetch(makeAPIPath('/owners')).then((data)=>data.json()).then((data)=>{
+            fetchAPI('/owners', (data)=>{
                 let owners = data.map((d)=>({value: d.id, label: d.name}))
                 setavailableOwners(owners)
             })

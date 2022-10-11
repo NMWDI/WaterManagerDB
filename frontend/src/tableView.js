@@ -14,7 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
-import makeAPIPath from './util'
+import {fetchAPI, makeAPIPath} from './util'
 
 
 
@@ -56,7 +56,8 @@ export default function TableView(props){
     if (props.rows){
       setRows(props.rows)
     }else{
-      fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
+      fetchAPI(props.urltag, setRows)
+      // fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
     }
   }, [props])
 
