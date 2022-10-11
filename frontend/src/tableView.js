@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
+import makeAPIPath from './util'
 
 
 
@@ -29,8 +30,7 @@ function EditToolbar(props) {
         }else{
           newRow = {id: newId, name: ''}
         }
-        let url = 'http://'+process.env.REACT_APP_API_URL+urltag
-        fetch(url, {method: 'POST',
+        fetch(makeAPIPath(urltag), {method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(newRow)})
           return [...orows, newRow]
@@ -53,8 +53,7 @@ const [rows, setRows] = React.useState([]);
   const [rowModesModel, setRowModesModel] = React.useState({});
 
   useEffect(()=>{
-    let url = 'http://'+process.env.REACT_APP_API_URL+props.urltag
-    fetch(url).then((data)=>data.json()).then((data) => setRows(data))
+    fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
 
   }, [])
 
@@ -86,9 +85,7 @@ const [rows, setRows] = React.useState([]);
 
   const handleDeleteClick = (id) => () => {
     setRows(rows.filter((row) => row.id !== id));
-
-    let url = 'http://'+process.env.REACT_APP_API_URL+props.urltag+'/'+id
-    fetch(url, {method: 'DELETE'})
+    fetch(makeAPIPath(props.urltag+'/'+id), {method: 'DELETE'})
   };
 
   const handleCancelClick = (id) => () => {
@@ -105,8 +102,8 @@ const [rows, setRows] = React.useState([]);
 
   const processRowUpdate = (newRow) => {
     console.log('patch new row', JSON.stringify(newRow))
-    let url = 'http://'+process.env.REACT_APP_API_URL+props.urltag+'/'+newRow.id
-    fetch(url, {method: 'PATCH',
+
+    fetch(makeAPIPath(props.urltag+'/'+newRow.id), {method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(newRow)})
 

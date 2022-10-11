@@ -1,12 +1,12 @@
 import {useEffect, useState} from "react";
 
+import makeAPIPath from './util'
 
 export default function StatusBar(){
     const [status, setStatus] = useState('OK')
 
     const tick = async ()=>{
-        let url = 'http://'+process.env.REACT_APP_API_URL+'/api_status'
-        fetch(url).then((data)=>data.json()).then((data)=>{
+        fetch(makeAPIPath('/api_status')).then((data)=>data.json()).then((data)=>{
                 console.log(data['ok'])
                 setStatus(data['ok']?'OK':'Not Connected')
             })

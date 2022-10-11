@@ -12,7 +12,7 @@ services:
       - ./frontend:/app:delegated
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_API_URL=localhost:8000
+      - REACT_APP_API_URL=http://localhost:8000
   api:
     build:
       context: .

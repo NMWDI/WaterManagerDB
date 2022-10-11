@@ -2,6 +2,7 @@ import * as React from 'react';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import {Component, useEffect, useState} from "react";
 import {Box} from "@mui/material";
+import makeAPIPath from './util'
 
 const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90},
@@ -27,8 +28,7 @@ class ReadingsView extends Component {
         this.state = {tableData: []}
     }
     componentDidMount() {
-        let url = 'http://'+process.env.REACT_APP_API_URL+'/readings'
-        fetch(url).then((data)=>data.json()).then((data) => this.setState({tableData: data}))
+        fetch(makeAPIPath('/readings')).then((data)=>data.json()).then((data) => this.setState({tableData: data}))
     }
 
     render() {

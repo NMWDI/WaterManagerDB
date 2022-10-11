@@ -17,6 +17,7 @@ function rowGenerator(newId){
     }
 }
 
+import makeAPIPath from './util'
 
 export default function RepairsView(){
     const [availableWorkers, setavailableWorkers] = useState([])
@@ -27,20 +28,17 @@ export default function RepairsView(){
     useEffect(()=>{
         if (!loaded){
             setLoaded(true)
-            let url = 'http://'+process.env.REACT_APP_API_URL+'/workers'
-            fetch(url).then((data)=>data.json()).then((data)=>{
+            fetch(makeAPIPath('/workers')).then((data)=>data.json()).then((data)=>{
                 let workers = data.map((d)=>({value: d.id, label: d.name}))
                 setavailableWorkers(workers)
             })
 
-            url = 'http://'+process.env.REACT_APP_API_URL+'/wells'
-            fetch(url).then((data)=>data.json()).then((data)=>{
+            fetch(makeAPIPath('/wells')).then((data)=>data.json()).then((data)=>{
                 let wells = data.map((d)=>({value: d.id, label: d.location}))
                 setavailableWells(wells)
             })
 
-            url = 'http://'+process.env.REACT_APP_API_URL+'/meter_status_lu'
-            fetch(url).then((data)=>data.json()).then((data)=>{
+            fetch(makeAPIPath('/meter_status_lu')).then((data)=>data.json()).then((data)=>{
                 let items = data.map((d)=>({value: d.id, label: d.name}))
                 setavailableMeterStatus(items)
             })
