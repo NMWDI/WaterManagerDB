@@ -26,7 +26,23 @@ from api import schemas
 from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU
 from api.session import engine, SessionLocal
 
-app = FastAPI()
+tags_metadata = [{'name': 'wells',
+                  'description': 'Water Wells'},
+                 {'name': 'repairs',
+                  'description': 'Meter Repairs'},
+                 {'name': 'meters',
+                  'description': 'Water use meters'},
+                 ]
+description = """
+The PVACD Meter API gives programatic access to the PVACDs meter database
+
+"""
+title = "PVACD Meter API"
+
+
+app = FastAPI(title=title,
+              description=description,
+              openapi_tags=tags_metadata)
 origins = [
     "http://localhost",
     "http://localhost:3000",
@@ -149,14 +165,14 @@ def read_wells(db: Session = Depends(get_db)):
         return
 
 
-@app.get('/meter_status_lu', response_model=List[schemas.MeterStatusLU])
-def read_meter_status_lu(db: Session = Depends(get_db)):
+@app.get('/meter_status_lu',
+         description='Return list of MeterStatus codes and definitions',
+         response_model=List[schemas.MeterStatusLU])
+def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
 
 
-@app.get('/wells', response_model=List[schemas.Well])
-def read_wells(db: Session = Depends(get_db)):
-    return db.query(Well).all()
+
 
 
 @app.get('/owners', response_model=List[schemas.Owner])
@@ -175,18 +191,22 @@ def read_wellreadings(wellid, db: Session = Depends(get_db)):
 
 
 # ====== Wells
-@app.patch('/wells/{well_id}', response_model=schemas.Well)
+@app.get('/wells', response_model=List[schemas.Well], tags=['wells'])
+def read_wells(db: Session = Depends(get_db)):
+    return db.query(Well).all()
+
+@app.patch('/wells/{well_id}', response_model=schemas.Well,  tags=['wells'])
 async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
     return _patch(db, Well, well_id, obj)
 
 
 # ======  Meters
-@app.get('/meters', response_model=List[schemas.Meter])
+@app.get('/meters', response_model=List[schemas.Meter], tags=['meters'])
 async def read_meters(db: Session = Depends(get_db)):
     return db.query(Meter).all()
 
 
-@app.patch('/meters/{meter_id}', response_model=schemas.Meter)
+@app.patch('/meters/{meter_id}', response_model=schemas.Meter, tags=['meters'])
 async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(get_db)):
     return _patch(db, Meter, meter_id, obj)
 
@@ -196,7 +216,7 @@ def parse_location(location_str):
 
 
 # ======  Repairs
-@app.get('/repairs', response_model=List[schemas.Repair])
+@app.get('/repairs', response_model=List[schemas.Repair],  tags=['repairs'])
 async def read_repairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
     q = db.query(Repair)
     q = q.join(Well)
@@ -214,13 +234,13 @@ async def read_repairs(location: str = None, well_id: int = None, meter_id: int 
     return q.all()
 
 
-@app.patch('/repairs/{repair_id}', response_model=schemas.Repair)
+@app.patch('/repairs/{repair_id}', response_model=schemas.Repair,  tags=['repairs'])
 async def patch_repairs(repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)):
     return _patch(db, Repair, repair_id, obj)
 
 
-@app.post('/repairs', response_model=schemas.RepairCreate)
-async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db), ):
+@app.post('/repairs', response_model=schemas.RepairCreate, tags=['repairs'])
+async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
     db_item = Repair(**repair.dict())
     db_item.worker_id = 1
     db.add(db_item)
@@ -229,28 +249,28 @@ async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)
     return db_item
 
 
-@app.delete('/repairs/{repair_id}')
+@app.delete('/repairs/{repair_id}',  tags=['repairs'])
 async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
     return _delete(db, Repair, repair_id)
 
 
 # ======== Worker
-@app.get('/workers', response_model=List[schemas.Worker])
+@app.get('/workers', response_model=List[schemas.Worker], tags=['workers'])
 def read_workers(db: Session = Depends(get_db)):
     return db.query(Worker).all()
 
 
-@app.post('/workers', response_model=schemas.Worker)
+@app.post('/workers', response_model=schemas.Worker, tags=['workers'])
 async def add_worker(worker: schemas.WorkerCreate, db: Session = Depends(get_db), ):
     return _add(db, Worker, worker)
 
 
-@app.patch('/workers/{worker_id}', response_model=schemas.Worker)
+@app.patch('/workers/{worker_id}', response_model=schemas.Worker, tags=['workers'])
 async def patch_worker(worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)):
     return _patch(db, Worker, worker_id, worker)
 
 
-@app.delete('/workers/{worker_id}')
+@app.delete('/workers/{worker_id}', tags=['workers'])
 async def delete_worker(worker_id: int, db: Session = Depends(get_db)):
     worker = db.get(Worker, worker_id)
     if not worker:
