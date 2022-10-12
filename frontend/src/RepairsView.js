@@ -57,14 +57,7 @@ export default function RepairsView(props){
         preventative_maintenance: ''
     }
 }
-
-  return (
-      <TableView
-          rowGenerator={rowGenerator}
-          urltag={'/repairs'}
-          tag={'Repair'}
-          rows={props.rows}
-          fields={[{ field: 'id', headerName: 'ID', width: 90},
+    let fields=[{ field: 'id', headerName: 'ID', width: 90},
                           {field: 'timestamp',
                               type: 'dateTime',
                               headerName: 'Time',
@@ -78,9 +71,13 @@ export default function RepairsView(props){
                           {field: 'e_read', headerName: 'E Read', editable:true},
                           {field: 'new_read', headerName: 'New Read', editable:true},
                           {field: 'repair_description', headerName: 'Repair', editable:true},
-                          {field: 'note', headerName: 'Note', editable:true},
-                          {field: 'meter_serialnumber', headerName: 'Meter', width: 120},
-                          {field: 'meter_status_id', headerName: 'Meter Status',
+                          {field: 'note', headerName: 'Note', editable:true},]
+
+    if (props.display_meter){
+        fields = [...fields, {field: 'meter_serialnumber', headerName: 'Meter', width: 120}]
+        }
+
+    fields = [...fields, {field: 'meter_status_id', headerName: 'Meter Status',
                               valueFormatter: (params)=>{
                          return  availableMeterStatus[params.value-1]?availableMeterStatus[params.value-1]['label']:''
                      },
@@ -104,9 +101,16 @@ export default function RepairsView(props){
                               valueFormatter: (params)=>{
                               return availableWorkers[params.value-1]?availableWorkers[params.value-1]['label']:''
                               },
-                              type: 'singleSelect', valueOptions: availableWorkers, editable: true}
-                 ]}
+                              type: 'singleSelect', valueOptions: availableWorkers, editable: true}]
 
+
+  return (
+      <TableView
+          rowGenerator={rowGenerator}
+          urltag={'/repairs'}
+          tag={'Repair'}
+          rows={props.rows}
+          fields={fields}
       />
   )
 }

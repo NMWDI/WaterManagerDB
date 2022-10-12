@@ -29,6 +29,7 @@ export default function MetersView(){
                             editable: true},]}
         />
         <RepairsView
+            display_meter={false}
             well_id={well_id}
             rows={rows}/>
     </div>

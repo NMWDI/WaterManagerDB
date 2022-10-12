@@ -25,7 +25,7 @@ function App() {
           <Route path="/meters" element={<MetersView />} />
           <Route path="/wells" element={<WellView />} />
           <Route path="/workers" element={<WorkersView />} />
-          <Route path="/repairs" element={<RepairsView />} />
+          <Route path="/repairs" element={<RepairsView display_meter={true}/>} />
           {/*<Route path="/user/:userId" element={<User />} />*/}
           {/*<Route path="/newUser" element={<NewUser />} />*/}
           {/*<Route path="/products" element={<ProductList />} />*/}
