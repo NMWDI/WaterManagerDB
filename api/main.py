@@ -24,7 +24,7 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import schemas
-from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU, MeterHistory
+from api.models import Base, Meter, Well, Owner, Reading, Worker, Repair, MeterStatusLU, MeterHistory, Alert
 from api.session import engine, SessionLocal
 
 tags_metadata = [{'name': 'wells',
@@ -214,13 +214,24 @@ def read_owners(db: Session = Depends(get_db)):
 
 
 @app.get('/readings', response_model=List[schemas.Reading])
-def read_readings(db: Session = Depends(get_db)):
+async def read_readings(db: Session = Depends(get_db)):
     return db.query(Reading).all()
 
 
 @app.get('/wellreadings/{wellid}', response_model=List[schemas.Reading])
-def read_wellreadings(wellid, db: Session = Depends(get_db)):
+async def read_wellreadings(wellid, db: Session = Depends(get_db)):
     return db.query(Reading).filter_by(well_id=wellid).all()
+
+
+# ====== Alerts
+@app.get('/alerts', response_model=List[schemas.Alert], tags=['alerts'])
+async def read_alerts(db: Session = Depends(get_db)):
+    return db.query(Alert).all()
+
+
+@app.post('/alerts', response_model=List[schemas.Alert], tags=['alerts'])
+async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
+    return _add(db, Alert, alert)
 
 
 # ====== Wells

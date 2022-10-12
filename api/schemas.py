@@ -86,6 +86,7 @@ class MeterHistory(ORMBase):
     meter_id: int
     note: Optional[bytes] = None
 
+
 class RepairReport(Repair):
     well_name: str
     well_location: str
@@ -112,4 +113,15 @@ class MeterStatusLU(ORMBase):
     id: int
     name: str
     description: str
+
+
+class Alert(ORMBase):
+    id: int
+    alert: str
+    meter_serialnumber: str
+
+
+class AlertCreate(ORMBase):
+    alert: str
+    meter_id: str
 # ============= EOF =============================================

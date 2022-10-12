@@ -34,6 +34,18 @@ class Base:
         return cls.__name__.lower()
 
 
+class Alert(Base):
+    __tablename__ = 'alerttbl'
+    id = Column(Integer, primary_key=True, index=True)
+    alert = Column(String)
+    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+
+    meter = relationship('Meter', uselist=False)
+    @property
+    def meter_serialnumber(self):
+        return self.meter.serial_number
+
+
 class Meter(Base):
     __tablename__ = 'metertbl'
     id = Column(Integer, primary_key=True, index=True)
@@ -41,8 +53,6 @@ class Meter(Base):
     serial_year = Column(Integer)
     serial_case_diameter = Column(Integer)
     serial_id = Column(Integer)
-
-    deployed = Column(Boolean)
 
     # well = relationship('Well', back_populates='meter')
 
