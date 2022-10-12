@@ -19,6 +19,8 @@ from sqlalchemy import Column, Integer, String, ForeignKeyConstraint, ForeignKey
     func, Boolean
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape
 
 
 @as_declarative()
@@ -73,8 +75,10 @@ class Well(Base):
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
 
-    latitude = Column(Float)
-    longitude = Column(Float)
+    # latitude = Column(Float)
+    # longitude = Column(Float)
+
+    geom = Column(Geometry('POINT'))
 
     owner_id = Column(Integer, ForeignKey('ownertbl.id'))
     osepod = Column(String)
@@ -84,6 +88,14 @@ class Well(Base):
     readings = relationship('Reading', back_populates='well')
 
     meter_history = relationship('MeterHistory', uselist=False)
+
+    @property
+    def latitude(self):
+        return to_shape(self.geom).y
+
+    @property
+    def longitude(self):
+        return to_shape(self.geom).x
 
     @property
     def location(self):

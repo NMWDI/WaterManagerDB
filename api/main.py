@@ -19,6 +19,7 @@ from fastapi import FastAPI, Depends, HTTPException
 
 from typing import List
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,7 +39,6 @@ The PVACD Meter API gives programatic access to the PVACDs meter database
 
 """
 title = "PVACD Meter API"
-
 
 app = FastAPI(title=title,
               description=description,
@@ -92,14 +92,23 @@ def setup_db():
 
     # add wells
     db.add(Well(name='bar', owner_id=1, township=100, range=10, section=4, quarter=4, half_quarter=3,
-                osepod='RA-1234-123', latitude=3,
-                longitude=-106))
+                osepod='RA-1234-123',
+                # latitude=34,
+                # longitude=-106,
+                geom='POINT (-106 34)'
+                ))
     db.add(Well(name='bag', owner_id=2, township=100, range=10, section=4, quarter=2, half_quarter=1,
-                osepod='RA-1234-123', latitude=35.5,
-                longitude=-105.1))
+                osepod='RA-1234-123',
+                # latitude=35.5,
+                # longitude=-105.1,
+                geom='POINT (-105.1 35.5)'
+                ))
     db.add(Well(name='bat', owner_id=1, township=100, range=10, section=4, quarter=3, half_quarter=2,
-                osepod='RA-1234-123', latitude=36,
-                longitude=-105.5))
+                osepod='RA-1234-123',
+                # latitude=36,
+                # longitude=-105.5,
+                geom='POINT (-105.5 36)'
+                ))
     db.commit()
 
     # add meter history
@@ -179,26 +188,24 @@ def read_repair_report(after_date: date = None, after: datetime = None, db: Sess
 
 
 @app.get('/api_status', response_model=schemas.Status)
-def read_wells(db: Session = Depends(get_db)):
+def api_status(db: Session = Depends(get_db)):
     try:
         db.query(Well).first()
         return {'ok': True}
     except BaseException:
-        return
+        return {'ok': False}
 
 
 @app.get('/meter_history/{meter_id}', response_model=List[schemas.MeterHistory])
 async def read_meter_history(meter_id, db: Session = Depends(get_db)):
     return db.query(MeterHistory).filter_by(meter_id=meter_id).all()
 
+
 @app.get('/meter_status_lu',
          description='Return list of MeterStatus codes and definitions',
          response_model=List[schemas.MeterStatusLU])
 def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
-
-
-
 
 
 @app.get('/owners', response_model=List[schemas.Owner])
@@ -218,10 +225,25 @@ def read_wellreadings(wellid, db: Session = Depends(get_db)):
 
 # ====== Wells
 @app.get('/wells', response_model=List[schemas.Well], tags=['wells'])
-def read_wells(db: Session = Depends(get_db)):
-    return db.query(Well).all()
+def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(get_db)):
+    """
+    radius in kilometers
 
-@app.patch('/wells/{well_id}', response_model=schemas.Well,  tags=['wells'])
+    :param radius:
+    :param latlng:
+    :param db:
+    :return:
+    """
+    q = db.query(Well)
+    if radius and latlng:
+        latlng = latlng.split(',')
+        radius = radius/111.139
+        q = q.filter(func.ST_DWithin(Well.geom, f'POINT ({latlng[1]} {latlng[0]})', radius))
+
+    return q.all()
+
+
+@app.patch('/wells/{well_id}', response_model=schemas.Well, tags=['wells'])
 async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
     return _patch(db, Well, well_id, obj)
 
@@ -239,6 +261,7 @@ async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(
 
 def parse_location(location_str):
     return location_str.split('.')
+
 
 def repair_query(db, location, well_id, meter_id):
     q = db.query(Repair)
@@ -258,20 +281,20 @@ def repair_query(db, location, well_id, meter_id):
 
 
 # ======  Repairs
-@app.get('/repairs', response_model=List[schemas.Repair],  tags=['repairs'])
+@app.get('/repairs', response_model=List[schemas.Repair], tags=['repairs'])
 async def read_repairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
     q = repair_query(db, location, well_id, meter_id)
 
     return q.all()
 
 
-@app.get('/nrepairs', response_model=int,  tags=['repairs'])
+@app.get('/nrepairs', response_model=int, tags=['repairs'])
 async def read_nrepairs(location: str = None, well_id: int = None, meter_id: int = None, db: Session = Depends(get_db)):
     q = repair_query(db, location, well_id, meter_id)
     return q.count()
 
 
-@app.patch('/repairs/{repair_id}', response_model=schemas.Repair,  tags=['repairs'])
+@app.patch('/repairs/{repair_id}', response_model=schemas.Repair, tags=['repairs'])
 async def patch_repairs(repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)):
     return _patch(db, Repair, repair_id, obj)
 
@@ -288,7 +311,7 @@ async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)
     return db_item
 
 
-@app.delete('/repairs/{repair_id}',  tags=['repairs'])
+@app.delete('/repairs/{repair_id}', tags=['repairs'])
 async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
     return _delete(db, Repair, repair_id)
 
