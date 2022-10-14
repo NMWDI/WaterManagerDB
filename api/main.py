@@ -413,5 +413,6 @@ def _get(db, table, dbid):
     return db_item
 
 
-setup_db(engine)
+if __name__=='__main__':
+    setup_db(engine)
 # ============= EOF =============================================
