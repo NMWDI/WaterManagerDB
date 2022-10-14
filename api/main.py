@@ -80,6 +80,8 @@ def setup_db():
     db.add(Meter(name='tor', serial_year=1992, serial_id=2235, serial_case_diameter=4))
     db.add(Meter(name='hag', serial_year=1992, serial_id=3236, serial_case_diameter=4))
 
+    # add alert
+    db.add(Alert(meter_id=1, alert='foo bar alert'))
     # add owners
     db.add(Owner(name='Guy & Jackson'))
     db.add(Owner(name='Spencer'))
@@ -229,7 +231,7 @@ async def read_alerts(db: Session = Depends(get_db)):
     return db.query(Alert).all()
 
 
-@app.post('/alerts', response_model=List[schemas.Alert], tags=['alerts'])
+@app.post('/alerts', response_model=schemas.Alert, tags=['alerts'])
 async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
     return _add(db, Alert, alert)
 

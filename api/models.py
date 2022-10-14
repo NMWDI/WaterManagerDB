@@ -39,11 +39,18 @@ class Alert(Base):
     id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
     meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    open_timestamp = Column(DateTime, default=func.now())
+    closed_timestamp = Column(DateTime)
 
     meter = relationship('Meter', uselist=False)
+
     @property
-    def meter_serialnumber(self):
+    def meter_serial_number(self):
         return self.meter.serial_number
+
+    @property
+    def active(self):
+        return not bool(self.closed_timestamp)
 
 
 class Meter(Base):
@@ -174,7 +181,7 @@ class Repair(Base):
         return self.well.location
 
     @property
-    def meter_serialnumber(self):
+    def meter_serial_number(self):
         return self.well.meter_history.meter.serial_number
 
     @property

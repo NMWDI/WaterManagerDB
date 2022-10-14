@@ -72,6 +72,12 @@ function Sidebar() {
                 Wells
               </li>
             </Link>
+            <Link to="/alerts" className="link">
+              <li className="sidebarListItem">
+                <TableViewIcon className="sidebarIcon" />
+                Alerts
+              </li>
+            </Link>
           </ul>
         </div>
 

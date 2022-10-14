@@ -20,7 +20,7 @@ from pydantic import BaseModel
 
 
 class ORMBase(BaseModel):
-    id: int
+    id: Optional[int] = None
 
     class Config:
         orm_mode = True
@@ -77,7 +77,7 @@ class Repair(ORMBase):
     well_id: int
     meter_status_id: int
     preventative_maintenance: Optional[str] = None
-    meter_serialnumber: Optional[str] = None
+    meter_serial_number: Optional[str] = None
 
 
 class MeterHistory(ORMBase):
@@ -110,15 +110,16 @@ class Status(BaseModel):
 
 
 class MeterStatusLU(ORMBase):
-    id: int
     name: str
     description: str
 
 
 class Alert(ORMBase):
-    id: int
     alert: str
-    meter_serialnumber: str
+    meter_serial_number: str
+    open_timestamp: datetime
+    closed_timestamp: Optional[datetime] = None
+    active: bool
 
 
 class AlertCreate(ORMBase):

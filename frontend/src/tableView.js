@@ -191,6 +191,7 @@ export default function TableView(props){
         rows={rows}
         columns={columns}
         editMode="row"
+        getRowClassName={props.getRowClassName}
         onRowClick={handleEvent}
         rowModesModel={rowModesModel}
         onRowEditStart={handleRowEditStart}

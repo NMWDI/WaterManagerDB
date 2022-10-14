@@ -74,7 +74,7 @@ export default function RepairsView(props){
                           {field: 'note', headerName: 'Note', editable:true},]
 
     if (props.display_meter){
-        fields = [...fields, {field: 'meter_serialnumber', headerName: 'Meter', width: 120}]
+        fields = [...fields, {field: 'meter_serial_number', headerName: 'Meter', width: 120}]
         }
 
     fields = [...fields, {field: 'meter_status_id', headerName: 'Meter Status',

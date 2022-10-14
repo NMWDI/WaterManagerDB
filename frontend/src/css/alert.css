@@ -1,0 +1,7 @@
+.active_alert {
+    background-color: #de7070;
+}
+
+.non_active_alert {
+    background-color: green
+}

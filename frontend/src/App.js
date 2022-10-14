@@ -10,7 +10,7 @@ import Home from "./Home";
 import Topbar from "./Topbar";
 import WorkersView from "./WorkersView";
 import RepairsView from "./RepairsView";
-import StatusBar from "./statusBar";
+import AlertsView from "./AlertsView";
 
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
           <Route path="/wells" element={<WellView />} />
           <Route path="/workers" element={<WorkersView />} />
           <Route path="/repairs" element={<RepairsView display_meter={true}/>} />
+          <Route path="/alerts" element={<AlertsView/>} />
           {/*<Route path="/user/:userId" element={<User />} />*/}
           {/*<Route path="/newUser" element={<NewUser />} />*/}
           {/*<Route path="/products" element={<ProductList />} />*/}
