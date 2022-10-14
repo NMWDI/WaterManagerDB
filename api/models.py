@@ -15,8 +15,19 @@
 # ===============================================================================
 from typing import Any
 
-from sqlalchemy import Column, Integer, String, ForeignKeyConstraint, ForeignKey, Float, BLOB, DateTime, LargeBinary, \
-    func, Boolean
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKeyConstraint,
+    ForeignKey,
+    Float,
+    BLOB,
+    DateTime,
+    LargeBinary,
+    func,
+    Boolean,
+)
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
@@ -35,14 +46,14 @@ class Base:
 
 
 class Alert(Base):
-    __tablename__ = 'alerttbl'
+    __tablename__ = "alerttbl"
     id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
-    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    meter_id = Column(Integer, ForeignKey("metertbl.id"))
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
 
-    meter = relationship('Meter', uselist=False)
+    meter = relationship("Meter", uselist=False)
 
     @property
     def meter_serial_number(self):
@@ -54,7 +65,7 @@ class Alert(Base):
 
 
 class Meter(Base):
-    __tablename__ = 'metertbl'
+    __tablename__ = "metertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     serial_year = Column(Integer)
@@ -65,23 +76,23 @@ class Meter(Base):
 
     @property
     def serial_number(self):
-        return f'{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}'
+        return f"{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}"
 
 
 class MeterHistory(Base):
-    __tablename__ = 'meterhistorytbl'
+    __tablename__ = "meterhistorytbl"
     id = Column(Integer, primary_key=True, index=True)
 
-    well_id = Column(Integer, ForeignKey('welltbl.id'))
-    meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    well_id = Column(Integer, ForeignKey("welltbl.id"))
+    meter_id = Column(Integer, ForeignKey("metertbl.id"))
     timestamp = Column(DateTime, default=func.now())
     note = Column(LargeBinary)
 
-    meter = relationship('Meter', uselist=False)
+    meter = relationship("Meter", uselist=False)
 
 
 class Well(Base):
-    __tablename__ = 'welltbl'
+    __tablename__ = "welltbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
@@ -95,16 +106,16 @@ class Well(Base):
     # latitude = Column(Float)
     # longitude = Column(Float)
 
-    geom = Column(Geometry('POINT'))
+    geom = Column(Geometry("POINT"))
 
-    owner_id = Column(Integer, ForeignKey('ownertbl.id'))
+    owner_id = Column(Integer, ForeignKey("ownertbl.id"))
     osepod = Column(String)
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
-    owner = relationship('Owner', back_populates='wells')
-    readings = relationship('Reading', back_populates='well')
+    owner = relationship("Owner", back_populates="wells")
+    readings = relationship("Reading", back_populates="well")
 
-    meter_history = relationship('MeterHistory', uselist=False)
+    meter_history = relationship("MeterHistory", uselist=False)
 
     @property
     def latitude(self):
@@ -116,48 +127,48 @@ class Well(Base):
 
     @property
     def location(self):
-        return f'{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}'
+        return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
 
 
 class Reading(Base):
-    __tablename__ = 'readingtbl'
+    __tablename__ = "readingtbl"
     id = Column(Integer, primary_key=True, index=True)
     value = Column(Float)
     eread = Column(String)
     repair = Column(LargeBinary)
     timestamp = Column(DateTime)
-    well_id = Column(Integer, ForeignKey('welltbl.id'))
+    well_id = Column(Integer, ForeignKey("welltbl.id"))
 
-    well = relationship('Well', back_populates='readings')
+    well = relationship("Well", back_populates="readings")
 
 
 class Owner(Base):
-    __tablename__ = 'ownertbl'
+    __tablename__ = "ownertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
-    wells = relationship('Well', back_populates='owner')
+    wells = relationship("Well", back_populates="owner")
 
 
 class Worker(Base):
-    __tablename__ = 'workertbl'
+    __tablename__ = "workertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
 
 class MeterStatusLU(Base):
-    __tablename__ = 'meterstatus_lutbl'
+    __tablename__ = "meterstatus_lutbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     description = Column(String)
 
 
 class Repair(Base):
-    __tablename__ = 'repairtbl'
+    __tablename__ = "repairtbl"
     id = Column(Integer, primary_key=True, index=True)
     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
-    well_id = Column(Integer, ForeignKey('welltbl.id'))
-    worker_id = Column(Integer, ForeignKey('workertbl.id'))
+    well_id = Column(Integer, ForeignKey("welltbl.id"))
+    worker_id = Column(Integer, ForeignKey("workertbl.id"))
 
     timestamp = Column(DateTime, default=func.now())
     h2o_read = Column(Float)
@@ -165,12 +176,14 @@ class Repair(Base):
     new_read = Column(String)
     repair_description = Column(LargeBinary)
     note = Column(LargeBinary)
-    meter_status_id = Column(Integer, ForeignKey('meterstatus_lutbl.id'))  # pok, np, piro
+    meter_status_id = Column(
+        Integer, ForeignKey("meterstatus_lutbl.id")
+    )  # pok, np, piro
     preventative_maintenance = Column(String)
 
-    well = relationship('Well', uselist=False)
-    repair_by = relationship('Worker', uselist=False)
-    meter_status = relationship('MeterStatusLU', uselist=False)
+    well = relationship("Well", uselist=False)
+    repair_by = relationship("Worker", uselist=False)
+    meter_status = relationship("MeterStatusLU", uselist=False)
 
     @property
     def well_name(self):
@@ -195,4 +208,6 @@ class Repair(Base):
     @worker.setter
     def worker(self, v):
         self.repair_by.id
+
+
 # ============= EOF =============================================
