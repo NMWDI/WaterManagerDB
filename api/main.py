@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import os
 from datetime import datetime, timedelta, date
 
 from fastapi import FastAPI, Depends, HTTPException
@@ -413,6 +414,6 @@ def _get(db, table, dbid):
     return db_item
 
 
-if __name__=='__main__':
+if os.environ.get('POPULATE_DB'):
     setup_db(engine)
 # ============= EOF =============================================
