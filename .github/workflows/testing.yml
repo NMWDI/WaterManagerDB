@@ -23,7 +23,8 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r ./api/requirements.txt
             pip install flake8
-            apt install libsqlite3-mod-spatialite -y
+            sudo apt-get update
+            sudo apt-get install libsqlite3-mod-spatialite -y
         - name: Static Code Linting
           run: |
             # stop the build if there are Python syntax errors or undefined names
