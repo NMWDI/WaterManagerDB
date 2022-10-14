@@ -1,7 +1,6 @@
 name: Unittests
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
