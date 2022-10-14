@@ -125,4 +125,10 @@ class Alert(ORMBase):
 class AlertCreate(ORMBase):
     alert: str
     meter_id: str
+
+
+class AlertPatch(ORMBase):
+    alert: Optional[str] = None
+    closed_timestamp: Optional[datetime] = None
+
 # ============= EOF =============================================

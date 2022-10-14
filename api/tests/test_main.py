@@ -13,11 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import datetime
+
 from fastapi.testclient import TestClient
 
 from api.main import app
 
 client = TestClient(app)
+
+
+def test_read_repair_report():
+    response = client.get('/repair_report')
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 4
+    assert data[0]['meter_serial_number'] == '1992-4-1234'
+    assert data[0]['e_read'] == 'E 2412341'
+    assert data[0]['h2o_read'] == 638.831
 
 
 def test_read_meters():
@@ -30,14 +42,24 @@ def test_read_meters():
     assert data[2]['name'] == 'hag'
 
 
+def test_patch_alert():
+    response = client.patch('/alerts/1', json={'alert': 'patched alert'})
+    assert response.status_code == 200
+
+
 def test_read_alerts():
     response = client.get('/alerts')
     assert response.status_code == 200
-    assert response.json()[0]['alert'] == 'foo bar alert'
+    assert response.json()[0]['alert'] == 'patched alert'
     assert response.json()[0]['meter_serial_number'] == '1992-4-1234'
     assert 'open_timestamp' in response.json()[0].keys()
     assert response.json()[0]['closed_timestamp'] is None
     assert response.json()[0]['active']
+
+
+def test_patch_alert_closed():
+    response = client.patch('/alerts/1', json={'closed_timestamp': datetime.datetime.now().isoformat()})
+    assert response.status_code == 200
 
 
 def test_read_wells():
@@ -52,9 +74,20 @@ def test_post_alert():
     assert response.status_code == 200
 
 
+def test_read_alert():
+    response = client.get('/alerts/1')
+    assert response.status_code == 200
+
+
 def test_api_status():
     response = client.get('/api_status')
     assert response.status_code == 200
     assert response.json() == {'ok': True}
 
+
+def test_read_wells_spatial():
+    response = client.get('/wells?radius=50&latlng=35.4,-105.2')
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
 # ============= EOF =============================================

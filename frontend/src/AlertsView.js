@@ -51,8 +51,10 @@ export default function AlertsView(){
                               },
                             editable:true,
                             width: 175},
-                        {field: 'active', headerName: 'Active',
-                            editable: true},]}
+                        // {field: 'active', type:'boolean',
+                        //     headerName: 'Active',
+                        //     editable: true}
+                     ]}
         />
     </div>
 

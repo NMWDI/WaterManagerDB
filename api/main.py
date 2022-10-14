@@ -231,9 +231,19 @@ async def read_alerts(db: Session = Depends(get_db)):
     return db.query(Alert).all()
 
 
+@app.get('/alerts/{alert_id}', response_model=schemas.Alert, tags=['alerts'])
+async def read_alerts(alert_id: int, db: Session = Depends(get_db)):
+    return db.query(Alert).filter(Alert.id == alert_id).first()
+
+
 @app.post('/alerts', response_model=schemas.Alert, tags=['alerts'])
 async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
     return _add(db, Alert, alert)
+
+
+@app.patch('/alerts/{alert_id}', response_model=schemas.Alert, tags=['alerts'])
+async def patch_alerts(alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)):
+    return _patch(db, Alert, alert_id, obj)
 
 
 # ====== Wells
@@ -250,7 +260,7 @@ def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(g
     q = db.query(Well)
     if radius and latlng:
         latlng = latlng.split(',')
-        radius = radius/111.139
+        radius = radius / 111.139
         q = q.filter(func.ST_DWithin(Well.geom, f'POINT ({latlng[1]} {latlng[0]})', radius))
 
     return q.all()
