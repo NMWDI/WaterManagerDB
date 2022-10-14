@@ -26,6 +26,13 @@ class ORMBase(BaseModel):
         orm_mode = True
 
 
+class MeterCreate(ORMBase):
+    name: str
+    serial_case_diameter: int
+    serial_id: int
+    serial_year: int
+
+
 class Meter(ORMBase):
     name: str
     serial_number: str

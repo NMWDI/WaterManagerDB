@@ -63,11 +63,11 @@ app.add_middleware(
 )
 
 
-def setup_db():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-
-    db = SessionLocal()
+def setup_db(eng, db=None):
+    Base.metadata.drop_all(bind=eng)
+    Base.metadata.create_all(bind=eng)
+    if db is None:
+        db = SessionLocal()
 
     # build meter status lookup
     db.add(MeterStatusLU(name='POK', description='Pump OK'))
@@ -282,6 +282,12 @@ async def patch_meters(meter_id: int, obj: schemas.Meter, db: Session = Depends(
     return _patch(db, Meter, meter_id, obj)
 
 
+@app.post('/meters', response_model=schemas.Meter, tags=['meters'])
+async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
+    print('dsasfasfd', obj)
+    return _add(db, Meter, obj)
+
+
 def parse_location(location_str):
     return location_str.split('.')
 
@@ -407,5 +413,5 @@ def _get(db, table, dbid):
     return db_item
 
 
-setup_db()
+setup_db(engine)
 # ============= EOF =============================================

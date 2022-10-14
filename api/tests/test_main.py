@@ -14,11 +14,43 @@
 # limitations under the License.
 # ===============================================================================
 import datetime
-
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.event import listen
+from api.main import app, get_db, setup_db
+from api.models import Base
 
-from api.main import app
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
+
+def load_spatialite(dbapi_conn, connection_record):
+    dbapi_conn.enable_load_extension(True)
+    dbapi_conn.load_extension('/usr/lib/x86_64-linux-gnu/mod_spatialite.so')
+
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
+
+listen(engine, 'connect', load_spatialite)
+
+Base.metadata.create_all(bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def override_get_db():
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
+
+
+setup_db(engine, next(override_get_db()))
+
+app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
@@ -69,9 +101,25 @@ def test_read_wells():
                                                  'longitude', 'name', 'osepod', 'owner_id']
 
 
+#
+#
+def test_post_meter():
+    response = client.post('/meters', json={'id': 10, 'name': 'foo',
+                                            'serial_id': 1234,
+                                            'serial_case_diameter': 4,
+                                            'serial_year': 1992})
+    assert response.status_code == 200
+    response = client.get('/meters')
+    assert response.status_code == 200
+    assert len(response.json()) == 4
+
+
 def test_post_alert():
     response = client.post('/alerts', json={'meter_id': 1, 'alert': 'this is an alert'})
     assert response.status_code == 200
+    response = client.get('/alerts')
+    assert response.status_code == 200
+    assert len(response.json()) == 2
 
 
 def test_read_alert():
@@ -85,9 +133,20 @@ def test_api_status():
     assert response.json() == {'ok': True}
 
 
-def test_read_wells_spatial():
-    response = client.get('/wells?radius=50&latlng=35.4,-105.2')
+def test_meter_status_lu():
+    response = client.get('/meter_status_lu')
     assert response.status_code == 200
+
     data = response.json()
-    assert len(data) == 1
+    assert len(data) == 3
+    assert data[0]['name'] == 'POK'
+    assert data[0]['description'] == 'Pump OK'
+
+
+# spatial queries not compatible with spatialite
+# def test_read_wells_spatial():
+#     response = client.get('/wells?radius=50&latlng=35.4,-105.2')
+#     assert response.status_code == 200
+#     data = response.json()
+#     assert len(data) == 1
 # ============= EOF =============================================
