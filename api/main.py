@@ -51,7 +51,10 @@ The PVACD Meter API gives programatic access to the PVACDs meter database
 title = "PVACD Meter API"
 
 app = FastAPI(
-    title=title, description=description, openapi_tags=tags_metadata, version="0.2.0",
+    title=title,
+    description=description,
+    openapi_tags=tags_metadata,
+    version="0.2.0",
 )
 
 origins = [
