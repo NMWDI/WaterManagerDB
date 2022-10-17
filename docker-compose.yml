@@ -9,11 +9,13 @@ services:
       - api
     environment:
       - REACT_APP_API_URL=
+#    labels:
+#      - traefik.http.routers.my-container.rule=Host(`pvacd.newmexicowaterdata.org`)
   api:
     build:
       context: ./api
       dockerfile: ./Dockerfile
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --reload'
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --proxy-headers'
     ports:
       - "8000:8000"
     volumes:
@@ -22,6 +24,8 @@ services:
       - db
     env_file:
       - ./api/.env
+    labels:
+        - traefik.http.routers.reverse-proxy.rule=Host(`pvacd.newmexicowaterdata.org`)
 
   db:
     image: postgis/postgis
@@ -45,15 +49,28 @@ services:
     healthcheck:
       test: "exit 0"
 
-  pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.9
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
     ports:
-      - "5050:80"
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+#  pgadmin:
+#    container_name: pgadmin4_container
+#    image: dpage/pgadmin4
+#    restart: always
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: root
+#    ports:
+#      - "5050:80"
 
 volumes:
   postgis-data:

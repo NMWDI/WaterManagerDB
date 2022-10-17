@@ -42,14 +42,13 @@ class Base:
     # to generate tablename from classname
     @declared_attr
     def __tablename__(cls) -> str:
-        return cls.__name__.lower()
+        return cls.__name__
 
 
 class Alert(Base):
-    __tablename__ = "alerttbl"
     id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
-    meter_id = Column(Integer, ForeignKey("metertbl.id"))
+    meter_id = Column(Integer, ForeignKey("Meter.id"))
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
 
@@ -65,7 +64,6 @@ class Alert(Base):
 
 
 class Meter(Base):
-    __tablename__ = "metertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     serial_year = Column(Integer)
@@ -80,11 +78,10 @@ class Meter(Base):
 
 
 class MeterHistory(Base):
-    __tablename__ = "meterhistorytbl"
     id = Column(Integer, primary_key=True, index=True)
 
-    well_id = Column(Integer, ForeignKey("welltbl.id"))
-    meter_id = Column(Integer, ForeignKey("metertbl.id"))
+    well_id = Column(Integer, ForeignKey("Well.id"))
+    meter_id = Column(Integer, ForeignKey("Meter.id"))
     timestamp = Column(DateTime, default=func.now())
     note = Column(LargeBinary)
 
@@ -92,7 +89,6 @@ class MeterHistory(Base):
 
 
 class Well(Base):
-    __tablename__ = "welltbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
@@ -108,7 +104,7 @@ class Well(Base):
 
     geom = Column(Geometry("POINT"))
 
-    owner_id = Column(Integer, ForeignKey("ownertbl.id"))
+    owner_id = Column(Integer, ForeignKey("Owner.id"))
     osepod = Column(String)
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
@@ -131,19 +127,17 @@ class Well(Base):
 
 
 class Reading(Base):
-    __tablename__ = "readingtbl"
     id = Column(Integer, primary_key=True, index=True)
     value = Column(Float)
     eread = Column(String)
     repair = Column(LargeBinary)
     timestamp = Column(DateTime)
-    well_id = Column(Integer, ForeignKey("welltbl.id"))
+    well_id = Column(Integer, ForeignKey("Well.id"))
 
     well = relationship("Well", back_populates="readings")
 
 
 class Owner(Base):
-    __tablename__ = "ownertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
@@ -151,24 +145,21 @@ class Owner(Base):
 
 
 class Worker(Base):
-    __tablename__ = "workertbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
 
 class MeterStatusLU(Base):
-    __tablename__ = "meterstatus_lutbl"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     description = Column(String)
 
 
 class Repair(Base):
-    __tablename__ = "repairtbl"
     id = Column(Integer, primary_key=True, index=True)
     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
-    well_id = Column(Integer, ForeignKey("welltbl.id"))
-    worker_id = Column(Integer, ForeignKey("workertbl.id"))
+    well_id = Column(Integer, ForeignKey("Well.id"))
+    worker_id = Column(Integer, ForeignKey("Worker.id"))
 
     timestamp = Column(DateTime, default=func.now())
     h2o_read = Column(Float)
@@ -177,7 +168,7 @@ class Repair(Base):
     repair_description = Column(LargeBinary)
     note = Column(LargeBinary)
     meter_status_id = Column(
-        Integer, ForeignKey("meterstatus_lutbl.id")
+        Integer, ForeignKey("MeterStatusLU.id")
     )  # pok, np, piro
     preventative_maintenance = Column(String)
 

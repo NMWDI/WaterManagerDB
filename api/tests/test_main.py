@@ -19,6 +19,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.event import listen
+from sqlite3 import OperationalError
 from api.main import app, get_db, setup_db
 from api.models import Base
 
@@ -27,7 +28,10 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 def load_spatialite(dbapi_conn, connection_record):
     dbapi_conn.enable_load_extension(True)
-    dbapi_conn.load_extension("/usr/lib/x86_64-linux-gnu/mod_spatialite.so")
+    try:
+        dbapi_conn.load_extension("/usr/lib/x86_64-linux-gnu/mod_spatialite.so")
+    except OperationalError:
+        dbapi_conn.load_extension("/usr/lib/aarch64-linux-gnu/mod_spatialite.so")
 
 
 engine = create_engine(

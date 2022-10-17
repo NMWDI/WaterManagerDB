@@ -130,8 +130,8 @@ class Alert(ORMBase):
 
 
 class AlertCreate(ORMBase):
+    meter_id: int
     alert: str
-    meter_id: str
 
 
 class AlertPatch(ORMBase):
