@@ -167,9 +167,7 @@ class Repair(Base):
     new_read = Column(String)
     repair_description = Column(LargeBinary)
     note = Column(LargeBinary)
-    meter_status_id = Column(
-        Integer, ForeignKey("MeterStatusLU.id")
-    )  # pok, np, piro
+    meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
     preventative_maintenance = Column(String)
 
     well = relationship("Well", uselist=False)
