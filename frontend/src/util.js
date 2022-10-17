@@ -1,6 +1,8 @@
+import {config} from "../Constants";
+
 export function makeAPIPath(tag){
 
-    return process.env.REACT_APP_API_URL+tag
+    return config.url.API_URL+tag
 }
 
 
