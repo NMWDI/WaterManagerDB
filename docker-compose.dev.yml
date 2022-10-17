@@ -13,19 +13,33 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_APP_API_URL=http://localhost:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
   api:
     build:
       context: ./api/
       dockerfile: ./Dockerfile_dev
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --reload'
+    command: |
+      bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --reload'
     ports:
       - "8000:8000"
     volumes:
       - ./api:/api
     depends_on:
       - db
+      - traefik
     env_file:
       - ./api/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/v1`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.middlewares=api-sp"
+      - "traefik.http.middlewares.api-sp.stripprefix.prefixes=/api/v1"
+      - "traefik.http.middlewares.api-sp.stripprefix.forceSlash=false"
+    restart: on-failure
 
   db:
     image: postgis/postgis
@@ -41,13 +55,24 @@ services:
       - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
       - TZ=America/Denver
       - PGTZ=America/Denver
-#    expose:
-#      - 5432
     ports:
       - "5432:5432"
     restart: on-failure
     healthcheck:
       test: "exit 0"
+
+  traefik:
+    image: "traefik:v2.9"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 #  pgadmin:
 #    container_name: pgadmin4_container
