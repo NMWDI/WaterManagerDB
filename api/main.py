@@ -75,8 +75,14 @@ app.add_middleware(
 
 
 def setup_db(eng, db=None):
-    Base.metadata.drop_all(bind=eng)
-    Base.metadata.create_all(bind=eng)
+
+    if not os.environ.get('POPULATE_DB'):
+        Base.metadata.create_all(bind=eng)
+        return
+    else:
+        Base.metadata.drop_all(bind=eng)
+        Base.metadata.create_all(bind=eng)
+
     if db is None:
         db = SessionLocal()
 
@@ -502,6 +508,6 @@ def _get(db, table, dbid):
     return db_item
 
 
-if os.environ.get("POPULATE_DB"):
+if os.environ.get("SETUP_DB"):
     setup_db(engine)
 # ============= EOF =============================================
