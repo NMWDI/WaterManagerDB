@@ -76,7 +76,7 @@ app.add_middleware(
 
 def setup_db(eng, db=None):
 
-    if not os.environ.get('POPULATE_DB'):
+    if not os.environ.get("POPULATE_DB"):
         Base.metadata.create_all(bind=eng)
         return
     else:
