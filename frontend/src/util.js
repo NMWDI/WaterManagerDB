@@ -1,4 +1,4 @@
-import {config} from "../Constants";
+import {config} from "./Constants";
 
 export function makeAPIPath(tag){
 
