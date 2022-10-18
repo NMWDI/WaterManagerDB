@@ -11,13 +11,17 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`pvacd.newmexicowaterdata.org`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.entrypoints=websecure,web"
+      - "traefik.http.routers.frontend.tls=true"
   api:
     build:
       context: ./api
       dockerfile: ./Dockerfile
     command: bash -c "
-        while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --root-path /api/v1
+        while !</dev/tcp/db/5432; do sleep 1; done; 
+      uvicorn api.main:app 
+      --host 0.0.0.0 
+      --proxy-headers --root-path /api/v1
       "
     ports:
       - "8000:8000"
@@ -31,7 +35,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`pvacd.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.entrypoints=websecure,web"
+      - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.middlewares=api-sp"
       - "traefik.http.middlewares.api-sp.stripprefix.prefixes=/api/v1"
       - "traefik.http.middlewares.api-sp.stripprefix.forceSlash=false"
