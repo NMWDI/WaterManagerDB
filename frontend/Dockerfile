@@ -1,21 +1,17 @@
-#FROM node:latest
-#WORKDIR /app
-#COPY . .
-##COPY ./package.json ./
-##COPY ./package-lock.json ./
-#RUN npm ci
-#RUN npm run build
-#
-#CMD ["npm", "run", "start"]
-FROM node:latest
+# stage1 - build react app first
+FROM node:latest as build
 WORKDIR /app
-COPY . .
-#COPY ./package.json ./
-#COPY ./package-lock.json ./
-#RUN npm ci
-#RUN npm run build
+ENV PATH /app/node_modules/.bin:$PATH
+COPY ./package.json /app/
+COPY ./yarn.lock /app/
 RUN yarn
-COPY . ./
-#RUN yarn build
-RUN yarn install --frozen-lockfile
-CMD ["npm", "start"]
+COPY . /app
+RUN yarn build
+
+# stage 2 - build the final image and copy the react build files
+FROM nginx:latest
+COPY --from=build /app/build /usr/share/nginx/html
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d
+#EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

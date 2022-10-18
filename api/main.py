@@ -55,14 +55,17 @@ app = FastAPI(
     description=description,
     openapi_tags=tags_metadata,
     version="0.2.0",
+
 )
 
 origins = [
     "http://localhost",
     "http://localhost:3000",
     "http://localhost:8000",
-    "http://34.106.112.233:8000",
-    "http://34.106.112.233:3000" "http://pvacd.newmexicowaterdata.org:3000",
+    "https://localhost",
+    "https://localhost:3000",
+    "https://localhost:8000",
+    "https://pvacd.newmexicowaterdata.org",
 ]
 
 app.add_middleware(
@@ -74,7 +77,7 @@ app.add_middleware(
 )
 
 
-def setup_db(eng, db=None):
+def setup_db(eng, db=None, populate_db=False):
 
     if not os.environ.get("POPULATE_DB"):
         Base.metadata.create_all(bind=eng)

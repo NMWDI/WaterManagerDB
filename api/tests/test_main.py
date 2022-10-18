@@ -14,6 +14,8 @@
 # limitations under the License.
 # ===============================================================================
 import datetime
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -52,6 +54,7 @@ def override_get_db():
         db.close()
 
 
+os.environ['POPULATE_DB'] = True
 setup_db(engine, next(override_get_db()))
 
 app.dependency_overrides[get_db] = override_get_db
