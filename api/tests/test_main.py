@@ -54,7 +54,7 @@ def override_get_db():
         db.close()
 
 
-os.environ["POPULATE_DB"] = 'true'
+os.environ["POPULATE_DB"] = "true"
 setup_db(engine, next(override_get_db()))
 
 app.dependency_overrides[get_db] = override_get_db
