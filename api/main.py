@@ -55,7 +55,6 @@ app = FastAPI(
     description=description,
     openapi_tags=tags_metadata,
     version="0.2.0",
-
 )
 
 origins = [
