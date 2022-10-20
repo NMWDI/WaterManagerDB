@@ -16,6 +16,7 @@
 import os
 from datetime import datetime, timedelta, date
 
+import requests
 from fastapi import FastAPI, Depends, HTTPException
 
 from typing import List
@@ -244,6 +245,10 @@ def get_db():
         db.close()
 
 
+@app.post('/token')
+def post_oauth_token():
+    requests.post()
+
 @app.get("/repair_report", response_model=List[schemas.RepairReport])
 def read_repair_report(
     after_date: date = None, after: datetime = None, db: Session = Depends(get_db)
@@ -353,14 +358,21 @@ async def read_meters(db: Session = Depends(get_db)):
 
 @app.patch("/meters/{meter_id}", response_model=schemas.Meter, tags=["meters"])
 async def patch_meters(
-    meter_id: int, obj: schemas.Meter, db: Session = Depends(get_db)
+    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Meter, meter_id, obj)
 
 
+@app.get("/nmeters", response_model=int, tags=["meters"])
+async def read_nmeters(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Meter)
+    return q.count()
+
+
 @app.post("/meters", response_model=schemas.Meter, tags=["meters"])
 async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
-    print("dsasfasfd", obj)
     return _add(db, Meter, obj)
 
 
@@ -478,7 +490,8 @@ def _patch(db, table, dbid, obj):
     for k, v in obj.dict(exclude_unset=True).items():
         try:
             setattr(db_item, k, v)
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             continue
 
     db.add(db_item)

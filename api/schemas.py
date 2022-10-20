@@ -36,9 +36,13 @@ class MeterCreate(ORMBase):
 class Meter(ORMBase):
     name: str
     serial_number: str
-    # serial_year: int
-    # serial_id: int
-    # serial_case_diameter: int
+
+
+class MeterPatch(ORMBase):
+    name: str
+    serial_year: int
+    serial_id: int
+    serial_case_diameter: int
 
 
 class Owner(ORMBase):

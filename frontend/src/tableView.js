@@ -105,6 +105,10 @@ export default function TableView(props){
   };
 
   const processRowUpdate = (newRow) => {
+
+    if(props.makePayload){
+      newRow = props.makePayload(newRow)
+    }
     console.log('patch new row', JSON.stringify(newRow))
 
     fetch(makeAPIPath(props.urltag+'/'+newRow.id), {method: 'PATCH',

@@ -14,7 +14,7 @@ export default function RepairsView(props){
     const [availableWells, setavailableWells] = useState([])
     // const [nrepairs, setnrepairs] = useState(0)
     // const [loaded, setLoaded] = useState(false)
-    const nrepairs = useRef(0)
+    const nrows = useRef(0)
 
     useEffect(()=>{
         // if (!loaded){
@@ -36,13 +36,13 @@ export default function RepairsView(props){
 
     useEffect(()=>{
         fetchAPI('/nrepairs', (data)=>{
-            nrepairs.current=data
+            nrows.current=data
              })
         }, [])
 
     function rowGenerator(newId){
-        let nid = nrepairs.current+1
-        nrepairs.current++
+        let nid = nrows.current+1
+        nrows.current++
     return {id: nid,
         h2o_read: 0,
         worker_id: 1,

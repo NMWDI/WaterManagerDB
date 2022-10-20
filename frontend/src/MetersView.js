@@ -3,26 +3,65 @@ import * as React from 'react';
 
 import TableView from "./tableView";
 import RepairsView from "./RepairsView";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {fetchAPI} from "./util.js";
 
 export default function MetersView(){
+
+    const nrows = useRef(0)
+
     function handleRowSelect(params){
+
         fetchAPI('/repairs?meter_id='+params.id, setRows)
 
         fetchAPI('/meter_history/'+params.id, (data)=>{
-            console.log(data, data[data.length-1].well_id)
-            setWellId(data[data.length-1].well_id)
+            // console.log(data, data[data.length-1].well_id)
+            if (data){
+                if (data[data.length-1]){
+                setWellId(data[data.length-1].well_id)
+                }
+            }
         })
+    }
+
+    function makePayload(row){
+
+        let [ sy,scd,sid ] = row.serial_number.split('-')
+
+        row['serial_id'] = sid
+        row['serial_case_diameter']=scd
+        row['serial_year']=sy
+        console.log('paloasd', row)
+        return row
+
+    }
+    useEffect(()=>{
+        fetchAPI('/nmeters', (data)=>{
+            nrows.current=data
+             })
+        }, [])
+
+    function rowGenerator(){
+        let nid = nrows.current+1
+        nrows.current++
+        let o= {id: nid,
+            name: '',
+            serial_year:0,
+            serial_id:0,
+            serial_case_diameter:0}
+        return o
     }
     const [rows, setRows] = useState([])
     const [well_id, setWellId] = useState(null)
 
     return (<div style={{width: "100%"}}>
         <TableView urltag={'/meters'}
-                 onRowSelect={handleRowSelect}
-                 tag={'Meter'}
-                 fields={[{ field: 'id', headerName: 'ID', width: 90},
+
+                   onRowSelect={handleRowSelect}
+                   makePayload={makePayload}
+                   rowGenerator={rowGenerator}
+                   tag={'Meter'}
+                   fields={[{ field: 'id', headerName: 'ID', width: 90},
                         {field: 'name', headerName: 'Name', editable:true},
                         {field: 'serial_number', headerName: 'Serial #',
                             width: 125,
