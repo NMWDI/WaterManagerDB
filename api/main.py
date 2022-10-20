@@ -245,9 +245,10 @@ def get_db():
         db.close()
 
 
-@app.post('/token')
+@app.post("/token")
 def post_oauth_token():
     requests.post()
+
 
 @app.get("/repair_report", response_model=List[schemas.RepairReport])
 def read_repair_report(
