@@ -148,4 +148,5 @@ class AlertPatch(ORMBase):
     alert: Optional[str] = None
     closed_timestamp: Optional[datetime] = None
 
+
 # ============= EOF =============================================
