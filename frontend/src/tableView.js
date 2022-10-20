@@ -7,7 +7,7 @@ import {
   GridToolbarContainer,
   GridValueGetterParams
 } from '@mui/x-data-grid';
-import {Component, useEffect, useState} from "react";
+import {Component, useEffect, useRef, useState} from "react";
 import {Box, Button} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -51,6 +51,7 @@ function EditToolbar(props) {
 export default function TableView(props){
   const [rows, setRows] = React.useState([]);
   const [rowModesModel, setRowModesModel] = React.useState({});
+  const nrows = useRef(0)
 
   useEffect(()=>{
     if (props.rows){
@@ -59,6 +60,10 @@ export default function TableView(props){
       fetchAPI(props.urltag, setRows)
       // fetch(makeAPIPath(props.urltag)).then((data)=>data.json()).then((data) => setRows(data))
     }
+    fetchAPI(props.nrowstag, (data)=>{
+            nrows.current=data
+             })
+
   }, [props])
 
   const handleEvent: GridEventListener<'rowClick'> = (
@@ -206,7 +211,8 @@ export default function TableView(props){
         }}
         componentsProps={{
           toolbar: {setRows:setRows, urltag: props.urltag, tag:props.tag,
-            rowGenerator:props.rowGenerator},
+            rowGenerator:()=>{nrows.current++
+                             return props.rowGenerator(nrows)()}},
         }}
         experimentalFeatures={{ newEditingApi: true }}
       />

@@ -8,7 +8,7 @@ import {fetchAPI} from "./util.js";
 
 export default function MetersView(){
 
-    const nrows = useRef(0)
+
 
     function handleRowSelect(params){
 
@@ -35,28 +35,28 @@ export default function MetersView(){
         return row
 
     }
-    useEffect(()=>{
-        fetchAPI('/nmeters', (data)=>{
-            nrows.current=data
-             })
-        }, [])
+    // useEffect(()=>{
+    //
+    //     }, [])
 
-    function rowGenerator(){
-        let nid = nrows.current+1
-        nrows.current++
-        let o= {id: nid,
-            name: '',
-            serial_year:0,
-            serial_id:0,
-            serial_case_diameter:0}
-        return o
+    function rowGenerator(nrows){
+        function closure(){
+            let o= {id: nrows.current,
+                name: '',
+                serial_year:0,
+                serial_id:0,
+                serial_case_diameter:0}
+            console.log('dfas', o)
+            return o
+        }
+        return closure
     }
     const [rows, setRows] = useState([])
     const [well_id, setWellId] = useState(null)
 
     return (<div style={{width: "100%"}}>
         <TableView urltag={'/meters'}
-
+                   nrowstag={'/nmeters'}
                    onRowSelect={handleRowSelect}
                    makePayload={makePayload}
                    rowGenerator={rowGenerator}

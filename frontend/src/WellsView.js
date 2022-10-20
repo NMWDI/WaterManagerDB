@@ -17,6 +17,13 @@ export default function WellsView(){
     const [markers, setMarkers] = useState([])
 
     const mapRef = useRef();
+    function rowGenerator(nrow){
+        function closure(){
+            return {id: nrow.current,
+                    owner_id: 1}
+        }
+        return closure
+    }
     function handleOnSetView(params){
         const { current = {} } = mapRef;
         //
@@ -49,7 +56,9 @@ export default function WellsView(){
             <div className='flex-child'>
                 <TableView
                     onRowSelect={handleOnSetView}
+                    rowGenerator={rowGenerator}
                     urltag={'/wells'}
+                    nrowstag={'/nwells'}
                     tag={'Well'}
                     fields={[{field: 'id', headerName: 'ID', width: 90},
                         {field: 'osepod', headerName: 'OSE POD', width: 120},

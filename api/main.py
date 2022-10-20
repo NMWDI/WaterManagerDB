@@ -78,7 +78,6 @@ app.add_middleware(
 
 
 def setup_db(eng, db=None, populate_db=False):
-
     if not os.environ.get("POPULATE_DB"):
         Base.metadata.create_all(bind=eng)
         return
@@ -252,7 +251,7 @@ def post_oauth_token():
 
 @app.get("/repair_report", response_model=List[schemas.RepairReport])
 def read_repair_report(
-    after_date: date = None, after: datetime = None, db: Session = Depends(get_db)
+        after_date: date = None, after: datetime = None, db: Session = Depends(get_db)
 ):
     q = db.query(Repair)
     if after_date:
@@ -319,7 +318,7 @@ async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
 
 @app.patch("/alerts/{alert_id}", response_model=schemas.Alert, tags=["alerts"])
 async def patch_alerts(
-    alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
+        alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Alert, alert_id, obj)
 
@@ -351,6 +350,18 @@ async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get
     return _patch(db, Well, well_id, obj)
 
 
+@app.get("/nwells", response_model=int, tags=["wells"])
+async def read_nwells(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Well)
+    return q.count()
+
+@app.post('/wells', response_model=schemas.Well, tags=["wells"])
+async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
+    return _add(db, Well, obj)
+
+
 # ======  Meters
 @app.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
 async def read_meters(db: Session = Depends(get_db)):
@@ -359,14 +370,14 @@ async def read_meters(db: Session = Depends(get_db)):
 
 @app.patch("/meters/{meter_id}", response_model=schemas.Meter, tags=["meters"])
 async def patch_meters(
-    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
+        meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Meter, meter_id, obj)
 
 
 @app.get("/nmeters", response_model=int, tags=["meters"])
 async def read_nmeters(
-    db: Session = Depends(get_db),
+        db: Session = Depends(get_db),
 ):
     q = db.query(Meter)
     return q.count()
@@ -405,10 +416,10 @@ def repair_query(db, location, well_id, meter_id):
 # ======  Repairs
 @app.get("/repairs", response_model=List[schemas.Repair], tags=["repairs"])
 async def read_repairs(
-    location: str = None,
-    well_id: int = None,
-    meter_id: int = None,
-    db: Session = Depends(get_db),
+        location: str = None,
+        well_id: int = None,
+        meter_id: int = None,
+        db: Session = Depends(get_db),
 ):
     q = repair_query(db, location, well_id, meter_id)
 
@@ -417,10 +428,10 @@ async def read_repairs(
 
 @app.get("/nrepairs", response_model=int, tags=["repairs"])
 async def read_nrepairs(
-    location: str = None,
-    well_id: int = None,
-    meter_id: int = None,
-    db: Session = Depends(get_db),
+        location: str = None,
+        well_id: int = None,
+        meter_id: int = None,
+        db: Session = Depends(get_db),
 ):
     q = repair_query(db, location, well_id, meter_id)
     return q.count()
@@ -428,7 +439,7 @@ async def read_nrepairs(
 
 @app.patch("/repairs/{repair_id}", response_model=schemas.Repair, tags=["repairs"])
 async def patch_repairs(
-    repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
+        repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
 ):
     return _patch(db, Repair, repair_id, obj)
 
@@ -458,15 +469,23 @@ def read_workers(db: Session = Depends(get_db)):
 
 @app.post("/workers", response_model=schemas.Worker, tags=["workers"])
 async def add_worker(
-    worker: schemas.WorkerCreate,
-    db: Session = Depends(get_db),
+        worker: schemas.WorkerCreate,
+        db: Session = Depends(get_db),
 ):
     return _add(db, Worker, worker)
 
 
+@app.get("/nworkers", response_model=int, tags=["workers"])
+async def read_nworkers(
+        db: Session = Depends(get_db),
+):
+    q = db.query(Worker)
+    return q.count()
+
+
 @app.patch("/workers/{worker_id}", response_model=schemas.Worker, tags=["workers"])
 async def patch_worker(
-    worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
+        worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
 ):
     return _patch(db, Worker, worker_id, worker)
 

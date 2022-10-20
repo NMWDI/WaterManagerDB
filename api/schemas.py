@@ -50,14 +50,20 @@ class Owner(ORMBase):
 
 
 class Well(ORMBase):
-    name: str
-    location: str
+    name: Optional[str] = None
+    location: Optional[str] = None
     osepod: Optional[str] = None
-    owner_id: int
-    latitude: float
-    longitude: float
+    owner_id: Optional[int] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     # owner: Optional[Owner] = None
     # meter: Optional[Meter] = None
+
+
+class WellCreate(ORMBase):
+    owner_id: int
+    # location: str
+    # osepod: Optional[str] = None
 
 
 class Reading(ORMBase):
@@ -141,6 +147,5 @@ class AlertCreate(ORMBase):
 class AlertPatch(ORMBase):
     alert: Optional[str] = None
     closed_timestamp: Optional[datetime] = None
-
 
 # ============= EOF =============================================

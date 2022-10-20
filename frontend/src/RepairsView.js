@@ -34,28 +34,29 @@ export default function RepairsView(props){
         // }
     }, [])
 
-    useEffect(()=>{
-        fetchAPI('/nrepairs', (data)=>{
-            nrows.current=data
-             })
-        }, [])
+    // useEffect(()=>{
+    //     fetchAPI('/nrepairs', (data)=>{
+    //         nrows.current=data
+    //          })
+    //     }, [])
 
-    function rowGenerator(newId){
-        let nid = nrows.current+1
-        nrows.current++
-    return {id: nid,
-        h2o_read: 0,
-        worker_id: 1,
-        e_read: null,
-        new_read: null,
-        repair_description: null,
-        note: null,
-        worker: 'Default',
-        timestamp: new Date(),
-        well_id: props.well_id?props.well_id:1,
-        meter_status_id: 1,
-        preventative_maintenance: ''
-    }
+    function rowGenerator(nrow){
+        function closure(){
+            return {id: nrow.current,
+                h2o_read: 0,
+                worker_id: 1,
+                e_read: null,
+                new_read: null,
+                repair_description: null,
+                note: null,
+                worker: 'Default',
+                timestamp: new Date(),
+                well_id: props.well_id?props.well_id:1,
+                meter_status_id: 1,
+                preventative_maintenance: ''
+            }
+        }
+        return closure
 }
     let fields=[{ field: 'id', headerName: 'ID', width: 90},
                           {field: 'timestamp',
@@ -108,6 +109,7 @@ export default function RepairsView(props){
       <TableView
           rowGenerator={rowGenerator}
           urltag={'/repairs'}
+          nrowstag={'/nrepairs'}
           tag={'Repair'}
           rows={props.rows}
           fields={fields}

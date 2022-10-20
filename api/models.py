@@ -115,11 +115,17 @@ class Well(Base):
 
     @property
     def latitude(self):
-        return to_shape(self.geom).y
+        try:
+            return to_shape(self.geom).y
+        except BaseException:
+            return
 
     @property
     def longitude(self):
-        return to_shape(self.geom).x
+        try:
+            return to_shape(self.geom).x
+        except BaseException:
+            return
 
     @property
     def location(self):
