@@ -17,12 +17,8 @@ export default function WellsView(){
     const [markers, setMarkers] = useState([])
 
     const mapRef = useRef();
-    function rowGenerator(nrow){
-        function closure(){
-            return {id: nrow.current,
-                    owner_id: 1}
-        }
-        return closure
+    function rowGenerator(){
+        return {owner_id: 1}
     }
     function handleOnSetView(params){
         const { current = {} } = mapRef;

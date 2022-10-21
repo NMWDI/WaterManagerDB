@@ -14,6 +14,7 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure,web"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.frontend-insecure.middlewares=force-secure"
   api:
     build:
       context: ./api

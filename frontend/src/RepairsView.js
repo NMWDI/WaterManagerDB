@@ -40,9 +40,8 @@ export default function RepairsView(props){
     //          })
     //     }, [])
 
-    function rowGenerator(nrow){
-        function closure(){
-            return {id: nrow.current,
+    function rowGenerator(){
+            return {
                 h2o_read: 0,
                 worker_id: 1,
                 e_read: null,
@@ -55,8 +54,6 @@ export default function RepairsView(props){
                 meter_status_id: 1,
                 preventative_maintenance: ''
             }
-        }
-        return closure
 }
     let fields=[{ field: 'id', headerName: 'ID', width: 90},
                           {field: 'timestamp',

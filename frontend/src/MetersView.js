@@ -39,17 +39,11 @@ export default function MetersView(){
     //
     //     }, [])
 
-    function rowGenerator(nrows){
-        function closure(){
-            let o= {id: nrows.current,
-                name: '',
+    function rowGenerator(){
+        return {name: '',
                 serial_year:0,
                 serial_id:0,
                 serial_case_diameter:0}
-            console.log('dfas', o)
-            return o
-        }
-        return closure
     }
     const [rows, setRows] = useState([])
     const [well_id, setWellId] = useState(null)

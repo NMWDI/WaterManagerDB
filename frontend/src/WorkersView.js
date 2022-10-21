@@ -3,13 +3,9 @@ import * as React from 'react';
 import TableView from "./tableView";
 
 export default function WorkersView(){
-    function rowGenerator(nrow){
-        function closure(){
-            return {id: nrow.current, name: ''}
-        }
-        return closure
+    function rowGenerator(){
+        return {name: ''}
     }
-
   return (
       <TableView urltag={'/workers'}
                  tag={'Worker'}

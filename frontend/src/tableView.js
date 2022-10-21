@@ -212,7 +212,9 @@ export default function TableView(props){
         componentsProps={{
           toolbar: {setRows:setRows, urltag: props.urltag, tag:props.tag,
             rowGenerator:()=>{nrows.current++
-                             return props.rowGenerator(nrows)()}},
+                             let row = props.rowGenerator()
+                             row.id = nrows.current
+                             return row}},
         }}
         experimentalFeatures={{ newEditingApi: true }}
       />
