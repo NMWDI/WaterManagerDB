@@ -45,7 +45,7 @@ services:
 
   db:
     env_file:
-      - ./db/.env.dev
+      - ./api/.env
     image: postgis/postgis
     volumes:
       - postgis-data:/var/lib/postgresql

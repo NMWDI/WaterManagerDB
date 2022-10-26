@@ -78,7 +78,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=foobar@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=acme.json"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=websecure"
       - "--traefik.http.middlewares.force-secure.redirectscheme.scheme=https"
       - "--traefik.http.middlewares.force-secure.redirectscheme.permanent=true"
     ports:
@@ -87,7 +87,7 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      -
+
   pgbackups:
     image: prodrigestivill/postgres-backup-local
     restart: always
@@ -95,9 +95,9 @@ services:
     volumes:
       - /var/opt/pgbackups:/backups
     links:
-      - postgres
+      - db
     depends_on:
-      - postgres
+      - db
     env_file:
       - ./api/.env
     environment:
