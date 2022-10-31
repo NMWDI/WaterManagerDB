@@ -51,11 +51,10 @@ services:
     image: postgis/postgis
     volumes:
       - postgis-data:/var/lib/postgresql
+    env_file:
+      - ./db/.env.production
     environment:
       # If you need to create multiple database you can add coma separated databases eg gis,data
-      - POSTGRES_DB=gis
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
       - ALLOW_IP_RANGE=0.0.0.0/0
       # Add extensions you need to be enabled by default in the DB. Default are the five specified below
       - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
@@ -79,7 +78,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=foobar@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=acme.json"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=websecure"
       - "--traefik.http.middlewares.force-secure.redirectscheme.scheme=https"
       - "--traefik.http.middlewares.force-secure.redirectscheme.permanent=true"
     ports:
@@ -88,7 +87,7 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      -
+
   pgbackups:
     image: prodrigestivill/postgres-backup-local
     restart: always
@@ -96,9 +95,9 @@ services:
     volumes:
       - /var/opt/pgbackups:/backups
     links:
-      - postgres
+      - db
     depends_on:
-      - postgres
+      - db
     env_file:
       - ./api/.env
     environment:

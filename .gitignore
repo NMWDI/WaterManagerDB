@@ -215,3 +215,4 @@ dmypy.json
 cython_debug/
 
 !/api/.env.production
+/db/.env.production

@@ -21,6 +21,7 @@ export default function AlertsView(){
 
     return (<div style={{width: "100%"}}>
         <TableView urltag={'/alerts'}
+                   nrowstag={'/nalerts'}
                  // onRowSelect={handleRowSelect}
                  tag={'Alert'}
                    getRowClassName={(params)=>{

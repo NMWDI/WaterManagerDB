@@ -323,6 +323,14 @@ async def patch_alerts(
     return _patch(db, Alert, alert_id, obj)
 
 
+@app.get("/nalerts", response_model=int, tags=["alerts"])
+async def read_nalerts(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Alert)
+    return q.count()
+
+
 # ====== Wells
 @app.get("/wells", response_model=List[schemas.Well], tags=["wells"])
 def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(get_db)):
