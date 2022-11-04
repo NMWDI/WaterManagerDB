@@ -35,7 +35,8 @@ from api.models import (
     Repair,
     MeterStatusLU,
     MeterHistory,
-    Alert, WaterLevel,
+    Alert,
+    WaterLevel,
 )
 from api.session import engine, SessionLocal
 
@@ -231,13 +232,7 @@ Working on Arrivial""".encode(
         )
     )
 
-    db.add(
-        WaterLevel(
-            well_id=1,
-            timestamp=datetime.now(),
-            value=0.12
-        )
-    )
+    db.add(WaterLevel(well_id=1, timestamp=datetime.now(), value=0.12))
 
     db.commit()
     db.close()
@@ -298,7 +293,7 @@ def read_owners(db: Session = Depends(get_db)):
 
 
 @app.get("/waterlevels", response_model=List[schemas.WaterLevel])
-async def read_waterlevels(well_id: int=None, db: Session = Depends(get_db)):
+async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     q = db.query(WaterLevel)
     if well_id is not None:
         q = q.filter_by(well_id=well_id)
