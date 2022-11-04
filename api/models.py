@@ -144,6 +144,8 @@ class WaterLevel(Base):
 class Owner(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    phone = Column(String)
+    email = Column(String)
 
     wells = relationship("Well", back_populates="owner")
 

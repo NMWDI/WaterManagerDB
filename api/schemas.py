@@ -16,7 +16,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class ORMBase(BaseModel):
@@ -47,6 +47,13 @@ class MeterPatch(ORMBase):
 
 class Owner(ORMBase):
     name: str
+    email: Optional[EmailStr]
+    phone: Optional[
+        constr(
+            strip_whitespace=True,
+            regex=r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$",
+        )
+    ]
 
 
 class Well(ORMBase):
