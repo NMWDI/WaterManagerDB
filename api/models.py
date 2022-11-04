@@ -135,7 +135,7 @@ class Well(Base):
 class WaterLevel(Base):
     id = Column(Integer, primary_key=True, index=True)
     value = Column(Float)
-    timestamp = Column(DateTime)
+    timestamp = Column(DateTime, default=func.now())
     well_id = Column(Integer, ForeignKey("Well.id"))
 
     well = relationship("Well", back_populates="waterlevels")

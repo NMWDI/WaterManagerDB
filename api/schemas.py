@@ -67,9 +67,19 @@ class WellCreate(ORMBase):
 
 
 class WaterLevel(ORMBase):
-    timestamp: datetime
+    timestamp: Optional[datetime] = None
     value: float
     well_id: int
+
+
+class WaterLevelCreate(WaterLevel):
+    pass
+
+
+class WaterLevelPatch(ORMBase):
+    timestamp: Optional[datetime] = None
+    value: Optional[float]
+    well_id: Optional[int]
 
 
 class Worker(ORMBase):
@@ -145,6 +155,5 @@ class AlertCreate(ORMBase):
 class AlertPatch(ORMBase):
     alert: Optional[str] = None
     closed_timestamp: Optional[datetime] = None
-
 
 # ============= EOF =============================================
