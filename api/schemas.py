@@ -66,11 +66,9 @@ class WellCreate(ORMBase):
     # osepod: Optional[str] = None
 
 
-class Reading(ORMBase):
+class WaterLevel(ORMBase):
     timestamp: datetime
     value: float
-    eread: str
-    repair: str
     well_id: int
 
 

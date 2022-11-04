@@ -31,12 +31,11 @@ from api.models import (
     Meter,
     Well,
     Owner,
-    Reading,
     Worker,
     Repair,
     MeterStatusLU,
     MeterHistory,
-    Alert,
+    Alert, WaterLevel,
 )
 from api.session import engine, SessionLocal
 
@@ -232,6 +231,14 @@ Working on Arrivial""".encode(
         )
     )
 
+    db.add(
+        WaterLevel(
+            well_id=1,
+            timestamp=datetime.now(),
+            value=0.12
+        )
+    )
+
     db.commit()
     db.close()
 
@@ -290,14 +297,18 @@ def read_owners(db: Session = Depends(get_db)):
     return db.query(Owner).all()
 
 
-@app.get("/readings", response_model=List[schemas.Reading])
-async def read_readings(db: Session = Depends(get_db)):
-    return db.query(Reading).all()
+@app.get("/waterlevels", response_model=List[schemas.WaterLevel])
+async def read_waterlevels(well_id: int=None, db: Session = Depends(get_db)):
+    q = db.query(WaterLevel)
+    if well_id is not None:
+        q = q.filter_by(well_id=well_id)
+
+    return q.all()
 
 
-@app.get("/wellreadings/{wellid}", response_model=List[schemas.Reading])
-async def read_wellreadings(wellid, db: Session = Depends(get_db)):
-    return db.query(Reading).filter_by(well_id=wellid).all()
+# @app.get("/well_wate/{wellid}", response_model=List[schemas.Reading])
+# async def read_wellreadings(wellid, db: Session = Depends(get_db)):
+#     return db.query(Reading).filter_by(well_id=wellid).all()
 
 
 # ====== Alerts
