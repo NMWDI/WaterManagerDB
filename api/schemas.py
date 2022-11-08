@@ -16,7 +16,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class ORMBase(BaseModel):
@@ -47,6 +47,13 @@ class MeterPatch(ORMBase):
 
 class Owner(ORMBase):
     name: str
+    email: Optional[EmailStr]
+    phone: Optional[
+        constr(
+            strip_whitespace=True,
+            regex=r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$",
+        )
+    ]
 
 
 class Well(ORMBase):
@@ -66,12 +73,20 @@ class WellCreate(ORMBase):
     # osepod: Optional[str] = None
 
 
-class Reading(ORMBase):
-    timestamp: datetime
+class WaterLevel(ORMBase):
+    timestamp: Optional[datetime] = None
     value: float
-    eread: str
-    repair: str
     well_id: int
+
+
+class WaterLevelCreate(WaterLevel):
+    pass
+
+
+class WaterLevelPatch(ORMBase):
+    timestamp: Optional[datetime] = None
+    value: Optional[float]
+    well_id: Optional[int]
 
 
 class Worker(ORMBase):

@@ -109,7 +109,7 @@ class Well(Base):
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
     owner = relationship("Owner", back_populates="wells")
-    readings = relationship("Reading", back_populates="well")
+    waterlevels = relationship("WaterLevel", back_populates="well")
 
     meter_history = relationship("MeterHistory", uselist=False)
 
@@ -132,20 +132,20 @@ class Well(Base):
         return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
 
 
-class Reading(Base):
+class WaterLevel(Base):
     id = Column(Integer, primary_key=True, index=True)
     value = Column(Float)
-    eread = Column(String)
-    repair = Column(LargeBinary)
-    timestamp = Column(DateTime)
+    timestamp = Column(DateTime, default=func.now())
     well_id = Column(Integer, ForeignKey("Well.id"))
 
-    well = relationship("Well", back_populates="readings")
+    well = relationship("Well", back_populates="waterlevels")
 
 
 class Owner(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    phone = Column(String)
+    email = Column(String)
 
     wells = relationship("Well", back_populates="owner")
 
