@@ -46,9 +46,9 @@ class MeterPatch(ORMBase):
 
 
 PhoneConstr = constr(
-            strip_whitespace=True,
-            regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
-        )
+    strip_whitespace=True,
+    regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
+)
 
 
 class Owner(ORMBase):
