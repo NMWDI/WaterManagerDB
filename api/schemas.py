@@ -51,7 +51,7 @@ class Owner(ORMBase):
     phone: Optional[
         constr(
             strip_whitespace=True,
-            regex=r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$",
+            regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
         )
     ]
 
@@ -174,6 +174,5 @@ class AlertCreate(ORMBase):
 class AlertPatch(ORMBase):
     alert: Optional[str] = None
     closed_timestamp: Optional[datetime] = None
-
 
 # ============= EOF =============================================
