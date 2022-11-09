@@ -45,15 +45,16 @@ class MeterPatch(ORMBase):
     serial_case_diameter: int
 
 
-class Owner(ORMBase):
-    name: str
-    email: Optional[EmailStr]
-    phone: Optional[
-        constr(
+PhoneConstr = constr(
             strip_whitespace=True,
             regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
         )
-    ]
+
+
+class Owner(ORMBase):
+    name: str
+    email: Optional[EmailStr]
+    phone: Optional[PhoneConstr]
 
 
 class Well(ORMBase):
