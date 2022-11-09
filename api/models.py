@@ -109,7 +109,7 @@ class Well(Base):
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
     owner = relationship("Owner", back_populates="wells")
-    waterlevels = relationship("WaterLevel", back_populates="well")
+    waterlevels = relationship("WellMeasurement", back_populates="well")
 
     meter_history = relationship("MeterHistory", uselist=False)
     construction = relationship("WellConstruction", uselist=False)
@@ -144,19 +144,25 @@ class WellConstruction(Base):
 
 
 class ScreenInterval(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     top = Column(Float)
     bottom = Column(Float)
     well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
 
 
-class WaterLevel(Base):
-    id = Column(Integer, primary_key=True, index=True)
+class ObservedProperty(Base):
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String)
+
+
+class WellMeasurement(Base):
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     value = Column(Float)
     timestamp = Column(DateTime, default=func.now())
     well_id = Column(Integer, ForeignKey("Well.id"))
 
     well = relationship("Well", back_populates="waterlevels")
+    observed_property_id = Column(Integer, ForeignKey("ObservedProperty.id"))
 
 
 class Owner(Base):

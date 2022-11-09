@@ -36,9 +36,10 @@ from api.models import (
     MeterStatusLU,
     MeterHistory,
     Alert,
-    WaterLevel,
     WellConstruction,
     ScreenInterval,
+    WellMeasurement,
+    ObservedProperty,
 )
 from api.session import engine, SessionLocal
 
@@ -233,10 +234,18 @@ Working on Arrivial""".encode(
             note="""DIST 107" DISCHG 100%""".encode("utf8"),
         )
     )
-    db.add(WaterLevel(well_id=1, timestamp=datetime.now(), value=0.12))
+    db.add(ObservedProperty(name='groundwaterlevel'))
+    db.add(ObservedProperty(name='chloride'))
+
+    db.commit()
+    db.add(WellMeasurement(well_id=1, timestamp=datetime.now(), value=0.12, observed_property_id=1))
+    db.add(WellMeasurement(well_id=1, timestamp=datetime.now(), value=1234, observed_property_id=2))
+
     db.add(WellConstruction(well_id=1))
     db.commit()
+
     db.add(ScreenInterval(well_construction_id=1, top=10, bottom=20))
+    db.commit()
 
     db.commit()
     db.close()
@@ -303,24 +312,34 @@ def read_owners(db: Session = Depends(get_db)):
     tags=["waterlevels"],
 )
 async def patch_waterlevel(
-    waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
+        waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
 ):
-    return _patch(db, WaterLevel, waterlevel_id, obj)
+    return _patch(db, WellMeasurement, waterlevel_id, obj)
 
 
 @app.post("/waterlevel", response_model=schemas.WaterLevel, tags=["waterlevels"])
 async def add_waterlevel(
-    waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
+        waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):
-    return _add(db, WaterLevel, waterlevel)
+    return _add(db, WellMeasurement, waterlevel)
 
 
 @app.get("/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"])
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    q = db.query(WaterLevel)
-    if well_id is not None:
-        q = q.filter_by(well_id=well_id)
+    return _read_well_measurement(db, 'groundwaterlevel', well_id)
 
+
+@app.get("/chlorides", response_model=List[schemas.WaterLevel], tags=["chlorides"])
+async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
+    return _read_well_measurement(db, 'chloride', well_id)
+
+
+def _read_well_measurement(db, obsprop, well_id):
+    q = db.query(WellMeasurement)
+    q = q.join(ObservedProperty)
+    if well_id is not None:
+        q = q.filter(WellMeasurement.well_id == well_id)
+    q = q.filter(ObservedProperty.name == obsprop)
     return q.all()
 
 
@@ -332,11 +351,11 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 # ====== WellConstruction
 @app.get(
     "/wellconstruction/{wellid}",
-    response_model=List[schemas.WellConstruction],
+    response_model=schemas.WellConstruction,
     tags=["wells"],
 )
 async def read_wellconstruction(wellid, db: Session = Depends(get_db)):
-    return db.query(WellConstruction).filter_by(well_id=wellid).all()
+    return db.query(WellConstruction).filter_by(well_id=wellid).first()
 
 
 # ====== Alerts
