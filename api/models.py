@@ -140,7 +140,7 @@ class WellConstruction(Base):
     well_depth = Column(Float, default=0)
     well_id = Column(Integer, ForeignKey("Well.id"))
 
-    screens = relationship('ScreenInterval')
+    screens = relationship("ScreenInterval")
 
 
 class ScreenInterval(Base):
@@ -221,5 +221,6 @@ class Repair(Base):
     @worker.setter
     def worker(self, v):
         self.repair_by.id
+
 
 # ============= EOF =============================================

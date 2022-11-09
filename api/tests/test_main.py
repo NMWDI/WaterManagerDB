@@ -169,11 +169,13 @@ def test_wellconstruction():
     response = client.get("/wellconstruction/1")
     assert response.status_code == 200
     data = response.json()
-    assert data[0]['id'] == 1
-    assert data[0]['casing_diameter'] == 0
-    assert data[0]['hole_depth'] == 0
-    assert data[0]['well_depth'] == 0
-    assert data[0]['screens']==[{"id":1, "top": 10, "bottom": 20}]
+    assert data[0]["id"] == 1
+    assert data[0]["casing_diameter"] == 0
+    assert data[0]["hole_depth"] == 0
+    assert data[0]["well_depth"] == 0
+    assert data[0]["screens"] == [{"id": 1, "top": 10, "bottom": 20}]
+
+
 # spatial queries not compatible with spatialite
 # def test_read_wells_spatial():
 #     response = client.get('/wells?radius=50&latlng=35.4,-105.2')
