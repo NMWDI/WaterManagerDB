@@ -169,11 +169,11 @@ def test_wellconstruction():
     response = client.get("/wellconstruction/1")
     assert response.status_code == 200
     data = response.json()
-    assert data['id'] == 1
-    assert data['casing_diameter'] == 0
-    assert data['hole_depth'] == 0
-    assert data['well_depth'] == 0
-    assert data['screens'] == [{"id": 1, "top": 10, "bottom": 20}]
+    assert data["id"] == 1
+    assert data["casing_diameter"] == 0
+    assert data["hole_depth"] == 0
+    assert data["well_depth"] == 0
+    assert data["screens"] == [{"id": 1, "top": 10, "bottom": 20}]
 
 
 def test_waterlevels():
@@ -182,24 +182,26 @@ def test_waterlevels():
 
 
 def test_well_waterlevels():
-    response = client.get('/waterlevels?well_id=1')
+    response = client.get("/waterlevels?well_id=1")
     assert response.status_code == 200
     assert len(response.json()) == 1
 
-    response = client.get('/waterlevels?well_id=0')
+    response = client.get("/waterlevels?well_id=0")
     assert response.status_code == 200
     assert len(response.json()) == 0
 
 
 def test_well_chlorides():
-    response = client.get('/chlorides?well_id=1')
+    response = client.get("/chlorides?well_id=1")
     assert response.status_code == 200
     assert len(response.json()) == 1
-    assert response.json()[0]['value'] == 1234.0
+    assert response.json()[0]["value"] == 1234.0
 
-    response = client.get('/chlorides?well_id=0')
+    response = client.get("/chlorides?well_id=0")
     assert response.status_code == 200
     assert len(response.json()) == 0
+
+
 # spatial queries not compatible with spatialite
 # def test_read_wells_spatial():
 #     response = client.get('/wells?radius=50&latlng=35.4,-105.2')

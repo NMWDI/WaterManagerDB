@@ -234,12 +234,20 @@ Working on Arrivial""".encode(
             note="""DIST 107" DISCHG 100%""".encode("utf8"),
         )
     )
-    db.add(ObservedProperty(name='groundwaterlevel'))
-    db.add(ObservedProperty(name='chloride'))
+    db.add(ObservedProperty(name="groundwaterlevel"))
+    db.add(ObservedProperty(name="chloride"))
 
     db.commit()
-    db.add(WellMeasurement(well_id=1, timestamp=datetime.now(), value=0.12, observed_property_id=1))
-    db.add(WellMeasurement(well_id=1, timestamp=datetime.now(), value=1234, observed_property_id=2))
+    db.add(
+        WellMeasurement(
+            well_id=1, timestamp=datetime.now(), value=0.12, observed_property_id=1
+        )
+    )
+    db.add(
+        WellMeasurement(
+            well_id=1, timestamp=datetime.now(), value=1234, observed_property_id=2
+        )
+    )
 
     db.add(WellConstruction(well_id=1))
     db.commit()
@@ -312,26 +320,26 @@ def read_owners(db: Session = Depends(get_db)):
     tags=["waterlevels"],
 )
 async def patch_waterlevel(
-        waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
+    waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, WellMeasurement, waterlevel_id, obj)
 
 
 @app.post("/waterlevel", response_model=schemas.WaterLevel, tags=["waterlevels"])
 async def add_waterlevel(
-        waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
+    waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):
     return _add(db, WellMeasurement, waterlevel)
 
 
 @app.get("/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"])
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, 'groundwaterlevel', well_id)
+    return _read_well_measurement(db, "groundwaterlevel", well_id)
 
 
 @app.get("/chlorides", response_model=List[schemas.WaterLevel], tags=["chlorides"])
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, 'chloride', well_id)
+    return _read_well_measurement(db, "chloride", well_id)
 
 
 def _read_well_measurement(db, obsprop, well_id):
