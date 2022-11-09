@@ -73,6 +73,18 @@ class WellCreate(ORMBase):
     # osepod: Optional[str] = None
 
 
+class ScreenInterval(ORMBase):
+    top: float
+    bottom: float
+
+
+class WellConstruction(ORMBase):
+    casing_diameter: float
+    hole_depth: float
+    well_depth: float
+    screens: Optional[List[ScreenInterval]]
+
+
 class WaterLevel(ORMBase):
     timestamp: Optional[datetime] = None
     value: float

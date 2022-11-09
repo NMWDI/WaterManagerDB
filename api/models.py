@@ -112,6 +112,7 @@ class Well(Base):
     waterlevels = relationship("WaterLevel", back_populates="well")
 
     meter_history = relationship("MeterHistory", uselist=False)
+    construction = relationship("WellConstruction", uselist=False)
 
     @property
     def latitude(self):
@@ -130,6 +131,23 @@ class Well(Base):
     @property
     def location(self):
         return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
+
+
+class WellConstruction(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    casing_diameter = Column(Float, default=0)
+    hole_depth = Column(Float, default=0)
+    well_depth = Column(Float, default=0)
+    well_id = Column(Integer, ForeignKey("Well.id"))
+
+    screens = relationship('ScreenInterval')
+
+
+class ScreenInterval(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    top = Column(Float)
+    bottom = Column(Float)
+    well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
 
 
 class WaterLevel(Base):
@@ -203,6 +221,5 @@ class Repair(Base):
     @worker.setter
     def worker(self, v):
         self.repair_by.id
-
 
 # ============= EOF =============================================
