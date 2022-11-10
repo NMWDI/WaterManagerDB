@@ -53,7 +53,7 @@ function Sidebar() {
             {/*    <TableViewIcon className="sidebarIcon" />*/}
             {/*    Wells*/}
             {/*  </li>*/}
-            {/*</Link>*/}
+            {/*</Link>
             <Link to="/workers" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
@@ -65,11 +65,17 @@ function Sidebar() {
                 <TableViewIcon className="sidebarIcon" />
                 Repairs
               </li>
-            </Link>
+  </Link>*/}
             <Link to="/wells" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
                 Wells
+              </li>
+            </Link>
+            <Link to="/parts" className="link">
+              <li className="sidebarListItem">
+                <TableViewIcon className="sidebarIcon" />
+                Parts
               </li>
             </Link>
             <Link to="/alerts" className="link">
