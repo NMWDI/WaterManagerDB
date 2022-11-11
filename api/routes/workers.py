@@ -21,9 +21,12 @@ from sqlalchemy.orm import Session
 from api import schemas
 from api.models import Meter, Worker
 from api.route_util import _add, _patch
+from api.security import scoped_user
 from api.session import get_db
 
 worker_router = APIRouter()
+
+write_user = scoped_user(['read', 'workers:write'])
 
 
 @worker_router.get("/workers", response_model=List[schemas.Worker], tags=["workers"])
@@ -31,7 +34,9 @@ def read_workers(db: Session = Depends(get_db)):
     return db.query(Worker).all()
 
 
-@worker_router.post("/workers", response_model=schemas.Worker, tags=["workers"])
+@worker_router.post("/workers",
+                    dependencies=[Depends(write_user)],
+                    response_model=schemas.Worker, tags=["workers"])
 async def add_worker(
     worker: schemas.WorkerCreate,
     db: Session = Depends(get_db),
@@ -39,16 +44,18 @@ async def add_worker(
     return _add(db, Worker, worker)
 
 
-@worker_router.patch(
-    "/workers/{worker_id}", response_model=schemas.Worker, tags=["workers"]
-)
+@worker_router.patch("/workers/{worker_id}",
+                     dependencies=[Depends(write_user)],
+                     response_model=schemas.Worker, tags=["workers"])
 async def patch_worker(
     worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
 ):
     return _patch(db, Worker, worker_id, worker)
 
 
-@worker_router.delete("/workers/{worker_id}", tags=["workers"])
+@worker_router.delete("/workers/{worker_id}",
+                      dependencies=[Depends(write_user)],
+                      tags=["workers"])
 async def delete_worker(worker_id: int, db: Session = Depends(get_db)):
     worker = db.get(Worker, worker_id)
     if not worker:
