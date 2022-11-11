@@ -53,9 +53,9 @@ async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get
     return _patch(db, Well, well_id, obj)
 
 
-
 @well_router.post("/wells", response_model=schemas.Well, tags=["wells"])
 async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
     return _add(db, Well, obj)
+
 
 # ============= EOF =============================================

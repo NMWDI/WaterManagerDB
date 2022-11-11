@@ -32,24 +32,30 @@ well_measurement_router = APIRouter()
     tags=["waterlevels"],
 )
 async def patch_waterlevel(
-        waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
+    waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, WellMeasurement, waterlevel_id, obj)
 
 
-@well_measurement_router.post("/waterlevel", response_model=schemas.WaterLevel, tags=["waterlevels"])
+@well_measurement_router.post(
+    "/waterlevel", response_model=schemas.WaterLevel, tags=["waterlevels"]
+)
 async def add_waterlevel(
-        waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
+    waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):
     return _add(db, WellMeasurement, waterlevel)
 
 
-@well_measurement_router.get("/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"])
+@well_measurement_router.get(
+    "/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
+)
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return _read_well_measurement(db, "groundwaterlevel", well_id)
 
 
-@well_measurement_router.get("/chlorides", response_model=List[schemas.WaterLevel], tags=["chlorides"])
+@well_measurement_router.get(
+    "/chlorides", response_model=List[schemas.WaterLevel], tags=["chlorides"]
+)
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return _read_well_measurement(db, "chloride", well_id)
 
@@ -61,4 +67,6 @@ def _read_well_measurement(db, obsprop, well_id):
         q = q.filter(WellMeasurement.well_id == well_id)
     q = q.filter(ObservedProperty.name == obsprop)
     return q.all()
+
+
 # ============= EOF =============================================

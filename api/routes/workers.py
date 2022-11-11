@@ -33,15 +33,17 @@ def read_workers(db: Session = Depends(get_db)):
 
 @worker_router.post("/workers", response_model=schemas.Worker, tags=["workers"])
 async def add_worker(
-        worker: schemas.WorkerCreate,
-        db: Session = Depends(get_db),
+    worker: schemas.WorkerCreate,
+    db: Session = Depends(get_db),
 ):
     return _add(db, Worker, worker)
 
 
-@worker_router.patch("/workers/{worker_id}", response_model=schemas.Worker, tags=["workers"])
+@worker_router.patch(
+    "/workers/{worker_id}", response_model=schemas.Worker, tags=["workers"]
+)
 async def patch_worker(
-        worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
+    worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
 ):
     return _patch(db, Worker, worker_id, worker)
 
@@ -54,4 +56,6 @@ async def delete_worker(worker_id: int, db: Session = Depends(get_db)):
     db.delete(worker)
     db.commit()
     return {"ok": True}
+
+
 # ============= EOF =============================================

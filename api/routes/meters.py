@@ -38,8 +38,9 @@ async def read_meters(db: Session = Depends(get_db)):
 
 @meter_router.patch("/meters/{meter_id}", response_model=schemas.Meter, tags=["meters"])
 async def patch_meters(
-        meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
+    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Meter, meter_id, obj)
+
 
 # ============= EOF =============================================

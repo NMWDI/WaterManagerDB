@@ -211,10 +211,16 @@ Working on Arrivial""".encode(
     db.add(ScreenInterval(well_construction_id=1, top=10, bottom=20))
     db.commit()
 
-    db.add(User(full_name='john doe',
-                username='jd',
-                email="johndoe@example.com",
-                hashed_password=get_password_hash('secret')))
+    db.add(
+        User(
+            full_name="john doe",
+            username="jd",
+            email="johndoe@example.com",
+            hashed_password=get_password_hash("secret"),
+        )
+    )
     db.commit()
     db.close()
+
+
 # ============= EOF =============================================

@@ -74,6 +74,7 @@ def get_user(username: str):
 #     user = get_user(token)
 #     return user
 
+
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,7 +95,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-async def get_current_active_user(current_user: security_schemas.User = Depends(get_current_user)):
+async def get_current_active_user(
+    current_user: security_schemas.User = Depends(get_current_user),
+):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -103,7 +106,13 @@ async def get_current_active_user(current_user: security_schemas.User = Depends(
 authenticated_router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
-@authenticated_router.get("/users/me", response_model=security_schemas.User, tags=['login'])
-async def read_users_me(current_user: security_schemas.User = Depends(get_current_user)):
+@authenticated_router.get(
+    "/users/me", response_model=security_schemas.User, tags=["login"]
+)
+async def read_users_me(
+    current_user: security_schemas.User = Depends(get_current_user),
+):
     return current_user
+
+
 # ============= EOF =============================================

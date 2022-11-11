@@ -24,6 +24,8 @@ from api.route_util import _add, _patch
 from api.session import get_db
 
 alert_router = APIRouter()
+
+
 @alert_router.get("/alerts", response_model=List[schemas.Alert], tags=["alerts"])
 async def read_alerts(db: Session = Depends(get_db)):
     return db.query(Alert).all()
@@ -41,12 +43,9 @@ async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
 
 @alert_router.patch("/alerts/{alert_id}", response_model=schemas.Alert, tags=["alerts"])
 async def patch_alerts(
-        alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
+    alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Alert, alert_id, obj)
-
-
-
 
 
 # ============= EOF =============================================

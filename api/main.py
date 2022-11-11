@@ -50,8 +50,13 @@ from api.routes.repairs import repair_query, repair_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.wells import well_router
 from api.routes.workers import worker_router
-from api.security import get_password_hash, authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, \
-    authenticated_router
+from api.security import (
+    get_password_hash,
+    authenticate_user,
+    create_access_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    authenticated_router,
+)
 from api.security_models import User
 from api.session import engine, SessionLocal, get_db
 
@@ -92,12 +97,10 @@ app.add_middleware(
 )
 
 
-
-
-
 # ============== Security ==============
 
-@app.post("/token", response_model=security_schemas.Token, tags=['login'])
+
+@app.post("/token", response_model=security_schemas.Token, tags=["login"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -115,9 +118,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # =======================================
 
+
 @authenticated_router.get("/repair_report", response_model=List[schemas.RepairReport])
 def read_repair_report(
-        after_date: date = None, after: datetime = None, db: Session = Depends(get_db),
+    after_date: date = None,
+    after: datetime = None,
+    db: Session = Depends(get_db),
 ):
     q = db.query(Repair)
     if after_date:
@@ -177,7 +183,7 @@ async def read_wellconstruction(wellid, db: Session = Depends(get_db)):
 # ====== Alerts
 @app.get("/nalerts", response_model=int, tags=["alerts"])
 async def read_nalerts(
-        db: Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     q = db.query(Alert)
     return q.count()
@@ -186,7 +192,7 @@ async def read_nalerts(
 # ====== Wells
 @app.get("/nwells", response_model=int, tags=["wells"])
 async def read_nwells(
-        db: Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     q = db.query(Well)
     return q.count()
@@ -195,7 +201,7 @@ async def read_nwells(
 # ======  Meters
 @app.get("/nmeters", response_model=int, tags=["meters"])
 async def read_nmeters(
-        db: Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     q = db.query(Meter)
     return q.count()
@@ -204,10 +210,10 @@ async def read_nmeters(
 # ======  Repairs
 @app.get("/nrepairs", response_model=int, tags=["repairs"])
 async def read_nrepairs(
-        location: str = None,
-        well_id: int = None,
-        meter_id: int = None,
-        db: Session = Depends(get_db),
+    location: str = None,
+    well_id: int = None,
+    meter_id: int = None,
+    db: Session = Depends(get_db),
 ):
     q = repair_query(db, location, well_id, meter_id)
     return q.count()
@@ -216,7 +222,7 @@ async def read_nrepairs(
 # ======== Worker
 @app.get("/nworkers", response_model=int, tags=["workers"])
 async def read_nworkers(
-        db: Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     q = db.query(Worker)
     return q.count()
@@ -237,5 +243,6 @@ app.include_router(authenticated_router)
 
 if os.environ.get("SETUP_DB"):
     from api.dbsetup import setup_db
+
     setup_db(engine)
 # ============= EOF =============================================
