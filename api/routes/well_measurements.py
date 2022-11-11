@@ -25,7 +25,7 @@ from api.security import scoped_user
 from api.session import get_db
 
 well_measurement_router = APIRouter()
-write_user = scoped_user(['read', 'well_measurement:write'])
+write_user = scoped_user(["read", "well_measurement:write"])
 
 
 @well_measurement_router.patch(
@@ -40,9 +40,12 @@ async def patch_waterlevel(
     return _patch(db, WellMeasurement, waterlevel_id, obj)
 
 
-@well_measurement_router.post("/waterlevel",
-                              dependencies=[Depends(write_user)],
-                              response_model=schemas.WaterLevel, tags=["waterlevels"])
+@well_measurement_router.post(
+    "/waterlevel",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.WaterLevel,
+    tags=["waterlevels"],
+)
 async def add_waterlevel(
     waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):

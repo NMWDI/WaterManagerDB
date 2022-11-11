@@ -26,11 +26,15 @@ from api.session import get_db
 
 repair_router = APIRouter()
 
-write_user = scoped_user(['read', 'repairs:write'])
+write_user = scoped_user(["read", "repairs:write"])
 
-@repair_router.post("/repairs",
-                    dependencies=[Depends(write_user)],
-                    response_model=schemas.RepairCreate, tags=["repairs"])
+
+@repair_router.post(
+    "/repairs",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.RepairCreate,
+    tags=["repairs"],
+)
 async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
     print(repair.dict())
 
@@ -42,16 +46,19 @@ async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)
     return db_item
 
 
-@repair_router.delete("/repairs/{repair_id}",
-                      dependencies=[Depends(write_user)],
-                      tags=["repairs"])
+@repair_router.delete(
+    "/repairs/{repair_id}", dependencies=[Depends(write_user)], tags=["repairs"]
+)
 async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
     return _delete(db, Repair, repair_id)
 
 
-@repair_router.patch("/repairs/{repair_id}",
-                     dependencies=[Depends(write_user)],
-                     response_model=schemas.Repair, tags=["repairs"])
+@repair_router.patch(
+    "/repairs/{repair_id}",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Repair,
+    tags=["repairs"],
+)
 async def patch_repairs(
     repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
 ):

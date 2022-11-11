@@ -26,7 +26,7 @@ from api.security_schemas import User
 from api.session import get_db
 
 alert_router = APIRouter()
-write_user = scoped_user(['read', 'alerts:write'])
+write_user = scoped_user(["read", "alerts:write"])
 
 
 @alert_router.get("/alerts", response_model=List[schemas.Alert], tags=["alerts"])
@@ -39,19 +39,26 @@ async def read_alerts(alert_id: int, db: Session = Depends(get_db)):
     return db.query(Alert).filter(Alert.id == alert_id).first()
 
 
-@alert_router.post("/alerts",
-                   dependencies=[Depends(write_user)],
-                   response_model=schemas.Alert, tags=["alerts"])
+@alert_router.post(
+    "/alerts",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Alert,
+    tags=["alerts"],
+)
 async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
     return _add(db, Alert, alert)
 
 
-@alert_router.patch("/alerts/{alert_id}",
-                    dependencies=[Depends(write_user)],
-                    response_model=schemas.Alert, tags=["alerts"])
+@alert_router.patch(
+    "/alerts/{alert_id}",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Alert,
+    tags=["alerts"],
+)
 async def patch_alerts(
-        alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
+    alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Alert, alert_id, obj)
+
 
 # ============= EOF =============================================

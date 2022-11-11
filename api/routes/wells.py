@@ -27,7 +27,8 @@ from api.session import get_db
 
 well_router = APIRouter()
 
-write_user = scoped_user(['read', 'wells:write'])
+write_user = scoped_user(["read", "wells:write"])
+
 
 @well_router.get("/wells", response_model=List[schemas.Well], tags=["wells"])
 def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(get_db)):
@@ -50,17 +51,22 @@ def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(g
     return q.all()
 
 
-@well_router.patch("/wells/{well_id}",
-                   dependencies=[Depends(write_user)],
-                   response_model=schemas.Well, tags=["wells"])
+@well_router.patch(
+    "/wells/{well_id}",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Well,
+    tags=["wells"],
+)
 async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
     return _patch(db, Well, well_id, obj)
 
 
-
-@well_router.post("/wells",
-                   dependencies=[Depends(write_user)],
-                  response_model=schemas.Well, tags=["wells"])
+@well_router.post(
+    "/wells",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Well,
+    tags=["wells"],
+)
 async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
     return _add(db, Well, obj)
 

@@ -27,15 +27,18 @@ from api import security_schemas
 from api.security_models import User
 from api.session import get_db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token",
-                                     scopes={"read": "Read all data",
-                                             "meters:write": "Write meters",
-                                             "alerts:write": "Write alerts",
-                                             "wells:write": "Write wells",
-                                             "repair:write": "Write repairs",
-                                             "well_measurement:write": "Write well measurements, i.e. Water Levels "
-                                                                       "and Chlorides"
-                                             }, )
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="token",
+    scopes={
+        "read": "Read all data",
+        "meters:write": "Write meters",
+        "alerts:write": "Write alerts",
+        "wells:write": "Write wells",
+        "repair:write": "Write repairs",
+        "well_measurement:write": "Write well measurements, i.e. Water Levels "
+        "and Chlorides",
+    },
+)
 
 SECRET_KEY = "09d25e194fbb6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -84,9 +87,10 @@ def get_user(username: str):
 #     user = get_user(token)
 #     return user
 
+
 async def get_current_user(
-        security_scopes: SecurityScopes,
-        token: str = Depends(oauth2_scheme)):
+    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
+):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -135,17 +139,17 @@ async def get_current_user(
 #         raise HTTPException(status_code=400, detail="Inactive user")
 #     return current_user
 
+
 def scoped_user(scopes):
-    async def get_user(
-            current_user: User = Security(get_current_user, scopes=scopes)
-    ):
+    async def get_user(current_user: User = Security(get_current_user, scopes=scopes)):
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user
+
     return get_user
 
 
-authenticated_router = APIRouter(dependencies=[Depends(scoped_user(['read']))])
+authenticated_router = APIRouter(dependencies=[Depends(scoped_user(["read"]))])
 
 
 @authenticated_router.get(

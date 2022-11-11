@@ -27,11 +27,15 @@ from api.session import get_db
 
 meter_router = APIRouter()
 
-write_user = scoped_user(['read', 'meters:write'])
+write_user = scoped_user(["read", "meters:write"])
 
-@meter_router.post("/meters",
-                   dependencies=[Depends(write_user)],
-                   response_model=schemas.Meter, tags=["meters"])
+
+@meter_router.post(
+    "/meters",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Meter,
+    tags=["meters"],
+)
 async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
     return _add(db, Meter, obj)
 
@@ -41,9 +45,12 @@ async def read_meters(db: Session = Depends(get_db)):
     return db.query(Meter).all()
 
 
-@meter_router.patch("/meters/{meter_id}",
-                    dependencies=[Depends(write_user)],
-                    response_model=schemas.Meter, tags=["meters"])
+@meter_router.patch(
+    "/meters/{meter_id}",
+    dependencies=[Depends(write_user)],
+    response_model=schemas.Meter,
+    tags=["meters"],
+)
 async def patch_meters(
     meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
