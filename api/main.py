@@ -16,16 +16,18 @@
 import os
 from datetime import datetime, timedelta, date
 
-import requests
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import List, Union
 
-from typing import List
-
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from starlette import status
 
-from api import schemas
+from api import schemas, security_schemas
 from api.models import (
     Base,
     Meter,
@@ -41,7 +43,17 @@ from api.models import (
     WellMeasurement,
     ObservedProperty,
 )
-from api.session import engine, SessionLocal
+from api.route_util import _patch, _add, _delete
+from api.routes.alerts import alert_router
+from api.routes.meters import meter_router
+from api.routes.repairs import repair_query, repair_router
+from api.routes.well_measurements import well_measurement_router
+from api.routes.wells import well_router
+from api.routes.workers import worker_router
+from api.security import get_password_hash, authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, \
+    authenticated_router
+from api.security_models import User
+from api.session import engine, SessionLocal, get_db
 
 tags_metadata = [
     {"name": "wells", "description": "Water Wells"},
@@ -80,201 +92,32 @@ app.add_middleware(
 )
 
 
-def setup_db(eng, db=None, populate_db=False):
-    if not os.environ.get("POPULATE_DB"):
-        Base.metadata.create_all(bind=eng)
-        return
-    else:
-        Base.metadata.drop_all(bind=eng)
-        Base.metadata.create_all(bind=eng)
 
-    if db is None:
-        db = SessionLocal()
 
-    # build meter status lookup
-    db.add(MeterStatusLU(name="POK", description="Pump OK"))
-    db.add(MeterStatusLU(name="NP", description="Not Pumping"))
-    db.add(MeterStatusLU(name="PIRO", description="Pump ON, Register Off"))
-    db.commit()
 
-    # add meters
-    db.add(Meter(name="moo", serial_year=1992, serial_id=1234, serial_case_diameter=4))
-    db.add(Meter(name="tor", serial_year=1992, serial_id=2235, serial_case_diameter=4))
-    db.add(Meter(name="hag", serial_year=1992, serial_id=3236, serial_case_diameter=4))
+# ============== Security ==============
 
-    # add alert
-    db.add(Alert(meter_id=1, alert="foo bar alert"))
-    # add owners
-    db.add(Owner(name="Guy & Jackson"))
-    db.add(Owner(name="Spencer"))
-
-    # add workers
-    for name in ("Default", "Buster", "Alice"):
-        db.add(Worker(name=name))
-
-    db.commit()
-
-    # add wells
-    db.add(
-        Well(
-            name="bar",
-            owner_id=1,
-            township=100,
-            range=10,
-            section=4,
-            quarter=4,
-            half_quarter=3,
-            osepod="RA-1234-123",
-            # latitude=34,
-            # longitude=-106,
-            geom="POINT (-106 34)",
+@app.post("/token", response_model=security_schemas.Token, tags=['login'])
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
     )
-    db.add(
-        Well(
-            name="bag",
-            owner_id=2,
-            township=100,
-            range=10,
-            section=4,
-            quarter=2,
-            half_quarter=1,
-            osepod="RA-1234-123",
-            # latitude=35.5,
-            # longitude=-105.1,
-            geom="POINT (-105.1 35.5)",
-        )
-    )
-    db.add(
-        Well(
-            name="bat",
-            owner_id=1,
-            township=100,
-            range=10,
-            section=4,
-            quarter=3,
-            half_quarter=2,
-            osepod="RA-1234-123",
-            # latitude=36,
-            # longitude=-105.5,
-            geom="POINT (-105.5 36)",
-        )
-    )
-    db.commit()
-
-    # add meter history
-    db.add(MeterHistory(well_id=1, meter_id=1))
-    db.add(MeterHistory(well_id=2, meter_id=2))
-    db.add(MeterHistory(well_id=3, meter_id=3))
-
-    db.add(
-        Repair(
-            worker_id=1,
-            well_id=1,
-            h2o_read=638.831,
-            e_read="E 2412341",
-            meter_status_id=1,
-            preventative_maintenance="",
-            repair_description="""Gasket for saddle
-grease bearing
-PREV MAINT
-Working on Arrivial""".encode(
-                "utf8"
-            ),
-            note="""DIST 107" DISCHG 100%""".encode("utf8"),
-            timestamp=datetime.now(),
-        )
-    )
-
-    db.add(
-        Repair(
-            worker_id=1,
-            timestamp=datetime.now() - timedelta(days=365),
-            well_id=1,
-            h2o_read=638000.831,
-            e_read="E 241da2341",
-            meter_status_id=1,
-            preventative_maintenance="",
-            repair_description="""a
-    Working on Arrivial""".encode(
-                "utf8"
-            ),
-            note="""DIST 107" DISCHG 100%""".encode("utf8"),
-        )
-    )
-    db.add(
-        Repair(
-            worker_id=1,
-            timestamp=datetime.now() - timedelta(days=2 * 365),
-            well_id=2,
-            h2o_read=300.831,
-            e_read="E 241da2341",
-            meter_status_id=1,
-            preventative_maintenance="",
-            repair_description="""
-        Working on Arrivial""".encode(
-                "utf8"
-            ),
-            note="""DIST 107" DISCHG 100%""".encode("utf8"),
-        )
-    )
-    db.add(
-        Repair(
-            worker_id=3,
-            timestamp=datetime.now() - timedelta(days=2 * 360),
-            well_id=3,
-            h2o_read=8002.22,
-            e_read="E 341",
-            meter_status_id=1,
-            preventative_maintenance="",
-            repair_description="""
-            Working on Arrivial""".encode(
-                "utf8"
-            ),
-            note="""DIST 107" DISCHG 100%""".encode("utf8"),
-        )
-    )
-    db.add(ObservedProperty(name="groundwaterlevel"))
-    db.add(ObservedProperty(name="chloride"))
-
-    db.commit()
-    db.add(
-        WellMeasurement(
-            well_id=1, timestamp=datetime.now(), value=0.12, observed_property_id=1
-        )
-    )
-    db.add(
-        WellMeasurement(
-            well_id=1, timestamp=datetime.now(), value=1234, observed_property_id=2
-        )
-    )
-
-    db.add(WellConstruction(well_id=1))
-    db.commit()
-
-    db.add(ScreenInterval(well_construction_id=1, top=10, bottom=20))
-    db.commit()
-
-    db.commit()
-    db.close()
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# =======================================
 
-
-@app.post("/token")
-def post_oauth_token():
-    requests.post()
-
-
-@app.get("/repair_report", response_model=List[schemas.RepairReport])
+@authenticated_router.get("/repair_report", response_model=List[schemas.RepairReport])
 def read_repair_report(
-    after_date: date = None, after: datetime = None, db: Session = Depends(get_db)
+        after_date: date = None, after: datetime = None, db: Session = Depends(get_db),
 ):
     q = db.query(Repair)
     if after_date:
@@ -285,7 +128,7 @@ def read_repair_report(
     return q.all()
 
 
-@app.get("/api_status", response_model=schemas.Status)
+@authenticated_router.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
     try:
         db.query(Well).first()
@@ -308,47 +151,12 @@ def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
 
 
-@app.get("/owners", response_model=List[schemas.Owner])
+@authenticated_router.get("/owners", response_model=List[schemas.Owner])
 def read_owners(db: Session = Depends(get_db)):
     return db.query(Owner).all()
 
 
 # ======= WaterLevels ========
-@app.patch(
-    "/waterlevel/{waterlevel_id}",
-    response_model=schemas.WaterLevel,
-    tags=["waterlevels"],
-)
-async def patch_waterlevel(
-    waterlevel_id: int, obj: schemas.WaterLevelPatch, db: Session = Depends(get_db)
-):
-    return _patch(db, WellMeasurement, waterlevel_id, obj)
-
-
-@app.post("/waterlevel", response_model=schemas.WaterLevel, tags=["waterlevels"])
-async def add_waterlevel(
-    waterlevel: schemas.WaterLevelCreate, db: Session = Depends(get_db)
-):
-    return _add(db, WellMeasurement, waterlevel)
-
-
-@app.get("/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"])
-async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "groundwaterlevel", well_id)
-
-
-@app.get("/chlorides", response_model=List[schemas.WaterLevel], tags=["chlorides"])
-async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "chloride", well_id)
-
-
-def _read_well_measurement(db, obsprop, well_id):
-    q = db.query(WellMeasurement)
-    q = q.join(ObservedProperty)
-    if well_id is not None:
-        q = q.filter(WellMeasurement.well_id == well_id)
-    q = q.filter(ObservedProperty.name == obsprop)
-    return q.all()
 
 
 # @app.get("/well_wate/{wellid}", response_model=List[schemas.Reading])
@@ -357,7 +165,7 @@ def _read_well_measurement(db, obsprop, well_id):
 
 
 # ====== WellConstruction
-@app.get(
+@authenticated_router.get(
     "/wellconstruction/{wellid}",
     response_model=schemas.WellConstruction,
     tags=["wells"],
@@ -367,212 +175,51 @@ async def read_wellconstruction(wellid, db: Session = Depends(get_db)):
 
 
 # ====== Alerts
-@app.get("/alerts", response_model=List[schemas.Alert], tags=["alerts"])
-async def read_alerts(db: Session = Depends(get_db)):
-    return db.query(Alert).all()
-
-
-@app.get("/alerts/{alert_id}", response_model=schemas.Alert, tags=["alerts"])
-async def read_alerts(alert_id: int, db: Session = Depends(get_db)):
-    return db.query(Alert).filter(Alert.id == alert_id).first()
-
-
-@app.post("/alerts", response_model=schemas.Alert, tags=["alerts"])
-async def add_alerts(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
-    return _add(db, Alert, alert)
-
-
-@app.patch("/alerts/{alert_id}", response_model=schemas.Alert, tags=["alerts"])
-async def patch_alerts(
-    alert_id: int, obj: schemas.AlertPatch, db: Session = Depends(get_db)
-):
-    return _patch(db, Alert, alert_id, obj)
-
-
 @app.get("/nalerts", response_model=int, tags=["alerts"])
 async def read_nalerts(
-    db: Session = Depends(get_db),
+        db: Session = Depends(get_db),
 ):
     q = db.query(Alert)
     return q.count()
 
 
 # ====== Wells
-@app.get("/wells", response_model=List[schemas.Well], tags=["wells"])
-def read_wells(radius: float = None, latlng: str = None, db: Session = Depends(get_db)):
-    """
-    radius in kilometers
-
-    :param radius:
-    :param latlng:
-    :param db:
-    :return:
-    """
-    q = db.query(Well)
-    if radius and latlng:
-        latlng = latlng.split(",")
-        radius = radius / 111.139
-        q = q.filter(
-            func.ST_DWithin(Well.geom, f"POINT ({latlng[1]} {latlng[0]})", radius)
-        )
-
-    return q.all()
-
-
-@app.patch("/wells/{well_id}", response_model=schemas.Well, tags=["wells"])
-async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
-    return _patch(db, Well, well_id, obj)
-
-
 @app.get("/nwells", response_model=int, tags=["wells"])
 async def read_nwells(
-    db: Session = Depends(get_db),
+        db: Session = Depends(get_db),
 ):
     q = db.query(Well)
     return q.count()
 
 
-@app.post("/wells", response_model=schemas.Well, tags=["wells"])
-async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
-    return _add(db, Well, obj)
-
-
 # ======  Meters
-@app.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
-async def read_meters(db: Session = Depends(get_db)):
-    return db.query(Meter).all()
-
-
-@app.patch("/meters/{meter_id}", response_model=schemas.Meter, tags=["meters"])
-async def patch_meters(
-    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
-):
-    return _patch(db, Meter, meter_id, obj)
-
-
 @app.get("/nmeters", response_model=int, tags=["meters"])
 async def read_nmeters(
-    db: Session = Depends(get_db),
+        db: Session = Depends(get_db),
 ):
     q = db.query(Meter)
     return q.count()
 
 
-@app.post("/meters", response_model=schemas.Meter, tags=["meters"])
-async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
-    return _add(db, Meter, obj)
-
-
-def parse_location(location_str):
-    return location_str.split(".")
-
-
-def repair_query(db, location, well_id, meter_id):
-    q = db.query(Repair)
-    q = q.join(Well)
-
-    if meter_id is not None:
-        q = q.join(MeterHistory)
-        q = q.filter(MeterHistory.meter_id == meter_id)
-    elif well_id is not None:
-        q = q.filter(Well.id == well_id)
-    elif location is not None:
-        t, r, s, qu, hq = parse_location(location)
-        q = (
-            q.filter(Well.township == t)
-            .filter(Well.range == r)
-            .filter(Well.section == s)
-            .filter(Well.quarter == qu)
-            .filter(Well.half_quarter == hq)
-        )
-    return q
-
-
 # ======  Repairs
-@app.get("/repairs", response_model=List[schemas.Repair], tags=["repairs"])
-async def read_repairs(
-    location: str = None,
-    well_id: int = None,
-    meter_id: int = None,
-    db: Session = Depends(get_db),
-):
-    q = repair_query(db, location, well_id, meter_id)
-
-    return q.all()
-
-
 @app.get("/nrepairs", response_model=int, tags=["repairs"])
 async def read_nrepairs(
-    location: str = None,
-    well_id: int = None,
-    meter_id: int = None,
-    db: Session = Depends(get_db),
+        location: str = None,
+        well_id: int = None,
+        meter_id: int = None,
+        db: Session = Depends(get_db),
 ):
     q = repair_query(db, location, well_id, meter_id)
     return q.count()
-
-
-@app.patch("/repairs/{repair_id}", response_model=schemas.Repair, tags=["repairs"])
-async def patch_repairs(
-    repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
-):
-    return _patch(db, Repair, repair_id, obj)
-
-
-@app.post("/repairs", response_model=schemas.RepairCreate, tags=["repairs"])
-async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
-    print(repair.dict())
-
-    db_item = Repair(**repair.dict())
-    db_item.worker_id = 1
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-
-@app.delete("/repairs/{repair_id}", tags=["repairs"])
-async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
-    return _delete(db, Repair, repair_id)
 
 
 # ======== Worker
-@app.get("/workers", response_model=List[schemas.Worker], tags=["workers"])
-def read_workers(db: Session = Depends(get_db)):
-    return db.query(Worker).all()
-
-
-@app.post("/workers", response_model=schemas.Worker, tags=["workers"])
-async def add_worker(
-    worker: schemas.WorkerCreate,
-    db: Session = Depends(get_db),
-):
-    return _add(db, Worker, worker)
-
-
 @app.get("/nworkers", response_model=int, tags=["workers"])
 async def read_nworkers(
-    db: Session = Depends(get_db),
+        db: Session = Depends(get_db),
 ):
     q = db.query(Worker)
     return q.count()
-
-
-@app.patch("/workers/{worker_id}", response_model=schemas.Worker, tags=["workers"])
-async def patch_worker(
-    worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
-):
-    return _patch(db, Worker, worker_id, worker)
-
-
-@app.delete("/workers/{worker_id}", tags=["workers"])
-async def delete_worker(worker_id: int, db: Session = Depends(get_db)):
-    worker = db.get(Worker, worker_id)
-    if not worker:
-        raise HTTPException(status_code=404, detail="Worker not found")
-    db.delete(worker)
-    db.commit()
-    return {"ok": True}
 
 
 @app.get("/")
@@ -580,44 +227,15 @@ async def index():
     return {"message": "Hello World WaterManagerDBffff"}
 
 
-def _patch(db, table, dbid, obj):
-    db_item = _get(db, table, dbid)
-    for k, v in obj.dict(exclude_unset=True).items():
-        try:
-            setattr(db_item, k, v)
-        except AttributeError as e:
-            print(e)
-            continue
-
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-
-def _add(db, table, obj):
-    db_item = table(**obj.dict())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-
-def _delete(db, table, dbid):
-    db_item = _get(db, table, dbid)
-    db.delete(db_item)
-    db.commit()
-    return {"ok": True}
-
-
-def _get(db, table, dbid):
-    db_item = db.get(table, dbid)
-    if not db_item:
-        raise HTTPException(status_code=404, detail=f"{table}.{dbid} not found")
-
-    return db_item
-
+authenticated_router.include_router(alert_router)
+authenticated_router.include_router(meter_router)
+authenticated_router.include_router(well_router)
+authenticated_router.include_router(repair_router)
+authenticated_router.include_router(worker_router)
+authenticated_router.include_router(well_measurement_router)
+app.include_router(authenticated_router)
 
 if os.environ.get("SETUP_DB"):
+    from api.dbsetup import setup_db
     setup_db(engine)
 # ============= EOF =============================================

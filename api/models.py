@@ -36,7 +36,7 @@ from geoalchemy2.shape import to_shape
 
 @as_declarative()
 class Base:
-    id: Any
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     __name__: str
 
     # to generate tablename from classname
@@ -46,7 +46,7 @@ class Base:
 
 
 class Alert(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
     meter_id = Column(Integer, ForeignKey("Meter.id"))
     open_timestamp = Column(DateTime, default=func.now())
@@ -64,7 +64,7 @@ class Alert(Base):
 
 
 class Meter(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     serial_year = Column(Integer)
     serial_case_diameter = Column(Integer)
@@ -78,7 +78,7 @@ class Meter(Base):
 
 
 class MeterHistory(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
 
     well_id = Column(Integer, ForeignKey("Well.id"))
     meter_id = Column(Integer, ForeignKey("Meter.id"))
@@ -89,7 +89,7 @@ class MeterHistory(Base):
 
 
 class Well(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
     township = Column(Integer)
@@ -134,7 +134,7 @@ class Well(Base):
 
 
 class WellConstruction(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     casing_diameter = Column(Float, default=0)
     hole_depth = Column(Float, default=0)
     well_depth = Column(Float, default=0)
@@ -166,7 +166,7 @@ class WellMeasurement(Base):
 
 
 class Owner(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     phone = Column(String)
     email = Column(String)
@@ -175,18 +175,18 @@ class Owner(Base):
 
 
 class Worker(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
 
 class MeterStatusLU(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     description = Column(String)
 
 
 class Repair(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
     well_id = Column(Integer, ForeignKey("Well.id"))
     worker_id = Column(Integer, ForeignKey("Worker.id"))
@@ -227,6 +227,5 @@ class Repair(Base):
     @worker.setter
     def worker(self, v):
         self.repair_by.id
-
 
 # ============= EOF =============================================
