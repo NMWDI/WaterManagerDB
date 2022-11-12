@@ -217,6 +217,7 @@ def test_well_chlorides():
     assert response.status_code == 200
     assert len(response.json()) == 0
 
+
 # spatial queries not compatible with spatialite
 # def test_read_wells_spatial():
 #     response = client.get('/wells?radius=50&latlng=35.4,-105.2')
