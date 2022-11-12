@@ -22,8 +22,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.event import listen
 from sqlite3 import OperationalError
-from api.main import app, get_db, setup_db
+
+from api.dbsetup import setup_db
+from api.main import app, get_db
 from api.models import Base
+from api.routes.alerts import write_user
+from api.security import get_current_user
+from api.security_models import User
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
@@ -57,7 +62,18 @@ def override_get_db():
 os.environ["POPULATE_DB"] = "true"
 setup_db(engine, next(override_get_db()))
 
+
+def override_read_user():
+    return User(disabled=False)
+
+
+def override_write_user():
+    return User(disabled=False)
+
+
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[write_user] = override_write_user
+app.dependency_overrides[get_current_user] = override_write_user
 client = TestClient(app)
 
 
@@ -200,7 +216,6 @@ def test_well_chlorides():
     response = client.get("/chlorides?well_id=0")
     assert response.status_code == 200
     assert len(response.json()) == 0
-
 
 # spatial queries not compatible with spatialite
 # def test_read_wells_spatial():
