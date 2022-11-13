@@ -16,6 +16,7 @@
 from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Security
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from api import schemas
@@ -41,8 +42,14 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
-async def read_meters(db: Session = Depends(get_db)):
-    return db.query(Meter).all()
+async def read_meters(fuzzy_serial: str=None, db: Session = Depends(get_db)):
+    q = db.query(Meter)
+    if fuzzy_serial:
+        q = q.filter(or_(Meter.serial_id.like(f'%{fuzzy_serial}%'),
+                        Meter.serial_year.like(f'%{fuzzy_serial}%'),
+                        Meter.serial_case_diameter.like(f'%{fuzzy_serial}%')))
+
+    return q.all()
 
 
 @meter_router.patch(

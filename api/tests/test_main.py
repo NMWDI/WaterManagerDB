@@ -143,7 +143,7 @@ def test_post_meter():
             "name": "foo",
             "serial_id": 1234,
             "serial_case_diameter": 4,
-            "serial_year": 1992,
+            "serial_year": 1990,
         },
     )
     assert response.status_code == 200
@@ -216,6 +216,18 @@ def test_well_chlorides():
     response = client.get("/chlorides?well_id=0")
     assert response.status_code == 200
     assert len(response.json()) == 0
+
+
+def test_fuzzy_meter_search():
+    response = client.get('/meters?fuzzy_serial=1990')
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+
+def test_fuzzy_well_osepod_search():
+    response = client.get('/wells?osepod=1237')
+    assert response.status_code == 200
+    assert len(response.json()) == 1
 
 
 # spatial queries not compatible with spatialite

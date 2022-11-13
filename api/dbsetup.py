@@ -80,7 +80,7 @@ def setup_db(eng, db=None, populate_db=False):
             section=4,
             quarter=4,
             half_quarter=3,
-            osepod="RA-1234-123",
+            osepod="RA-1237-123",
             # latitude=34,
             # longitude=-106,
             geom="POINT (-106 34)",
