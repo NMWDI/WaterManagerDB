@@ -219,13 +219,13 @@ def test_well_chlorides():
 
 
 def test_fuzzy_meter_search():
-    response = client.get('/meters?fuzzy_serial=1990')
+    response = client.get("/meters?fuzzy_serial=1990")
     assert response.status_code == 200
     assert len(response.json()) == 1
 
 
 def test_fuzzy_well_osepod_search():
-    response = client.get('/wells?osepod=1237')
+    response = client.get("/wells?osepod=1237")
     assert response.status_code == 200
     assert len(response.json()) == 1
 

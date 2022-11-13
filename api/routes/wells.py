@@ -31,10 +31,12 @@ write_user = scoped_user(["read", "wells:write"])
 
 
 @well_router.get("/wells", response_model=List[schemas.Well], tags=["wells"])
-def read_wells(radius: float = None,
-               latlng: str = None,
-               osepod: str = None,
-               db: Session = Depends(get_db)):
+def read_wells(
+    radius: float = None,
+    latlng: str = None,
+    osepod: str = None,
+    db: Session = Depends(get_db),
+):
     """
     radius in kilometers
 
@@ -52,7 +54,7 @@ def read_wells(radius: float = None,
         )
 
     if osepod:
-        q = q.filter(Well.osepod.like(f'%{osepod}%'))
+        q = q.filter(Well.osepod.like(f"%{osepod}%"))
 
     return q.all()
 
