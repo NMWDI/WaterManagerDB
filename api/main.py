@@ -26,6 +26,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
+from starlette.responses import RedirectResponse
 
 from api import schemas, security_schemas
 from api.models import (
@@ -136,6 +137,14 @@ def read_repair_report(
 
 
 @authenticated_router.get("/api_status", response_model=schemas.Status)
+@app.get("/xls_backup")
+async def get_xls_backup(db: Session = Depends(get_db)):
+    wb = xlsdx
+    for table in tables:
+        records = db.query(table).all()
+        add_sheet(wb, records)
+
+@app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
     try:
         db.query(Well).first()
@@ -158,7 +167,7 @@ def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
 
 
-@authenticated_router.get("/owners", response_model=List[schemas.Owner])
+@authenticated_router.get("/owners", response_model=List[schemas.Owner], tags=['owners'])
 def read_owners(db: Session = Depends(get_db)):
     return db.query(Owner).all()
 
@@ -166,19 +175,14 @@ def read_owners(db: Session = Depends(get_db)):
 # ======= WaterLevels ========
 
 
-# @app.get("/well_wate/{wellid}", response_model=List[schemas.Reading])
-# async def read_wellreadings(wellid, db: Session = Depends(get_db)):
-#     return db.query(Reading).filter_by(well_id=wellid).all()
-
-
 # ====== WellConstruction
 @authenticated_router.get(
-    "/wellconstruction/{wellid}",
+    "/wellconstruction/{well_id}",
     response_model=schemas.WellConstruction,
     tags=["wells"],
 )
-async def read_wellconstruction(wellid, db: Session = Depends(get_db)):
-    return db.query(WellConstruction).filter_by(well_id=wellid).first()
+async def read_wellconstruction(well_id, db: Session = Depends(get_db)):
+    return db.query(WellConstruction).filter_by(well_id=well_id).first()
 
 
 # ====== Alerts
@@ -229,10 +233,10 @@ async def read_nworkers(
     return q.count()
 
 
-@app.get("/")
-async def index():
-    return {"message": "Hello World WaterManagerDBffff"}
-
+# @app.get("/")
+# async def index():
+#     return {"message": "Hello World WaterManager"}
+#     # return RedirectResponse("http://localhost/api/v1/docs")
 
 authenticated_router.include_router(alert_router)
 authenticated_router.include_router(meter_router)

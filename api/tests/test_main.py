@@ -223,12 +223,38 @@ def test_fuzzy_meter_search():
     assert response.status_code == 200
     assert len(response.json()) == 1
 
+    response = client.get('/meters?fuzzy_owner_name=spen')
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]['name'] == 'tor'
+
 
 def test_fuzzy_well_osepod_search():
     response = client.get("/wells?osepod=1237")
     assert response.status_code == 200
     assert len(response.json()) == 1
 
+def test_wells_by_plss():
+    response = client.get("/wells?township=100")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10&section=4")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10&section=4&quarter=2")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+    response = client.get("/wells?township=100&half_quarter=1")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
 
 # spatial queries not compatible with spatialite
 # def test_read_wells_spatial():

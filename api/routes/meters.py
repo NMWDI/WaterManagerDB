@@ -20,7 +20,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meter
+from api.models import Meter, Owner, Well, MeterHistory
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
 from api.security_models import User
@@ -42,8 +42,16 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
-async def read_meters(fuzzy_serial: str = None, db: Session = Depends(get_db)):
+async def read_meters(fuzzy_serial: str = None,
+                      fuzzy_owner_name: str = None,
+                      db: Session = Depends(get_db)):
     q = db.query(Meter)
+
+    if fuzzy_owner_name:
+        q = q.join(MeterHistory)
+        q = q.join(Well)
+        q = q.join(Owner)
+
     if fuzzy_serial:
         q = q.filter(
             or_(
@@ -52,6 +60,8 @@ async def read_meters(fuzzy_serial: str = None, db: Session = Depends(get_db)):
                 Meter.serial_case_diameter.like(f"%{fuzzy_serial}%"),
             )
         )
+    if fuzzy_owner_name:
+        q = q.filter(Owner.name.like(f'%{fuzzy_owner_name}%'))
 
     return q.all()
 

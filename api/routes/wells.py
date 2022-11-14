@@ -32,17 +32,19 @@ write_user = scoped_user(["read", "wells:write"])
 
 @well_router.get("/wells", response_model=List[schemas.Well], tags=["wells"])
 def read_wells(
-    radius: float = None,
-    latlng: str = None,
-    osepod: str = None,
-    db: Session = Depends(get_db),
+        radius: float = None,
+        latlng: str = None,
+        osepod: str = None,
+        township: int = None,
+        range_: int = None,
+        section: int = None,
+        quarter: int = None,
+        half_quarter: int = None,
+        db: Session = Depends(get_db),
 ):
     """
     radius in kilometers
 
-    :param radius:
-    :param latlng:
-    :param db:
     :return:
     """
     q = db.query(Well)
@@ -55,6 +57,17 @@ def read_wells(
 
     if osepod:
         q = q.filter(Well.osepod.like(f"%{osepod}%"))
+    if township:
+        q = q.filter(Well.township == township)
+    if range_:
+        q = q.filter(Well.range == range_)
+    if section:
+        q = q.filter(Well.section == section)
+
+    if quarter:
+        q = q.filter(Well.quarter == quarter)
+    if half_quarter:
+        q = q.filter(Well.half_quarter == half_quarter)
 
     return q.all()
 
@@ -77,6 +90,5 @@ async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get
 )
 async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
     return _add(db, Well, obj)
-
 
 # ============= EOF =============================================
