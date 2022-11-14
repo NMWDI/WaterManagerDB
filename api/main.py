@@ -20,9 +20,6 @@ from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import List, Union
 
-from jose import jwt, JWTError
-from passlib.context import CryptContext
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
@@ -47,7 +44,9 @@ from api.models import (
 from api.route_util import _patch, _add, _delete
 from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
+from api.routes.owners import owner_router
 from api.routes.repairs import repair_query, repair_router
+from api.routes.reports import report_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.wells import well_router
 from api.routes.workers import worker_router
@@ -121,39 +120,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # =======================================
 
-
-@authenticated_router.get("/repair_report", response_model=List[schemas.RepairReport])
-def read_repair_report(
-    after_date: date = None,
-    after: datetime = None,
-    db: Session = Depends(get_db),
-):
-    q = db.query(Repair)
-    if after_date:
-        q = q.filter(Repair.timestamp > datetime.fromordinal(after_date.toordinal()))
-    elif after:
-        q = q.filter(Repair.timestamp > after)
-
-    return q.all()
-
-
-@app.get("/xls_backup")
-async def get_xls_backup(db: Session = Depends(get_db)):
-    path = make_xls_backup(
-        db,
-        (
-            Meter,
-            Well,
-            Owner,
-            MeterHistory,
-            MeterStatusLU,
-        ),
-    )
-    return FileResponse(
-        path=path, media_type="application/octet-stream", filename="backup.xlsx"
-    )
-
-
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
     try:
@@ -163,38 +129,20 @@ def api_status(db: Session = Depends(get_db)):
         return {"ok": False}
 
 
-@app.get("/meter_history/{meter_id}", response_model=List[schemas.MeterHistory])
-async def read_meter_history(meter_id, db: Session = Depends(get_db)):
-    return db.query(MeterHistory).filter_by(meter_id=meter_id).all()
-
 
 @app.get(
     "/meter_status_lu",
     description="Return list of MeterStatus codes and definitions",
-    response_model=List[schemas.MeterStatusLU],
+    response_model=List[schemas.MeterStatusLU], tags=['lookuptables']
 )
 def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
-
-
-@authenticated_router.get(
-    "/owners", response_model=List[schemas.Owner], tags=["owners"]
-)
-def read_owners(db: Session = Depends(get_db)):
-    return db.query(Owner).all()
 
 
 # ======= WaterLevels ========
 
 
 # ====== WellConstruction
-@authenticated_router.get(
-    "/wellconstruction/{well_id}",
-    response_model=schemas.WellConstruction,
-    tags=["wells"],
-)
-async def read_wellconstruction(well_id, db: Session = Depends(get_db)):
-    return db.query(WellConstruction).filter_by(well_id=well_id).first()
 
 
 # ====== Alerts
@@ -256,6 +204,9 @@ authenticated_router.include_router(well_router)
 authenticated_router.include_router(repair_router)
 authenticated_router.include_router(worker_router)
 authenticated_router.include_router(well_measurement_router)
+authenticated_router.include_router(owner_router)
+authenticated_router.include_router(report_router)
+
 app.include_router(authenticated_router)
 
 if os.environ.get("SETUP_DB"):

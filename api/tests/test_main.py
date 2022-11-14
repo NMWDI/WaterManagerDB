@@ -27,6 +27,7 @@ from api.dbsetup import setup_db
 from api.main import app, get_db
 from api.models import Base
 from api.routes.alerts import write_user
+from api.routes.reports import report_user
 from api.security import get_current_user
 from api.security_models import User
 
@@ -63,17 +64,12 @@ os.environ["POPULATE_DB"] = "true"
 setup_db(engine, next(override_get_db()))
 
 
-def override_read_user():
-    return User(disabled=False)
-
-
-def override_write_user():
+def override_user():
     return User(disabled=False)
 
 
 app.dependency_overrides[get_db] = override_get_db
-app.dependency_overrides[write_user] = override_write_user
-app.dependency_overrides[get_current_user] = override_write_user
+app.dependency_overrides[get_current_user] = override_user
 client = TestClient(app)
 
 

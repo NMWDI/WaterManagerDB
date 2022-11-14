@@ -37,6 +37,7 @@ oauth2_scheme = OAuth2PasswordBearer(
         "repair:write": "Write repairs",
         "well_measurement:write": "Write well measurements, i.e. Water Levels "
         "and Chlorides",
+        "reports:run": "Run reports"
     },
 )
 

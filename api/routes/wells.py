@@ -20,7 +20,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Well
+from api.models import Well, WellConstruction
 from api.route_util import _patch, _add
 from api.security import scoped_user
 from api.session import get_db
@@ -28,6 +28,14 @@ from api.session import get_db
 well_router = APIRouter()
 
 write_user = scoped_user(["read", "wells:write"])
+
+@well_router.get(
+    "/wellconstruction/{well_id}",
+    response_model=schemas.WellConstruction,
+    tags=["wells"],
+)
+async def read_wellconstruction(well_id, db: Session = Depends(get_db)):
+    return db.query(WellConstruction).filter_by(well_id=well_id).first()
 
 
 @well_router.get("/wells", response_model=List[schemas.Well], tags=["wells"])
