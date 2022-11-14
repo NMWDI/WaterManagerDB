@@ -144,6 +144,7 @@ async def get_xls_backup(db: Session = Depends(get_db)):
         records = db.query(table).all()
         add_sheet(wb, records)
 
+
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
     try:
@@ -167,7 +168,9 @@ def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
 
 
-@authenticated_router.get("/owners", response_model=List[schemas.Owner], tags=['owners'])
+@authenticated_router.get(
+    "/owners", response_model=List[schemas.Owner], tags=["owners"]
+)
 def read_owners(db: Session = Depends(get_db)):
     return db.query(Owner).all()
 

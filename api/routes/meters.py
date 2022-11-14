@@ -42,9 +42,11 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
-async def read_meters(fuzzy_serial: str = None,
-                      fuzzy_owner_name: str = None,
-                      db: Session = Depends(get_db)):
+async def read_meters(
+    fuzzy_serial: str = None,
+    fuzzy_owner_name: str = None,
+    db: Session = Depends(get_db),
+):
     q = db.query(Meter)
 
     if fuzzy_owner_name:
@@ -61,7 +63,7 @@ async def read_meters(fuzzy_serial: str = None,
             )
         )
     if fuzzy_owner_name:
-        q = q.filter(Owner.name.like(f'%{fuzzy_owner_name}%'))
+        q = q.filter(Owner.name.like(f"%{fuzzy_owner_name}%"))
 
     return q.all()
 
