@@ -30,10 +30,9 @@ owner_router = APIRouter()
 write_user = scoped_user(["read", "wells:write"])
 
 
-@owner_router.get(
-    "/owners", response_model=List[schemas.Owner], tags=["owners"]
-)
+@owner_router.get("/owners", response_model=List[schemas.Owner], tags=["owners"])
 def read_owners(db: Session = Depends(get_db)):
     return db.query(Owner).all()
+
 
 # ============= EOF =============================================

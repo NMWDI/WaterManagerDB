@@ -29,6 +29,7 @@ well_router = APIRouter()
 
 write_user = scoped_user(["read", "wells:write"])
 
+
 @well_router.get(
     "/wellconstruction/{well_id}",
     response_model=schemas.WellConstruction,

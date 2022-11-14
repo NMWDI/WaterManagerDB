@@ -43,9 +43,9 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
 async def read_meters(
-        fuzzy_serial: str = None,
-        fuzzy_owner_name: str = None,
-        db: Session = Depends(get_db),
+    fuzzy_serial: str = None,
+    fuzzy_owner_name: str = None,
+    db: Session = Depends(get_db),
 ):
     q = db.query(Meter)
 
@@ -75,12 +75,16 @@ async def read_meters(
     tags=["meters"],
 )
 async def patch_meters(
-        meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
+    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Meter, meter_id, obj)
 
 
-@meter_router.get("/meter_history/{meter_id}", response_model=List[schemas.MeterHistory])
+@meter_router.get(
+    "/meter_history/{meter_id}", response_model=List[schemas.MeterHistory]
+)
 async def read_meter_history(meter_id, db: Session = Depends(get_db)):
     return db.query(MeterHistory).filter_by(meter_id=meter_id).all()
+
+
 # ============= EOF =============================================

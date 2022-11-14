@@ -30,8 +30,9 @@ report_user = scoped_user(["read", "reports:run"])
 report_router = APIRouter(dependencies=[Depends(report_user)])
 
 
-@report_router.get("/repair_report",
-                   response_model=List[schemas.RepairReport], tags=['reports'])
+@report_router.get(
+    "/repair_report", response_model=List[schemas.RepairReport], tags=["reports"]
+)
 def read_repair_report(
     after_date: date = None,
     after: datetime = None,
@@ -46,12 +47,21 @@ def read_repair_report(
     return q.all()
 
 
-@report_router.get("/xls_backup", tags=['reports'])
+@report_router.get("/xls_backup", tags=["reports"])
 async def get_xls_backup(db: Session = Depends(get_db)):
-    path = make_xls_backup(db, (Meter, Well, Owner,
-                                MeterHistory, MeterStatusLU,
+    path = make_xls_backup(
+        db,
+        (
+            Meter,
+            Well,
+            Owner,
+            MeterHistory,
+            MeterStatusLU,
+        ),
+    )
+    return FileResponse(
+        path=path, media_type="application/octet-stream", filename="backup.xlsx"
+    )
 
-                                ))
-    return FileResponse(path=path, media_type='application/octet-stream', filename='backup.xlsx')
 
 # ============= EOF =============================================

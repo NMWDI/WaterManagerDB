@@ -120,6 +120,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # =======================================
 
+
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
     try:
@@ -129,11 +130,11 @@ def api_status(db: Session = Depends(get_db)):
         return {"ok": False}
 
 
-
 @app.get(
     "/meter_status_lu",
     description="Return list of MeterStatus codes and definitions",
-    response_model=List[schemas.MeterStatusLU], tags=['lookuptables']
+    response_model=List[schemas.MeterStatusLU],
+    tags=["lookuptables"],
 )
 def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
