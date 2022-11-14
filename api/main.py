@@ -26,7 +26,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, FileResponse
 
 from api import schemas, security_schemas
 from api.models import (
@@ -60,6 +60,7 @@ from api.security import (
 )
 from api.security_models import User
 from api.session import engine, SessionLocal, get_db
+from api.xls_persistence import make_xls_backup
 
 tags_metadata = [
     {"name": "wells", "description": "Water Wells"},
@@ -136,13 +137,13 @@ def read_repair_report(
     return q.all()
 
 
-@authenticated_router.get("/api_status", response_model=schemas.Status)
 @app.get("/xls_backup")
 async def get_xls_backup(db: Session = Depends(get_db)):
-    wb = xlsdx
-    for table in tables:
-        records = db.query(table).all()
-        add_sheet(wb, records)
+    path = make_xls_backup(db, (Meter, Well, Owner,
+                                MeterHistory, MeterStatusLU,
+
+                                ))
+    return FileResponse(path=path, media_type='application/octet-stream', filename='backup.xlsx')
 
 
 @app.get("/api_status", response_model=schemas.Status)
