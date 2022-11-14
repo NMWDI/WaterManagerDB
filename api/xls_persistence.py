@@ -26,13 +26,13 @@ def populate_sheet(sh, records, columns):
         for col, attr in enumerate(columns):
             try:
                 value = getattr(record, attr.name)
-                sh.write(row+1, col, value)
+                sh.write(row + 1, col, value)
             except BaseException:
-                sh.write(row+1, col, '')
+                sh.write(row + 1, col, "")
 
 
 def make_xls_backup(db, tables):
-    path = 'backup.xlsx'
+    path = "backup.xlsx"
     wb = xlsxwriter.Workbook(path)
 
     for table in tables:
@@ -43,4 +43,6 @@ def make_xls_backup(db, tables):
     wb.close()
 
     return path
+
+
 # ============= EOF =============================================

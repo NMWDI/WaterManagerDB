@@ -139,11 +139,19 @@ def read_repair_report(
 
 @app.get("/xls_backup")
 async def get_xls_backup(db: Session = Depends(get_db)):
-    path = make_xls_backup(db, (Meter, Well, Owner,
-                                MeterHistory, MeterStatusLU,
-
-                                ))
-    return FileResponse(path=path, media_type='application/octet-stream', filename='backup.xlsx')
+    path = make_xls_backup(
+        db,
+        (
+            Meter,
+            Well,
+            Owner,
+            MeterHistory,
+            MeterStatusLU,
+        ),
+    )
+    return FileResponse(
+        path=path, media_type="application/octet-stream", filename="backup.xlsx"
+    )
 
 
 @app.get("/api_status", response_model=schemas.Status)
