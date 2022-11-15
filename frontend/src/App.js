@@ -8,7 +8,7 @@ import WellView from "./WellsView";
 import MetersView from "./MetersView";
 import Home from "./Home";
 import Topbar from "./Topbar";
-import WorkersView from "./WorkersView";
+//import WorkersView from "./WorkersView";
 import RepairsView from "./RepairsView";
 import AlertsView from "./AlertsView";
 import Login from './login'
@@ -23,6 +23,7 @@ function App() {
         <Sidebar />
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/meters" element={<MetersView />} />
           <Route path="/wells" element={<WellView />} />
           {/*<Route path="/workers" element={<WorkersView />} />*/}

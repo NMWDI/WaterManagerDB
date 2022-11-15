@@ -1,5 +1,6 @@
 import {Component} from "react";
 import {Box} from "@mui/material";
+import WorkersTable from "./WorkersTable";
 
 class Home extends Component{
     render() {
@@ -16,7 +17,11 @@ class Home extends Component{
                 </p>
                 <h3>Settings</h3>
                 <p>Settings are controlled from ...</p>
-
+                <h2>Administration</h2>
+                <div className="container">
+                    <WorkersTable/>
+                    <WorkersTable/>
+                </div>
             </Box>
         );
     }
