@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import re
 from datetime import datetime
 from typing import List, Optional
 
@@ -45,15 +46,16 @@ class MeterPatch(ORMBase):
     serial_case_diameter: int
 
 
+PhoneConstr = constr(
+    strip_whitespace=True,
+    regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
+)
+
+
 class Owner(ORMBase):
     name: str
     email: Optional[EmailStr]
-    phone: Optional[
-        constr(
-            strip_whitespace=True,
-            regex=r"^(\+)[1-9][0-9\-\(\)\.]{9,15}$",
-        )
-    ]
+    phone: Optional[PhoneConstr]
 
 
 class Well(ORMBase):
@@ -71,6 +73,18 @@ class WellCreate(ORMBase):
     owner_id: int
     # location: str
     # osepod: Optional[str] = None
+
+
+class ScreenInterval(ORMBase):
+    top: float
+    bottom: float
+
+
+class WellConstruction(ORMBase):
+    casing_diameter: float
+    hole_depth: float
+    well_depth: float
+    screens: Optional[List[ScreenInterval]]
 
 
 class WaterLevel(ORMBase):

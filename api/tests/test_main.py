@@ -22,8 +22,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.event import listen
 from sqlite3 import OperationalError
-from api.main import app, get_db, setup_db
+
+from api.dbsetup import setup_db
+from api.main import app, get_db
 from api.models import Base
+from api.routes.alerts import write_user
+from api.routes.reports import report_user
+from api.security import get_current_user
+from api.security_models import User
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
@@ -57,7 +63,13 @@ def override_get_db():
 os.environ["POPULATE_DB"] = "true"
 setup_db(engine, next(override_get_db()))
 
+
+def override_user():
+    return User(disabled=False)
+
+
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_user
 client = TestClient(app)
 
 
@@ -127,7 +139,7 @@ def test_post_meter():
             "name": "foo",
             "serial_id": 1234,
             "serial_case_diameter": 4,
-            "serial_year": 1992,
+            "serial_year": 1990,
         },
     )
     assert response.status_code == 200
@@ -163,6 +175,83 @@ def test_meter_status_lu():
     assert len(data) == 3
     assert data[0]["name"] == "POK"
     assert data[0]["description"] == "Pump OK"
+
+
+def test_wellconstruction():
+    response = client.get("/wellconstruction/1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == 1
+    assert data["casing_diameter"] == 0
+    assert data["hole_depth"] == 0
+    assert data["well_depth"] == 0
+    assert data["screens"] == [{"id": 1, "top": 10, "bottom": 20}]
+
+
+def test_waterlevels():
+    response = client.get("/waterlevels")
+    assert response.status_code == 200
+
+
+def test_well_waterlevels():
+    response = client.get("/waterlevels?well_id=1")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+    response = client.get("/waterlevels?well_id=0")
+    assert response.status_code == 200
+    assert len(response.json()) == 0
+
+
+def test_well_chlorides():
+    response = client.get("/chlorides?well_id=1")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["value"] == 1234.0
+
+    response = client.get("/chlorides?well_id=0")
+    assert response.status_code == 200
+    assert len(response.json()) == 0
+
+
+def test_fuzzy_meter_search():
+    response = client.get("/meters?fuzzy_serial=1990")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+    response = client.get("/meters?fuzzy_owner_name=spen")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["name"] == "tor"
+
+
+def test_fuzzy_well_osepod_search():
+    response = client.get("/wells?osepod=1237")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+
+def test_wells_by_plss():
+    response = client.get("/wells?township=100")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10&section=4")
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+
+    response = client.get("/wells?township=100&range_=10&section=4&quarter=2")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+    response = client.get("/wells?township=100&half_quarter=1")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
 
 
 # spatial queries not compatible with spatialite

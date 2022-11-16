@@ -15,5 +15,5 @@ COPY ./requirements.txt .
 #
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-#
-COPY . .
+# dont need to copy because volume mapped.
+#COPY . .

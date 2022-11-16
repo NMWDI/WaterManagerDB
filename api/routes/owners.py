@@ -13,31 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from typing import List
 
-from .config import settings
+from fastapi import APIRouter, Depends
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+from api import schemas
+from api.models import Well, WellConstruction, Owner
+from api.route_util import _patch, _add
+from api.security import scoped_user
+from api.session import get_db
 
-# if you don't want to install postgres or any database, use sqlite, a file system based database,
-# uncomment below lines if you would like to use sqlite and comment above 2 lines of SQLALCHEMY_DATABASE_URL AND engine
+owner_router = APIRouter()
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-# engine = create_engine(
-#     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-# )
-print(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+write_user = scoped_user(["read", "wells:write"])
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+@owner_router.get("/owners", response_model=List[schemas.Owner], tags=["owners"])
+def read_owners(db: Session = Depends(get_db)):
+    return db.query(Owner).all()
 
 
 # ============= EOF =============================================
