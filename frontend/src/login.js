@@ -1,12 +1,13 @@
 //Login screen
 
 import { useState } from "react";
-import { Navigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {Box, TextField, Button} from "@mui/material";
 
 export default function Login() {
     const [formvals, setFormVals] = useState({user:'',password:''})
-    const [errormsg, setErrorMsg] = useState()
+    const [errormsg, setErrorMsg] = useState('')
+    let navigate = useNavigate()
 
     function handleChange(e) {
         let newvals = formvals
@@ -23,15 +24,18 @@ export default function Login() {
     function handleLogin(r) {
         //Successful authorization
         if(r.status == 500){
-            //UseNavigate??
-            return (<Box></Box>)
+            //Redirect to home
+            console.log('redirecting')
+            navigate('/home')
+        }else{
+            setErrorMsg('User and/or Password not recognized')
         }
     }
     
     return (
         <Box sx={{ height: 800, width: '100%' }}>
             <h1>Welcome to the PVACD Meter Manager</h1>
-            <p id="error_txt">Nothing</p> {/*Return error if problem with login*/}
+            <p id="error_txt" style={{color: "red"}}>{errormsg}</p> {/*Return error if problem with login*/}
             <Box component="form" autoComplete="off" onSubmit={handleSubmit} id="myform">
                 <div>
                     <TextField
