@@ -45,6 +45,7 @@ from api.route_util import _patch, _add, _delete
 from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
 from api.routes.owners import owner_router
+from api.routes.parts import part_router
 from api.routes.repairs import repair_query, repair_router
 from api.routes.reports import report_router
 from api.routes.well_measurements import well_measurement_router
@@ -208,6 +209,7 @@ authenticated_router.include_router(worker_router)
 authenticated_router.include_router(well_measurement_router)
 authenticated_router.include_router(owner_router)
 authenticated_router.include_router(report_router)
+authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
 

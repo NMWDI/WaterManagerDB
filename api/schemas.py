@@ -178,4 +178,23 @@ class AlertPatch(ORMBase):
     closed_timestamp: Optional[datetime] = None
 
 
+class PartType(ORMBase):
+    name: str
+    description: str
+
+
+class Part(ORMBase):
+    part_number: str
+    count: int
+    vendor: str
+    note: str
+    create_date: datetime
+
+
+class PartCreate(ORMBase):
+    part_number: str
+    vendor: str
+    note: Optional[str] = None
+    part_type_id: int
+
 # ============= EOF =============================================
