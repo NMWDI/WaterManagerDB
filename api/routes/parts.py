@@ -56,18 +56,16 @@ async def delete_part(part_id: int, db: Session = Depends(get_db)):
     response_model=schemas.Part,
     tags=["parts"],
 )
-async def patch_parts(
-        part_id: int, obj: schemas.Part, db: Session = Depends(get_db)
-):
+async def patch_parts(part_id: int, obj: schemas.Part, db: Session = Depends(get_db)):
     return _patch(db, Part, part_id, obj)
 
 
 @part_router.get("/parts", response_model=List[schemas.Part], tags=["parts"])
 async def read_parts(
-        # location: str = None,
-        # well_id: int = None,
-        # meter_id: int = None,
-        db: Session = Depends(get_db),
+    # location: str = None,
+    # well_id: int = None,
+    # meter_id: int = None,
+    db: Session = Depends(get_db),
 ):
     q = db.query(Part)
     return q.all()
@@ -117,8 +115,8 @@ async def read_parts(
 #     q = db.query(PartClass)
 #     return q.all()
 
-    # q = part_query(db, location, well_id, meter_id)
-    # return q.all()
+# q = part_query(db, location, well_id, meter_id)
+# return q.all()
 
 #
 # def parse_location(location_str):

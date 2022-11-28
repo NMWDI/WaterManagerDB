@@ -197,4 +197,5 @@ class PartCreate(ORMBase):
     note: Optional[str] = None
     part_type_id: int
 
+
 # ============= EOF =============================================
