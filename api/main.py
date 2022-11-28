@@ -123,6 +123,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
+    print("In api status")
     try:
         db.query(Well).first()
         return {"ok": True}
@@ -211,6 +212,7 @@ authenticated_router.include_router(report_router)
 app.include_router(authenticated_router)
 
 if os.environ.get("SETUP_DB"):
+    print("Setting up new database")
     from api.dbsetup import setup_db
 
     setup_db(engine)
