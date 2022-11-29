@@ -1,112 +1,128 @@
+//Meter management interface
 
-import * as React from 'react';
-
-import TableView from "./tableView";
-import RepairsView from "./RepairsView";
-import {useEffect, useRef, useState} from "react";
-import {fetchAPI} from "./util.js";
-
-export default function MetersView(){
+import { useState } from "react";
+import { Box, TextField, Button, Tabs, Tab } from "@mui/material";
+import Typography from '@mui/material/Typography';
 
 
 
-    function handleRowSelect(params){
+//----  Page components: MeterList, MeterMap, MeterDetails, MeterLog
 
-        fetchAPI('/repairs?meter_id='+params.id, setRows)
-
-        fetchAPI('/meter_history/'+params.id, (data)=>{
-            // console.log(data, data[data.length-1].well_id)
-            if (data){
-                if (data[data.length-1]){
-                setWellId(data[data.length-1].well_id)
-                }
-            }
-        })
-    }
-
-    function makePayload(row){
-
-        let [ sy,scd,sid ] = row.serial_number.split('-')
-
-        row['serial_id'] = sid
-        row['serial_case_diameter']=scd
-        row['serial_year']=sy
-        console.log('paloasd', row)
-        return row
-
-    }
-    // useEffect(()=>{
-    //
-    //     }, [])
-
-    function rowGenerator(){
-        return {name: '',
-                serial_year:0,
-                serial_id:0,
-                serial_case_diameter:0}
-    }
-    const [rows, setRows] = useState([])
-    const [well_id, setWellId] = useState(null)
-
-    return (<div style={{width: "100%"}}>
-        <TableView urltag={'/meters'}
-                   nrowstag={'/nmeters'}
-                   onRowSelect={handleRowSelect}
-                   makePayload={makePayload}
-                   rowGenerator={rowGenerator}
-                   tag={'Meter'}
-                   fields={[{ field: 'id', headerName: 'ID', width: 90},
-                        {field: 'name', headerName: 'Name', editable:true},
-                        {field: 'serial_number', headerName: 'Serial #',
-                            width: 125,
-                            editable: true},]}
-        />
-        <RepairsView
-            display_meter={false}
-            well_id={well_id}
-            rows={rows}/>
-    </div>
-
-  )
+function MeterList(){
+    //Display an interactive list of meters
+    //props: To Do
+    return(
+        <Box sx={{ height: 800, width: 500, border: '1px solid black' }}>
+            <p>This will be a simple list</p>
+        </Box>
+    )
 }
 
-//
-// import * as React from 'react';
-// import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-// import {Component, useEffect, useState} from "react";
-// import {Box} from "@mui/material";
-//
-// const columns: GridColDef[] = [
-//     ,
-//     // {field: 'repair', headerName: 'Repair'},
-//     // {field: 'timestamp', headerName: 'TimeStamp'},
-//     // {field: 'well_id', headerName: 'WellID'},
-//
-//     // { field: 'osepod', headerName: 'OSE POD', width: 90 },
-//     // { field: 'name', headerName: 'Name', width: 90 },
-//     // { field: 'location', headerName: 'Location', width: 90 },
-//     // { field: 'ownername', headerName: 'Owner', width: 90 ,
-//     //     valueGetter: (params: GridValueGetterParams) => `${params.row.owner.name}`},
-//     // {field: 'metername', headerName: 'Meter', width: 90,
-//     //     valueGetter: (params: GridValueGetterParams) => `${params.row.meter.name}`
-// // }
-// ];
-//
-// class MetersView extends Component {
-//     constructor(props) {
-//         super(props);
-//         this.state = {tableData: []}
-//     }
-//     componentDidMount() {
-//         let url = 'http://'+process.env.REACT_APP_API_URL+'/meters'
-//         fetch(url).then((data)=>data.json()).then((data) => this.setState({tableData: data}))
-//     }
-//
-//     render() {
-//         return (<Box sx={{ height: 400, width: '100%' }}>
-//                 <h2>Meters</h2>
-//                <DataGrid columns={columns} rows={this.state.tableData}/>
-//              </Box>);
-//     }
-// }
-// export default MetersView;
+function MeterMap(){
+    //Display an interactive list of meters
+    //props: To Do
+    return(
+        <Box sx={{ height: 800, width: 500, border: '1px solid black' }}>
+            <p>This will be a map</p>
+        </Box>
+    )
+}
+
+function MeterDetail(){
+    //
+    //props: To Do
+    return(
+        <Box sx={{ height: 400, width: 500, border: '1px solid black' }}>
+            <p>This will be a table of details</p>
+        </Box>
+    )
+}
+
+function MeterLog(){
+    //
+    //props: To Do
+    return(
+        <Box sx={{ height: 400, width: 500, border: '1px solid black' }}>
+            <p>This will be a list of log events</p>
+        </Box>
+    )
+}
+
+//------ Tabs helper functions: see https://mui.com/material-ui/react-tabs/
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+  
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (children)}
+      </div>
+    );
+  }
+
+  /*
+  TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  };*/
+  
+  function a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
+
+export default function MetersView(){
+    //This is the primary layout component for the page
+
+    //Tabs state
+    const [tabIndex, setTab] = useState(0);
+
+    function handleRowSelect(){
+        console.log('test')
+    }
+
+    function handleMapSelect(){
+        console.log('test')
+    }
+
+    return (
+        <Box sx={{ display: 'flex' }}>
+            <div>
+                <TextField
+                    id="meter-search"
+                    label="Meter Search"
+                    type="text"
+                    margin="normal"
+                    name="Search"
+                />
+                <Button type="submit" variant="contained">Search</Button>
+                {/*Tabs section*/}
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={tabIndex} onChange={(event, newValue)=>{setTab(newValue);}} aria-label="meter list/map tabs">
+                        <Tab label="Meter List" {...a11yProps(0)} />
+                        <Tab label="Map" {...a11yProps(1)} />
+                    </Tabs>
+                </Box>
+                <TabPanel value={tabIndex} index={0}>
+                    <MeterList></MeterList>
+                </TabPanel>
+                <TabPanel value={tabIndex} index={1}>
+                    <MeterMap></MeterMap>
+                </TabPanel>
+            </div>
+            
+            <div>
+                <MeterDetail></MeterDetail>
+                <MeterLog></MeterLog>
+            </div>
+        </Box>
+    )
+}
