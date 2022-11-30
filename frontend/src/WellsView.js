@@ -1,136 +1,73 @@
-import * as React from 'react'
-import {GridValueGetterParams} from "@mui/x-data-grid";
-import TableView from "./tableView";
-import {useEffect, useRef, useState} from "react";
-import MapView from "./MapView";
-import {useMap} from "react-leaflet";
-import L from 'leaflet'
-import {fetchAPI, makeAPIPath} from './util'
+//Monitoring Wells Page
 
-const defaultZoom = 10
-const defaultCenter = [34,-105.5]
-export default function WellsView(){
-    const [availableMeters, setavailableMeters] = useState([])
-    const [availableOwners, setavailableOwners] = useState([])
-    const [loaded, setLoaded] = useState(false)
-    const [zoom, setZoom] = useState(10)
-    const [markers, setMarkers] = useState([])
+import { Box, Container } from "@mui/material";
+import { DataGrid } from '@mui/x-data-grid';
+import Plot from 'react-plotly.js';
 
-    const mapRef = useRef();
-    function rowGenerator(){
-        return {owner_id: 1}
-    }
-    function handleOnSetView(params){
-        const { current = {} } = mapRef;
-        //
-        let cen = [params.latitude, params.longitude]
-        // console.log('center',center)
-        // L.marker(center).addTo(current);
-        // setMarkers([L.latLng(cen[0], cen[1])])
-        setMarkers([cen])
-        current.setView(cen, zoom);
+//Components: Observations, newObservation, wellPlot
+function Observations(){
+    //A sortable list of observations from the monitoring sites
+    //props: To Do
+    const rows = [
+        { id: 1, col1: 'Hello', col2: 'World' },
+        { id: 2, col1: 'DataGridPro', col2: 'is Awesome' },
+        { id: 3, col1: 'MUI', col2: 'is Amazing' },
+      ];
 
-    }
-
-    useEffect(()=>{
-        if (!loaded){
-            setLoaded(true)
-
-            fetchAPI('/meters', (data)=>{
-                let meters = data.map((d)=>({value: d.id, label: d.serial_number}))
-                setavailableMeters(meters)
-            })
-
-            fetchAPI('/owners', (data)=>{
-                let owners = data.map((d)=>({value: d.id, label: d.name}))
-                setavailableOwners(owners)
-            })
-        }
-    })
-    return (
-        <div className='flex-container'>
-            <div className='flex-child'>
-                <TableView
-                    onRowSelect={handleOnSetView}
-                    rowGenerator={rowGenerator}
-                    urltag={'/wells'}
-                    nrowstag={'/nwells'}
-                    tag={'Well'}
-                    fields={[{field: 'id', headerName: 'ID', width: 90},
-                        {field: 'osepod', headerName: 'OSE POD', width: 120},
-                        // { field: 'name', headerName: 'Name', width: 90 },
-                        {field: 'location', headerName: 'Location', width: 120},
-                        // { field: 'ownername', headerName: 'Owner', width: 90 ,
-                        // valueGetter: (params: GridValueGetterParams) => `${params.row.owner?params.row.owner.name: ""}`},
-
-                        {
-                            field: 'owner_id', headerName: 'Owner', editable: true,
-                            type: 'singleSelect', valueOptions: availableOwners,
-                            valueFormatter: (params) => {
-                                let m = availableOwners.filter((m) => (m.value === params.value))[0]
-                                return m ? m.label : ''
-                            },
-                            width: 120
-                        },
-                        {
-                            field: 'meter_id', headerName: 'Meter', editable: true,
-                            width: 120,
-                            type: 'singleSelect', valueOptions: availableMeters,
-                            valueFormatter: (params) => {
-                                // console.log(availableMeters, params.value)
-                                let m = availableMeters.filter((m) => (m.value === params.value))[0]
-                                return m ? m.label : ''
-                            }
-                        }
-                        // {field: 'metername', headerName: 'Meter', width: 90,
-                        // valueGetter: (params: GridValueGetterParams) => `${params.row.meter?params.row.meter.name: ""}`
-                        // }
-                    ]}
-                />
-            </div>
-            <div className="flex-child">
-                <MapView
-                    markers={markers}
-                    mapRef={mapRef}
-                    center={defaultCenter}
-                    zoom={defaultZoom}/>
-            </div>
-        </div>
-
+    const columns = [
+    { field: 'col1', headerName: 'Column 1', width: 150 },
+    { field: 'col2', headerName: 'Column 2', width: 150 },
+    ];
+      
+      
+    return(
+        <Box sx={{ height: 500 }}>
+            <DataGrid rows={rows} columns={columns} />
+        </Box>
     )
 }
 
-// import {Component} from "react";
-// import WellTable from "./WellTable";
-// import ReadingsTable from "./ReadingsTable";
-// import {Box} from "@mui/material";
-//
-//
-// class WellView extends Component{
-//     constructor(props) {
-//         super(props);
-//         this.state = {readings: []}
-//         this.handleRowSelect = this.handleRowSelect.bind(this)
-//     }
-//
-//     handleRowSelect(row){
-//         let url = 'http://'+process.env.REACT_APP_API_URL+'/wellreadings/'+row.id
-//         fetch(url).then((data)=>data.json()).then((data) =>
-//         this.setState({readings: data})
-//         )
-//     }
-//
-//     render(){
-//         return (<Box sx={{ height: 400, width: '100%' }}>
-//                    <h2>Wells</h2>
-//                     <WellTable onRowSelect={this.handleRowSelect}/>
-//                     <div>
-//                         <h2>Readings</h2>
-//                         <ReadingsTable readings={this.state.readings}/>
-//                     </div>
-//         </Box>)
-//
-//     }
-// }
-//
-// export default WellView;
+function NewObservation(){
+    //A modal to create a new observation
+    //ToDo
+    console.log('ToDo')
+}
+
+function WellPlot(){
+    //Plot history of well using plotly.js
+    //ToDo
+    return(
+        <Box sx={{ height: 500, width: 500 }}>
+            <Plot
+                data={[
+                    {
+                        x: [1, 2, 3],
+                        y: [2, 6, 3],
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        marker: {color: 'red'},
+                    }
+                ]}
+                layout={ {width: 500, height: 400, title: 'A Fancy Plot'} }
+            />
+        </Box>
+    )
+}
+
+
+export default function WellsView(){
+    //High level page layout
+
+    return(
+        <Container>
+            <Box sx={{ display: 'flex' }}>
+                <Observations></Observations>
+                <WellPlot></WellPlot>
+            </Box>
+        </Container>
+    )
+    
+             
+        
+
+}
