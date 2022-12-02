@@ -48,28 +48,16 @@ function Sidebar() {
                 Meters
               </li>
             </Link>
-            {/*<Link to="/wells" className="link">*/}
-            {/*  <li className="sidebarListItem">*/}
-            {/*    <TableViewIcon className="sidebarIcon" />*/}
-            {/*    Wells*/}
-            {/*  </li>*/}
-            {/*</Link>
-            <Link to="/workers" className="link">
-              <li className="sidebarListItem">
-                <TableViewIcon className="sidebarIcon" />
-                Workers
-              </li>
-            </Link>
-            <Link to="/repairs" className="link">
-              <li className="sidebarListItem">
-                <TableViewIcon className="sidebarIcon" />
-                Repairs
-              </li>
-  </Link>*/}
             <Link to="/wells" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
                 Wells
+              </li>
+            </Link>
+            <Link to="/chlorides" className="link">
+              <li className="sidebarListItem">
+                <TableViewIcon className="sidebarIcon" />
+                Chlorides
               </li>
             </Link>
             <Link to="/parts" className="link">

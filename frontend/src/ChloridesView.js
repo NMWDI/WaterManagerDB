@@ -1,10 +1,10 @@
-// View for displaying and editing parts inventory
+// View for displaying and submitting chloride measurements
 
 import * as React from 'react';
 import TableView from "./tableView";
 import { Box } from "@mui/material";
 
-export default function PartsView(){
+export default function ChloridesView(){
 
     function rowGenerator(){
         return {name: ''}
@@ -12,13 +12,9 @@ export default function PartsView(){
 
     return (
         <Box sx={{ width: '100%' }}>
-            <h1>Parts</h1>
-            <div className='container'>
-                <input name="part_search" type="text"/>
-                <button>Search</button>
-            </div>
+            <h1>Chlorides</h1>
             <TableView 
-                urltag={''}
+                urltag={'/workers'}
                 tag={'Worker'}
                 nrowstag={'/nworkers'}
                 rowGenerator={rowGenerator}
