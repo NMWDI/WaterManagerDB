@@ -63,17 +63,17 @@ async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
     tags=["repairs"],
 )
 async def patch_repairs(
-        repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
+    repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
 ):
     return _patch(db, Repair, repair_id, obj)
 
 
 @repair_router.get("/repairs", response_model=List[schemas.Repair], tags=["repairs"])
 async def read_repairs(
-        location: str = None,
-        well_id: int = None,
-        meter_id: int = None,
-        db: Session = Depends(get_db),
+    location: str = None,
+    well_id: int = None,
+    meter_id: int = None,
+    db: Session = Depends(get_db),
 ):
     try:
         user = write_user()
@@ -110,5 +110,6 @@ def repair_query(db, location, well_id, meter_id, public_release):
         )
     q = q.filter(Repair.public_release == public_release)
     return q
+
 
 # ============= EOF =============================================

@@ -127,7 +127,6 @@ class Repair(ORMBase):
     public_release: bool
 
 
-
 class MeterHistory(ORMBase):
     well_id: int
     timestamp: datetime
