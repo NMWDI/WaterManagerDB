@@ -39,7 +39,7 @@ from api.models import (
     WellConstruction,
     ScreenInterval,
     WellMeasurement,
-    ObservedProperty,
+    ObservedProperty, PartTypeLU,
 )
 from api.route_util import _patch, _add, _delete
 from api.routes.alerts import alert_router
@@ -140,6 +140,16 @@ def api_status(db: Session = Depends(get_db)):
 )
 def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
+
+@app.get(
+    "/part_type_lu",
+    description="Return list of PartType codes and definitions",
+    response_model=List[schemas.PartTypeLU],
+    tags=["lookuptables"],
+)
+def read_part_type_lookup_table(db: Session = Depends(get_db)):
+    return db.query(PartTypeLU).all()
+
 
 
 # ======= WaterLevels ========

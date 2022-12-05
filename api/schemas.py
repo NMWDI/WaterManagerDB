@@ -124,6 +124,8 @@ class Repair(ORMBase):
     meter_status_id: int
     preventative_maintenance: Optional[str] = None
     meter_serial_number: Optional[str] = None
+    public_release: bool
+
 
 
 class MeterHistory(ORMBase):
@@ -156,6 +158,11 @@ class Status(BaseModel):
 
 
 class MeterStatusLU(ORMBase):
+    name: str
+    description: str
+
+
+class PartTypeLU(ORMBase):
     name: str
     description: str
 

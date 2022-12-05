@@ -199,13 +199,24 @@ class PartTypeLU(Base):
 
 
 class Part(Base):
-    part_type_id = Column(Integer, ForeignKey("PartType.id"))
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
 
     part_number = Column(String)
     count = Column(Integer)
     vendor = Column(String)
     note = Column(String)
     create_date = Column(DateTime, default=func.now())
+
+
+class QC(Base):
+    user_id = Column(Integer, ForeignKey("User.id"))
+    timestamp = Column(DateTime, default=func.now())
+    status = Column(Boolean)
+
+
+class RepairPartAssociation(Base):
+    repair_id = Column(Integer, ForeignKey("Repair.id"))
+    part_id = Column(Integer, ForeignKey("Part.id"))
 
 
 class Repair(Base):
@@ -222,10 +233,13 @@ class Repair(Base):
     note = Column(LargeBinary)
     meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
     preventative_maintenance = Column(String)
+    qc_id = Column(Integer, ForeignKey("QC.id"))
+    public_release = Column(Boolean)
 
     well = relationship("Well", uselist=False)
     repair_by = relationship("Worker", uselist=False)
     meter_status = relationship("MeterStatusLU", uselist=False)
+    qc = relationship("QC", uselist=False)
 
     @property
     def well_name(self):
@@ -250,6 +264,5 @@ class Repair(Base):
     @worker.setter
     def worker(self, v):
         self.repair_by.id
-
 
 # ============= EOF =============================================

@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+from http.client import HTTPException
 from typing import List
 
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meter, Repair, Well, MeterHistory
+from api.models import Meter, Repair, Well, MeterHistory, QC
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
 from api.session import get_db
@@ -36,10 +37,12 @@ write_user = scoped_user(["read", "repairs:write"])
     tags=["repairs"],
 )
 async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
-    print(repair.dict())
+    # save empty qc reference
+    qc = QC()
+    db.add(qc)
 
     db_item = Repair(**repair.dict())
-    db_item.worker_id = 1
+    db_item.qc = qc
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -60,19 +63,25 @@ async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
     tags=["repairs"],
 )
 async def patch_repairs(
-    repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
+        repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
 ):
     return _patch(db, Repair, repair_id, obj)
 
 
 @repair_router.get("/repairs", response_model=List[schemas.Repair], tags=["repairs"])
 async def read_repairs(
-    location: str = None,
-    well_id: int = None,
-    meter_id: int = None,
-    db: Session = Depends(get_db),
+        location: str = None,
+        well_id: int = None,
+        meter_id: int = None,
+        db: Session = Depends(get_db),
 ):
-    q = repair_query(db, location, well_id, meter_id)
+    try:
+        user = write_user()
+        public_release = True
+    except HTTPException:
+        public_release = False
+
+    q = repair_query(db, location, well_id, meter_id, public_release)
 
     return q.all()
 
@@ -81,7 +90,7 @@ def parse_location(location_str):
     return location_str.split(".")
 
 
-def repair_query(db, location, well_id, meter_id):
+def repair_query(db, location, well_id, meter_id, public_release):
     q = db.query(Repair)
     q = q.join(Well)
 
@@ -99,7 +108,7 @@ def repair_query(db, location, well_id, meter_id):
             .filter(Well.quarter == qu)
             .filter(Well.half_quarter == hq)
         )
+    q = q.filter(Repair.public_release == public_release)
     return q
-
 
 # ============= EOF =============================================
