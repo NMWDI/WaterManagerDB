@@ -1,19 +1,19 @@
+##
+#FROM python:3.9
 #
-FROM python:3.9
-
+##
+#WORKDIR .
 #
-WORKDIR .
-
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN apt update
-RUN apt install libsqlite3-mod-spatialite -y
+#ENV PYTHONDONTWRITEBYTECODE 1
+#ENV PYTHONUNBUFFERED 1
 #
-COPY ./requirements.txt .
-
+#RUN apt update
+#RUN apt install libsqlite3-mod-spatialite -y
+##
+#COPY ./requirements.txt .
 #
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
-
-# dont need to copy because volume mapped.
-#COPY . .
+##
+#RUN pip install --no-cache-dir --upgrade -r requirements.txt
+#
+## dont need to copy because volume mapped.
+##COPY . .

@@ -224,9 +224,9 @@ authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
 
-if os.environ.get("SETUP_DB"):
-    print("Setting up new database")
-    from api.dbsetup import setup_db
-
-    setup_db(engine)
+# if os.environ.get("SETUP_DB"):
+#     print("Setting up new database")
+#     from api.dbsetup import setup_db
+#
+#     setup_db(engine)
 # ============= EOF =============================================
