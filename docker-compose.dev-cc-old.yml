@@ -1,32 +1,25 @@
 version: "3.9"
 services:
-  api:
-    build:
-      context: ./api/
-      dockerfile: ./Dockerfile
-    command: bash -c "
-        while !</dev/tcp/db/5432; do sleep 1; done; 
-      alembic -c /api/alembic.ini upgrade head;
-      uvicorn api.main:app --host 0.0.0.0 --reload --root-path /api/v1
-      "
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./api:/api
-    depends_on:
-      - db
-    env_file:
-      - ./api/.env
-    restart: on-failure
 
+  # api:
+  #   build:
+  #     context: ./api
+  #   ports:
+  #   - 8000:8000
+  #   volumes:
+  #   - ./api:/api
+  #   env_file:
+  #     - ./api/.env
+  
   db:
-    env_file:
-      - ./api/.env
     image: postgis/postgis
     volumes:
-      - postgis-data:/var/lib/postgresql
+      - postgis-data:/var/lib/postgresql/data
     environment:
       # If you need to create multiple database you can add coma separated databases eg gis,data
+      - POSTGRES_DB=gis
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
       - ALLOW_IP_RANGE=0.0.0.0/0
       # Add extensions you need to be enabled by default in the DB. Default are the five specified below
       - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
