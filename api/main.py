@@ -40,11 +40,13 @@ from api.models import (
     ScreenInterval,
     WellMeasurement,
     ObservedProperty,
+    PartTypeLU,
 )
 from api.route_util import _patch, _add, _delete
 from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
 from api.routes.owners import owner_router
+from api.routes.parts import part_router
 from api.routes.repairs import repair_query, repair_router
 from api.routes.reports import report_router
 from api.routes.well_measurements import well_measurement_router
@@ -123,6 +125,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
+    print("In api status")
     try:
         db.query(Well).first()
         return {"ok": True}
@@ -138,6 +141,16 @@ def api_status(db: Session = Depends(get_db)):
 )
 def read_meter_status_lookup_table(db: Session = Depends(get_db)):
     return db.query(MeterStatusLU).all()
+
+
+@app.get(
+    "/part_type_lu",
+    description="Return list of PartType codes and definitions",
+    response_model=List[schemas.PartTypeLU],
+    tags=["lookuptables"],
+)
+def read_part_type_lookup_table(db: Session = Depends(get_db)):
+    return db.query(PartTypeLU).all()
 
 
 # ======= WaterLevels ========
@@ -207,11 +220,13 @@ authenticated_router.include_router(worker_router)
 authenticated_router.include_router(well_measurement_router)
 authenticated_router.include_router(owner_router)
 authenticated_router.include_router(report_router)
+authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
 
-if os.environ.get("SETUP_DB"):
-    from api.dbsetup import setup_db
-
-    setup_db(engine)
+# if os.environ.get("SETUP_DB"):
+#     print("Setting up new database")
+#     from api.dbsetup import setup_db
+#
+#     setup_db(engine)
 # ============= EOF =============================================

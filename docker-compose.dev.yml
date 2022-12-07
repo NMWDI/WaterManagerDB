@@ -1,29 +1,31 @@
 version: "3.9"
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile_dev
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api
-      - traefik
-    volumes:
-      - ./frontend:/app:delegated
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_API_URL=http://localhost:8000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
+#  frontend:
+#    build:
+#      context: ./frontend
+#      dockerfile: ./Dockerfile_dev
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - api
+#      - traefik
+#    volumes:
+#      - ./frontend:/app:delegated
+#    environment:
+#      - CHOKIDAR_USEPOLLING=true
+#      - REACT_APP_API_URL=http://localhost:8000
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+#      - "traefik.http.routers.frontend.entrypoints=web"
   api:
     build:
       context: ./api/
       dockerfile: ./Dockerfile_dev
     command: bash -c "
-        while !</dev/tcp/db/5432; do sleep 1; done; uvicorn api.main:app --host 0.0.0.0 --reload --root-path /api/v1
+        while !</dev/tcp/db/5432; do sleep 1; done; 
+      alembic -c /api/alembic.ini upgrade head;
+      uvicorn api.main:app --host 0.0.0.0 --reload --root-path /api/v1
       "
     ports:
       - "8000:8000"

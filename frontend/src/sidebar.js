@@ -23,7 +23,7 @@ function Sidebar() {
         <div className="sidebarMenu">
           <h3 className="sidebarTitle">Dashboard</h3>
           <ul className="sidebarList">
-            <Link to="/" className="link">
+            <Link to="/home" className="link">
               <li className="sidebarListItem active">
                 <LineStyle className="sidebarIcon" />
                 Home
@@ -53,7 +53,7 @@ function Sidebar() {
             {/*    <TableViewIcon className="sidebarIcon" />*/}
             {/*    Wells*/}
             {/*  </li>*/}
-            {/*</Link>*/}
+            {/*</Link>
             <Link to="/workers" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
@@ -65,11 +65,17 @@ function Sidebar() {
                 <TableViewIcon className="sidebarIcon" />
                 Repairs
               </li>
-            </Link>
+  </Link>*/}
             <Link to="/wells" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
                 Wells
+              </li>
+            </Link>
+            <Link to="/parts" className="link">
+              <li className="sidebarListItem">
+                <TableViewIcon className="sidebarIcon" />
+                Parts
               </li>
             </Link>
             <Link to="/alerts" className="link">

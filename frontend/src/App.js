@@ -8,9 +8,10 @@ import WellView from "./WellsView";
 import MetersView from "./MetersView";
 import Home from "./Home";
 import Topbar from "./Topbar";
-import WorkersView from "./WorkersView";
+//import WorkersView from "./WorkersView";
 import RepairsView from "./RepairsView";
 import AlertsView from "./AlertsView";
+import Login from './login'
 
 
 function App() {
@@ -21,11 +22,12 @@ function App() {
       <div className="container">
         <Sidebar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/meters" element={<MetersView />} />
           <Route path="/wells" element={<WellView />} />
-          <Route path="/workers" element={<WorkersView />} />
-          <Route path="/repairs" element={<RepairsView display_meter={true}/>} />
+          {/*<Route path="/workers" element={<WorkersView />} />*/}
+          {/*<Route path="/repairs" element={<RepairsView display_meter={true}/>} />*/}
           <Route path="/alerts" element={<AlertsView/>} />
           {/*<Route path="/user/:userId" element={<User />} />*/}
           {/*<Route path="/newUser" element={<NewUser />} />*/}
