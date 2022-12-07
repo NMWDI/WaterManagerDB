@@ -124,6 +124,7 @@ class Repair(ORMBase):
     meter_status_id: int
     preventative_maintenance: Optional[str] = None
     meter_serial_number: Optional[str] = None
+    public_release: bool
 
 
 class MeterHistory(ORMBase):
@@ -160,6 +161,11 @@ class MeterStatusLU(ORMBase):
     description: str
 
 
+class PartTypeLU(ORMBase):
+    name: str
+    description: str
+
+
 class Alert(ORMBase):
     alert: str
     meter_serial_number: str
@@ -176,6 +182,26 @@ class AlertCreate(ORMBase):
 class AlertPatch(ORMBase):
     alert: Optional[str] = None
     closed_timestamp: Optional[datetime] = None
+
+
+class PartType(ORMBase):
+    name: str
+    description: str
+
+
+class Part(ORMBase):
+    part_number: str
+    count: int
+    vendor: str
+    note: str
+    create_date: datetime
+
+
+class PartCreate(ORMBase):
+    part_number: str
+    vendor: str
+    note: Optional[str] = None
+    part_type_id: int
 
 
 # ============= EOF =============================================

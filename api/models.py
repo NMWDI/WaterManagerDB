@@ -63,12 +63,20 @@ class Alert(Base):
         return not bool(self.closed_timestamp)
 
 
+# associate parts with a meter
+class MeterParts(Base):
+    meter_id = Column(Integer, ForeignKey("Meter.id"))
+    part_id = Column(Integer, ForeignKey("Part.id"))
+
+
 class Meter(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     serial_year = Column(Integer)
     serial_case_diameter = Column(Integer)
     serial_id = Column(Integer)
+
+    part_id = Column(Integer, ForeignKey("Part.id"))
 
     # well = relationship('Well', back_populates='meter')
 
@@ -185,6 +193,32 @@ class MeterStatusLU(Base):
     description = Column(String)
 
 
+class PartTypeLU(Base):
+    name = Column(String)
+    description = Column(String)
+
+
+class Part(Base):
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
+
+    part_number = Column(String)
+    count = Column(Integer)
+    vendor = Column(String)
+    note = Column(String)
+    create_date = Column(DateTime, default=func.now())
+
+
+class QC(Base):
+    user_id = Column(Integer, ForeignKey("User.id"))
+    timestamp = Column(DateTime, default=func.now())
+    status = Column(Boolean)
+
+
+class RepairPartAssociation(Base):
+    repair_id = Column(Integer, ForeignKey("Repair.id"))
+    part_id = Column(Integer, ForeignKey("Part.id"))
+
+
 class Repair(Base):
     # id = Column(Integer, primary_key=True, index=True)
     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
@@ -199,10 +233,13 @@ class Repair(Base):
     note = Column(LargeBinary)
     meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
     preventative_maintenance = Column(String)
+    qc_id = Column(Integer, ForeignKey("QC.id"))
+    public_release = Column(Boolean)
 
     well = relationship("Well", uselist=False)
     repair_by = relationship("Worker", uselist=False)
     meter_status = relationship("MeterStatusLU", uselist=False)
+    qc = relationship("QC", uselist=False)
 
     @property
     def well_name(self):
