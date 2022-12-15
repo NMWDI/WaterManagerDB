@@ -1,23 +1,5 @@
 version: "3.9"
 services:
-  api:
-    build:
-      context: ./api/
-      dockerfile: ./Dockerfile
-    command: bash -c "
-      while !</dev/tcp/db/5432; do sleep 1; done; 
-      python -m api.dbsetup;
-      uvicorn api.main:app --host 0.0.0.0 --reload --root-path /api/v1
-      "
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./api:/api
-    depends_on:
-      - db
-    env_file:
-      - ./api/.env
-    restart: on-failure
 
   db:
     env_file:

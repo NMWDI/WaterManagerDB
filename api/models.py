@@ -1,17 +1,6 @@
 # ===============================================================================
-# Copyright 2022 ross
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Models in database
+# - Alembic used to initialize new database with these models
 # ===============================================================================
 from typing import Any
 
@@ -36,6 +25,10 @@ from geoalchemy2.shape import to_shape
 
 @as_declarative()
 class Base:
+    '''
+    Base class for all models
+    - Adds id column on all tables
+    '''
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     __name__: str
 
@@ -45,14 +38,84 @@ class Base:
         return cls.__name__
 
 
+# ---------  Meter Related Tables ---------
+
+class Meters(Base):
+    '''
+    Primary table for tracking meters
+    '''
+    serial_number = Column(String, nullable=False)
+    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
+    contact_id = Column(Integer, ForeignKey("Contacts.id"), nullable=False)
+
+    #RA Number is an identifier of the well the meter is attached to
+    ra_number = Column(String)
+    
+    latitude = Column(Float)
+    longitude = Column(Float)
+    tag = Column(String)  #Unclear purpose - in PVACD Access db
+    #status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
+
+class MeterTypes(Base):
+    '''
+    Details different meter types, but does not include parts
+    - See parts table for sub-components
+    '''
+    brand = Column(String)
+    model = Column(String)
+    size = Column(Integer)
+
+class MeterStatusLU(Base):
+    '''
+    Establishes if a meter is installed, in inventory, retired, or other options as needed.
+    '''
+    name = Column(String)
+    description = Column(String)
+
+class MeterHistory(Base):
+    '''
+    Logs all meter activities
+    '''
+    timestamp = Column(DateTime, nullable=False)
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    activity_id = Column(Integer, ForeignKey("Activities.id"), nullable=False)
+    meter_reading = Column(Float)
+    energy_reading = Column(Integer)
+    note = Column(LargeBinary)
+
+    #meter = relationship("Meter", uselist=False)
+
+class Contacts(Base):
+    '''
+    Organizations and people that have some relationship with a PVACD meter
+    - Typically irrigators?
+    '''
+    name = Column(String)
+    organization = Column(String)
+    phone = Column(String)
+    email = Column(String)
+
+    #wells = relationship("Well", back_populates="owner")
+
+# ---------- PVACD Operations Tables ---------------  
+
+class Activities(Base):
+    '''
+    Details the different types of activities PVACD implements...
+    - Under dev
+    '''
+    name = Column(String)
+    description = Column(String)
+
+
 class Alert(Base):
     # id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
+    meter_id = Column(Integer, ForeignKey("Meters.id"))
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
 
-    meter = relationship("Meter", uselist=False)
+    #meter = relationship("Meter", uselist=False)
 
     @property
     def meter_serial_number(self):
@@ -62,39 +125,79 @@ class Alert(Base):
     def active(self):
         return not bool(self.closed_timestamp)
 
-
-# associate parts with a meter
-class MeterParts(Base):
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
-    part_id = Column(Integer, ForeignKey("Part.id"))
-
-
-class Meter(Base):
+class Worker(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    serial_year = Column(Integer)
-    serial_case_diameter = Column(Integer)
-    serial_id = Column(Integer)
 
+class RepairPartAssociation(Base):
+    repair_id = Column(Integer, ForeignKey("Repair.id"))
     part_id = Column(Integer, ForeignKey("Part.id"))
 
-    # well = relationship('Well', back_populates='meter')
+class Repair(Base):
+    # id = Column(Integer, primary_key=True, index=True)
+    # meter_id = Column(Integer, ForeignKey('metertbl.id'))
+    well_id = Column(Integer, ForeignKey("Well.id"))
+    worker_id = Column(Integer, ForeignKey("Worker.id"))
+
+    timestamp = Column(DateTime, default=func.now())
+    h2o_read = Column(Float)
+    e_read = Column(String)
+    new_read = Column(String)
+    repair_description = Column(LargeBinary)
+    note = Column(LargeBinary)
+    meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
+    preventative_maintenance = Column(String)
+    qc_id = Column(Integer, ForeignKey("QC.id"))
+    public_release = Column(Boolean)
+
+    well = relationship("Well", uselist=False)
+    repair_by = relationship("Worker", uselist=False)
+    meter_status = relationship("MeterStatusLU", uselist=False)
+    qc = relationship("QC", uselist=False)
 
     @property
-    def serial_number(self):
-        return f"{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}"
+    def well_name(self):
+        return self.well.name
+
+    @property
+    def well_location(self):
+        return self.well.location
+
+    @property
+    def meter_serial_number(self):
+        return self.well.meter_history.meter.serial_number
+
+    @property
+    def meter_status_name(self):
+        return self.meter_status.name
+
+    @property
+    def worker(self):
+        return self.repair_by.name
+
+    @worker.setter
+    def worker(self, v):
+        self.repair_by.id
 
 
-class MeterHistory(Base):
-    # id = Column(Integer, primary_key=True, index=True)
+# ---------- Parts Inventory ------------
 
-    well_id = Column(Integer, ForeignKey("Well.id"))
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
-    timestamp = Column(DateTime, default=func.now())
-    note = Column(LargeBinary)
+class PartTypeLU(Base):
+    name = Column(String)
+    description = Column(String)
 
-    meter = relationship("Meter", uselist=False)
 
+class Part(Base):
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
+
+    part_number = Column(String)
+    count = Column(Integer)
+    vendor = Column(String)
+    note = Column(String)
+    create_date = Column(DateTime, default=func.now())
+
+
+# ------------ Monitoring Wells --------------
 
 class Well(Base):
     # id = Column(Integer, primary_key=True, index=True)
@@ -112,11 +215,11 @@ class Well(Base):
 
     geom = Column(Geometry("POINT"))
 
-    owner_id = Column(Integer, ForeignKey("Owner.id"))
+    # owner_id = Column(Integer, ForeignKey("Owner.id"))
     osepod = Column(String)
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
-    owner = relationship("Owner", back_populates="wells")
+    # owner = relationship("Owner", back_populates="wells")
     waterlevels = relationship("WellMeasurement", back_populates="well")
 
     meter_history = relationship("MeterHistory", uselist=False)
@@ -173,97 +276,9 @@ class WellMeasurement(Base):
     observed_property_id = Column(Integer, ForeignKey("ObservedProperty.id"))
 
 
-class Owner(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    phone = Column(String)
-    email = Column(String)
-
-    wells = relationship("Well", back_populates="owner")
-
-
-class Worker(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-
-
-class MeterStatusLU(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    description = Column(String)
-
-
-class PartTypeLU(Base):
-    name = Column(String)
-    description = Column(String)
-
-
-class Part(Base):
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
-
-    part_number = Column(String)
-    count = Column(Integer)
-    vendor = Column(String)
-    note = Column(String)
-    create_date = Column(DateTime, default=func.now())
-
-
 class QC(Base):
-    user_id = Column(Integer, ForeignKey("User.id"))
+    # user_id = Column(Integer, ForeignKey("User.id"))
     timestamp = Column(DateTime, default=func.now())
     status = Column(Boolean)
 
 
-class RepairPartAssociation(Base):
-    repair_id = Column(Integer, ForeignKey("Repair.id"))
-    part_id = Column(Integer, ForeignKey("Part.id"))
-
-
-class Repair(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    # meter_id = Column(Integer, ForeignKey('metertbl.id'))
-    well_id = Column(Integer, ForeignKey("Well.id"))
-    worker_id = Column(Integer, ForeignKey("Worker.id"))
-
-    timestamp = Column(DateTime, default=func.now())
-    h2o_read = Column(Float)
-    e_read = Column(String)
-    new_read = Column(String)
-    repair_description = Column(LargeBinary)
-    note = Column(LargeBinary)
-    meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
-    preventative_maintenance = Column(String)
-    qc_id = Column(Integer, ForeignKey("QC.id"))
-    public_release = Column(Boolean)
-
-    well = relationship("Well", uselist=False)
-    repair_by = relationship("Worker", uselist=False)
-    meter_status = relationship("MeterStatusLU", uselist=False)
-    qc = relationship("QC", uselist=False)
-
-    @property
-    def well_name(self):
-        return self.well.name
-
-    @property
-    def well_location(self):
-        return self.well.location
-
-    @property
-    def meter_serial_number(self):
-        return self.well.meter_history.meter.serial_number
-
-    @property
-    def meter_status_name(self):
-        return self.meter_status.name
-
-    @property
-    def worker(self):
-        return self.repair_by.name
-
-    @worker.setter
-    def worker(self, v):
-        self.repair_by.id
-
-
-# ============= EOF =============================================
