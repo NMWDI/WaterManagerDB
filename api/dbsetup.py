@@ -4,7 +4,10 @@
 
 import os
 import api.models
+import api.security_models
+from api.security import get_password_hash
 from sqlalchemy import create_engine
+from api.session import SessionLocal
 from .config import settings
 
 #Set up a connection
@@ -41,6 +44,19 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "Meters"(serial_number,tag,meter_type_id,contact_id,ra_number) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
         conn.commit()
+
+    #Add a user for testing
+    db = SessionLocal()
+    db.add(
+        api.security_models.User(
+            full_name="Test User",
+            username="test",
+            email="johndoe@example.com",
+            hashed_password=get_password_hash("secret"),
+        )
+    )
+    db.commit()
+    db.close()
     
 
 

@@ -1,6 +1,4 @@
 # ===============================================================================
-# Copyright 2022 ross
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -28,9 +26,9 @@ from starlette.responses import RedirectResponse, FileResponse
 from api import schemas, security_schemas
 from api.models import (
     Base,
-    Meter,
+    Meters,
     Well,
-    Owner,
+    Contacts,
     Worker,
     Repair,
     MeterStatusLU,
@@ -45,7 +43,7 @@ from api.models import (
 from api.route_util import _patch, _add, _delete
 from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
-from api.routes.owners import owner_router
+from api.routes.contacts import contacts_router
 from api.routes.parts import part_router
 from api.routes.repairs import repair_query, repair_router
 from api.routes.reports import report_router
@@ -125,11 +123,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.get("/api_status", response_model=schemas.Status)
 def api_status(db: Session = Depends(get_db)):
-    print("In api status")
     try:
-        db.query(Well).first()
+        t = db.query(Well).first()
+        print(t)
         return {"ok": True}
-    except BaseException:
+    except BaseException as be:
         return {"ok": False}
 
 
@@ -182,7 +180,7 @@ async def read_nwells(
 async def read_nmeters(
     db: Session = Depends(get_db),
 ):
-    q = db.query(Meter)
+    q = db.query(Meters)
     return q.count()
 
 
@@ -207,26 +205,16 @@ async def read_nworkers(
     return q.count()
 
 
-# @app.get("/")
-# async def index():
-#     return {"message": "Hello World WaterManager"}
-#     # return RedirectResponse("http://localhost/api/v1/docs")
-
 authenticated_router.include_router(alert_router)
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(well_router)
 authenticated_router.include_router(repair_router)
 authenticated_router.include_router(worker_router)
 authenticated_router.include_router(well_measurement_router)
-authenticated_router.include_router(owner_router)
+authenticated_router.include_router(contacts_router)
 authenticated_router.include_router(report_router)
 authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
 
-# if os.environ.get("SETUP_DB"):
-#     print("Setting up new database")
-#     from api.dbsetup import setup_db
-#
-#     setup_db(engine)
 # ============= EOF =============================================

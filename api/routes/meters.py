@@ -20,7 +20,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meter, Owner, Well, MeterHistory
+from api.models import Meters, Well, MeterHistory, Contacts
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
 from api.security_models import User
@@ -38,32 +38,32 @@ write_user = scoped_user(["read", "meters:write"])
     tags=["meters"],
 )
 async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
-    return _add(db, Meter, obj)
+    return _add(db, Meters, obj)
 
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
 async def read_meters(
     fuzzy_serial: str = None,
-    fuzzy_owner_name: str = None,
+    fuzzy_contacts_name: str = None,
     db: Session = Depends(get_db),
-):
-    q = db.query(Meter)
+    ):
+    q = db.query(Meters)
 
-    if fuzzy_owner_name:
+    if fuzzy_contacts_name:
         q = q.join(MeterHistory)
         q = q.join(Well)
-        q = q.join(Owner)
+        q = q.join(Contacts)
 
     if fuzzy_serial:
         q = q.filter(
             or_(
-                Meter.serial_id.like(f"%{fuzzy_serial}%"),
-                Meter.serial_year.like(f"%{fuzzy_serial}%"),
-                Meter.serial_case_diameter.like(f"%{fuzzy_serial}%"),
+                Meters.serial_id.like(f"%{fuzzy_serial}%"),
+                Meters.serial_year.like(f"%{fuzzy_serial}%"),
+                Meters.serial_case_diameter.like(f"%{fuzzy_serial}%"),
             )
         )
-    if fuzzy_owner_name:
-        q = q.filter(Owner.name.like(f"%{fuzzy_owner_name}%"))
+    if fuzzy_contacts_name:
+        q = q.filter(Contacts.name.like(f"%{fuzzy_contacts_name}%"))
 
     return q.all()
 
@@ -77,7 +77,7 @@ async def read_meters(
 async def patch_meters(
     meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
 ):
-    return _patch(db, Meter, meter_id, obj)
+    return _patch(db, Meters, meter_id, obj)
 
 
 @meter_router.get(

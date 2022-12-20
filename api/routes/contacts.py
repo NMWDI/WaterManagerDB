@@ -20,19 +20,19 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Well, WellConstruction, Owner
+from api.models import Well, WellConstruction, Contacts
 from api.route_util import _patch, _add
 from api.security import scoped_user
 from api.session import get_db
 
-owner_router = APIRouter()
+contacts_router = APIRouter()
 
 write_user = scoped_user(["read", "wells:write"])
 
 
-@owner_router.get("/owners", response_model=List[schemas.Owner], tags=["owners"])
-def read_owners(db: Session = Depends(get_db)):
-    return db.query(Owner).all()
+@contacts_router.get("/contacts", response_model=List[schemas.Owner], tags=["contacts"])
+def read_contacts(db: Session = Depends(get_db)):
+    return db.query(Contacts).all()
 
 
 # ============= EOF =============================================

@@ -20,7 +20,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meter, Repair, Well, MeterHistory, QC
+from api.models import Meters, Repair, Well, MeterHistory, QC
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
 from api.session import get_db

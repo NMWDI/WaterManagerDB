@@ -19,7 +19,7 @@ from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meter, Worker
+from api.models import Meters, Worker
 from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db

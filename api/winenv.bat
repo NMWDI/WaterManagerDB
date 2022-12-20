@@ -7,5 +7,5 @@ set POSTGRES_PORT=5432
 set POSTGRES_DB=gis
 
 :: Uncomment these to initially populate database
-:: set SETUP_DB=1
-:: set POPULATE_DB=1
+set SETUP_DB=1
+set POPULATE_DB=1

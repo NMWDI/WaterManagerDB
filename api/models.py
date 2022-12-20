@@ -222,7 +222,7 @@ class Well(Base):
     # owner = relationship("Owner", back_populates="wells")
     waterlevels = relationship("WellMeasurement", back_populates="well")
 
-    meter_history = relationship("MeterHistory", uselist=False)
+    #meter_history = relationship("MeterHistory", uselist=False)
     construction = relationship("WellConstruction", uselist=False)
 
     @property
