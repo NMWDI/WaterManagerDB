@@ -20,7 +20,7 @@ function Topbar() {
           {/*  <span className="topIconBadge">2</span>*/}
           {/*</div>*/}
           <div style={{paddingRight: "25px"}}>
-            <StatusBar/>
+            Temp disable status {/*<StatusBar/>*/}
           </div>
 
           <div className="topbarIconContainer">

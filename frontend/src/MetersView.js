@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Box, Container, TextField, Button, Tabs, Tab } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
+import { useAuthHeader } from 'react-auth-kit'
 
 
 //----  Page components: MeterList, MeterMap, MeterDetails, MeterLog
@@ -152,9 +153,24 @@ function TabPanel(props) {
 export default function MetersView(){
     //This is the primary layout component for the page
 
+    const authHeader = useAuthHeader()
+
     //Tabs state
     const [tabIndex, setTab] = useState(0);
 
+    function handleSearchChange(){
+        console.log('Searching...')
+
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+
+        //Test getting a list of meters from the database
+        fetch('http://localhost:8000/meters',{ headers: auth_headers })
+            .then(r => r.json()).then(data => console.log(data))
+    }
+    
     function handleRowSelect(){
         console.log('test')
     }
@@ -172,6 +188,7 @@ export default function MetersView(){
                     label="Search Meters"
                     type="search"
                     margin="normal"
+                    onChange={handleSearchChange}
                 />
 
                 {/*Tabs section*/}

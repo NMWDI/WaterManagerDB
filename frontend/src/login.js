@@ -2,32 +2,52 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
+import { useSignIn } from 'react-auth-kit'
 import {Box, TextField, Button} from "@mui/material";
 
 export default function Login() {
-    const [formvals, setFormVals] = useState({user:'',password:''})
+    const [userval, setUserVal] = useState('')
+    const [passval, setPassVal] = useState('')
     const [errormsg, setErrorMsg] = useState('')
+    const signIn = useSignIn()
     let navigate = useNavigate()
 
-    function handleChange(e) {
-        let newvals = formvals
-        newvals[e.target.name] = e.target.value
-        setFormVals(newvals)
+    function handleUserChange(e) {
+        setUserVal(e.target.value)
+    }
+
+    function handlePassChange(e) {
+        setPassVal(e.target.value)
     }
     
     function handleSubmit(e){
+        //Submit user/pass to authorization endpoint
         e.preventDefault();
-        console.log('Submitted')
-        handleLogin({status:500})
+
+        //Create formdata object for sending, this is expected on backend
+        const formData_vals = new FormData()
+        formData_vals.append("username",userval)
+        formData_vals.append("password",passval)
+        formData_vals.append("scope",'read') //Temporary to make work with scopes
+        fetch('http://localhost:8000/token', {method: "POST", body: formData_vals}).then(handleLogin)
     }
 
     function handleLogin(r) {
-        //Successful authorization
-        if(r.status == 500){
-            //Redirect to home
-            console.log('redirecting')
-            navigate('/home')
+        
+        if(r.status === 200){
+            //Successful authorization
+            r.json().then(
+                data => {
+                    if(signIn({token: data.access_token, expiresIn: 30, tokenType:'bearer'})){
+                        console.log('Sign-in successful')
+                        navigate('/home')
+                    }else{
+                        console.log('signin error')
+                    }
+                }
+            )
         }else{
+            console.log(r)
             setErrorMsg('User and/or Password not recognized')
         }
     }
@@ -39,23 +59,25 @@ export default function Login() {
             <Box component="form" autoComplete="off" onSubmit={handleSubmit} id="myform">
                 <div>
                     <TextField
+                        value={userval}
                         required
                         id="login-user-input"
                         label="Username"
                         margin="normal"
-                        name="user"
-                        onChange={handleChange}
+                        name="username"
+                        onChange= {handleUserChange}
                     />
                 </div>
                 <div>
                 <TextField
+                    value={passval}
                     required
                     id="login-pw-input"
                     label="Password"
                     type="password"
                     margin="normal"
                     name="password"
-                    onChange={handleChange}
+                    onChange={handlePassChange}
                 />
                 </div>
                 <Button type="submit" variant="contained">Login</Button>

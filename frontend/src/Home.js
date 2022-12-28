@@ -19,8 +19,6 @@ class Home extends Component{
                 <p>Settings are controlled from ...</p>
                 <h2>Administration</h2>
                 <div className="container">
-                    <WorkersTable/>
-                    <WorkersTable/>
                 </div>
             </Box>
         );
