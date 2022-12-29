@@ -8,26 +8,34 @@ import { useAuthHeader } from 'react-auth-kit'
 
 //----  Page components: MeterList, MeterMap, MeterDetails, MeterLog
 
-function MeterList(){
+function MeterList(props){
     //Display an interactive list of meters
-    //props: To Do
-    const rows = [
-        { id: 1, col1: '999-55-B', col2: 'Jim Bob', col3: 'Active', col4: '8757' },
-        { id: 2, col1: '994-50-C', col2: 'Jim Bob', col3: 'Active', col4: '8757' },
-        { id: 3, col1: '339-55-B', col2: 'Tony Balony', col3: 'Inventory', col4: '' },
-      ];
+    //props:
+    //  - rows (object) - example... To Do
 
     const columns = [
-    { field: 'col1', headerName: 'Serial Number', width: 150 },
-    { field: 'col2', headerName: 'Contact', width: 150 },
-    { field: 'col3', headerName: 'Status', width: 150 },
-    { field: 'col4', headerName: 'RA Number', width: 150 },
+    { field: 'serial_number', headerName: 'Serial Number', width: 150 },
+    { field: 'contact_id', headerName: 'Contact', width: 150 },
+    { field: 'meter_type_id', headerName: 'Meter type', width: 150 },
+    { field: 'ra_number', headerName: 'RA Number', width: 150 },
     ];
+
+    function handleOnRowClick(params,event,details){
+        //Pass the event on to the higher level component
+        console.log(params)
+        console.log(event)
+        console.log(details)
+        props.onRowClick()
+    }
       
       
     return(
         <Box sx={{ width: 600, height: 600 }}>
-            <DataGrid rows={rows} columns={columns} />
+            <DataGrid 
+                rows={props.rows}
+                columns={columns}
+                onRowClick={handleOnRowClick} 
+            />
         </Box>
     )
 }
@@ -158,6 +166,9 @@ export default function MetersView(){
     //Tabs state
     const [tabIndex, setTab] = useState(0);
 
+    //Meter list state
+    const [meterRows, setMeterRows] = useState([])
+
     function handleSearchChange(){
         console.log('Searching...')
 
@@ -168,11 +179,11 @@ export default function MetersView(){
 
         //Test getting a list of meters from the database
         fetch('http://localhost:8000/meters',{ headers: auth_headers })
-            .then(r => r.json()).then(data => console.log(data))
+            .then(r => r.json()).then(data => setMeterRows(data))
     }
     
     function handleRowSelect(){
-        console.log('test')
+        console.log('You clicked on a row')
     }
 
     function handleMapSelect(){
@@ -199,7 +210,10 @@ export default function MetersView(){
                     </Tabs>
                 </Box>
                 <TabPanel value={tabIndex} index={0}>
-                    <MeterList></MeterList>
+                    <MeterList 
+                        rows={meterRows} 
+                        onRowClick={handleRowSelect}
+                    />
                 </TabPanel>
                 <TabPanel value={tabIndex} index={1}>
                     <MeterMap></MeterMap>
