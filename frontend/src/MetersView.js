@@ -25,7 +25,7 @@ function MeterList(props){
         console.log(params)
         console.log(event)
         console.log(details)
-        props.onRowClick()
+        props.onRowClick(1)
     }
       
       
@@ -50,9 +50,11 @@ function MeterMap(){
     )
 }
 
-function MeterDetail(){
-    //
-    //props: To Do
+function MeterDetail(props){
+    //Display the details of a particular meter
+    //props:
+    //    details = {serial: <str>, model: <str>, brand: <str>}
+
     return(
         <Box sx={{ width: 500 }}>
             <h2>Meter Details</h2>
@@ -60,13 +62,13 @@ function MeterDetail(){
                 <tbody>
                 <tr>
                     <th>Serial:</th>
-                    <td>91-999-F</td>
+                    <td>{props.details.serial}</td>
                     <th>Model:</th>
-                    <td>308</td>
+                    <td>{props.details.model}</td>
                 </tr>
                 <tr>
                     <th>Brand:</th>
-                    <td>91-999-F</td>
+                    <td>{props.details.brand}</td>
                     <th>Cost:</th>
                     <td>308</td>
                 </tr>
@@ -169,6 +171,15 @@ export default function MetersView(){
     //Meter list state
     const [meterRows, setMeterRows] = useState([])
 
+    //Meter details state
+    const [meterDetails, setMeterDetails] = useState(
+            {
+                serial: null,
+                model: null,
+                brand: null
+            }
+        )
+
     function handleSearchChange(){
         console.log('Searching...')
 
@@ -182,8 +193,13 @@ export default function MetersView(){
             .then(r => r.json()).then(data => setMeterRows(data))
     }
     
-    function handleRowSelect(){
+    function handleRowSelect(rowid){
         console.log('You clicked on a row')
+        let testdata = [
+            {serial: '556',model: '308',brand: 'Tonys'},
+            {serial: '502',model: '306',brand: 'Tims'}
+        ]
+        setMeterDetails(testdata[rowid])
     }
 
     function handleMapSelect(){
@@ -220,7 +236,9 @@ export default function MetersView(){
                 </TabPanel>
             </Box>
             <Box sx={{ m:2 }}>
-                <MeterDetail></MeterDetail>
+                <MeterDetail
+                    details={meterDetails}
+                />
                 <MeterLog></MeterLog>
             </Box>
         </Box>
