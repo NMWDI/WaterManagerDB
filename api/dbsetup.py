@@ -45,6 +45,21 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
         conn.commit()
 
+    with open('api/data/devdata_activities.csv','r') as f:
+        qry = 'COPY "Activities"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+        conn.commit()
+
+    with open('api/data/devdata_workers.csv','r') as f:
+        qry = 'COPY "Worker"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+        conn.commit()
+
+    with open('api/data/devdata_meterhistory.csv','r') as f:
+        qry = 'COPY "MeterHistory"(meter_id,timestamp,activity_id,energy_reading,description,initial_reading,final_reading,technician_id,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+        conn.commit()
+
     #Add a user for testing
     db = SessionLocal()
     db.add(

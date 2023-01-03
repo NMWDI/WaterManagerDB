@@ -119,10 +119,12 @@ class Repair(ORMBase):
 
 
 class MeterHistory(ORMBase):
-    well_id: int
     timestamp: datetime
-    meter_id: int
-    note: Optional[bytes] = None
+    activity_id: int
+    description: Optional[str]
+    energy_reading: Optional[int]
+    initial_reading: Optional[float]
+    #note: Optional[bytes] = None
 
 
 class RepairReport(Repair):

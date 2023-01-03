@@ -76,12 +76,15 @@ class MeterHistory(Base):
     '''
     Logs all meter activities
     '''
-    timestamp = Column(DateTime, nullable=False)
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
     activity_id = Column(Integer, ForeignKey("Activities.id"), nullable=False)
-    meter_reading = Column(Float)
+    description = Column(String)
+    technician_id = Column(Integer, ForeignKey("Worker.id"))
     energy_reading = Column(Integer)
-    note = Column(LargeBinary)
+    initial_reading = Column(Float)
+    final_reading = Column(Float)
+    note = Column(String)
 
     #meter = relationship("Meter", uselist=False)
 

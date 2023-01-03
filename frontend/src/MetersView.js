@@ -102,28 +102,23 @@ function MeterDetail(props){
     )
 }
 
-function MeterLog(){
-    //
-    //props: To Do
-    const rows = [
-        { id: 1, col1: '2022-11-15 12:00', col2: 'Repair', col3: '450.2', col4: '88.2', col5: 'Replaced the widget' },
-        { id: 2, col1: '2022-11-01 13:40', col2: 'Repair', col3: '400.2', col4: '82.2', col5: 'New bearings' },
-        { id: 3, col1: '2022-10-15 14:00', col2: 'Maintenance', col3: '435.2', col4: '80.2', col5: 'Oiled the spinner' },
-        ];
-
+function MeterLog(props){
+    //Shows the history of meter activities
+    //props:
+    //  rows - array of rows [{id:<>,activity_id:<>...see fields below}]
     const columns = [
-    { field: 'col1', headerName: 'DateTime', width: 150 },
-    { field: 'col2', headerName: 'Activity', width: 150 },
-    { field: 'col3', headerName: 'Meter Reading', width: 100 },
-    { field: 'col4', headerName: 'E Reading', width: 100 },
-    { field: 'col5', headerName: 'Description', width: 150 }
+    { field: 'timestamp', headerName: 'DateTime', width: 150 },
+    { field: 'activity_id', headerName: 'Activity', width: 150 },
+    { field: 'description', headerName: 'Description', width: 100 },
+    { field: 'energy_reading', headerName: 'E Reading', width: 100 },
+    { field: 'initial_reading', headerName: 'H2O Reading', width: 150 }
     ];
           
           
     return(
         <Box sx={{ width: 700, height: 300 }}>
             <h2>Meter Log</h2>
-            <DataGrid rows={rows} columns={columns} />
+            <DataGrid rows={props.rows} columns={columns} />
             <button>New Activity</button>
         </Box>
     )
@@ -180,6 +175,9 @@ export default function MetersView(){
             }
         )
 
+    //Meter history state
+    const [meterHistory, setMeterHistory] = useState([])
+
     function handleSearchChange(){
         console.log('Searching...')
 
@@ -195,11 +193,25 @@ export default function MetersView(){
     
     function handleRowSelect(rowid){
         console.log('You clicked on a row')
+
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+
         let testdata = [
             {serial: '556',model: '308',brand: 'Tonys'},
             {serial: '502',model: '306',brand: 'Tims'}
         ]
         setMeterDetails(testdata[rowid])
+
+        //Grab meter history
+        fetch(
+            `http://localhost:8000/meter_history/${rowid}`,
+            { headers: auth_headers }
+        )
+        .then(r => r.json()).then(data => setMeterHistory(data))
+
     }
 
     function handleMapSelect(){
@@ -239,7 +251,9 @@ export default function MetersView(){
                 <MeterDetail
                     details={meterDetails}
                 />
-                <MeterLog></MeterLog>
+                <MeterLog
+                    rows={meterHistory}
+                />
             </Box>
         </Box>
     )
