@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Box, Container, TextField, Button, Tabs, Tab } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
 import { useAuthHeader } from 'react-auth-kit'
+import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
+import 'leaflet/dist/leaflet.css'
 
 
 //----  Page components: MeterList, MeterMap, MeterDetails, MeterLog
@@ -41,12 +43,26 @@ function MeterList(props){
 }
 
 function MeterMap(){
-    //Display an interactive list of meters
+    //Display an interactive map of meters
     //props: To Do
+    const mapStyle = {
+        height: 600,
+        width: 600
+    }
+
     return(
-        <Box sx={{ height: 600, width: 600, border: '1px solid black' }}>
-            <p>This will be a map</p>
-        </Box>
+        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false} style={mapStyle}>
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[51.505, -0.09]}>
+                <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+                </Popup>
+            </Marker>
+        </MapContainer>
+    
     )
 }
 
@@ -140,15 +156,8 @@ function TabPanel(props) {
       </div>
     );
   }
-
-  /*
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  };*/
   
-  function a11yProps(index) {
+function a11yProps(index) {
     return {
       id: `simple-tab-${index}`,
       'aria-controls': `simple-tabpanel-${index}`,
@@ -158,6 +167,8 @@ function TabPanel(props) {
 export default function MetersView(){
     //This is the primary layout component for the page
 
+    const testStyle = {height: 600}
+    
     const authHeader = useAuthHeader()
 
     //Tabs state
@@ -244,7 +255,7 @@ export default function MetersView(){
                     />
                 </TabPanel>
                 <TabPanel value={tabIndex} index={1}>
-                    <MeterMap></MeterMap>
+                    <MeterMap/>
                 </TabPanel>
             </Box>
             <Box sx={{ m:2 }}>
