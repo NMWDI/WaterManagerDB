@@ -189,15 +189,14 @@ class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
 
-
 class Part(Base):
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
-
-    part_number = Column(String)
-    count = Column(Integer)
+    part_number = Column(String, unique=True, nullable=False)
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+    description = Column(String)
     vendor = Column(String)
+    count = Column(Integer, default=0)
     note = Column(String)
-    create_date = Column(DateTime, default=func.now())
+    
 
 
 # ------------ Monitoring Wells --------------
