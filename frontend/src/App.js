@@ -23,7 +23,7 @@ function App() {
         <div className="container">
             <Sidebar />
             <AuthProvider 
-                authType = {'cookie'}
+                authType = {'localstorage'}
                 authName={'_auth'}
                 cookieDomain={window.location.hostname}
                 cookieSecure={window.location.protocol === "https:"}>

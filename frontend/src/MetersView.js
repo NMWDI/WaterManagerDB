@@ -3,9 +3,22 @@
 import { useState } from "react";
 import { Box, Container, TextField, Button, Tabs, Tab } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
-import { useAuthHeader } from 'react-auth-kit'
+import { useAuthHeader } from 'react-auth-kit';
 import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
-import 'leaflet/dist/leaflet.css'
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+//Hack for leaflet icons broken by default 
+//see  https://github.com/PaulLeCam/react-leaflet/issues/453
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 
 //----  Page components: MeterList, MeterMap, MeterDetails, MeterLog
@@ -42,25 +55,26 @@ function MeterList(props){
     )
 }
 
-function MeterMap(){
+function MeterMap(props){
     //Display an interactive map of meters
-    //props: To Do
+    //props: 
+    //  markers - an array of objects containing 'latitude', 'longitude' for each meter
     const mapStyle = {
         height: 600,
         width: 600
     }
 
+    const marker_components = props.markers.map(x => 
+        <Marker key={x.id} position={[x.latitude, x.longitude]}></Marker>
+        )
+
     return(
-        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false} style={mapStyle}>
+        <MapContainer center={[33, -104.4]} zoom={9} scrollWheelZoom={false} style={mapStyle}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Marker position={[51.505, -0.09]}>
-                <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-            </Marker>
+            {marker_components}
         </MapContainer>
     
     )
@@ -177,6 +191,9 @@ export default function MetersView(){
     //Meter list state
     const [meterRows, setMeterRows] = useState([])
 
+    //Meter map markers
+    const [meterMarkers, setMeterMarkers] = useState([])
+
     //Meter details state
     const [meterDetails, setMeterDetails] = useState(
             {
@@ -199,7 +216,7 @@ export default function MetersView(){
 
         //Test getting a list of meters from the database
         fetch('http://localhost:8000/meters',{ headers: auth_headers })
-            .then(r => r.json()).then(data => setMeterRows(data))
+            .then(r => r.json()).then(updateMeters)
     }
     
     function handleRowSelect(rowid){
@@ -229,6 +246,15 @@ export default function MetersView(){
         console.log('test')
     }
 
+    //Updates the list of meters and the meters on the map
+    function updateMeters(meter_data){
+        //Update list
+        setMeterRows(meter_data)
+
+        //Update marker where Lat/Long
+        setMeterMarkers(meter_data.filter(x => x.latitude !== null))
+    }
+
     return (
         <Box sx={{ display: "flex", justifyContent: "space-around" }}>
             <Box sx={{ m:2 }}>
@@ -237,6 +263,7 @@ export default function MetersView(){
                     id="meter-search"
                     label="Search Meters"
                     type="search"
+                    autoComplete="off"
                     margin="normal"
                     onChange={handleSearchChange}
                 />
@@ -255,7 +282,9 @@ export default function MetersView(){
                     />
                 </TabPanel>
                 <TabPanel value={tabIndex} index={1}>
-                    <MeterMap/>
+                    <MeterMap
+                        markers={meterMarkers}
+                    />
                 </TabPanel>
             </Box>
             <Box sx={{ m:2 }}>

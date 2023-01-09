@@ -28,7 +28,8 @@ class Meter(ORMBase):
     meter_type_id: int
     contact_id: int
     ra_number: str = None
-
+    latitude: float = None
+    longitude: float = None
 
 class MeterPatch(ORMBase):
     name: str
