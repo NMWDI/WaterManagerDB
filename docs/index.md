@@ -1,17 +1,8 @@
-# Welcome to MkDocs
+# Welcome to WaterManagerDB docs
+This web app facilitates reporting of water management operations to other organizations. The initial goal is to help water conservation districts communicate with local and state governments. However, the interface may eventually be developed to be more general.
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+For code visit [github.org/NMWDI/WaterManagerDB](https://github.org/NMWDI/WaterManagerDB).
 
-## Commands
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Links
+* [`API Docs`](https://pvacd.newmexicowaterdata.org/api/v1/docs)
