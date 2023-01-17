@@ -17,9 +17,10 @@ from typing import List
 
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from api import schemas
-from api.models import Meters, WellMeasurement, ObservedProperty
+from api.models import Meters, WellMeasurement, ObservedProperty, Worker
 from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db
@@ -53,10 +54,11 @@ async def add_waterlevel(
 
 
 @well_measurement_router.get(
-    "/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
+    #"/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
+    "/waterlevels", tags=["waterlevels"]
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "groundwaterlevel", well_id)
+    return _read_well_measurement(db, "depthtowater", well_id)
 
 
 @well_measurement_router.get(
@@ -67,12 +69,22 @@ async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
 
 
 def _read_well_measurement(db, obsprop, well_id):
-    q = db.query(WellMeasurement)
-    q = q.join(ObservedProperty)
-    if well_id is not None:
-        q = q.filter(WellMeasurement.well_id == well_id)
-    q = q.filter(ObservedProperty.name == obsprop)
-    return q.all()
+    stmt = (
+        select(
+            WellMeasurement.id,
+            WellMeasurement.well_id,
+            WellMeasurement.timestamp,
+            WellMeasurement.value,
+            Worker.name.label('technician')
+        )
+        .join(Worker)
+        .join(ObservedProperty)
+        .where(ObservedProperty.name == obsprop)
+        .where(WellMeasurement.well_id == well_id)
+    )
+    #print(stmt)
+    results = db.execute(stmt)
+    return results.all()
 
 
 # ============= EOF =============================================

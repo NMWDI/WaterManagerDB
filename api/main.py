@@ -19,6 +19,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import List, Union
 
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 from starlette.responses import RedirectResponse, FileResponse
@@ -216,5 +217,20 @@ authenticated_router.include_router(report_router)
 authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
+
+# ============= Test Routes =============
+
+#Various routes for testing out functionality
+@app.get("/testwater")
+def testwater(well_id: int = None, db: Session = Depends(get_db)):
+    stmt = select(
+        WellMeasurement.well_id,
+        WellMeasurement.timestamp,
+        WellMeasurement.value,
+        Worker.name
+        ).join(Worker).join(ObservedProperty).where(ObservedProperty.name == 'depthtowater')
+    print(stmt)
+    results = db.execute(stmt)
+    return results.all()
 
 # ============= EOF =============================================

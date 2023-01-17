@@ -264,18 +264,24 @@ class ScreenInterval(Base):
 
 
 class ObservedProperty(Base):
+    '''
+    Describes the property being measured
+    '''
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String)
+    description = Column(String)
 
 
 class WellMeasurement(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    value = Column(Float)
-    timestamp = Column(DateTime, default=func.now())
     well_id = Column(Integer, ForeignKey("Well.id"))
-
-    well = relationship("Well", back_populates="waterlevels")
+    timestamp = Column(DateTime, default=func.now())
+    value = Column(Float)
     observed_property_id = Column(Integer, ForeignKey("ObservedProperty.id"))
+    worker_id = Column(Integer, ForeignKey("Worker.id"))
+
+    #Relationships
+    well = relationship("Well", back_populates="waterlevels")
+    
 
 
 class QC(Base):

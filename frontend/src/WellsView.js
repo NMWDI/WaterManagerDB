@@ -2,30 +2,26 @@
 
 import { Box, Container, Select, MenuItem, InputLabel } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
+import { useState } from "react";
 import Plot from 'react-plotly.js';
+import { useAuthHeader } from 'react-auth-kit';
 
-//Components: Observations, newObservation, wellPlot
-function Observations(){
+//Components: WellMeasurements, newObservation, wellPlot
+function WellMeasurements(props){
     //A sortable list of observations from the monitoring sites
-    //props: To Do
-    const rows = [
-        { id: 1, col1: '2022-11-05 12:00', col2: 'Poe', col3: 'Tom Bob', col4: '85.3', col5: 'X' },
-        { id: 2, col1: '2022-01-05 12:50', col2: 'Bartlet', col3: 'Jimmy', col4: '60.3', col5: 'X' },
-        { id: 3, col1: '2022-10-06 12:00', col2: 'Poe', col3: 'Tom Bob', col4: '86.3', col5: 'X' },
-      ];
+    //props:
+    //  rows - [see WaterLevel schema]
 
     const columns = [
-    { field: 'col1', headerName: 'Date/Time', width: 150 },
-    { field: 'col2', headerName: 'Site', width: 100 },
-    { field: 'col3', headerName: 'Worker', width: 100 },
-    { field: 'col4', headerName: 'Depth to Water (ft)', width: 150 },
-    { field: 'col5', headerName: 'Actions', width: 150 }
+        { field: 'timestamp', headerName: 'Date/Time', width: 150 },
+        { field: 'value', headerName: 'Depth to Water (ft)', width: 100 },
+        { field: 'technician', headerName: 'Technician', width: 100 }
     ];
       
       
     return(
         <Box sx={{ width: 700, height: 500 }}>
-            <DataGrid rows={rows} columns={columns} />
+            <DataGrid rows={props.rows} columns={columns} />
         </Box>
     )
 }
@@ -41,18 +37,6 @@ function WellPlot(){
     //ToDo
     return(
         <Box sx={{ height: 600, width: 600 }}>
-            <InputLabel id="plot-select-label">Site</InputLabel>
-            <Select
-                labelId="plot-select-label"
-                id="plot-select"
-                value={10}
-                label="Site"
-                onChange={()=>console.log('test')}
-            >
-                <MenuItem value={10}>Poe</MenuItem>
-                <MenuItem value={20}>Bartlet</MenuItem>
-                <MenuItem value={30}>Other</MenuItem>
-            </Select>
             <Plot
                 data={[
                     {
@@ -73,16 +57,64 @@ function WellPlot(){
 export default function WellsView(){
     //High level page layout
 
+    const authHeader = useAuthHeader()
+
+    //Site state
+    const [siteid,setSiteid] = useState("")
+
+    //Measurements state
+    const [measurements,setMeasurements] = useState([])
+
+    const handleSelect = (event) => {
+        console.log('Selecting')
+        setSiteid(event.target.value)
+        getMeasurements(event.target.value)
+    }
+
+    function getMeasurements(site_id){
+        //Get well measurements for site and set
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+        console.log(site_id)
+        fetch(
+            `http://localhost:8000/waterlevels?well_id=${site_id}`,
+            { headers: auth_headers }
+        )
+        .then(r => r.json()).then(data => setMeasurements(data))
+
+    }
+
+
+
     return(
-        <Box sx={{ display: 'flex' }}>
-            <div>
-                <h2>Monitoring Well Observations</h2>
-                <Observations></Observations>
-            </div>
-            <div>
-                <h2>Well History</h2>
-                <WellPlot></WellPlot>
-            </div>
+        <Box>
+            <InputLabel id="plot-select-label">Site</InputLabel>
+            <Select
+                labelId="plot-select-label"
+                id="plot-select"
+                value={siteid}
+                label="Site"
+                onChange={handleSelect}
+            >
+                <MenuItem value=""></MenuItem>
+                <MenuItem value={1}>Poe Corn</MenuItem>
+                <MenuItem value={2}>TransWestern</MenuItem>
+                <MenuItem value={3}>BerrSmith</MenuItem>
+                <MenuItem value={4}>LFD</MenuItem>
+                <MenuItem value={5}>OrchardPark</MenuItem>
+                <MenuItem value={6}>Greenfield</MenuItem>
+                <MenuItem value={7}>Bartlett</MenuItem>
+                <MenuItem value={8}>Cottonwood</MenuItem>
+                <MenuItem value={9}>Zumwalt</MenuItem>
+                <MenuItem value={10}>Artesia</MenuItem>
+            </Select>
+            
+            <WellPlot/>
+
+            <h2>X Well Measurements</h2>
+            <WellMeasurements rows={measurements}/>
         </Box>
     )
 

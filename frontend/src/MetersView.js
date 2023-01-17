@@ -180,8 +180,6 @@ function a11yProps(index) {
 
 export default function MetersView(){
     //This is the primary layout component for the page
-
-    const testStyle = {height: 600}
     
     const authHeader = useAuthHeader()
 

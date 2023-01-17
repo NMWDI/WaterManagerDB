@@ -80,9 +80,11 @@ class WellConstruction(ORMBase):
 
 
 class WaterLevel(ORMBase):
-    timestamp: Optional[datetime] = None
+    id: int
+    timestamp: datetime
     value: float
     well_id: int
+    technician: str
 
 
 class WaterLevelCreate(WaterLevel):

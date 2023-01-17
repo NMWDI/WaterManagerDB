@@ -25,6 +25,30 @@ if os.environ.get("SETUP_DB"):
 # Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
 if os.environ.get("POPULATE_DB"):
     
+    #Add some data to blank database
+    
+    #Add a user for testing
+    db = SessionLocal()
+    db.add(
+        api.security_models.User(
+            full_name="Test User",
+            username="test",
+            email="johndoe@example.com",
+            hashed_password=get_password_hash("secret"),
+        )
+    )
+
+    #Add some supporting properties
+    db.add(api.models.ObservedProperty(
+        name="depthtowater",
+        description="Depth in feet below ground surface to water surface"
+        )
+    )
+    db.add(api.models.ObservedProperty(name="chloride"))
+
+    db.commit()
+    db.close()
+    
     #Get the psycopg2 connector - enables running of lower level functions
     conn = engine.raw_connection()
     cursor = conn.cursor()
@@ -66,7 +90,7 @@ if os.environ.get("POPULATE_DB"):
         conn.commit()
 
     with open('api/data/devdata_wellMeasurement.csv','r') as f:
-        qry = 'COPY "WellMeasurement"(timestamp,value,well_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "WellMeasurement"(timestamp,value,well_id,observed_property_id,worker_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
         conn.commit()
 
@@ -80,18 +104,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
         conn.commit()
 
-    #Add a user for testing
-    db = SessionLocal()
-    db.add(
-        api.security_models.User(
-            full_name="Test User",
-            username="test",
-            email="johndoe@example.com",
-            hashed_password=get_password_hash("secret"),
-        )
-    )
-    db.commit()
-    db.close()
+    
     
 
 
