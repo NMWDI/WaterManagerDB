@@ -2,7 +2,7 @@
 
 import { Box, Container, Select, MenuItem, InputLabel } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Plot from 'react-plotly.js';
 import { useAuthHeader } from 'react-auth-kit';
 
@@ -13,14 +13,14 @@ function WellMeasurements(props){
     //  rows - [see WaterLevel schema]
 
     const columns = [
-        { field: 'timestamp', headerName: 'Date/Time', width: 150 },
-        { field: 'value', headerName: 'Depth to Water (ft)', width: 100 },
+        { field: 'timestamp', headerName: 'Date/Time', width: 200 },
+        { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },
         { field: 'technician', headerName: 'Technician', width: 100 }
     ];
       
       
     return(
-        <Box sx={{ width: 700, height: 500 }}>
+        <Box sx={{ width: 600, height: 600 }}>
             <DataGrid rows={props.rows} columns={columns} />
         </Box>
     )
@@ -32,22 +32,45 @@ function NewObservation(){
     console.log('ToDo')
 }
 
-function WellPlot(){
+function WellPlot(props){
     //Plot history of well using plotly.js
-    //ToDo
+    //This plot expects both manual measurements and logger measurements
+    //props:
+    //    manual_dates = [ datetime strings ]
+    //    manual_vals = [ values ]
+    //    logger_dates = [ datetime strings ]
+    //    logger_values = [ values ]
+    console.log('inWellPlot')
+    console.log(props)
     return(
-        <Box sx={{ height: 600, width: 600 }}>
+        <Box sx={{ height: 600, width: 700 }}>
             <Plot
-                data={[
-                    {
-                        x: [1, 2, 3],
-                        y: [2, 6, 3],
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        marker: {color: 'red'},
-                    }
-                ]}
-                layout={ {width: 600, height: 600} }
+                data={
+                    [
+                        {
+                            x: props.manual_dates,
+                            y: props.manual_vals,
+                            type: 'scatter',
+                            mode: 'markers',
+                            marker: {color: 'red'},
+                        },
+                        // {
+                        //     x: [
+                        //         '2023-01-05',
+                        //         '2023-01-06',
+                        //         '2023-01-07',
+                        //         '2023-01-09',
+                        //         '2023-01-11',
+                        //         '2023-01-12'
+                        //     ],
+                        //     y: [5,3.2,7,4,9,0.3],
+                        //     type: 'scatter',
+                        //     mode: 'lines',
+                        //     marker: {color: 'blue'},
+                        // }
+                    ]
+                }
+                layout={ {width: 800, height: 600} }
             />
         </Box>
     )
@@ -60,10 +83,13 @@ export default function WellsView(){
     const authHeader = useAuthHeader()
 
     //Site state
-    const [siteid,setSiteid] = useState("")
+    const [siteid,setSiteid] = useState('')
 
-    //Measurements state
-    const [measurements,setMeasurements] = useState([])
+    //Well Measurements Table State
+    const [well_rows,setWellRows] = useState([])
+
+    //vulink logger measurements
+    const [logger_vals,setLoggerVals] = useState({ datetimes: [], values: []})
 
     const handleSelect = (event) => {
         console.log('Selecting')
@@ -82,11 +108,9 @@ export default function WellsView(){
             `http://localhost:8000/waterlevels?well_id=${site_id}`,
             { headers: auth_headers }
         )
-        .then(r => r.json()).then(data => setMeasurements(data))
+        .then(r => r.json()).then(data => setWellRows(data))
 
     }
-
-
 
     return(
         <Box>
@@ -98,7 +122,7 @@ export default function WellsView(){
                 label="Site"
                 onChange={handleSelect}
             >
-                <MenuItem value=""></MenuItem>
+                <MenuItem value={''}></MenuItem>
                 <MenuItem value={1}>Poe Corn</MenuItem>
                 <MenuItem value={2}>TransWestern</MenuItem>
                 <MenuItem value={3}>BerrSmith</MenuItem>
@@ -110,11 +134,13 @@ export default function WellsView(){
                 <MenuItem value={9}>Zumwalt</MenuItem>
                 <MenuItem value={10}>Artesia</MenuItem>
             </Select>
-            
-            <WellPlot/>
-
-            <h2>X Well Measurements</h2>
-            <WellMeasurements rows={measurements}/>
+            <Box sx={{ display: 'flex', mt: '10px' }}>
+                <WellMeasurements rows={well_rows}/>
+                <WellPlot
+                    manual_dates={well_rows.map(row => row['timestamp'])}
+                    manual_vals={well_rows.map(row => row['value'])}
+                />
+            </Box>
         </Box>
     )
 
