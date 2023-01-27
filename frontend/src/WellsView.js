@@ -39,9 +39,7 @@ function WellPlot(props){
     //    manual_dates = [ datetime strings ]
     //    manual_vals = [ values ]
     //    logger_dates = [ datetime strings ]
-    //    logger_values = [ values ]
-    console.log('inWellPlot')
-    console.log(props)
+    //    logger_vals = [ values ]
     return(
         <Box sx={{ height: 600, width: 700 }}>
             <Plot
@@ -54,20 +52,13 @@ function WellPlot(props){
                             mode: 'markers',
                             marker: {color: 'red'},
                         },
-                        // {
-                        //     x: [
-                        //         '2023-01-05',
-                        //         '2023-01-06',
-                        //         '2023-01-07',
-                        //         '2023-01-09',
-                        //         '2023-01-11',
-                        //         '2023-01-12'
-                        //     ],
-                        //     y: [5,3.2,7,4,9,0.3],
-                        //     type: 'scatter',
-                        //     mode: 'lines',
-                        //     marker: {color: 'blue'},
-                        // }
+                        {
+                            x: props.logger_dates,
+                            y: props.logger_vals,
+                            type: 'scatter',
+                            mode: 'lines',
+                            marker: {color: 'blue'},
+                        }
                     ]
                 }
                 layout={ {width: 800, height: 600} }
@@ -83,32 +74,78 @@ export default function WellsView(){
     const authHeader = useAuthHeader()
 
     //Site state
-    const [siteid,setSiteid] = useState('')
+    const [site_name,setSiteName] = useState('')
 
     //Well Measurements Table State
     const [well_rows,setWellRows] = useState([])
 
     //vulink logger measurements
-    const [logger_vals,setLoggerVals] = useState({ datetimes: [], values: []})
+    const [logger_vals,setLoggerVals] = useState([])
 
     const handleSelect = (event) => {
-        console.log('Selecting')
-        setSiteid(event.target.value)
+        setSiteName(event.target.value)
         getMeasurements(event.target.value)
+        getLoggerVals(event.target.value)
     }
 
-    function getMeasurements(site_id){
+    function getMeasurements(site){
+        //Site ID map
+        let site_ids = {
+            'Poe Corn':1,
+            'TransWestern':2,
+            'Berrendo-Smith':3,
+            'LFD':4,
+            'OrchardPark':5,
+            'Greenfield':6,
+            'Bartlett':7,
+            'Cottonwood':8,
+            'Zumwalt':9,
+            'Artesia':10
+        }
+        
         //Get well measurements for site and set
         let auth_headers = new Headers()
         auth_headers.set(
             "Authorization", authHeader()
         )
-        console.log(site_id)
         fetch(
-            `http://localhost:8000/waterlevels?well_id=${site_id}`,
+            `http://localhost:8000/waterlevels?well_id=${site_ids[site]}`,
             { headers: auth_headers }
         )
         .then(r => r.json()).then(data => setWellRows(data))
+
+    }
+
+    function getLoggerVals(site){
+        //Get logger values from ST2 endpoint
+        
+        //Map site ids to sensorthings datastreams
+        let datastreams = {
+            'Poe Corn':14474,
+            'Artesia':14475,
+            'TransWestern':14469,
+            'Cottonwood':14470,
+            'LFD':14472,
+            'Greenfield':14477,
+            'Berrendo-Smith':14471,
+            'Orchard Park':14476,
+            'Bartlett':14473,
+            'Zumwalt':14468,
+        }
+
+        let endpoint = `https://st2.newmexicowaterdata.org/FROST-Server/v1.1/Datastreams(${datastreams[site]})/Observations`
+        let query_str = '?$filter=year(phenomenonTime)%20eq%202022'
+
+        //Get data
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+
+        fetch(
+            endpoint+query_str,
+            { headers: auth_headers }
+        ).then(r => r.json()).then(data => setLoggerVals(data.value))
 
     }
 
@@ -118,27 +155,29 @@ export default function WellsView(){
             <Select
                 labelId="plot-select-label"
                 id="plot-select"
-                value={siteid}
+                value={site_name}
                 label="Site"
                 onChange={handleSelect}
             >
                 <MenuItem value={''}></MenuItem>
-                <MenuItem value={1}>Poe Corn</MenuItem>
-                <MenuItem value={2}>TransWestern</MenuItem>
-                <MenuItem value={3}>BerrSmith</MenuItem>
-                <MenuItem value={4}>LFD</MenuItem>
-                <MenuItem value={5}>OrchardPark</MenuItem>
-                <MenuItem value={6}>Greenfield</MenuItem>
-                <MenuItem value={7}>Bartlett</MenuItem>
-                <MenuItem value={8}>Cottonwood</MenuItem>
-                <MenuItem value={9}>Zumwalt</MenuItem>
-                <MenuItem value={10}>Artesia</MenuItem>
+                <MenuItem value={'Poe Corn'}>Poe Corn</MenuItem>
+                <MenuItem value={'TransWestern'}>TransWestern</MenuItem>
+                <MenuItem value={'Berrendo-Smith'}>Berredo-Smith</MenuItem>
+                <MenuItem value={'LFD'}>LFD</MenuItem>
+                <MenuItem value={'OrchardPark'}>OrchardPark</MenuItem>
+                <MenuItem value={'Greenfield'}>Greenfield</MenuItem>
+                <MenuItem value={'Bartlett'}>Bartlett</MenuItem>
+                <MenuItem value={'Cottonwood'}>Cottonwood</MenuItem>
+                <MenuItem value={'Zumwalt'}>Zumwalt</MenuItem>
+                <MenuItem value={'Artesia'}>Artesia</MenuItem>
             </Select>
             <Box sx={{ display: 'flex', mt: '10px' }}>
                 <WellMeasurements rows={well_rows}/>
                 <WellPlot
                     manual_dates={well_rows.map(row => row['timestamp'])}
                     manual_vals={well_rows.map(row => row['value'])}
+                    logger_dates={logger_vals.map(raw_val => raw_val['resultTime'])}
+                    logger_vals={logger_vals.map(raw_val => raw_val['result'])}
                 />
             </Box>
         </Box>
