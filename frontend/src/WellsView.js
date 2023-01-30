@@ -134,7 +134,7 @@ export default function WellsView(){
         }
 
         let endpoint = `https://st2.newmexicowaterdata.org/FROST-Server/v1.1/Datastreams(${datastreams[site]})/Observations`
-        let query_str = '?$filter=year(phenomenonTime)%20eq%202022'
+        let query_str = '?$filter=year(phenomenonTime)%20gt%202021&$orderby=phenomenonTime%20asc'
 
         //Get data
         let auth_headers = new Headers()
