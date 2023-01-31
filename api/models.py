@@ -47,14 +47,17 @@ class Meters(Base):
     serial_number = Column(String, nullable=False)
     meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
     contact_id = Column(Integer, ForeignKey("Contacts.id"), nullable=False)
+    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
 
     #RA Number is an identifier of the well the meter is attached to
     ra_number = Column(String)
     
     latitude = Column(Float)
     longitude = Column(Float)
-    tag = Column(String)  #Unclear purpose - in PVACD Access db
-    #status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
+    trss = Column(String)  #Township, range, section
+    tag = Column(String)  #OSE tag
+    notes = Column(String)
+    
 
 class MeterTypes(Base):
     '''
@@ -63,13 +66,13 @@ class MeterTypes(Base):
     '''
     brand = Column(String)
     model = Column(String)
-    size = Column(Integer)
+    size = Column(Float)
 
 class MeterStatusLU(Base):
     '''
     Establishes if a meter is installed, in inventory, retired, or other options as needed.
     '''
-    name = Column(String)
+    status_name = Column(String)
     description = Column(String)
 
 class MeterHistory(Base):

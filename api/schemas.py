@@ -25,11 +25,17 @@ class MeterCreate(ORMBase):
 
 class Meter(ORMBase):
     serial_number: str
-    meter_type_id: int
-    contact_id: int
+    brand: str
+    model: str
+    size: float
+    status: str
+    organization: str = None
     ra_number: str = None
+    tag: str = None
     latitude: float = None
     longitude: float = None
+    trss: str = None
+    notes: str = None
 
 class MeterPatch(ORMBase):
     name: str

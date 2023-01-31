@@ -16,11 +16,11 @@
 from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Security
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meters, Well, MeterHistory, Contacts
+from api.models import Meters, MeterTypes, MeterStatusLU, Well, MeterHistory, Contacts
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
 from api.security_models import User
@@ -43,29 +43,45 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
 async def read_meters(
-    fuzzy_serial: str = None,
-    fuzzy_contacts_name: str = None,
+    fuzzy_search: str = None,
     db: Session = Depends(get_db),
     ):
-    q = db.query(Meters)
 
-    if fuzzy_contacts_name:
-        q = q.join(MeterHistory)
-        q = q.join(Well)
-        q = q.join(Contacts)
+    stmt = (
+        select(
+            Meters.serial_number,
+            MeterTypes.brand,
+            MeterTypes.model,
+            MeterTypes.size,
+            MeterStatusLU.status_name.label('status'),
+            Contacts.organization,
+            Meters.ra_number,
+            Meters.tag,
+            Meters.latitude,
+            Meters.longitude,
+            Meters.trss,
+            Meters.notes
+        )
+        .join(MeterTypes)
+        .join(MeterStatusLU)
+        .join(Contacts)
+    )
 
-    if fuzzy_serial:
-        q = q.filter(
+    if fuzzy_search:
+        print('searching')
+        stmt = stmt.where(
             or_(
-                Meters.serial_id.like(f"%{fuzzy_serial}%"),
-                Meters.serial_year.like(f"%{fuzzy_serial}%"),
-                Meters.serial_case_diameter.like(f"%{fuzzy_serial}%"),
+                Meters.serial_number.like(f"%{fuzzy_search}%"),
+                Meters.ra_number.like(f"%{fuzzy_search}%"),
+                MeterTypes.brand.like(f"%{fuzzy_search}%"),
+                Contacts.organization.like(f"%{fuzzy_search}%")
             )
         )
-    if fuzzy_contacts_name:
-        q = q.filter(Contacts.name.like(f"%{fuzzy_contacts_name}%"))
 
-    return q.all()
+    print(stmt)
+    results = db.execute(stmt)
+
+    return results.all()
 
 
 @meter_router.patch(

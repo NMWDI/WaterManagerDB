@@ -51,7 +51,7 @@ function Sidebar() {
             <Link to="/wells" className="link">
               <li className="sidebarListItem">
                 <TableViewIcon className="sidebarIcon" />
-                Wells
+                Monitoring Wells
               </li>
             </Link>
             <Link to="/chlorides" className="link">
