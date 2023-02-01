@@ -49,6 +49,7 @@ async def read_meters(
 
     stmt = (
         select(
+            Meters.id,
             Meters.serial_number,
             MeterTypes.brand,
             MeterTypes.model,

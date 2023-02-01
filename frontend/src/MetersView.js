@@ -1,7 +1,7 @@
 //Meter management interface
 
 import { useState } from "react";
-import { Box, Container, TextField, Button, Tabs, Tab } from "@mui/material";
+import { Box, Container, TextField, Input, Tabs, Tab } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
 import { useAuthHeader } from 'react-auth-kit';
 import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
@@ -26,21 +26,18 @@ L.Marker.prototype.options.icon = DefaultIcon;
 function MeterList(props){
     //Display an interactive list of meters
     //props:
-    //  - rows (object) - example... To Do
+    //  - rows (object) - see /meters schema
 
     const columns = [
     { field: 'serial_number', headerName: 'Serial Number', width: 150 },
-    { field: 'contact_id', headerName: 'Contact', width: 150 },
-    { field: 'meter_type_id', headerName: 'Meter type', width: 150 },
+    { field: 'brand', headerName: 'Brand', width: 150 },
+    { field: 'organization', headerName: 'Contact', width: 150 },
     { field: 'ra_number', headerName: 'RA Number', width: 150 },
     ];
 
     function handleOnRowClick(params,event,details){
         //Pass the event on to the higher level component
-        console.log(params)
-        console.log(event)
-        console.log(details)
-        props.onRowClick(1)
+        props.onRowClick(params.row)
     }
       
       
@@ -83,7 +80,7 @@ function MeterMap(props){
 function MeterDetail(props){
     //Display the details of a particular meter
     //props:
-    //    details = {serial: <str>, model: <str>, brand: <str>}
+    //    details = { see /meters schema }
 
     return(
         <Box sx={{ width: 500 }}>
@@ -92,7 +89,7 @@ function MeterDetail(props){
                 <tbody>
                 <tr>
                     <th>Serial:</th>
-                    <td>{props.details.serial}</td>
+                    <td>{props.details.serial_number}</td>
                     <th>Model:</th>
                     <td>{props.details.model}</td>
                 </tr>
@@ -183,6 +180,9 @@ export default function MetersView(){
     
     const authHeader = useAuthHeader()
 
+    //Search state
+    const [searchVal, setSearchVal] = useState(null)
+    
     //Tabs state
     const [tabIndex, setTab] = useState(0);
 
@@ -204,36 +204,38 @@ export default function MetersView(){
     //Meter history state
     const [meterHistory, setMeterHistory] = useState([])
 
-    function handleSearchChange(){
-        console.log('Searching...')
+    function handleSearchChange(event){
+        setSearchVal(event.target.value)        
+    }
+
+    function handleSearchSubmit(event){
+        event.preventDefault()
 
         let auth_headers = new Headers()
         auth_headers.set(
             "Authorization", authHeader()
         )
 
-        //Test getting a list of meters from the database
-        fetch('http://localhost:8000/meters',{ headers: auth_headers })
+        //Get meter data
+        let url = new URL('http://localhost:8000/meters')
+        if(searchVal){
+            url.searchParams.set("fuzzy_search",searchVal)
+        }
+        fetch(url,{ headers: auth_headers })
             .then(r => r.json()).then(updateMeters)
     }
     
-    function handleRowSelect(rowid){
-        console.log('You clicked on a row')
+    function handleRowSelect(row_details){
+        setMeterDetails(row_details)
 
+        //Get Log Data
         let auth_headers = new Headers()
         auth_headers.set(
             "Authorization", authHeader()
         )
 
-        let testdata = [
-            {serial: '556',model: '308',brand: 'Tonys'},
-            {serial: '502',model: '306',brand: 'Tims'}
-        ]
-        setMeterDetails(testdata[rowid])
-
-        //Grab meter history
         fetch(
-            `http://localhost:8000/meter_history/${rowid}`,
+            `http://localhost:8000/meter_history/${row_details.id}`,
             { headers: auth_headers }
         )
         .then(r => r.json()).then(data => setMeterHistory(data))
@@ -257,14 +259,17 @@ export default function MetersView(){
         <Box sx={{ display: "flex", justifyContent: "space-around" }}>
             <Box sx={{ m:2 }}>
                 <h2>Meters</h2>
-                <TextField
-                    id="meter-search"
-                    label="Search Meters"
-                    type="search"
-                    autoComplete="off"
-                    margin="normal"
-                    onChange={handleSearchChange}
-                />
+                <form onSubmit={handleSearchSubmit}>
+                    <TextField
+                        id="meter-search"
+                        label="Search Meters"
+                        type="search"
+                        autoComplete="off"
+                        margin="normal"
+                        onChange={handleSearchChange}
+                    />
+                </form>
+                
 
                 {/*Tabs section*/}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
