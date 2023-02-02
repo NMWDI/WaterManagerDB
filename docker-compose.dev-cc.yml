@@ -1,5 +1,21 @@
+# CC Dev 
+
 version: "3.9"
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/app:delegated
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://localhost:8000
+      
   api:
     build:
       context: ./api/
@@ -7,7 +23,7 @@ services:
     command: bash -c "
       while !</dev/tcp/db/5432; do sleep 1; done; 
       python -m api.dbsetup;
-      uvicorn api.main:app --host 0.0.0.0 --reload --root-path /api/v1
+      uvicorn api.main:app --host 0.0.0.0 --reload
       "
     ports:
       - "8000:8000"
