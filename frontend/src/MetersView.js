@@ -1,7 +1,7 @@
 //Meter management interface
 
 import { useState } from "react";
-import { Box, Container, TextField, Input, Tabs, Tab } from "@mui/material";
+import { Box, Divider, TextField, Tabs, Tab } from "@mui/material";
 import { DataGrid } from '@mui/x-data-grid';
 import { useAuthHeader } from 'react-auth-kit';
 import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
@@ -78,54 +78,102 @@ function MeterMap(props){
 }
 
 function MeterDetail(props){
-    //Display the details of a particular meter
+    //Display the details of a particular meter.
+    //Can be edited by an admin user
     //props:
     //    details = { see /meters schema }
 
     return(
-        <Box sx={{ width: 500 }}>
-            <h2>Meter Details</h2>
-            <table style={{ width: '100%', border: '1px solid black' }}>
-                <tbody>
-                <tr>
-                    <th>Serial:</th>
-                    <td>{props.details.serial_number}</td>
-                    <th>Model:</th>
-                    <td>{props.details.model}</td>
-                </tr>
-                <tr>
-                    <th>Brand:</th>
-                    <td>{props.details.brand}</td>
-                    <th>Cost:</th>
-                    <td>308</td>
-                </tr>
-                <tr>
-                    <th>Contact:</th>
-                    <td>91-999-F</td>
-                    <th>Status:</th>
-                    <td>308</td>
-                </tr>
-                <tr>
-                    <th>Status:</th>
-                    <td>Active</td>
-                    <th>RA Number:</th>
-                    <td>30844</td>
-                </tr>
-                <tr>
-                    <th>Location (Lat,Long):</th>
-                    <td>34.788</td>
-                    <td>-108.884</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th>Notes:</th>
-                    <td>More room needed?</td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </Box>
+        <Box sx={{ width: 700 }}>
+            <h2>Meter: {props.details.serial_number}</h2>
+            <form>
+                <Box sx={{ border: 0.5, borderColor: "grey.500", borderRadius: 1 }}>
+                    <h3 className="underlined">Properties:</h3>
+                    <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                        <TextField 
+                            id="brand"
+                            label="Brand"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'MCROM'}
+                        />
+                        <TextField 
+                            id="model"
+                            label="Model"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'308'}
+                        />
+                        <TextField 
+                            id="size"
+                            label="Size"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1, width:'10ch' }}
+                            defaultValue={'8'}
+                        />
+                        <TextField 
+                            id="osetag"
+                            label="OSE Tag"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'555'}
+                        />
+                        <Divider variant='middle'/>
+                    </Box>
+                    <h3 className="underlined">Status:</h3>
+                    <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                        <TextField 
+                            id="contact"
+                            label="Contact"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'Chase Farms'}
+                        />
+                        <TextField 
+                            id="ranumber"
+                            label="RA Number"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'666'}
+                        />
+                        <TextField 
+                            id="latlong"
+                            label="Latitude, Longitude:"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'35.66778, -108.09846'}
+                        />
+                        <TextField 
+                            id="trss"
+                            label="TRSS"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue={'123.3345.55'}
+                        />
+                        <Divider variant='middle'/>
+                    </Box>
+                    <h3 className="underlined">Notes:</h3>
+                    <TextField 
+                        id="notes"
+                        variant="filled"
+                        margin="normal"
+                        sx = {{ m:1 }}
+                        fullWidth
+                        multiline
+                        rows={2}
+                        defaultValue={'Testing testing'}
+                    />
+                </Box>
+            </form>
+       </Box>
     )
 }
 
