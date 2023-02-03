@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import Sidebar from "./sidebar";
-import { AuthProvider } from 'react-auth-kit'; //https://authkit.arkadip.dev/
+import { AuthProvider, RequireAuth } from 'react-auth-kit'; //https://authkit.arkadip.dev/
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import WellView from "./WellsView";
@@ -26,20 +26,34 @@ function App() {
                 authType = {'localstorage'}
                 authName={'_auth'}
                 cookieDomain={window.location.hostname}
-                cookieSecure={window.location.protocol === "https:"}>
+                cookieSecure={window.location.protocol === "https:"}
+            >
                 <Routes>
                     <Route path="/" element={<Login />} />
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/meters" element={<MetersView />} />
-                    <Route path="/wells" element={<WellView />} />
-                    <Route path="/chlorides" element={<ChloridesView />} />
-                    <Route path="/parts" element={<PartsView/>} />
-                    <Route path="/alerts" element={<AlertsView/>} />
-                    {/*<Route path="/user/:userId" element={<User />} />*/}
-                    {/*<Route path="/newUser" element={<NewUser />} />*/}
-                    {/*<Route path="/products" element={<ProductList />} />*/}
-                    {/*<Route path="/product/:productId" element={<Product />} />*/}
-                    {/*<Route path="/newproduct" element={<NewProduct />} />*/}
+                    <Route path="/home" element={
+                            <RequireAuth loginPath={'/'}><Home /></RequireAuth>
+                        } 
+                    />
+                    <Route path="/meters" element={
+                            <RequireAuth loginPath={'/'}><MetersView/></RequireAuth>
+                        } 
+                    />
+                    <Route path="/wells" element={
+                            <RequireAuth loginPath={'/'}><WellView/></RequireAuth>
+                        } 
+                    />
+                    <Route path="/chlorides" element={
+                            <RequireAuth loginPath={'/'}><ChloridesView/></RequireAuth>
+                        } 
+                    />
+                    <Route path="/parts" element={
+                            <RequireAuth loginPath={'/'}><PartsView/></RequireAuth>
+                        } 
+                    />
+                    <Route path="/alerts" element={
+                            <RequireAuth loginPath={'/'}><AlertsView/></RequireAuth>
+                        } 
+                    />
                 </Routes>
             </AuthProvider>
         </div>
