@@ -216,5 +216,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-!/api/.env.production
+*.env.production
 /db/.env.production

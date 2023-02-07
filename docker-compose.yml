@@ -1,3 +1,5 @@
+# Production Docker Compose
+# 2/7 - CC added dbsetup to API
 version: "3.9"
 services:
   frontend:
@@ -20,10 +22,11 @@ services:
       context: ./api
       dockerfile: ./Dockerfile
     command: bash -c "
-        while !</dev/tcp/db/5432; do sleep 1; done; 
-      uvicorn api.main:app 
-      --host 0.0.0.0 
-      --proxy-headers --root-path /api/v1
+        while !</dev/tcp/db/5432; do sleep 1; done;
+        python -m api.dbsetup; 
+        uvicorn api.main:app 
+        --host 0.0.0.0 
+        --proxy-headers --root-path /api/v1
       "
     ports:
       - "8000:8000"

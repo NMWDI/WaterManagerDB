@@ -1,4 +1,4 @@
-# CC Dev - Loads all services for local development
+# CC Dev - Loads all services for local development, Traefic not included
 
 version: "3.9"
 services:
