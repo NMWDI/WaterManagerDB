@@ -1,5 +1,5 @@
 # Production Docker Compose
-# 2/7 - CC added dbsetup to API
+# 2/7 - CC added dbsetup to API, also changed .env.production to .env
 version: "3.9"
 services:
   frontend:
@@ -55,7 +55,7 @@ services:
     volumes:
       - postgis-data:/var/lib/postgresql
     env_file:
-      - ./db/.env.production
+      - ./db/.env
     environment:
       # If you need to create multiple database you can add coma separated databases eg gis,data
       - ALLOW_IP_RANGE=0.0.0.0/0
