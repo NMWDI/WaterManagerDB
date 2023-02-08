@@ -5,13 +5,12 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: ./Dockerfile_jir
+      dockerfile: ./Dockerfile_production
     ports:
       - "3000:80"
     depends_on:
       - api
       - traefik
-#    command: npm start  
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`pvacd.newmexicowaterdata.org`)"
