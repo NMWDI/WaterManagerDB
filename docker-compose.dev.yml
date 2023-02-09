@@ -1,3 +1,5 @@
+# Runs all components except backups for local dev, no ssl traffic
+
 version: "3.9"
 services:
 
