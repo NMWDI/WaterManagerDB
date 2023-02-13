@@ -81,22 +81,41 @@ function MeterDetail(props){
     //Display the details of a particular meter.
     //Can be edited by an admin user
     //props:
-    //    details = { see /meters schema }
+    //    details = { see schemas.py Meter for properties}
+    
+    //Parse Lat/Long
+    let latlong = ''
+    if((props.details.latitude != '') || (props.details.longitude != '')){
+        latlong = props.details.latitude + ', ' + props.details.longitude
+    }
 
+    function handleChange(event){
+        console.log('details handle change')
+        props.onChange()
+    }
+
+    function handleSubmit(event){
+        props.onSave()
+    }
+    
     return(
         <Box sx={{ width: 700 }}>
             <h2>Meter: {props.details.serial_number}</h2>
             <form>
                 <Box sx={{ border: 0.5, borderColor: "grey.500", borderRadius: 1 }}>
-                    <h3 className="underlined">Properties:</h3>
                     <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                        <h3 className="underlined">Properties:</h3>
                         <TextField 
                             id="brand"
                             label="Brand"
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'MCROM'}
+                            value={props.details.brand}
+                            InputProps={{
+                                readOnly: true
+                            }}
+                            onChange={handleChange}
                         />
                         <TextField 
                             id="model"
@@ -104,7 +123,10 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'308'}
+                            value={props.details.model}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <TextField 
                             id="size"
@@ -112,7 +134,10 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1, width:'10ch' }}
-                            defaultValue={'8'}
+                            value={props.details.size}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <TextField 
                             id="osetag"
@@ -120,19 +145,26 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'555'}
+                            value={props.details.tag}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <Divider variant='middle'/>
                     </Box>
-                    <h3 className="underlined">Status:</h3>
+                    
                     <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                        <h3 className="underlined">Status:</h3>
                         <TextField 
                             id="contact"
                             label="Contact"
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'Chase Farms'}
+                            value={props.details.organization}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <TextField 
                             id="ranumber"
@@ -140,7 +172,10 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'666'}
+                            value={props.details.ra_number}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <TextField 
                             id="latlong"
@@ -148,7 +183,10 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'35.66778, -108.09846'}
+                            value={latlong}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <TextField 
                             id="trss"
@@ -156,21 +194,28 @@ function MeterDetail(props){
                             variant="filled"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue={'123.3345.55'}
+                            value={props.details.trss}
+                            InputProps={{
+                                readOnly: true
+                            }}
                         />
                         <Divider variant='middle'/>
                     </Box>
-                    <h3 className="underlined">Notes:</h3>
-                    <TextField 
-                        id="notes"
-                        variant="filled"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                        fullWidth
-                        multiline
-                        rows={2}
-                        defaultValue={'Testing testing'}
-                    />
+                    <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                        <h3 className="underlined">Notes:</h3>
+                        <TextField 
+                            id="notes"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1, width: 600}}
+                            multiline
+                            rows={2}
+                            value={props.details.notes}
+                            InputProps={{
+                                readOnly: true
+                            }}
+                        />
+                    </Box>
                 </Box>
             </form>
        </Box>
@@ -242,12 +287,19 @@ export default function MetersView(){
 
     //Meter details state
     const [meterDetails, setMeterDetails] = useState(
-            {
-                serial: null,
-                model: null,
-                brand: null
-            }
-        )
+        {
+            serial_number: '',
+            brand: '',
+            model: '',
+            size: '',
+            organization: '',
+            ra_number: '',
+            tag: '',
+            latitude: '',
+            longitude: '',
+            notes: ''
+        }
+    )
 
     //Meter history state
     const [meterHistory, setMeterHistory] = useState([])
@@ -274,6 +326,15 @@ export default function MetersView(){
     }
     
     function handleRowSelect(row_details){
+        //row_details: object following Meter schema (schemas.py)
+
+        //Change any null row_details to ''
+        for(let p in row_details){
+            if(row_details[p]==null){
+                row_details[p] = ''
+            }
+        }
+        console.log(row_details)
         setMeterDetails(row_details)
 
         //Get Log Data
@@ -301,6 +362,15 @@ export default function MetersView(){
 
         //Update marker where Lat/Long
         setMeterMarkers(meter_data.filter(x => x.latitude !== null))
+    }
+
+    function handleDetailChange(event){
+        console.log('In detail change')
+        setMeterDetails(event.target.value)
+    }
+
+    function handleDetailSave(){
+        console.log('In detail save')
     }
 
     return (
@@ -341,6 +411,8 @@ export default function MetersView(){
             <Box sx={{ m:2 }}>
                 <MeterDetail
                     details={meterDetails}
+                    onChange={handleDetailChange}
+                    onSave={handleDetailSave}
                 />
                 <MeterLog
                     rows={meterHistory}

@@ -1,4 +1,6 @@
 # CC Dev - Loads all services for local development, Traefic not included
+# Auto database loading included
+# Auto updating when editing react code not working...
 
 version: "3.9"
 services:
@@ -53,7 +55,7 @@ services:
       - db
       - api
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true   #https://stackoverflow.com/questions/70488471/docker-with-create-react-app-is-not-updating-changes
       - REACT_APP_API_URL=http://localhost:8000
     command: npm start
 
