@@ -18,46 +18,80 @@ import Login from './login'
 function App() {
 
     return (
-        <Router>
-        <Topbar />
-        <div className="container">
-            <Sidebar />
-            <AuthProvider 
-                authType = {'localstorage'}
-                authName={'_auth'}
-                cookieDomain={window.location.hostname}
-                cookieSecure={window.location.protocol === "https:"}
-            >
+        <AuthProvider 
+            authType = {'localstorage'}
+            authName={'_auth'}
+            cookieDomain={window.location.hostname}
+            cookieSecure={window.location.protocol === "https:"}
+        >
+            <Router>
                 <Routes>
-                    <Route path="/" element={<Login />} />
+                    <Route path="/" element={
+                            <div>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><Login />
+                                </div>
+                            </div>
+                        }
+                    />
                     <Route path="/home" element={
-                            <RequireAuth loginPath={'/'}><Home /></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><Home />
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                     <Route path="/meters" element={
-                            <RequireAuth loginPath={'/'}><MetersView/></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><MetersView/>
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                     <Route path="/wells" element={
-                            <RequireAuth loginPath={'/'}><WellView/></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><WellView/>
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                     <Route path="/chlorides" element={
-                            <RequireAuth loginPath={'/'}><ChloridesView/></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><ChloridesView/>
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                     <Route path="/parts" element={
-                            <RequireAuth loginPath={'/'}><PartsView/></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><PartsView/>
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                     <Route path="/alerts" element={
-                            <RequireAuth loginPath={'/'}><AlertsView/></RequireAuth>
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><AlertsView/>
+                                </div>
+                            </RequireAuth>
                         } 
                     />
                 </Routes>
-            </AuthProvider>
-        </div>
-        </Router>
+            </Router>
+        </AuthProvider>
   );
 
 }
