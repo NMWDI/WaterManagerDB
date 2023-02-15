@@ -1,35 +1,34 @@
 import React from "react";
 import './css/topbar.css'
-import {Language, NotificationsNone, Settings} from "@mui/icons-material";
-import StatusBar from "./statusBar";
+import Button from "@mui/material/Button";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSignOut } from "react-auth-kit";
 
 function Topbar() {
-  return (
-    <div className="topbar">
-      <div className="topbarWrapper">
-        <div className="topLeft">
-          <span className="logo">Meter Manager</span>
-        </div>
-        <div className="topRight">
-          {/*<div className="topbarIconContainer">*/}
-          {/*  <NotificationsNone />*/}
-          {/*  <span className="topIconBadge">2</span>*/}
-          {/*</div>*/}
-          {/*<div className="topbarIconContainer">*/}
-          {/*  <Language />*/}
-          {/*  <span className="topIconBadge">2</span>*/}
-          {/*</div>*/}
-          <div style={{paddingRight: "25px"}}>
-            Temp disable status {/*<StatusBar/>*/}
-          </div>
 
-          <div className="topbarIconContainer">
-            <Settings />
-          </div>
-          {/*<img src="https://images.pexels.com/photos/1526814/pexels-photo-1526814.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500" alt="" className="topAvatar" />*/}
+    const location = useLocation()
+    const signOut = useSignOut()
+    const navigate = useNavigate()
+
+    function fullSignOut(){
+        //Must navigate to non-private route first
+        //https://github.com/react-auth-kit/react-auth-kit/issues/916
+        navigate('/')
+        signOut()
+    }
+    
+    return (
+        <div className="topbar">
+            <div className="topbarWrapper">
+                <div className="topLeft">
+                    <span className="logo">Meter Manager</span>
+                </div>
+                <div className="topRight">
+                    {/*Add a signout button if not login*/ }
+                    { location.pathname != '/' ? <Button variant="contained" onClick={fullSignOut} >Logout</Button> : '' }
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 export default Topbar;
