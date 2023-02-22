@@ -12,7 +12,8 @@ import Topbar from "./Topbar";
 import ChloridesView from "./ChloridesView";
 import PartsView from "./PartsView";
 import AlertsView from "./AlertsView";
-import Login from './login'
+import Login from './login';
+import ActivityView from './views/Activities';
 
 
 function App() {
@@ -49,6 +50,15 @@ function App() {
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><MetersView/>
+                                </div>
+                            </RequireAuth>
+                        } 
+                    />
+                    <Route path="/activities" element={
+                            <RequireAuth loginPath={'/'}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><ActivityView />
                                 </div>
                             </RequireAuth>
                         } 

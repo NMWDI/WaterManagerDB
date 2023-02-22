@@ -36,6 +36,12 @@ function Sidebar() {
                         Meters
                         </li>
                     </Link>
+                    <Link to="/activities" className="link">
+                        <li className={ location.pathname == '/activities' ? "sidebarListItem active" : "sidebarListItem"}>
+                        <TableViewIcon className="sidebarIcon" />
+                        Activities
+                        </li>
+                    </Link>
                     <Link to="/wells" className="link">
                         <li className={ location.pathname == '/wells' ? "sidebarListItem active" : "sidebarListItem"}>
                         <TableViewIcon className="sidebarIcon" />
