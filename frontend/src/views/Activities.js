@@ -24,16 +24,23 @@ function MeterActivities(){
         {
             value: 'annual_maint',
             label: 'Annual Maintenance'
+        },
+        {
+            value: 'remove',
+            label: 'Un-install Meter'
+        },
+        {
+            value: 'repair',
+            label: 'Meter Repair'
         }
     ]
 
     const [ activity, setActivity ] = useState('')
-    console.log(activity)
+    const [ initial_meter, setInitialMeter] = useState('')
 
     function handleChange(event){
         //
-        console.log('In handle change')
-        console.log(event)
+        setActivity(event.target.value)
     }
 
     
@@ -41,7 +48,7 @@ function MeterActivities(){
         <Box>
             <form>
                 {/*----- Meter SN, reading, datetime ----*/}
-                <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                     <TextField 
                         id="meter_sn"
                         label="Meter"
@@ -54,15 +61,15 @@ function MeterActivities(){
                         id="activity"
                         label="Activities"
                         select
-                        sx = {{ m:1 }}
+                        sx = {{ m:1, width:200 }}
                         value={ activity }
-                        SelectProps={{ autoWidth: true }}
                         onChange={handleChange}
                     >
-                        <MenuItem value=""><em>None</em></MenuItem>
-                        <MenuItem value="1">Test 1</MenuItem>
-                        <MenuItem value="2">Test 2</MenuItem>
-                        <MenuItem value="3">Test 3</MenuItem>
+                        {activities.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
                     </TextField>
                     <TextField 
                         id="activity_dt"
@@ -79,25 +86,24 @@ function MeterActivities(){
                         sx = {{ m:1 }}
                     />
                     <TextField 
-                        id="reading_type"
-                        label="Type"
+                        id="initial_reading_type"
+                        label="Reading Type"
                         variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="reading_units"
-                        label="Units"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
+                        select
+                        sx = {{ m:1, width:200 }}
+                        value={ '' }
+                    >
+                        <MenuItem value=""><em>None</em></MenuItem>
+                        <MenuItem value="1">Water - Barrels</MenuItem>
+                        <MenuItem value="2">Water - Acre Ft</MenuItem>
+                        <MenuItem value="3">Electric</MenuItem>
+                    </TextField>
                     
                     <Divider variant='middle'/>
                 </Box>
                 {/*----- Meter Location Details ----*/}
-                <Box component="section" sx={{ flexWrap: 'wrap' }}>
-                    <h4>Location:</h4>
+                <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
+                    <h4>Installation:</h4>
                     <TextField 
                         id="contact"
                         label="Contact"
@@ -133,11 +139,6 @@ function MeterActivities(){
                         margin="normal"
                         sx = {{ m:1 }}
                     />
-                    <Divider variant='middle'/>
-                </Box>
-                {/*----- Meter Installation Details ----*/}
-                <Box component="section" sx={{ flexWrap: 'wrap' }}>
-                    <h4>Installation:</h4>
                     <TextField 
                         id="meter_distance"
                         label="Well Distance"
@@ -164,14 +165,15 @@ function MeterActivities(){
                             label="Notes"
                             variant="filled"
                             margin="normal"
-                            sx = {{ m:1, width: 600}}
+                            sx = {{ m:1}}
                             multiline
                             rows={2}
+                            fullWidth
                     />
                     <Divider variant='middle'/>
                 </Box>
                 {/*----- Meter Maintenance/Repairs ----*/}
-                <Box component="section" sx={{ flexWrap: 'wrap' }}>
+                <Box component="section">
                     <h4>Maintenance/Repair:</h4>
                     <TextField 
                         id="repair_notes"
@@ -183,56 +185,60 @@ function MeterActivities(){
                         rows={3}
                     />
                     <h4>Parts Used:</h4>
-                    <TextField 
-                        id="part_type"
-                        label="Part Type"
-                        variant="filled"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="part_number"
-                        label="Part Number"
-                        variant="filled"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="part_quantitiy"
-                        label="Part Quantity"
-                        variant="filled"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <Button variant="outlined">Add</Button>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <TextField 
+                            id="part_type"
+                            label="Part Type"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                        />
+                        <TextField 
+                            id="part_number"
+                            label="Part Number"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                        />
+                        <TextField 
+                            id="part_quantitiy"
+                            label="Part Quantity"
+                            variant="filled"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                        />
+                        <Button variant="outlined" size="large" disableElevation>Add</Button>
+                    </Box>
                     
-                    <h4>New Meter Reading:</h4>
-                    <TextField 
-                        id="initial_reading"
-                        label="Value"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="reading_type"
-                        label="Type"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="reading_units"
-                        label="Units"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
+                    <h4>Observations:</h4>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <TextField 
+                            id="observation_01"
+                            label="Value"
+                            variant="outlined"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                        />
+                        <TextField 
+                            id="initial_reading_type"
+                            label="Reading Type"
+                            variant="outlined"
+                            select
+                            sx = {{ m:1, width:200 }}
+                            value={ '' }
+                        >
+                            <MenuItem value=""><em>None</em></MenuItem>
+                            <MenuItem value="1">Water - Barrels</MenuItem>
+                            <MenuItem value="2">Water - Acre Ft</MenuItem>
+                            <MenuItem value="3">Electric</MenuItem>
+                        </TextField>
+                        <Button variant="outlined">Add</Button>
+                    </Box>
 
                     <Divider variant='middle'/>
                     
                 </Box>
-                <Box><Button variant="contained">Submit</Button></Box>
+                <Box sx={{ mt: 1 }}><Button variant="contained">Submit</Button></Box>
                 
             </form>
        </Box>
