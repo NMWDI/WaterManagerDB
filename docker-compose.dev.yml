@@ -51,7 +51,7 @@ services:
       - "traefik.http.middlewares.api-sp.stripprefix.prefixes=/api/v1"
       - "traefik.http.middlewares.api-sp.stripprefix.forceSlash=false"
     restart: on-failure
-  
+
   frontend:
     build:
         context: ./frontend
@@ -59,7 +59,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/home/node/app
     depends_on:
       - db
       - api

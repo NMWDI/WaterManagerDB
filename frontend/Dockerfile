@@ -1,7 +1,7 @@
 #CC Testing
 FROM node:latest
 
-WORKDIR /app
+WORKDIR /home/node/app
 
 #Copy requirements and install before copying everything else
 #This is beneficial for when the container is rebuilt

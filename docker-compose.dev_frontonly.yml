@@ -1,18 +1,15 @@
 version: "3.9"
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile
+    image: "node:latest"
+    working_dir: /home/node/app
+    expose:
+      - "3000"
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_API_URL=http://localhost:8000
+      - ./frontend:/home/node/app
     command: npm start
-   
 
   
   
