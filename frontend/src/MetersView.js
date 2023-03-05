@@ -7,6 +7,8 @@ import { useAuthHeader } from 'react-auth-kit';
 import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { API_URL } from "./API_config.js"
+console.log(API_URL)
 
 //Hack for leaflet icons broken by default 
 //see  https://github.com/PaulLeCam/react-leaflet/issues/453
@@ -317,7 +319,7 @@ export default function MetersView(){
         )
 
         //Get meter data
-        let url = new URL('http://localhost:8000/meters')
+        let url = new URL(API_URL+'/meters')
         if(searchVal){
             url.searchParams.set("fuzzy_search",searchVal)
         }
@@ -344,7 +346,7 @@ export default function MetersView(){
         )
 
         fetch(
-            `http://localhost:8000/meter_history/${row_details.id}`,
+            `${API_URL}/meter_history/${row_details.id}`,
             { headers: auth_headers }
         )
         .then(r => r.json()).then(data => setMeterHistory(data))

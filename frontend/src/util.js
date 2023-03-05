@@ -1,8 +1,8 @@
-import {config} from "./Constants";
+import { API_URL } from "./API_config";
 
 export function makeAPIPath(tag){
 
-    return config.url.API_URL+tag
+    return API_URL+tag
 }
 
 

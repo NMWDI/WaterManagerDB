@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useSignIn } from 'react-auth-kit'
 import {Box, TextField, Button} from "@mui/material";
+import { API_URL } from "./API_config.js"
 
 export default function Login() {
     const [userval, setUserVal] = useState('')
@@ -29,7 +30,7 @@ export default function Login() {
         formData_vals.append("username",userval)
         formData_vals.append("password",passval)
         formData_vals.append("scope",'read') //Temporary to make work with scopes
-        fetch('http://localhost:8000/token', {method: "POST", body: formData_vals}).then(handleLogin)
+        fetch(API_URL+'/token', {method: "POST", body: formData_vals}).then(handleLogin)
     }
 
     function handleLogin(r) {
