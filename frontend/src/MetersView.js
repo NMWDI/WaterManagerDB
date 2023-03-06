@@ -8,7 +8,6 @@ import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { API_URL } from "./API_config.js"
-console.log(API_URL)
 
 //Hack for leaflet icons broken by default 
 //see  https://github.com/PaulLeCam/react-leaflet/issues/453
@@ -319,7 +318,7 @@ export default function MetersView(){
         )
 
         //Get meter data
-        let url = new URL(API_URL+'/meters')
+        let url = new URL('/meters',API_URL)
         if(searchVal){
             url.searchParams.set("fuzzy_search",searchVal)
         }
