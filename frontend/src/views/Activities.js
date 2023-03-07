@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Box, Button, Divider, TextField, MenuItem, Select, Tabs, Tab } from "@mui/material";
 import { useAuthHeader } from 'react-auth-kit';
-//import { API_URL } from "./API_config.js"
+import { API_URL } from "../API_config.js"
 
 
 //----  Page components: Meter Maintenance, Work Orders
@@ -16,6 +16,7 @@ function WorkOrder(){
 function MeterActivities(){
     //Form for entering meter maintenance and repair information
 
+    const authHeader = useAuthHeader()
 
     //State variables
     const [ meter, setMeter ] = useState(
@@ -31,18 +32,61 @@ function MeterActivities(){
         }
     )
     const [ activity, setActivity ] = useState('')
-    const [ initial_meter, setInitialMeter] = useState('')
 
     function handleMeterChange(event){
-        //
-        console.log(event)
+        //Update meter state when interacting with input
+        console.log(event.target.value)
+        setMeter({...meter, serial_number: event.target.value})
     }
 
     function handleMeterSelect(event){
         //Should execute when meter SN field is "blurred"
         //Clicking away from the input is essentially "selecting it"
-        console.log('SN blur')
-        console.log(event)
+
+        //Exit if meter data is empty string
+        if(meter.serial_number == ''){
+            setMeter(
+                {
+                    serial_number:'',
+                    organization:'',
+                    latitude:'',
+                    longitude:'',
+                    trss:'',
+                    ra_number:'',
+                    ose_tag:'',
+                    notes:''
+                }
+            )
+            return
+        }
+
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+
+        //Get meter data
+        let url = new URL('/meters',API_URL)
+        url.searchParams.set("meter_sn",event.target.value)
+        fetch(url,{ headers: auth_headers })
+            .then(r => r.json()).then(updateInstallation)
+    }
+
+    function updateInstallation(data){
+        //Sets inputs in installation section with meter information
+        if(data.length > 0){
+            //Set any null values to ''
+            let datavals = data[0]
+            for(let p in datavals){
+                if(datavals[p] === null){
+                    datavals[p] = ''
+                }
+            }
+            console.log(datavals)
+            setMeter(datavals)
+        }else{
+            console.log('Meter not found')
+        }
     }
 
     function handleActivityChange(event){

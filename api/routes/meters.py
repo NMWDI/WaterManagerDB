@@ -43,6 +43,7 @@ async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
 
 @meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
 async def read_meters(
+    meter_sn: str = None,
     fuzzy_search: str = None,
     db: Session = Depends(get_db),
     ):
@@ -68,8 +69,10 @@ async def read_meters(
         .join(Contacts)
     )
 
-    if fuzzy_search:
-        print('searching')
+    if meter_sn:
+        stmt = stmt.where(Meters.serial_number == meter_sn)
+        
+    elif fuzzy_search:
         stmt = stmt.where(
             or_(
                 Meters.serial_number.like(f"%{fuzzy_search}%"),
@@ -78,7 +81,6 @@ async def read_meters(
                 Contacts.organization.like(f"%{fuzzy_search}%")
             )
         )
-
     print(stmt)
     results = db.execute(stmt)
 
