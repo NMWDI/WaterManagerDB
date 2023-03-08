@@ -13,12 +13,17 @@ function WorkOrder(){
     return(<div>Test</div>)   
 }
 
+let obsID = 1  //Counter for adding new observation ids
 function MeterActivities(){
+    //
     //Form for entering meter maintenance and repair information
+    //
 
     const authHeader = useAuthHeader()
 
     //State variables
+    const [ activity_date, setActivityDate ] = useState('')
+    const [ activity, setActivity ] = useState('')
     const [ meter, setMeter ] = useState(
         {
             serial_number:'',
@@ -31,12 +36,27 @@ function MeterActivities(){
             notes:''
         }
     )
-    const [ activity, setActivity ] = useState('')
+    const [ observations, setObservations ] = useState([
+        {
+            id: 'obs_'+obsID,
+            value: '',
+            type: ''
+        }
+    ])
+    const [ maint_desc, setMaintDesc ] = useState('')
+    const [ parts, setParts ] = useState([])
+    
 
     function handleMeterChange(event){
         //Update meter state when interacting with input
-        console.log(event.target.value)
-        setMeter({...meter, serial_number: event.target.value})
+        if(event.target.id == 'latlong'){
+            console.log('set lat/long')
+            setMeter({...meter, latitude: 0, longitude: 0})
+        }
+        else{
+            setMeter({...meter, [event.target.id]: event.target.value})
+        }
+        
     }
 
     function handleMeterSelect(event){
@@ -94,6 +114,47 @@ function MeterActivities(){
         setActivity(event.target.value)
     }
 
+    function handleDateSelect(event){
+        setActivityDate(event.target.value)
+    }
+
+    function ObservationInput(props){
+        //A small component that is the observation input
+        //Making this a component facilitates adding new inputs
+        return (
+            <Box sx={{ display: "flex" }}>
+                <TextField 
+                    id={ props.id }
+                    label="Value"
+                    variant="outlined"
+                    margin="normal"
+                    sx = {{ m:1 }}
+                    value={ props.value }
+                />
+                <TextField 
+                    id="initial_reading_type"
+                    label="Reading Type"
+                    variant="outlined"
+                    select
+                    sx = {{ m:1, width:200 }}
+                    value={ props.type }
+                >
+                    <MenuItem value=""><em>None</em></MenuItem>
+                    <MenuItem value="1">Water - Barrels</MenuItem>
+                    <MenuItem value="2">Water - Acre Ft</MenuItem>
+                    <MenuItem value="3">Electric</MenuItem>
+                </TextField>
+            </Box>
+        )
+
+    }
+ 
+    function addObservation(event){
+        //Add a new observation to the observations section
+        obsID++
+        setObservations([...observations,{id: 'obs_' + obsID, value: '', type: ''}])
+    }
+
     
     return(
         <Box>
@@ -101,7 +162,7 @@ function MeterActivities(){
                 {/*----- Meter SN, reading, datetime ----*/}
                 <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                     <TextField 
-                        id="meter_sn"
+                        id="serial_number"
                         label="Meter"
                         variant="outlined"
                         margin="normal"
@@ -130,6 +191,8 @@ function MeterActivities(){
                         variant="outlined"
                         sx = {{ m:1 }}
                         type="datetime-local"
+                        value={ activity_date }
+                        onChange= { handleDateSelect }
                     />
                     <Divider variant='middle'/>
                 </Box>
@@ -138,7 +201,7 @@ function MeterActivities(){
                 <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                     <h4>Installation:</h4>
                     <TextField 
-                        id="contact"
+                        id="organization"
                         label="Contact"
                         variant={ activity=="install" ? "outlined":"filled" }
                         disabled={ activity!="install" }
@@ -168,7 +231,7 @@ function MeterActivities(){
                         onChange={handleMeterChange}
                     />
                     <TextField 
-                        id="ranumber"
+                        id="ra_number"
                         label="RA Number"
                         variant={ activity=="install" ? "outlined":"filled" }
                         disabled={ activity!="install" }
@@ -178,7 +241,7 @@ function MeterActivities(){
                         onChange={handleMeterChange}
                     />
                     <TextField 
-                        id="osetag"
+                        id="ose_tag"
                         label="OSE Tag"
                         variant={ activity=="install" ? "outlined":"filled" }
                         disabled={ activity!="install" }
@@ -209,7 +272,7 @@ function MeterActivities(){
                         sx = {{ m:1 }}
                     />
                     <TextField 
-                        id="install_notes"
+                        id="notes"
                         label="Notes"
                         variant={ activity=="install" ? "outlined":"filled" }
                         disabled={ activity!="install" }
@@ -219,6 +282,7 @@ function MeterActivities(){
                         multiline
                         rows={2}
                         fullWidth
+                        onChange={handleMeterChange}
                     />
                     
                 </Box>
@@ -226,29 +290,22 @@ function MeterActivities(){
                 {/*-----------  Observations ----------*/}
                 <Box component="section">
                     <h4>Observations:</h4>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <TextField 
-                            id="initial_reading"
-                            label="Value"
-                            variant="outlined"
-                            margin="normal"
-                            sx = {{ m:1 }}
+                    { observations.map((obs) => (
+                        <ObservationInput
+                            key={obs.id}
+                            id={obs.id}
+                            value={obs.value}
+                            type={obs.type}
                         />
-                        <TextField 
-                            id="initial_reading_type"
-                            label="Reading Type"
-                            variant="outlined"
-                            select
-                            sx = {{ m:1, width:200 }}
-                            value={ '' }
-                        >
-                            <MenuItem value=""><em>None</em></MenuItem>
-                            <MenuItem value="1">Water - Barrels</MenuItem>
-                            <MenuItem value="2">Water - Acre Ft</MenuItem>
-                            <MenuItem value="3">Electric</MenuItem>
-                        </TextField>
-                        <Button variant="outlined">Add</Button>
-                    </Box>
+                    )) }
+                    
+                    <Button
+                        variant="outlined"
+                        sx={{ m:1 }}
+                        onClick={ addObservation }
+                    >
+                            Add
+                    </Button>
                     
                     <Divider variant='middle'/>
                 </Box>
@@ -259,11 +316,13 @@ function MeterActivities(){
                     <TextField 
                         id="repair_notes"
                         label="Description"
-                        variant="filled"
+                        variant="outlined"
                         margin="normal"
                         sx = {{ m:1, width: 600}}
                         multiline
                         rows={3}
+                        value={ maint_desc }
+                        onChange={ e => setMaintDesc(e.target.value) }
                     />
 
                     <h5>Parts Used:</h5>
