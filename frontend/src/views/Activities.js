@@ -1,7 +1,8 @@
 //UI for PVACD activities: Maintenance, Work Orders
 
 import { useState } from "react";
-import { Box, Button, Divider, TextField, MenuItem, Select, Tabs, Tab } from "@mui/material";
+import { Box, Button, Divider, TextField, MenuItem, Tabs, Tab } from "@mui/material";
+import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import { useAuthHeader } from 'react-auth-kit';
 import { API_URL } from "../API_config.js"
 
@@ -13,7 +14,8 @@ function WorkOrder(){
     return(<div>Test</div>)   
 }
 
-let obsID = 1  //Counter for adding new observation ids
+let obsID = 1  //Counters for adding new observation and part ids
+let part_count = 1
 function MeterActivities(){
     //
     //Form for entering meter maintenance and repair information
@@ -43,8 +45,15 @@ function MeterActivities(){
             type: ''
         }
     ])
+    const [ parts, setParts ] = useState([
+        {
+            id: 'part_'+part_count,
+            value: '',
+            type: ''
+        }
+    ])
     const [ maint_desc, setMaintDesc ] = useState('')
-    const [ parts, setParts ] = useState([])
+   
     
 
     function handleMeterChange(event){
@@ -143,6 +152,7 @@ function MeterActivities(){
                     <MenuItem value="1">Water - Barrels</MenuItem>
                     <MenuItem value="2">Water - Acre Ft</MenuItem>
                     <MenuItem value="3">Electric</MenuItem>
+                    <MenuItem value="4">Pipe Condition</MenuItem>
                 </TextField>
             </Box>
         )
@@ -153,6 +163,44 @@ function MeterActivities(){
         //Add a new observation to the observations section
         obsID++
         setObservations([...observations,{id: 'obs_' + obsID, value: '', type: ''}])
+    }
+
+    function PartInput(props){
+        //A small component that is the observation input
+        //Making this a component facilitates adding new inputs
+        return(
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+                <TextField 
+                    id={ props.id }
+                    label="Part Type"
+                    variant="outlined"
+                    margin="normal"
+                    sx = {{ m:1 }}
+                />
+                <TextField 
+                    id="part_number"
+                    label="Part Number"
+                    variant="outlined"
+                    margin="normal"
+                    sx = {{ m:1 }}
+                />
+                <TextField 
+                    id="part_quantitiy"
+                    label="Part Quantity"
+                    variant="filled"
+                    margin="normal"
+                    sx = {{ m:1 }}
+                />
+            </Box>
+        )
+        
+
+    }
+
+    function addPart(event){
+        //Add a new part to parts used section
+        part_count++
+        setParts([...parts,{id: 'part_' + part_count, value: '', type: ''}])
     }
 
     
@@ -253,29 +301,21 @@ function MeterActivities(){
                     <TextField 
                         id="meter_distance"
                         label="Well Distance"
-                        variant="filled"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="discharge_condition"
-                        label="Pipe Condition"
-                        variant="filled"
+                        variant="outlined"
                         margin="normal"
                         sx = {{ m:1 }}
                     />
                     <TextField 
                         id="propeller"
                         label="Propeller Type"
-                        variant="filled"
+                        variant="outlined"
                         margin="normal"
                         sx = {{ m:1 }}
                     />
                     <TextField 
                         id="notes"
                         label="Notes"
-                        variant={ activity=="install" ? "outlined":"filled" }
-                        disabled={ activity!="install" }
+                        variant="outlined"
                         margin="normal"
                         value={ meter.notes }
                         sx = {{ m:1 }}
@@ -290,6 +330,10 @@ function MeterActivities(){
                 {/*-----------  Observations ----------*/}
                 <Box component="section">
                     <h4>Observations:</h4>
+                    <FormGroup>
+                        <FormControlLabel control={<Checkbox />} label="Meter Working on Arrival" />
+                        <FormControlLabel control={<Checkbox />} label="Discharge Pipe Obstruction Found" />
+                    </FormGroup>
                     { observations.map((obs) => (
                         <ObservationInput
                             key={obs.id}
@@ -304,7 +348,7 @@ function MeterActivities(){
                         sx={{ m:1 }}
                         onClick={ addObservation }
                     >
-                            Add
+                        Add
                     </Button>
                     
                     <Divider variant='middle'/>
@@ -326,30 +370,22 @@ function MeterActivities(){
                     />
 
                     <h5>Parts Used:</h5>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <TextField 
-                            id="part_type"
-                            label="Part Type"
-                            variant="filled"
-                            margin="normal"
-                            sx = {{ m:1 }}
+                    { parts.map((part) => (
+                        <PartInput
+                            key={part.id}
+                            id={part.id}
+                            value={part.value}
+                            type={part.type}
                         />
-                        <TextField 
-                            id="part_number"
-                            label="Part Number"
-                            variant="filled"
-                            margin="normal"
-                            sx = {{ m:1 }}
-                        />
-                        <TextField 
-                            id="part_quantitiy"
-                            label="Part Quantity"
-                            variant="filled"
-                            margin="normal"
-                            sx = {{ m:1 }}
-                        />
-                        <Button variant="outlined" size="large" disableElevation>Add</Button>
-                    </Box>
+                    )) }
+                    
+                    <Button
+                        variant="outlined"
+                        sx={{ m:1 }}
+                        onClick={ addPart }
+                    >
+                        Add
+                    </Button>
 
                     <Divider variant='middle'/>
                 </Box>
