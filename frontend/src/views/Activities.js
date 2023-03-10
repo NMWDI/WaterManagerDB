@@ -95,7 +95,7 @@ function MeterActivities(){
         )
 
         //Get meter data
-        let url = new URL('/meters',API_URL)
+        let url = new URL(API_URL+'/meters')
         url.searchParams.set("meter_sn",event.target.value)
         fetch(url,{ headers: auth_headers })
             .then(r => r.json()).then(updateInstallation)

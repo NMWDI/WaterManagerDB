@@ -318,10 +318,11 @@ export default function MetersView(){
         )
 
         //Get meter data
-        let url = new URL('/meters',API_URL)
+        let url = new URL(API_URL + '/meters')
         if(searchVal){
             url.searchParams.set("fuzzy_search",searchVal)
         }
+        console.log(url)
         fetch(url,{ headers: auth_headers })
             .then(r => r.json()).then(updateMeters)
     }
