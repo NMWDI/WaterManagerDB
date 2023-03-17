@@ -1,0 +1,7 @@
+name,name_short,description
+Acre-feet,acreft,Volume of water in acre-feet
+Gallons,gal,Volume of water in gallons
+Kilowatt hours,kWh,Total electricity
+Gas BTU,btu,Total gas
+Percent,%,Percentage
+true or false,bool,False if zero otherwise true

@@ -1,0 +1,6 @@
+name,description
+Meter reading,The current meter value
+Energy reading,The current value of the device powering the meter
+Pipe condition,The condition of the discharge pipe from 0 to 100 with 0 needing replacement.
+Meter working,Indicates if the meter is working or not with any value other than 0 true.
+Pipe obstruction,Observation of obstructed pipe with any value other than 0 true.

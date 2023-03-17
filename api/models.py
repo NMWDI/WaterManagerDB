@@ -1,6 +1,5 @@
 # ===============================================================================
 # Models in database
-# - Alembic used to initialize new database with these models
 # ===============================================================================
 from typing import Any
 
@@ -75,21 +74,72 @@ class MeterStatusLU(Base):
     status_name = Column(String)
     description = Column(String)
 
-class MeterHistory(Base):
+class MeterActivities(Base):
     '''
     Logs all meter activities
     '''
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    timestamp = Column(DateTime, nullable=False)
+    timestamp_start = Column(DateTime, nullable=False)
+    timestamp_end = Column(DateTime, nullable=False)
     activity_id = Column(Integer, ForeignKey("Activities.id"), nullable=False)
-    description = Column(String)
+    notes = Column(String)
     technician_id = Column(Integer, ForeignKey("Worker.id"))
-    energy_reading = Column(Integer)
-    initial_reading = Column(Float)
-    final_reading = Column(Float)
+
+class Activities(Base):
+    '''
+    Details the different types of activities PVACD implements
+    '''
+    name = Column(String)
+    description = Column(String)
+
+class MeterObservations(Base):
+    '''
+    Tracks all observations associated with a meter
+    '''
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    value = Column(Float)
+    observed_property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
+    units_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    notes = Column(String)
+    technician_id = Column(Integer, ForeignKey("Worker.id"))
+
+class ObservedProperties(Base):
+    '''
+    Defines the types of observations made during meter maintenance
+    '''
+    name = Column(String)
+    description = Column(String)
+
+class Units(Base):
+    '''
+    Defines units used in observations
+    '''
+    name = Column(String)
+    name_short = Column(String)
+    description = Column(String)
+
+
+# ---------- Parts Inventory ------------
+
+class PartTypeLU(Base):
+    name = Column(String)
+    description = Column(String)
+
+class Part(Base):
+    part_number = Column(String, unique=True, nullable=False)
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+    description = Column(String)
+    vendor = Column(String)
+    count = Column(Integer, default=0)
     note = Column(String)
 
-    #meter = relationship("Meter", uselist=False)
+class PartsUsed(Base):
+    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
+    part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
+    count = Column(Integer, nullable=False)
+
+# ---------- Other Tables ---------------  
 
 class Contacts(Base):
     '''
@@ -102,16 +152,6 @@ class Contacts(Base):
     email = Column(String)
 
     #wells = relationship("Well", back_populates="owner")
-
-# ---------- PVACD Operations Tables ---------------  
-
-class Activities(Base):
-    '''
-    Details the different types of activities PVACD implements...
-    - Under dev
-    '''
-    name = Column(String)
-    description = Column(String)
 
 
 class Alert(Base):
@@ -186,19 +226,7 @@ class Repair(Base):
         self.repair_by.id
 
 
-# ---------- Parts Inventory ------------
 
-class PartTypeLU(Base):
-    name = Column(String)
-    description = Column(String)
-
-class Part(Base):
-    part_number = Column(String, unique=True, nullable=False)
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
-    description = Column(String)
-    vendor = Column(String)
-    count = Column(Integer, default=0)
-    note = Column(String)
     
 
 

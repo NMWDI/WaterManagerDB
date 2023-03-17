@@ -75,7 +75,7 @@ if os.environ.get("POPULATE_DB"):
         conn.commit()
 
     with open('api/data/devdata_activities.csv','r') as f:
-        qry = 'COPY "Activities"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Activities"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
         conn.commit()
 
@@ -84,10 +84,10 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
         conn.commit()
 
-    with open('api/data/devdata_meterhistory.csv','r') as f:
-        qry = 'COPY "MeterHistory"(meter_id,timestamp,activity_id,energy_reading,description,initial_reading,final_reading,technician_id,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
-        conn.commit()
+    # with open('api/data/devdata_meterhistory.csv','r') as f:
+    #     qry = 'COPY "MeterHistory"(meter_id,timestamp,activity_id,energy_reading,description,initial_reading,final_reading,technician_id,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    #     cursor.copy_expert(qry,f)
+    #     conn.commit()
 
     with open('api/data/devdata_well.csv','r') as f:
         qry = 'COPY "Well"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
@@ -106,6 +106,16 @@ if os.environ.get("POPULATE_DB"):
 
     with open('api/data/devdata_parts.csv','r') as f:
         qry = 'COPY "Part"(part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+        conn.commit()
+
+    with open('api/data/devdata_observedproperties.csv','r') as f:
+        qry = 'COPY "ObservedProperties"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+        conn.commit()
+
+    with open('api/data/devdata_units.csv','r') as f:
+        qry = 'COPY "Units"(name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
         conn.commit()
 

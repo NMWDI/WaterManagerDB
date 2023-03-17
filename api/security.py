@@ -32,9 +32,7 @@ oauth2_scheme = OAuth2PasswordBearer(
     scopes={
         "read": "Read all data",
         "meters:write": "Write meters",
-        "alerts:write": "Write alerts",
-        "wells:write": "Write wells",
-        "repair:write": "Write repairs",
+        "activities:write":"Write activities",
         "well_measurement:write": "Write well measurements, i.e. Water Levels "
         "and Chlorides",
         "reports:run": "Run reports",
@@ -89,9 +87,7 @@ def get_user(username: str):
 #     return user
 
 
-async def get_current_user(
-    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
-):
+async def get_current_user(security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:

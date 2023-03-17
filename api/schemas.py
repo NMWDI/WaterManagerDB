@@ -15,13 +15,42 @@ class ORMBase(BaseModel):
     class Config:
         orm_mode = True
 
+#------- Low Level Types ------
+class Activity(BaseModel):
+    '''
+    Used in Maintenance schema
+    '''
+    timestamp_start: datetime
+    timestamp_end: datetime
+    activity_id: int
+    notes: Optional[str]
+    technician_id = int
+
+class Observation(BaseModel):
+    '''
+    Used in Maintenance schema
+    '''
+    timestamp: datetime
+    value: float
+    observed_property_id: int
+    units_id: int
+    notes: Optional[str]
+    technician_id: int
+
+class Part(BaseModel):
+    '''
+    Used in Maintenance
+    '''
+    part_id: int
+    count: int
+
+#------- Derived -------
 
 class MeterCreate(ORMBase):
     name: str
     serial_case_diameter: int
     serial_id: int
     serial_year: int
-
 
 class Meter(ORMBase):
     serial_number: str
@@ -43,18 +72,27 @@ class MeterPatch(ORMBase):
     serial_id: int
     serial_case_diameter: int
 
+class Maintenance(BaseModel):
+    '''
+    Data associated with maintenance
+    '''
+    meter_id: int
+    activity: Activity
+    observations: Optional[List[Observation]]
+    parts: Optional[List[Part]]
+
+
+
+#--------------- Old??
 
 PhoneConstr = constr(
     strip_whitespace=True,
     regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
 )
-
-
 class Owner(ORMBase):
     name: str
     email: Optional[EmailStr]
     phone: Optional[PhoneConstr]
-
 
 class Well(ORMBase):
     name: Optional[str] = None
@@ -190,20 +228,13 @@ class PartType(ORMBase):
     name: str
     description: str
 
-
-class Part(ORMBase):
-    part_number: str
-    count: int
-    vendor: str
-    note: str
-    create_date: datetime
-
-
 class PartCreate(ORMBase):
     part_number: str
     vendor: str
     note: Optional[str] = None
     part_type_id: int
+
+
 
 
 # ============= EOF =============================================

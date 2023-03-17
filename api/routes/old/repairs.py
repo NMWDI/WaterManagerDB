@@ -20,7 +20,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
 from api import schemas
-from api.models import Meters, Repair, Well, MeterHistory, QC
+from api.models import Meters, Repair, Well, QC
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
 from api.session import get_db
@@ -90,26 +90,26 @@ def parse_location(location_str):
     return location_str.split(".")
 
 
-def repair_query(db, location, well_id, meter_id, public_release):
-    q = db.query(Repair)
-    q = q.join(Well)
+# def repair_query(db, location, well_id, meter_id, public_release):
+#     q = db.query(Repair)
+#     q = q.join(Well)
 
-    if meter_id is not None:
-        q = q.join(MeterHistory)
-        q = q.filter(MeterHistory.meter_id == meter_id)
-    elif well_id is not None:
-        q = q.filter(Well.id == well_id)
-    elif location is not None:
-        t, r, s, qu, hq = parse_location(location)
-        q = (
-            q.filter(Well.township == t)
-            .filter(Well.range == r)
-            .filter(Well.section == s)
-            .filter(Well.quarter == qu)
-            .filter(Well.half_quarter == hq)
-        )
-    q = q.filter(Repair.public_release == public_release)
-    return q
+#     if meter_id is not None:
+#         q = q.join(MeterHistory)
+#         q = q.filter(MeterHistory.meter_id == meter_id)
+#     elif well_id is not None:
+#         q = q.filter(Well.id == well_id)
+#     elif location is not None:
+#         t, r, s, qu, hq = parse_location(location)
+#         q = (
+#             q.filter(Well.township == t)
+#             .filter(Well.range == r)
+#             .filter(Well.section == s)
+#             .filter(Well.quarter == qu)
+#             .filter(Well.half_quarter == hq)
+#         )
+#     q = q.filter(Repair.public_release == public_release)
+#     return q
 
 
 # ============= EOF =============================================

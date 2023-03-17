@@ -25,12 +25,31 @@ from starlette import status
 from starlette.responses import RedirectResponse, FileResponse
 
 from api import schemas, security_schemas
-
+from api.models import (
+    Base,
+    Meters,
+    Well,
+    Contacts,
+    Worker,
+    Repair,
+    MeterStatusLU,
+    Alert,
+    WellConstruction,
+    ScreenInterval,
+    WellMeasurement,
+    ObservedProperty,
+    PartTypeLU,
+)
 from api.route_util import _patch, _add, _delete
+#from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
+#from api.routes.contacts import contacts_router
+#from api.routes.parts import part_router
+#from api.routes.repairs import repair_query, repair_router
+#from api.routes.reports import report_router
 from api.routes.well_measurements import well_measurement_router
-from api.routes.activities import activity_router
-
+from api.routes.wells import well_router
+#from api.routes.workers import worker_router
 from api.security import (
     get_password_hash,
     authenticate_user,
@@ -81,6 +100,7 @@ app.add_middleware(
 
 # ============== Security ==============
 
+
 @app.post("/token", response_model=security_schemas.Token, tags=["login"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
@@ -97,8 +117,62 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 # =======================================
 
+
+@app.get("/api_status", response_model=schemas.Status)
+def api_status(db: Session = Depends(get_db)):
+    try:
+        t = db.query(Well).first()
+        print(t)
+        return {"ok": True}
+    except BaseException as be:
+        return {"ok": False}
+
+
+@app.get(
+    "/meter_status_lu",
+    description="Return list of MeterStatus codes and definitions",
+    response_model=List[schemas.MeterStatusLU],
+    tags=["lookuptables"],
+)
+def read_meter_status_lookup_table(db: Session = Depends(get_db)):
+    return db.query(MeterStatusLU).all()
+
+
+@app.get(
+    "/part_type_lu",
+    description="Return list of PartType codes and definitions",
+    response_model=List[schemas.PartTypeLU],
+    tags=["lookuptables"],
+)
+def read_part_type_lookup_table(db: Session = Depends(get_db)):
+    return db.query(PartTypeLU).all()
+
+
+# ======= WaterLevels ========
+
+
+# ====== WellConstruction
+
+
+# ====== Alerts
+@app.get("/nalerts", response_model=int, tags=["alerts"])
+async def read_nalerts(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Alert)
+    return q.count()
+
+
+# ====== Wells
+@app.get("/nwells", response_model=int, tags=["wells"])
+async def read_nwells(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Well)
+    return q.count()
 
 
 # ======  Meters
@@ -110,11 +184,52 @@ async def read_nmeters(
     return q.count()
 
 
-authenticated_router.include_router(meter_router)
-authenticated_router.include_router(activity_router)
-authenticated_router.include_router(well_measurement_router)
+# ======  Repairs
+@app.get("/nrepairs", response_model=int, tags=["repairs"])
+async def read_nrepairs(
+    location: str = None,
+    well_id: int = None,
+    meter_id: int = None,
+    db: Session = Depends(get_db),
+):
+    q = repair_query(db, location, well_id, meter_id)
+    return q.count()
 
+
+# ======== Worker
+@app.get("/nworkers", response_model=int, tags=["workers"])
+async def read_nworkers(
+    db: Session = Depends(get_db),
+):
+    q = db.query(Worker)
+    return q.count()
+
+
+authenticated_router.include_router(alert_router)
+authenticated_router.include_router(meter_router)
+authenticated_router.include_router(well_router)
+authenticated_router.include_router(repair_router)
+authenticated_router.include_router(worker_router)
+authenticated_router.include_router(well_measurement_router)
+authenticated_router.include_router(contacts_router)
+authenticated_router.include_router(report_router)
+authenticated_router.include_router(part_router)
 
 app.include_router(authenticated_router)
 
+# ============= Test Routes =============
 
+#Various routes for testing out functionality
+@app.get("/testwater")
+def testwater(well_id: int = None, db: Session = Depends(get_db)):
+    stmt = select(
+        WellMeasurement.well_id,
+        WellMeasurement.timestamp,
+        WellMeasurement.value,
+        Worker.name
+        ).join(Worker).join(ObservedProperty).where(ObservedProperty.name == 'depthtowater')
+    print(stmt)
+    results = db.execute(stmt)
+    return results.all()
+
+# ============= EOF =============================================

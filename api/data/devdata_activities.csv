@@ -1,3 +1,5 @@
-id,name,description
-1,repair,
-2,observation,Observe the condition of equipment
+name,description
+Install,Install meter at a location
+Uninstall,Remove meter from a location
+Maintenance,Perform maintenance on meter
+Repair,Repair meter
