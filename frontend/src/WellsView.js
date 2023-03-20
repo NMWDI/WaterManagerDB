@@ -5,6 +5,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useEffect, useState } from "react";
 import Plot from 'react-plotly.js';
 import { useAuthHeader } from 'react-auth-kit';
+import { API_URL } from "./API_config.js"
 
 //Components: WellMeasurements, newObservation, wellPlot
 function WellMeasurements(props){
@@ -109,7 +110,7 @@ export default function WellsView(){
             "Authorization", authHeader()
         )
         fetch(
-            `http://localhost:8000/waterlevels?well_id=${site_ids[site]}`,
+            `${API_URL}/waterlevels?well_id=${site_ids[site]}`,
             { headers: auth_headers }
         )
         .then(r => r.json()).then(data => setWellRows(data))
