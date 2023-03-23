@@ -44,6 +44,19 @@ class Part(BaseModel):
     part_id: int
     count: int
 
+class InstallationUpdate(BaseModel):
+    '''
+    Used in Maintenance
+    '''
+    contact: Optional[str]
+    ra_number: Optional[str]
+    well_distance: Optional[float]
+    tag: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    trss: Optional[str]
+    notes: Optional[str]
+
 #------- Derived -------
 
 class MeterCreate(ORMBase):
@@ -58,7 +71,7 @@ class Meter(ORMBase):
     model: str
     size: float
     status: str
-    organization: str = None
+    contact: str = None
     ra_number: str = None
     tag: str = None
     latitude: float = None
@@ -78,6 +91,7 @@ class Maintenance(BaseModel):
     '''
     meter_id: int
     activity: Activity
+    installation_update: Optional[InstallationUpdate]
     observations: Optional[List[Observation]]
     parts: Optional[List[Part]]
 
