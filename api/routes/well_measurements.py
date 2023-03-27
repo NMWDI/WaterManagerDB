@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from api import schemas
-from api.models import Meters, WellMeasurement, ObservedProperty, Worker
+from api.models import Meters, WellMeasurement, ObservedProperties, Worker
 from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db
@@ -78,8 +78,8 @@ def _read_well_measurement(db, obsprop, well_id):
             Worker.name.label('technician')
         )
         .join(Worker)
-        .join(ObservedProperty)
-        .where(ObservedProperty.name == obsprop)
+        .join(ObservedProperties)
+        .where(ObservedProperties.name == obsprop)
         .where(WellMeasurement.well_id == well_id)
     )
     #print(stmt)

@@ -48,7 +48,7 @@ class InstallationUpdate(BaseModel):
     '''
     Used in Maintenance
     '''
-    contact: Optional[str]
+    contact_id: Optional[int]
     ra_number: Optional[str]
     well_distance: Optional[float]
     tag: Optional[str]
@@ -77,6 +77,7 @@ class Meter(ORMBase):
     latitude: float = None
     longitude: float = None
     trss: str = None
+    well_distance: str = None
     notes: str = None
 
 class MeterPatch(ORMBase):

@@ -55,6 +55,7 @@ class Meters(Base):
     longitude = Column(Float)
     trss = Column(String)  #Township, range, section
     tag = Column(String)  #OSE tag
+    well_distance = Column(Float) #Distance of meter install from well
     notes = Column(String)
     
 
@@ -150,9 +151,7 @@ class Contacts(Base):
     organization = Column(String)
     phone = Column(String)
     email = Column(String)
-
-    #wells = relationship("Well", back_populates="owner")
-
+    
 
 class Alert(Base):
     # id = Column(Integer, primary_key=True, index=True)
@@ -294,26 +293,17 @@ class ScreenInterval(Base):
     well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
 
 
-class ObservedProperty(Base):
-    '''
-    Describes the property being measured
-    '''
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String)
-    description = Column(String)
-
-
 class WellMeasurement(Base):
-    well_id = Column(Integer, ForeignKey("Well.id"))
-    timestamp = Column(DateTime, default=func.now())
-    value = Column(Float)
-    observed_property_id = Column(Integer, ForeignKey("ObservedProperty.id"))
+    well_id = Column(Integer, ForeignKey("Well.id"), nullable=False)
+    timestamp = Column(DateTime, default=func.now(), nullable=False)
+    value = Column(Float, nullable=False)
+    observed_property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
     worker_id = Column(Integer, ForeignKey("Worker.id"))
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
     #Relationships
     well = relationship("Well", back_populates="waterlevels")
     
-
 
 class QC(Base):
     # user_id = Column(Integer, ForeignKey("User.id"))
