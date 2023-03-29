@@ -34,20 +34,14 @@ async def add_maintenance(maintenance: schemas.Maintenance, db: Session = Depend
     db.flush() #Need to flush in order to get activity id for associated parts
 
     #Update installation
-    #Empty string or 0 indicates set null
-    #None indicates no change
+    #None indicates that field should be set null
+    #Any fields not in body will not be changed in DB
     if maintenance.installation_update:
         #Get meter from database
         meter = db.scalars(select(Meters).where(Meters.id == maintenance.meter_id)).one()
 
-        #Update meter installation
-        for k, v in dict(maintenance.installation_update).items():
-            if v is not None:
-                if (v == 0) or (v == ''):
-                    #None in SQLAlchemy means Null in DB
-                    setattr(meter,k,None)
-                else:
-                    setattr(meter,k,v)
+        for k, v in maintenance.installation_update.dict(exclude_unset=True).items():
+            setattr(meter,k,v)
 
     #Add new observations
     if maintenance.observations:

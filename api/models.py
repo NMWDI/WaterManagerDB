@@ -45,7 +45,7 @@ class Meters(Base):
     '''
     serial_number = Column(String, nullable=False)
     meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
-    contact_id = Column(Integer, ForeignKey("Contacts.id"), nullable=False)
+    contact_id = Column(Integer, ForeignKey("Contacts.id"))
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
 
     #RA Number is an identifier of the well the meter is attached to
@@ -99,9 +99,9 @@ class MeterObservations(Base):
     '''
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     timestamp = Column(DateTime, nullable=False)
-    value = Column(Float)
+    value = Column(Float, nullable=False)
     observed_property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
-    units_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     notes = Column(String)
     technician_id = Column(Integer, ForeignKey("Worker.id"))
 

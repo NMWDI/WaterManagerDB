@@ -33,9 +33,9 @@ class Observation(BaseModel):
     timestamp: datetime
     value: float
     observed_property_id: int
-    units_id: int
-    notes: Optional[str]
-    technician_id: int
+    unit_id: int
+    notes: str | None
+    technician_id: int | None
 
 class Part(BaseModel):
     '''
@@ -48,14 +48,14 @@ class InstallationUpdate(BaseModel):
     '''
     Used in Maintenance
     '''
-    contact_id: Optional[int]
-    ra_number: Optional[str]
-    well_distance: Optional[float]
-    tag: Optional[str]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    trss: Optional[str]
-    notes: Optional[str]
+    contact_id: int | None
+    ra_number: str | None
+    well_distance: float | None
+    tag: str | None
+    latitude: float | None
+    longitude: float | None
+    trss: str | None
+    notes: str | None
 
 #------- Derived -------
 

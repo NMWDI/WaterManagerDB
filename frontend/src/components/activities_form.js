@@ -14,10 +14,10 @@ function ObservationInput(props){
     //Making this a component facilitates adding new inputs
     //props:
     //  id = unique value to ensure input has unique ID
-    //  input_val = { datetime:, value:, type:, unit:  }
+    //  input_val = { timestamp:, value:, observed_property_id:, unit_id:  }
     //  observed_properties and units --> see props for form
     function handleDateChange(event){
-        props.onChange({id: props.id, datetime: event.target.value})
+        props.onChange({id: props.id, timestamp: event.target.value})
     }
 
     function handleValueChange(event){
@@ -26,12 +26,12 @@ function ObservationInput(props){
 
     function handleTypeChange(event){
         console.log(event)
-        props.onChange({id: props.id, type: event.target.value})
+        props.onChange({id: props.id, observed_property_id: event.target.value})
     }
     
     function handleUnitChange(event){
         console.log(event)
-        props.onChange({id: props.id, unit: event.target.value})
+        props.onChange({id: props.id, unit_id: event.target.value})
     }
 
     return (
@@ -43,7 +43,7 @@ function ObservationInput(props){
                 variant="outlined"
                 margin="normal"
                 sx = {{ m:1 }}
-                value={ props.datetime }
+                value={ props.timestamp }
                 InputLabelProps={{
                     shrink: true
                 }}
@@ -52,6 +52,8 @@ function ObservationInput(props){
             <TextField 
                 id={ props.id + '_value'}
                 label="Value"
+                type="number"
+                step="any"
                 variant="outlined"
                 margin="normal"
                 sx = {{ m:1 }}
@@ -65,7 +67,7 @@ function ObservationInput(props){
                 variant="outlined"
                 select
                 sx = {{ m:1, width:200 }}
-                value={ props.type }
+                value={ props.observed_property_id}
                 onChange={ handleTypeChange }
             >
                 { props.observed_properties.map((obstype) => (
@@ -81,7 +83,7 @@ function ObservationInput(props){
                 variant="outlined"
                 select
                 sx = {{ m:1, width:200 }}
-                value={ props.unit }
+                value={ props.unit_id }
                 onChange={ handleUnitChange }
             >
                 { props.units.map((unittype) => (
@@ -124,6 +126,7 @@ export default function MeterActivitiesForm(props){
             id:null,
             serial_number:'',
             contact:'',
+            contact_id:'',
             latitude:'',
             longitude:'',
             trss:'',
@@ -136,10 +139,10 @@ export default function MeterActivitiesForm(props){
     const [ observations, setObservations ] = useState([
         {
             id: 'obs_'+observation_count,
-            datetime: '',
+            timestamp: '',
             value: '',
-            type: '',
-            unit: ''
+            observed_property_id: '',
+            unit_id: ''
         }
     ])
     const [ parts, setParts ] = useState([
@@ -224,8 +227,6 @@ export default function MeterActivitiesForm(props){
 
     function handleObservationChange(input_val){
         //Update observation
-        console.log('handling obs change')
-        console.log(input_val)
         setObservations(observations.map(obs => {
             if(obs.id == input_val.id){
                 console.log(obs)
@@ -247,10 +248,10 @@ export default function MeterActivitiesForm(props){
                 ...observations,
                 {
                     id: 'obs_' + observation_count,
-                    datetime:'',
+                    timestamp:'',
                     value:'',
-                    type:'',
-                    unit:''
+                    observed_property_id:'',
+                    unit_id:''
                 }
             ]
         )
@@ -320,37 +321,42 @@ export default function MeterActivitiesForm(props){
         //Delete all on remove (activity id = 2)
         //Update well distance and notes for other activities
         let installation = {
-            well_distance: meter.well_distance,
-            notes: meter.notes
+            well_distance: meter.well_distance == '' ? null : meter.well_distance,
+            notes: meter.notes == '' ? null : meter.notes
         }
         if(activity.activity_id == '1'){
             installation = {
-                contact: meter.contact,
-                ra_number: meter.ra_number,
-                well_distance: meter.well_distance,
-                tag: meter.ose_tag,
-                latitude: meter.latitude,
-                longitude: meter.longitude,
-                trss: meter.trss,
-                notes: meter.notes
+                contact_id: meter.contact ? null : meter.contact,
+                ra_number: meter.ra_number ? null : meter.ra_number,
+                well_distance: meter.well_distance ? null : meter.well_distance,
+                tag: meter.ose_tag ? null : meter.ose_tag,
+                latitude: meter.latitude ? null : meter.latitude,
+                longitude: meter.longitude ? null : meter.longitude,
+                trss: meter.trss ? null : meter.trss,
+                notes: meter.notes ? null : meter.notes
             }
         }
         if(activity.activity_id == '2'){
             installation = {
-                contact: '',
-                ra_number: '',
-                well_distance: '',
-                tag: '',
-                latitude: '',
-                longitude: '',
-                trss: '',
-                notes: ''
+                contact_id: null,
+                ra_number: null,
+                well_distance: null,
+                tag: null,
+                latitude: null,
+                longitude: null,
+                trss: null,
+                notes: null
             }
         }
 
         maintenance['installation_update'] = installation
 
-        console.log(maintenance)
+        //Collect observations
+        if(observations.length > 0){
+            maintenance['observations'] = observations
+        }
+
+        console.log(JSON.stringify(maintenance))
 
         //Send maintenance data to backend
         let post_headers = new Headers()
@@ -542,10 +548,10 @@ export default function MeterActivitiesForm(props){
                         <ObservationInput
                             key={obs.id}
                             id={obs.id}
-                            datetime = {obs.datetime}
+                            timestamp = {obs.timestamp}
                             value = {obs.value}
-                            type = {obs.type}
-                            unit = {obs.unit}
+                            observed_property_id = {obs.observed_property_id}
+                            unit_id = {obs.unit_id}
                             observed_properties = { props.observed_properties }
                             units = { props.units }
                             onChange = { handleObservationChange }
