@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Box, Button, Divider, TextField, MenuItem } from "@mui/material";
-//import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+import { Autocomplete } from "@mui/material"
 import { useAuthHeader } from 'react-auth-kit';
 import { API_URL } from "../API_config.js"
 
@@ -181,7 +181,7 @@ export default function MeterActivitiesForm(props){
     const [ meter, setMeter ] = useState(
         {
             id:null,
-            serial_number:'',
+            serial_number:null,
             contact:'',
             contact_id:'',
             latitude:'',
@@ -196,6 +196,22 @@ export default function MeterActivitiesForm(props){
     const [ observations, setObservations ] = useState([])
     const [ parts, setParts ] = useState([])
 
+    //Some temporary hardcoded lists
+    const meterlist = [
+        '01-6-03368',
+        '01-8-07881',
+        '90-8-752',
+        '93-10-7735',
+        '03-6-07148'
+    ]
+    const contact_list = [
+        'ROGERS, INC.',
+        'LARRY WAGGONER',
+        'JACK WAIDE',
+        'CLARA KING',
+        'CHAMCO PROPERTIES'
+    ]
+    
     //Callbacks
     function handleMeterChange(event){
         //Update meter state when interacting with various inputs
@@ -203,9 +219,8 @@ export default function MeterActivitiesForm(props){
         setMeter({...meter, [event.target.id]: event.target.value})
     }
 
-    function handleMeterSelect(event){
-        //Should execute when meter SN field is "blurred"
-        //Clicking away from the input is essentially "selecting it"
+    function handleMeterSelect(event, new_val){
+        //Handles selection in autocomplete component
 
         //Exit if meter data is empty string
         if(meter.serial_number == ''){
@@ -231,7 +246,7 @@ export default function MeterActivitiesForm(props){
             "Authorization", authHeader()
         )
         let url = new URL(API_URL+'/meters')
-        url.searchParams.set("meter_sn",event.target.value)
+        url.searchParams.set("meter_sn",new_val)
         fetch(url,{ headers: auth_headers })
             .then(r => r.json()).then(loadInstallData)
     }
@@ -407,8 +422,48 @@ export default function MeterActivitiesForm(props){
                 body: JSON.stringify(maintenance)
             }
         )
-        .then(r => r.json()).then(data => console.log(data))
-        
+        .then(r => r.json()).then(rspjson => {
+            if(rspjson.status == 'success'){
+                resetForm()
+            }else{
+                console.log(rspjson)
+            }
+        })
+
+    }
+
+    function resetForm(){
+        //Resets all the state variables to default
+        setActivityDate(
+            {
+                date_val:'',
+                start_time:'',
+                end_time:''
+            }
+        )
+        setActivity(
+            {
+                activity_id:'',
+                description:''
+            }
+        )
+        setMeter(
+            {
+                id:null,
+                serial_number:null,
+                contact:'',
+                contact_id:'',
+                latitude:'',
+                longitude:'',
+                trss:'',
+                ra_number:'',
+                ose_tag:'',
+                well_distance:'',
+                notes:''
+            }
+        )
+        setObservations([])
+        setParts([])
     }
 
     return(
@@ -416,17 +471,23 @@ export default function MeterActivitiesForm(props){
             <form id="activity_form" onSubmit={handleSubmit}>
                 {/*----- Meter SN, reading, datetime ----*/}
                 <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
-                    <TextField 
-                        required
+                    <Autocomplete
                         id="serial_number"
-                        label="Meter"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
+                        options={ meterlist }
                         value={ meter.serial_number }
-                        onChange={handleMeterChange}
-                        onBlur={handleMeterSelect}
-                    />
+                        onChange={ handleMeterSelect }
+                        fullWidth={ false }
+                        sx = {{ display: 'inline-flex' }}
+                        renderInput={(params) => 
+                            <TextField
+                                {...params}
+                                required
+                                label="Meter"
+                                variant="outlined"
+                                margin="normal"
+                                sx = {{ m:1, width: 200 }}
+                            />}
+                    />  
                     <TextField
                         required
                         id="activity_id"
@@ -465,7 +526,7 @@ export default function MeterActivitiesForm(props){
                             shrink: true
                         }}
                     />
-                     <TextField 
+                    <TextField 
                         required
                         id="end_time"
                         label="End Time"

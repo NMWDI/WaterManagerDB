@@ -59,6 +59,6 @@ async def add_maintenance(maintenance: schemas.Maintenance, db: Session = Depend
 
     db.commit()
     
-    return 'dev'
+    return {'status':'success'}
 
 
