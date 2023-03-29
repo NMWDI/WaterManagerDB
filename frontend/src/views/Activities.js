@@ -106,6 +106,25 @@ export default function ActivityView(){
             }
         ]
     )
+    const [part_types, setPartTypes] = useState(
+        [
+            {
+                part_id: '7',
+                part_type:'Bearing',
+                part_number: 'B0-100-80'
+            },
+            {
+                part_id: '8',
+                part_type:'Bearing',
+                part_number: 'B0-100-81'
+            },
+            {
+                part_id: '9',
+                part_type:'Bearing',
+                part_number: 'B0-100-82-SS'
+            }
+        ]
+    )
 
     return (
         <Box>
@@ -123,6 +142,7 @@ export default function ActivityView(){
                     activities={ activities }
                     observed_properties = { obs_properties }
                     units = { units }
+                    part_types = { part_types }
                 />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>

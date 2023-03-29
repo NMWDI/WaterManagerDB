@@ -6,15 +6,15 @@ import { Box, Button, Divider, TextField, MenuItem } from "@mui/material";
 import { useAuthHeader } from 'react-auth-kit';
 import { API_URL } from "../API_config.js"
 
-let observation_count = 1  //Counters for adding new observation and part ids
-let part_count = 1
+let observation_count = 0  //Counters for adding new observation and part ids
+let part_count = 0
 
 function ObservationInput(props){
     //A small component that is the observation input
     //Making this a component facilitates adding new inputs
     //props:
     //  id = unique value to ensure input has unique ID
-    //  input_val = { timestamp:, value:, observed_property_id:, unit_id:  }
+    //  input_vals = timestamp:, value:, observed_property_id:, unit_id: 
     //  observed_properties and units --> see props for form
     function handleDateChange(event){
         props.onChange({id: props.id, timestamp: event.target.value})
@@ -25,18 +25,17 @@ function ObservationInput(props){
     }
 
     function handleTypeChange(event){
-        console.log(event)
         props.onChange({id: props.id, observed_property_id: event.target.value})
     }
     
     function handleUnitChange(event){
-        console.log(event)
         props.onChange({id: props.id, unit_id: event.target.value})
     }
 
     return (
         <Box sx={{ display: "flex" }}>
             <TextField 
+                required
                 id={ props.id + '_date' }
                 type="datetime-local"
                 label="Date/Time"
@@ -50,6 +49,7 @@ function ObservationInput(props){
                 onChange={ handleDateChange }
             />
             <TextField 
+                required
                 id={ props.id + '_value'}
                 label="Value"
                 type="number"
@@ -61,6 +61,7 @@ function ObservationInput(props){
                 onChange={ handleValueChange }
             />
             <TextField 
+                required
                 id={props.id + '_type'}
                 name="obs_type"
                 label="Reading Type"
@@ -77,6 +78,7 @@ function ObservationInput(props){
                     ))}
             </TextField>
             <TextField 
+                required
                 id={props.id + '_units'}
                 name="obs_unit"
                 label="Units"
@@ -97,12 +99,67 @@ function ObservationInput(props){
 
 }
 
+function PartInput(props){
+    //A small component that is the observation input
+    //Making this a component facilitates adding new inputs
+    //props:
+    //  input_id: unique id for each input created
+    //  part_id: database part_id 
+    //  count: number of parts used
+    //  parts_list: list of parts for select [{part_id: , part_type: , part_number: }]
+    //  onChange: handler in parent component
+    function handleTypeChange(event){
+        props.onChange({id: props.input_id, part_id: event.target.value})
+    }
+    
+    function handleCountChange(event){
+        props.onChange({id: props.input_id, count: event.target.value})
+    }
+
+    return(
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+            <TextField 
+                id={ "part_type_" + props.input_id }
+                name="part_type"
+                label="Part Type"
+                variant="outlined"
+                select
+                required
+                sx = {{ m:1, width:200 }}
+                value={ props.part_id }
+                onChange={ handleTypeChange }
+            >
+                { props.parts_list.map((parttype) => (
+                        <MenuItem key={parttype.part_id} value={parttype.part_id}>
+                            { parttype.part_type + ' - ' + parttype.part_number }
+                        </MenuItem>
+                    ))}
+            </TextField>
+            <TextField 
+                id="part_quantitiy"
+                label="Part Quantity"
+                variant="outlined"
+                margin="normal"
+                sx = {{ m:1 }}
+                required
+                type="number"
+                InputProps={{ inputProps: { step: 1, min: 0 } }}
+                value={ props.count }
+                onChange={ handleCountChange }
+            />
+        </Box>
+    )
+    
+
+}
+
 export default function MeterActivitiesForm(props){
     //
     //Form for entering meter maintenance and repair information
     //props:
     //  activities: list of activity types {activity_id, name}
     //  observed_properties: list of observed properties {property_id, name}
+    //  part_types: list of part types
     //  units: list of units {unit_id, name}
 
     const authHeader = useAuthHeader()
@@ -136,22 +193,8 @@ export default function MeterActivitiesForm(props){
             notes:''
         }
     )
-    const [ observations, setObservations ] = useState([
-        {
-            id: 'obs_'+observation_count,
-            timestamp: '',
-            value: '',
-            observed_property_id: '',
-            unit_id: ''
-        }
-    ])
-    const [ parts, setParts ] = useState([
-        {
-            id: 'part_'+part_count,
-            value: '',
-            type: ''
-        }
-    ])
+    const [ observations, setObservations ] = useState([])
+    const [ parts, setParts ] = useState([])
 
     //Callbacks
     function handleMeterChange(event){
@@ -229,7 +272,6 @@ export default function MeterActivitiesForm(props){
         //Update observation
         setObservations(observations.map(obs => {
             if(obs.id == input_val.id){
-                console.log(obs)
                 return {
                     ...obs,
                     ...input_val
@@ -239,7 +281,21 @@ export default function MeterActivitiesForm(props){
             }
         }))
     }
- 
+
+    function handlePartChange(input_val){
+        //Update parts
+        setParts(parts.map(prt => {
+            if(prt.id == input_val.id){
+                return {
+                    ...prt,
+                    ...input_val
+                }
+            }else{
+                return prt
+            }
+        }))
+    }
+
     function addObservation(event){
         //Add a new observation to the observations section
         observation_count++
@@ -257,47 +313,22 @@ export default function MeterActivitiesForm(props){
         )
     }
 
-    function PartInput(props){
-        //A small component that is the observation input
-        //Making this a component facilitates adding new inputs
-        return(
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-                <TextField 
-                    id={ props.id }
-                    label="Part Type"
-                    variant="outlined"
-                    margin="normal"
-                    sx = {{ m:1 }}
-                />
-                <TextField 
-                    id="part_number"
-                    label="Part Number"
-                    variant="outlined"
-                    margin="normal"
-                    sx = {{ m:1 }}
-                />
-                <TextField 
-                    id="part_quantitiy"
-                    label="Part Quantity"
-                    variant="filled"
-                    margin="normal"
-                    sx = {{ m:1 }}
-                />
-            </Box>
-        )
-        
-
-    }
-
     function addPart(event){
         //Add a new part to parts used section
         part_count++
-        setParts([...parts,{id: 'part_' + part_count, value: '', type: ''}])
+        setParts(
+            [
+                ...parts,
+                {
+                    id: part_count,
+                    part_id: '',
+                    count: ''
+                }
+            ])
     }
 
     function handleSubmit(event){
         //Activities form submission
-        console.log('submitting')
         event.preventDefault()
 
         //Determine datetimes
@@ -354,6 +385,11 @@ export default function MeterActivitiesForm(props){
         //Collect observations
         if(observations.length > 0){
             maintenance['observations'] = observations
+        }
+
+        //Collect parts
+        if(parts.length > 0){
+            maintenance['parts'] = parts
         }
 
         console.log(JSON.stringify(maintenance))
@@ -588,9 +624,11 @@ export default function MeterActivitiesForm(props){
                     { parts.map((part) => (
                         <PartInput
                             key={part.id}
-                            id={part.id}
-                            value={part.value}
-                            type={part.type}
+                            input_id={part.id}
+                            part_id={part.part_id}
+                            count={part.count}
+                            parts_list={props.part_types}
+                            onChange={ handlePartChange }
                         />
                     )) }
                     
