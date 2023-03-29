@@ -33,9 +33,9 @@ class Observation(BaseModel):
     timestamp: datetime
     value: float
     observed_property_id: int
-    units_id: int
-    notes: Optional[str]
-    technician_id: int
+    unit_id: int
+    notes: str | None
+    technician_id: int | None
 
 class Part(BaseModel):
     '''
@@ -43,6 +43,19 @@ class Part(BaseModel):
     '''
     part_id: int
     count: int
+
+class InstallationUpdate(BaseModel):
+    '''
+    Used in Maintenance
+    '''
+    contact_id: int | None
+    ra_number: str | None
+    well_distance: float | None
+    tag: str | None
+    latitude: float | None
+    longitude: float | None
+    trss: str | None
+    notes: str | None
 
 #------- Derived -------
 
@@ -58,12 +71,13 @@ class Meter(ORMBase):
     model: str
     size: float
     status: str
-    organization: str = None
+    contact: str = None
     ra_number: str = None
     tag: str = None
     latitude: float = None
     longitude: float = None
     trss: str = None
+    well_distance: str = None
     notes: str = None
 
 class MeterPatch(ORMBase):
@@ -78,6 +92,7 @@ class Maintenance(BaseModel):
     '''
     meter_id: int
     activity: Activity
+    installation_update: Optional[InstallationUpdate]
     observations: Optional[List[Observation]]
     parts: Optional[List[Part]]
 

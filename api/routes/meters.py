@@ -44,7 +44,7 @@ async def read_meters(
             MeterTypes.model,
             MeterTypes.size,
             MeterStatusLU.status_name.label('status'),
-            Contacts.organization,
+            Contacts.organization.label('contact'),
             Meters.ra_number,
             Meters.tag,
             Meters.latitude,

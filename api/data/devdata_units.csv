@@ -1,7 +1,9 @@
 name,name_short,description
-Acre-feet,acreft,Volume of water in acre-feet
+Acre-feet,acre-ft,Volume of water in acre-feet
 Gallons,gal,Volume of water in gallons
 Kilowatt hours,kWh,Total electricity
 Gas BTU,btu,Total gas
 Percent,%,Percentage
-true or false,bool,False if zero otherwise true
+true or false,true/false,False if zero otherwise true
+feet,ft,feet
+meters,m,meters
