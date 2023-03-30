@@ -62,7 +62,7 @@ function WellPlot(props){
                         }
                     ]
                 }
-                layout={ {width: 800, height: 600} }
+                layout={ {width: 800, height: 600, yaxis: { autorange: 'reversed'}} }
             />
         </Box>
     )
