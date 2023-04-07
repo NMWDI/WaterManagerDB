@@ -93,6 +93,17 @@ async def patch_meters(
 async def read_meter_history(meter_id, db: Session = Depends(get_db)):
     return db.query(MeterHistory).filter_by(meter_id=meter_id).all()
 '''
+@meter_router.get("/meter_serial_numbers", response_model=List[str], tags=["meters"])
+async def get_meter_serial_numbers(db: Session = Depends(get_db)):
+    '''
+    Simply return a list of all serial numbers
+    '''
+    results = db.execute(select(Meters.serial_number))
 
+    sns = []
+    for row in results:
+        sns.append(row[0])
+
+    return sns
 
 

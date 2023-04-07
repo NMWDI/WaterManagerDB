@@ -1,6 +1,6 @@
 //An Activities Form component
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, Divider, TextField, MenuItem } from "@mui/material";
 import { Autocomplete } from "@mui/material"
 import { useAuthHeader } from 'react-auth-kit';
@@ -196,14 +196,10 @@ export default function MeterActivitiesForm(props){
     const [ observations, setObservations ] = useState([])
     const [ parts, setParts ] = useState([])
 
+    //Form options loaded from database
+    const [ meterlist, setMeterList ] = useState([])
+
     //Some temporary hardcoded lists
-    const meterlist = [
-        '01-6-03368',
-        '01-8-07881',
-        '90-8-752',
-        '93-10-7735',
-        '03-6-07148'
-    ]
     const contact_list = [
         'ROGERS, INC.',
         'LARRY WAGGONER',
@@ -211,6 +207,24 @@ export default function MeterActivitiesForm(props){
         'CLARA KING',
         'CHAMCO PROPERTIES'
     ]
+
+    //Effects
+    useEffect(() => {
+        //Get meter serial numbers
+        console.log('Getting serial nums')
+        
+        let auth_headers = new Headers()
+        auth_headers.set(
+            "Authorization", authHeader()
+        )
+
+        fetch(
+            `${API_URL}/meter_serial_numbers`,
+            { headers: auth_headers }
+        )
+        .then(r => r.json()).then(data => setMeterList(data))
+        
+    },[])
     
     //Callbacks
     function handleMeterChange(event){
@@ -505,6 +519,18 @@ export default function MeterActivitiesForm(props){
                         ))}
                     </TextField>
                     <TextField
+                        required
+                        id="technician_id"
+                        label="Technician"
+                        select
+                        name="technician_id"
+                        sx = {{ m:1, width:150 }}
+                        defaultValue=""
+                    >
+                        <MenuItem value=""></MenuItem>
+                        <MenuItem value="1">Chris</MenuItem>
+                    </TextField>
+                    <TextField
                         required 
                         id="date_val"
                         variant="outlined"
@@ -547,7 +573,27 @@ export default function MeterActivitiesForm(props){
                     <h4>Installation:</h4>
                     <TextField 
                         id="contact"
-                        label="Contact"
+                        label="Contact Name"
+                        variant={ activity.activity_id == "1" ? "outlined":"filled" }
+                        disabled={ activity.activity_id !="1" }
+                        margin="normal"
+                        sx = {{ m:1 }}
+                        value={ meter.organization }
+                        onChange={handleMeterChange}
+                    />
+                    <TextField 
+                        id="organization"
+                        label="Organization"
+                        variant={ activity.activity_id == "1" ? "outlined":"filled" }
+                        disabled={ activity.activity_id !="1" }
+                        margin="normal"
+                        sx = {{ m:1 }}
+                        value={ meter.organization }
+                        onChange={handleMeterChange}
+                    />
+                    <TextField 
+                        id="phone"
+                        label="Phone Number"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
                         disabled={ activity.activity_id !="1" }
                         margin="normal"
@@ -605,36 +651,39 @@ export default function MeterActivitiesForm(props){
                         value={ meter.ose_tag }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
-                        id="well_distance"
-                        label="Well Distance"
-                        variant={ activity.activity_id != "2" ? "outlined":"filled" }
-                        disabled={ activity.activity_id =="2" }
-                        value={ meter.well_distance }
-                        margin="normal"
-                        sx = {{ m:1 }}
-                        onChange={handleMeterChange}
-                    />
-                    <TextField 
-                        id="propeller"
-                        label="Propeller Type"
-                        variant="outlined"
-                        margin="normal"
-                        sx = {{ m:1 }}
-                    />
-                    <TextField 
-                        id="notes"
-                        label="Notes"
-                        variant={ activity.activity_id != "2" ? "outlined":"filled" }
-                        disabled={ activity.activity_id =="2" }
-                        margin="normal"
-                        value={ meter.notes }
-                        sx = {{ m:1 }}
-                        multiline
-                        rows={2}
-                        fullWidth
-                        onChange={handleMeterChange}
-                    />
+                    <div>
+                        <TextField 
+                            id="well_distance"
+                            label="Well Distance"
+                            variant={ activity.activity_id != "2" ? "outlined":"filled" }
+                            disabled={ activity.activity_id =="2" }
+                            value={ meter.well_distance }
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            onChange={handleMeterChange}
+                        />
+                        <TextField 
+                            id="meter_height"
+                            label="Meter Height"
+                            variant="outlined"
+                            margin="normal"
+                            sx = {{ m:1 }}
+                            defaultValue=''
+                        />
+                        <TextField 
+                            id="notes"
+                            label="Notes"
+                            variant={ activity.activity_id != "2" ? "outlined":"filled" }
+                            disabled={ activity.activity_id =="2" }
+                            margin="normal"
+                            value={ meter.notes }
+                            sx = {{ m:1 }}
+                            multiline
+                            rows={2}
+                            fullWidth
+                            onChange={handleMeterChange}
+                        />
+                    </div>
                     
                 </Box>
 
