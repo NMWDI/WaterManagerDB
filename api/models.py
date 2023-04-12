@@ -55,7 +55,8 @@ class Meters(Base):
     longitude = Column(Float)
     trss = Column(String)  #Township, range, section
     tag = Column(String)  #OSE tag
-    well_distance = Column(Float) #Distance of meter install from well
+    well_distance_ft = Column(Float) #Distance of meter install from well
+    meter_height_ft = Column(Float) #Height of meter above ground
     notes = Column(String)
     
 
@@ -119,6 +120,14 @@ class Units(Base):
     name = Column(String)
     name_short = Column(String)
     description = Column(String)
+
+class PropertyUnits(Base):
+    '''
+    Table linking Observed Properties to Units
+    Describes which units are associated with which properties
+    '''
+    property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
 
 # ---------- Parts Inventory ------------

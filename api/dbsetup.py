@@ -43,11 +43,15 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_observedproperties.csv','r') as f:
-        qry = 'COPY "ObservedProperties"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ObservedProperties"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_units.csv','r') as f:
-        qry = 'COPY "Units"(name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Units"(id,name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+
+    with open('api/data/devdata_propertyunits.csv','r') as f:
+        qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_meters.csv','r') as f:

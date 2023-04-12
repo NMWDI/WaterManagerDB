@@ -182,14 +182,17 @@ export default function MeterActivitiesForm(props){
         {
             id:null,
             serial_number:null,
-            contact:'',
             contact_id:'',
+            contact_name:'',
+            organization:'',
+            phone:'',
             latitude:'',
             longitude:'',
             trss:'',
             ra_number:'',
             ose_tag:'',
             well_distance:'',
+            meter_height:'',
             notes:''
         }
     )
@@ -578,7 +581,7 @@ export default function MeterActivitiesForm(props){
                         disabled={ activity.activity_id !="1" }
                         margin="normal"
                         sx = {{ m:1 }}
-                        value={ meter.organization }
+                        value={ meter.contact_name }
                         onChange={handleMeterChange}
                     />
                     <TextField 
@@ -598,7 +601,7 @@ export default function MeterActivitiesForm(props){
                         disabled={ activity.activity_id !="1" }
                         margin="normal"
                         sx = {{ m:1 }}
-                        value={ meter.organization }
+                        value={ meter.phone }
                         onChange={handleMeterChange}
                     />
                     <TextField 

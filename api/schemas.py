@@ -51,6 +51,7 @@ class InstallationUpdate(BaseModel):
     contact_id: Optional[int]
     ra_number: Optional[str]
     well_distance: Optional[float]
+    meter_height: Optional[float]
     tag: Optional[str]
     latitude: Optional[float]
     longitude: Optional[float]
@@ -71,13 +72,16 @@ class Meter(ORMBase):
     model: str
     size: float
     status: str
-    contact: str = None
+    contact_name: str = None
+    organization: str = None
+    phone: str = None
     ra_number: str = None
     tag: str = None
     latitude: float = None
     longitude: float = None
     trss: str = None
-    well_distance: str = None
+    well_distance: float = None
+    meter_height: float = None
     notes: str = None
 
 class MeterPatch(ORMBase):
