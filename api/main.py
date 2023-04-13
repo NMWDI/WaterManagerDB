@@ -24,12 +24,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 from starlette.responses import RedirectResponse, FileResponse
 
-from api import schemas, security_schemas
+from api import security_schemas
 
 from api.route_util import _patch, _add, _delete
 from api.routes.meters import meter_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.activities import activity_router
+from api.schemas import meter_schemas
 
 from api.security import (
     get_password_hash,

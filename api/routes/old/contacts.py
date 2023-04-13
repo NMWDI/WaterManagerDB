@@ -19,7 +19,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Well, WellConstruction, Contacts
 from api.route_util import _patch, _add
 from api.security import scoped_user
@@ -30,7 +30,7 @@ contacts_router = APIRouter()
 write_user = scoped_user(["read", "wells:write"])
 
 
-@contacts_router.get("/contacts", response_model=List[schemas.Owner], tags=["contacts"])
+@contacts_router.get("/contacts", response_model=List[meter_schemas.Owner], tags=["contacts"])
 def read_contacts(db: Session = Depends(get_db)):
     return db.query(Contacts).all()
 

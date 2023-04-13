@@ -8,7 +8,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Meters, MeterActivities, MeterObservations, PartsUsed, Part
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
@@ -18,13 +18,25 @@ activity_router = APIRouter()
 
 write_user = scoped_user(["read", "activities:write"])
 
+#Endpoint to retrieve activities form options
+@activity_router.get(
+    "/activities_options",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"]
+)
+def get_activity_form_options(db: Session = Depends(get_db)):
+    '''
+    Retrieve all options associated with Activities Form
+    '''
+    
+
 #Endpoint to receive meter maintenance form submission
 @activity_router.post(
     "/meter_maintenance",
     dependencies=[Depends(write_user)],
     tags=["Activities"],
 )
-async def add_maintenance(maintenance: schemas.Maintenance, db: Session = Depends(get_db)):
+async def add_maintenance(maintenance: meter_schemas.Maintenance, db: Session = Depends(get_db)):
     '''
     Receive and parse all data associated with a meter maintenance event
     '''

@@ -19,7 +19,7 @@ from typing import List
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Meters, Repair, Well, QC
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
@@ -33,10 +33,10 @@ write_user = scoped_user(["read", "repairs:write"])
 @repair_router.post(
     "/repairs",
     dependencies=[Depends(write_user)],
-    response_model=schemas.RepairCreate,
+    response_model=meter_schemas.RepairCreate,
     tags=["repairs"],
 )
-async def add_repair(repair: schemas.RepairCreate, db: Session = Depends(get_db)):
+async def add_repair(repair: meter_schemas.RepairCreate, db: Session = Depends(get_db)):
     # save empty qc reference
     qc = QC()
     db.add(qc)
@@ -59,16 +59,16 @@ async def delete_repair(repair_id: int, db: Session = Depends(get_db)):
 @repair_router.patch(
     "/repairs/{repair_id}",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Repair,
+    response_model=meter_schemas.Repair,
     tags=["repairs"],
 )
 async def patch_repairs(
-    repair_id: int, obj: schemas.Repair, db: Session = Depends(get_db)
+    repair_id: int, obj: meter_schemas.Repair, db: Session = Depends(get_db)
 ):
     return _patch(db, Repair, repair_id, obj)
 
 
-@repair_router.get("/repairs", response_model=List[schemas.Repair], tags=["repairs"])
+@repair_router.get("/repairs", response_model=List[meter_schemas.Repair], tags=["repairs"])
 async def read_repairs(
     location: str = None,
     well_id: int = None,

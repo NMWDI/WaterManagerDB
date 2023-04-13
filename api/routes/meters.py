@@ -7,7 +7,7 @@ from fastapi import Depends, APIRouter, HTTPException, Security
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Meters, MeterTypes, MeterStatusLU, Well, Contacts
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
@@ -22,14 +22,14 @@ write_user = scoped_user(["read", "meters:write"])
 @meter_router.post(
     "/meters",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Meter,
+    response_model=meter_schemas.Meter,
     tags=["meters"],
 )
-async def add_meter(obj: schemas.MeterCreate, db: Session = Depends(get_db)):
+async def add_meter(obj: meter_schemas.MeterCreate, db: Session = Depends(get_db)):
     return _add(db, Meters, obj)
 
 
-@meter_router.get("/meters", response_model=List[schemas.Meter], tags=["meters"])
+@meter_router.get("/meters", response_model=List[meter_schemas.Meter], tags=["meters"])
 async def read_meters(
     meter_sn: str = None,
     fuzzy_search: str = None,
@@ -80,11 +80,11 @@ async def read_meters(
 @meter_router.patch(
     "/meters/{meter_id}",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Meter,
+    response_model=meter_schemas.Meter,
     tags=["meters"],
 )
 async def patch_meters(
-    meter_id: int, obj: schemas.MeterPatch, db: Session = Depends(get_db)
+    meter_id: int, obj: meter_schemas.MeterPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, Meters, meter_id, obj)
 

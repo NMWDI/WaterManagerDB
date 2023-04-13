@@ -18,7 +18,7 @@ from typing import List
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Meters, Part, Well
 from api.route_util import _add, _patch, _delete
 from api.security import scoped_user
@@ -32,10 +32,10 @@ write_user = scoped_user(["read", "parts:write"])
 @part_router.post(
     "/parts",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Part,
+    response_model=meter_schemas.Part,
     tags=["parts"],
 )
-async def add_part(part: schemas.PartCreate, db: Session = Depends(get_db)):
+async def add_part(part: meter_schemas.PartCreate, db: Session = Depends(get_db)):
     db_item = Part(**part.dict())
     db.add(db_item)
     db.commit()
@@ -53,14 +53,14 @@ async def delete_part(part_id: int, db: Session = Depends(get_db)):
 @part_router.patch(
     "/parts/{part_id}",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Part,
+    response_model=meter_schemas.Part,
     tags=["parts"],
 )
-async def patch_parts(part_id: int, obj: schemas.Part, db: Session = Depends(get_db)):
+async def patch_parts(part_id: int, obj: meter_schemas.Part, db: Session = Depends(get_db)):
     return _patch(db, Part, part_id, obj)
 
 
-@part_router.get("/parts", response_model=List[schemas.Part], tags=["parts"])
+@part_router.get("/parts", response_model=List[meter_schemas.Part], tags=["parts"])
 async def read_parts(
     # location: str = None,
     # well_id: int = None,

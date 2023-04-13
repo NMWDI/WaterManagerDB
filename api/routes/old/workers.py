@@ -18,7 +18,7 @@ from typing import List
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Meters, Worker
 from api.route_util import _add, _patch
 from api.security import scoped_user
@@ -29,7 +29,7 @@ worker_router = APIRouter()
 write_user = scoped_user(["read", "workers:write"])
 
 
-@worker_router.get("/workers", response_model=List[schemas.Worker], tags=["workers"])
+@worker_router.get("/workers", response_model=List[meter_schemas.Worker], tags=["workers"])
 def read_workers(db: Session = Depends(get_db)):
     return db.query(Worker).all()
 
@@ -37,11 +37,11 @@ def read_workers(db: Session = Depends(get_db)):
 @worker_router.post(
     "/workers",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Worker,
+    response_model=meter_schemas.Worker,
     tags=["workers"],
 )
 async def add_worker(
-    worker: schemas.WorkerCreate,
+    worker: meter_schemas.WorkerCreate,
     db: Session = Depends(get_db),
 ):
     return _add(db, Worker, worker)
@@ -50,11 +50,11 @@ async def add_worker(
 @worker_router.patch(
     "/workers/{worker_id}",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Worker,
+    response_model=meter_schemas.Worker,
     tags=["workers"],
 )
 async def patch_worker(
-    worker_id: int, worker: schemas.Worker, db: Session = Depends(get_db)
+    worker_id: int, worker: meter_schemas.Worker, db: Session = Depends(get_db)
 ):
     return _patch(db, Worker, worker_id, worker)
 
