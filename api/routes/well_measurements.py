@@ -19,7 +19,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from api.schemas import meter_schemas
+from api.schemas import well_schemas
 from api.models import Meters, WellMeasurement, ObservedProperties, Worker
 from api.route_util import _add, _patch
 from api.security import scoped_user
@@ -31,12 +31,12 @@ write_user = scoped_user(["read", "well_measurement:write"])
 
 @well_measurement_router.patch(
     "/waterlevel/{waterlevel_id}",
-    response_model=meter_schemas.WaterLevel,
+    response_model=well_schemas.WaterLevel,
     dependencies=[Depends(write_user)],
     tags=["waterlevels"],
 )
 async def patch_waterlevel(
-    waterlevel_id: int, obj: meter_schemas.WaterLevelPatch, db: Session = Depends(get_db)
+    waterlevel_id: int, obj: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)
 ):
     return _patch(db, WellMeasurement, waterlevel_id, obj)
 
@@ -44,11 +44,11 @@ async def patch_waterlevel(
 @well_measurement_router.post(
     "/waterlevel",
     dependencies=[Depends(write_user)],
-    response_model=meter_schemas.WaterLevel,
+    response_model=well_schemas.WaterLevel,
     tags=["waterlevels"],
 )
 async def add_waterlevel(
-    waterlevel: meter_schemas.WaterLevelCreate, db: Session = Depends(get_db)
+    waterlevel: well_schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):
     return _add(db, WellMeasurement, waterlevel)
 
@@ -62,7 +62,7 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 
 
 @well_measurement_router.get(
-    "/chlorides", response_model=List[meter_schemas.WaterLevel], tags=["chlorides"]
+    "/chlorides", response_model=List[well_schemas.WaterLevel], tags=["chlorides"]
 )
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return _read_well_measurement(db, "chloride", well_id)

@@ -13,7 +13,7 @@ class Technician(BaseModel):
     Details technician information
     '''
     technician_id: int
-    name: str
+    technician_name: str
 
 class Unit(BaseModel):
     '''
