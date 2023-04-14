@@ -15,7 +15,13 @@ function ObservationInput(props){
     //props:
     //  id = unique value to ensure input has unique ID
     //  input_vals = timestamp:, value:, observed_property_id:, unit_id: 
-    //  observed_properties and units --> see props for form
+    //  observed_properties = list of observed properties objects which include units
+    //                        see /activities_options api endpoint
+
+    //Unit list - state variable that will change depending on property selected
+    const [ unitlist, setUnitList ] = useState([])
+    const [ unit_id, setUnitID ] = useState(props.unit_id) //Local state needed for this var to deal with list change
+
     function handleDateChange(event){
         props.onChange({id: props.id, timestamp: event.target.value})
     }
@@ -25,10 +31,18 @@ function ObservationInput(props){
     }
 
     function handleTypeChange(event){
+        //Clear any selected unit and then update all state
+        props.onChange({id: props.id, unit_id: ''})
         props.onChange({id: props.id, observed_property_id: event.target.value})
+
+        //Update unit list to match with observed property
+        setUnitID('')
+        let selected_observed_property = props.observed_properties.find(obs => obs.observed_property_id == event.target.value)
+        setUnitList(selected_observed_property.observed_property_units)
     }
     
     function handleUnitChange(event){
+        setUnitID(event.target.value)
         props.onChange({id: props.id, unit_id: event.target.value})
     }
 
@@ -72,8 +86,8 @@ function ObservationInput(props){
                 onChange={ handleTypeChange }
             >
                 { props.observed_properties.map((obstype) => (
-                        <MenuItem key={obstype.property_id} value={obstype.property_id}>
-                            {obstype.name}
+                        <MenuItem key={obstype.observed_property_id} value={obstype.observed_property_id}>
+                            {obstype.observed_property_name}
                         </MenuItem>
                     ))}
             </TextField>
@@ -85,12 +99,12 @@ function ObservationInput(props){
                 variant="outlined"
                 select
                 sx = {{ m:1, width:200 }}
-                value={ props.unit_id }
+                value={ unit_id }
                 onChange={ handleUnitChange }
             >
-                { props.units.map((unittype) => (
+                { unitlist.map((unittype) => (
                         <MenuItem key={unittype.unit_id} value={unittype.unit_id}>
-                            {unittype.name}
+                            {unittype.unit_name}
                         </MenuItem>
                     ))}
             </TextField>
@@ -175,7 +189,8 @@ export default function MeterActivitiesForm(props){
     const [ activity, setActivity ] = useState(
         {
             activity_id:'',
-            description:''
+            description:'',
+            technician_id:''
         }
     )
     const [ meter, setMeter ] = useState(
@@ -201,6 +216,9 @@ export default function MeterActivitiesForm(props){
 
     //Form options loaded from database
     const [ meterlist, setMeterList ] = useState([])
+    const [ activitylist, setActivityList ] = useState([])
+    const [ technicianlist, setTechnicianList ] = useState([])
+    const [ observedproperties, setObservedProperties ] = useState([])
 
     //Some temporary hardcoded lists
     const contact_list = [
@@ -214,7 +232,7 @@ export default function MeterActivitiesForm(props){
     //Effects
     useEffect(() => {
         //Get meter serial numbers
-        console.log('Getting serial nums')
+        console.log('Getting form options')
         
         let auth_headers = new Headers()
         auth_headers.set(
@@ -222,14 +240,23 @@ export default function MeterActivitiesForm(props){
         )
 
         fetch(
-            `${API_URL}/meter_serial_numbers`,
+            `${API_URL}/activities_options`,
             { headers: auth_headers }
         )
-        .then(r => r.json()).then(data => setMeterList(data))
+        .then(r => r.json()).then(data => loadFormOptions(data))
         
     },[])
     
     //Callbacks
+    function loadFormOptions(data){
+        //Set up all the drop down options on the form
+        //Gets data from /activities_options endpoint
+        setMeterList(data.serial_numbers)
+        setActivityList(data.activity_types)
+        setTechnicianList(data.technicians)
+        setObservedProperties(data.observed_properties)
+    }
+
     function handleMeterChange(event){
         //Update meter state when interacting with various inputs
         //Meter input and installation inputs
@@ -285,12 +312,12 @@ export default function MeterActivitiesForm(props){
     }
 
     function handleActivityChange(event){
-        //Handle selection of a particular activity and description update
+        //Handle selection of a particular activity, technician, and description update
         //Note - selecting activity generates a different event from updating description
         if(event.target.id == 'description'){
             setActivity({...activity, [event.target.id]: event.target.value})
         }else{
-            setActivity({...activity, activity_id: event.target.value})
+            setActivity({...activity, [event.target.name]: event.target.value})
         }
     }
 
@@ -515,9 +542,9 @@ export default function MeterActivitiesForm(props){
                         value={ activity.activity_id }
                         onChange={handleActivityChange}
                     >
-                        { props.activities.map((act) => (
+                        { activitylist.map((act) => (
                             <MenuItem key={act.activity_id} value={act.activity_id}>
-                                {act.name}
+                                {act.activity_name}
                             </MenuItem>
                         ))}
                     </TextField>
@@ -527,11 +554,15 @@ export default function MeterActivitiesForm(props){
                         label="Technician"
                         select
                         name="technician_id"
-                        sx = {{ m:1, width:150 }}
-                        defaultValue=""
+                        sx = {{ m:1, width:200 }}
+                        value={ activity.technician_id }
+                        onChange={handleActivityChange}
                     >
-                        <MenuItem value=""></MenuItem>
-                        <MenuItem value="1">Chris</MenuItem>
+                        { technicianlist.map((tech) => (
+                            <MenuItem key={tech.technician_id} value={tech.technician_id}>
+                                {tech.technician_name}
+                            </MenuItem>
+                        ))}
                     </TextField>
                     <TextField
                         required 
@@ -675,7 +706,7 @@ export default function MeterActivitiesForm(props){
                         />
                         <TextField 
                             id="notes"
-                            label="Notes"
+                            label="Installation Notes"
                             variant={ activity.activity_id != "2" ? "outlined":"filled" }
                             disabled={ activity.activity_id =="2" }
                             margin="normal"
@@ -701,8 +732,7 @@ export default function MeterActivitiesForm(props){
                             value = {obs.value}
                             observed_property_id = {obs.observed_property_id}
                             unit_id = {obs.unit_id}
-                            observed_properties = { props.observed_properties }
-                            units = { props.units }
+                            observed_properties = { observedproperties }
                             onChange = { handleObservationChange }
                         />
                     )) }
