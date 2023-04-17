@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Box, Button, Divider, TextField, MenuItem } from "@mui/material";
+import { Dialog, DialogContent, DialogActions } from "@mui/material"
 import { Autocomplete } from "@mui/material"
 import { useAuthHeader } from 'react-auth-kit';
 import { API_URL } from "../API_config.js"
@@ -220,6 +221,9 @@ export default function MeterActivitiesForm(props){
     const [ technicianlist, setTechnicianList ] = useState([])
     const [ observedproperties, setObservedProperties ] = useState([])
 
+    //State of warning modal
+    const [ openwarn, setOpenWarn ] = useState(false)
+
     //Some temporary hardcoded lists
     const contact_list = [
         'ROGERS, INC.',
@@ -389,6 +393,22 @@ export default function MeterActivitiesForm(props){
     function handleSubmit(event){
         //Activities form submission
         event.preventDefault()
+
+        //Warn of data deletion on unistall if needed
+        if(activity.activity_id == 2){
+            setOpenWarn(true)
+        }else{
+            submitForm()
+        }
+
+    }
+    
+    function submitForm(){
+        //Activities form submission
+        //Called either by handleSubmit or by warning dialog
+
+        //Close dialog is needed
+        setOpenWarn(false)
 
         //Determine datetimes
         let start_datetime = activity_datetime.date_val + 'T' + activity_datetime.start_time
@@ -732,6 +752,18 @@ export default function MeterActivitiesForm(props){
                             onChange={handleMeterChange}
                         />
                     </div>
+                    <Dialog
+                        open={ openwarn }
+                        onClose={ () => setOpenWarn(false) }
+                    >
+                        <DialogContent>
+                            Warning: All installation data is deleted when "un-install" is selected.
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={ submitForm }>Proceed</Button>
+                            <Button onClick={() => setOpenWarn(false) }>Cancel</Button>
+                        </DialogActions>
+                    </Dialog>
                     
                 </Box>
 
