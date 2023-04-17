@@ -401,8 +401,8 @@ export default function MeterActivitiesForm(props){
                 timestamp_start: start_datetime,
                 timestamp_end: end_datetime,
                 activity_id: activity.activity_id,
-                notes: activity.description,
-                technician_id: 1
+                notes: activity.description == '' ? null : activity.description,
+                technician_id: activity.technician_id
             }
         }
 
@@ -412,18 +412,20 @@ export default function MeterActivitiesForm(props){
         //Update well distance and notes for other activities
         let installation = {
             well_distance: meter.well_distance == '' ? null : meter.well_distance,
+            meter_height: meter.meter_height == '' ? null : meter.meter_height,
             notes: meter.notes == '' ? null : meter.notes
         }
         if(activity.activity_id == '1'){
             installation = {
-                contact_id: meter.contact ? null : meter.contact,
-                ra_number: meter.ra_number ? null : meter.ra_number,
-                well_distance: meter.well_distance ? null : meter.well_distance,
-                tag: meter.ose_tag ? null : meter.ose_tag,
-                latitude: meter.latitude ? null : meter.latitude,
-                longitude: meter.longitude ? null : meter.longitude,
-                trss: meter.trss ? null : meter.trss,
-                notes: meter.notes ? null : meter.notes
+                contact_id: meter.contact == '' ? null : meter.contact,
+                ra_number: meter.ra_number == '' ? null : meter.ra_number,
+                well_distance: meter.well_distance == '' ? null : meter.well_distance,
+                meter_height: meter.meter_height == '' ? null : meter_height,
+                tag: meter.ose_tag == '' ? null : meter.ose_tag,
+                latitude: meter.latitude == '' ? null : meter.latitude,
+                longitude: meter.longitude == '' ? null : meter.longitude,
+                trss: meter.trss == '' ? null : meter.trss,
+                notes: meter.notes == '' ? null : meter.notes
             }
         }
         if(activity.activity_id == '2'){
@@ -431,6 +433,7 @@ export default function MeterActivitiesForm(props){
                 contact_id: null,
                 ra_number: null,
                 well_distance: null,
+                meter_height: null,
                 tag: null,
                 latitude: null,
                 longitude: null,
@@ -443,7 +446,13 @@ export default function MeterActivitiesForm(props){
 
         //Collect observations
         if(observations.length > 0){
-            maintenance['observations'] = observations
+            //Add on technician id to each observation
+            let observations_with_techid = observations.map((obs) => (
+                {...obs, technician_id: activity.technician_id}
+            ))
+
+            //Assign to maintenance object
+            maintenance['observations'] = observations_with_techid
         }
 
         //Collect parts
@@ -488,21 +497,25 @@ export default function MeterActivitiesForm(props){
         setActivity(
             {
                 activity_id:'',
-                description:''
+                description:'',
+                technician_id:''
             }
         )
         setMeter(
             {
                 id:null,
                 serial_number:null,
-                contact:'',
                 contact_id:'',
+                contact_name:'',
+                organization:'',
+                phone:'',
                 latitude:'',
                 longitude:'',
                 trss:'',
                 ra_number:'',
                 ose_tag:'',
                 well_distance:'',
+                meter_height:'',
                 notes:''
             }
         )
@@ -702,7 +715,8 @@ export default function MeterActivitiesForm(props){
                             variant="outlined"
                             margin="normal"
                             sx = {{ m:1 }}
-                            defaultValue=''
+                            value={ meter.meter_height }
+                            onChange={ handleMeterChange }
                         />
                         <TextField 
                             id="notes"

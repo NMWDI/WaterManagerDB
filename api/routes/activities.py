@@ -90,6 +90,8 @@ async def add_maintenance(maintenance: Maintenance, db: Session = Depends(get_db
     '''
     Receive and parse all data associated with a meter maintenance event
     '''
+    print(maintenance.activity.dict())
+
     #Create new MeterActivities object
     activity = MeterActivities(meter_id=maintenance.meter_id,**maintenance.activity.dict())
     db.add(activity)

@@ -28,9 +28,10 @@ class Activity(BaseModel):
     '''
     timestamp_start: datetime
     timestamp_end: datetime
-    activity_id: int
-    notes: Optional[str]
+    activity_id: int  #Type ID
     technician_id = int
+    notes: Optional[str]
+    
 
 class ActivityType(BaseModel):
     '''
@@ -48,7 +49,7 @@ class Observation(BaseModel):
     observed_property_id: int
     unit_id: int
     notes: Optional[str]
-    technician_id: Optional[int]
+    technician_id: int
 
 class ObservationType(BaseModel):
     '''
