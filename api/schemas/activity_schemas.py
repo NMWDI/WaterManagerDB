@@ -29,7 +29,7 @@ class Activity(BaseModel):
     timestamp_start: datetime
     timestamp_end: datetime
     activity_id: int  #Type ID
-    technician_id = int
+    technician_id: int
     notes: Optional[str]
     
 
