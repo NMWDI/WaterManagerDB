@@ -1,10 +1,11 @@
 //An Activities Form component
 
-import { useState, useEffect } from "react";
-import { Box, Button, Divider, TextField, MenuItem } from "@mui/material";
+import { useState, useEffect } from "react"
+import { Box, Button, Divider, TextField, MenuItem } from "@mui/material"
 import { Dialog, DialogContent, DialogActions } from "@mui/material"
+import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material"
 import { Autocomplete } from "@mui/material"
-import { useAuthHeader } from 'react-auth-kit';
+import { useAuthHeader } from 'react-auth-kit'
 import { API_URL } from "../API_config.js"
 
 let observation_count = 0  //Counters for adding new observation and part ids
@@ -51,9 +52,9 @@ function ObservationInput(props){
         <Box sx={{ display: "flex" }}>
             <TextField 
                 required
-                id={ props.id + '_date' }
-                type="datetime-local"
-                label="Date/Time"
+                id={ props.id + '_time' }
+                type="time"
+                label="Time"
                 variant="outlined"
                 margin="normal"
                 sx = {{ m:1 }}
@@ -212,6 +213,7 @@ export default function MeterActivitiesForm(props){
             notes:''
         }
     )
+    const [ meterWorkingRadio, setMeterWorkingRadio ] = useState('n/a')
     const [ observations, setObservations ] = useState([])
     const [ parts, setParts ] = useState([])
 
@@ -464,16 +466,39 @@ export default function MeterActivitiesForm(props){
 
         maintenance['installation_update'] = installation
 
-        //Collect observations
+        //Check for "Meter Working on Arrival" observation
+        let allObservations = []
+        if(meterWorkingRadio != 'n/a'){
+            allObservations[0] = {
+                timestamp: start_datetime,
+                value: meterWorkingRadio,
+                observed_property_id: 4,
+                unit_id: 6,
+                technician_id: activity.technician_id
+            }
+        }
+        
+        //Collect observations (not including Working on Arrival)
         if(observations.length > 0){
-            //Add on technician id to each observation
-            let observations_with_techid = observations.map((obs) => (
-                {...obs, technician_id: activity.technician_id}
+            //Add on date and technician id to each observation
+            let added_observations = observations.map((obs) => (
+                {
+                    ...obs,
+                    timestamp: activity_datetime.date_val + 'T' + obs.timestamp,
+                    technician_id: activity.technician_id
+                }
             ))
 
-            //Assign to maintenance object
-            maintenance['observations'] = observations_with_techid
+            //Combine with allObservations
+            allObservations = allObservations.concat(added_observations)
+            
         }
+
+        //Assign observations to maintenance object
+        if(allObservations.length > 0){
+            maintenance['observations'] = allObservations
+        }
+        
 
         //Collect parts
         if(parts.length > 0){
@@ -770,6 +795,21 @@ export default function MeterActivitiesForm(props){
                 {/*-----------  Observations ----------*/}
                 <Box component="section">
                     <h4>Observations:</h4>
+                    <Box sx={{ mb: 3, ml: 5 }}>
+                        <FormControl>
+                            <FormLabel id="meter_on_arrival">Meter Working On Arrival</FormLabel>
+                                <RadioGroup
+                                    row
+                                    name="meter-on-arrival-buttons-group"
+                                    value={ meterWorkingRadio }
+                                    onChange={ (event) => setMeterWorkingRadio(event.target.value) }
+                                >
+                                    <FormControlLabel value="1" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="0" control={<Radio />} label="No" />
+                                    <FormControlLabel value="n/a" control={<Radio />} label="N/A" />
+                                </RadioGroup>
+                        </FormControl>
+                    </Box>
                     { observations.map((obs) => (
                         <ObservationInput
                             key={obs.id}
