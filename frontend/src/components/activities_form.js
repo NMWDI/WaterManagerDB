@@ -364,12 +364,14 @@ export default function MeterActivitiesForm(props){
     function addObservation(event){
         //Add a new observation to the observations section
         observation_count++
+        let current_time = new Date()
+        console.log(current_time.toTimeString().slice(0,5))
         setObservations(
             [
                 ...observations,
                 {
                     id: 'obs_' + observation_count,
-                    timestamp:'',
+                    timestamp:current_time.toTimeString().slice(0,5),
                     value:'',
                     observed_property_id:'',
                     unit_id:''
