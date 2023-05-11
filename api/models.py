@@ -45,8 +45,12 @@ class Meters(Base):
     '''
     serial_number = Column(String, nullable=False)
     meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
-    contact_id = Column(Integer, ForeignKey("Contacts.id"))
+    organization_id = Column(Integer, ForeignKey("Contacts.id"))
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
+
+    #Contact information specific to particular meter
+    contact_name = Column(String)
+    contact_phone = Column(String)
 
     #RA Number is an identifier of the well the meter is attached to
     ra_number = Column(String)
@@ -56,7 +60,6 @@ class Meters(Base):
     trss = Column(String)  #Township, range, section
     tag = Column(String)  #OSE tag
     well_distance_ft = Column(Float) #Distance of meter install from well
-    meter_height_ft = Column(Float) #Height of meter above ground
     notes = Column(String)
     
 

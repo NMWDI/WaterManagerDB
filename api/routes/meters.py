@@ -44,14 +44,15 @@ async def read_meters(
             MeterTypes.model,
             MeterTypes.size,
             MeterStatusLU.status_name.label('status'),
-            Contacts.name.label('contact_name'),
+            Meters.contact_name,
+            Meters.contact_phone,
             Contacts.organization,
-            Contacts.phone,
             Meters.ra_number,
             Meters.tag,
             Meters.latitude,
             Meters.longitude,
             Meters.trss,
+            Meters.well_distance_ft,
             Meters.notes
         )
         .join(MeterTypes)

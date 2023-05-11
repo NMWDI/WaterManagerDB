@@ -199,17 +199,15 @@ export default function MeterActivitiesForm(props){
         {
             id:null,
             serial_number:null,
-            contact_id:'',
             contact_name:'',
+            contact_phone:'',
             organization:'',
-            phone:'',
             latitude:'',
             longitude:'',
             trss:'',
             ra_number:'',
             ose_tag:'',
             well_distance:'',
-            meter_height:'',
             notes:''
         }
     )
@@ -435,16 +433,17 @@ export default function MeterActivitiesForm(props){
         //Delete all on remove (activity id = 2)
         //Update well distance and notes for other activities
         let installation = {
+            contact_name: meter.contact_name == '' ? null : meter.contact_name,
+            contact_phone: meter.contact_phone == '' ? null: meter.contact_phone,
             well_distance: meter.well_distance == '' ? null : meter.well_distance,
-            meter_height: meter.meter_height == '' ? null : meter.meter_height,
             notes: meter.notes == '' ? null : meter.notes
         }
         if(activity.activity_id == '1'){
             installation = {
-                contact_id: meter.contact == '' ? null : meter.contact,
+                contact_name: meter.contact_name == '' ? null : meter.contact_name,
+                contact_phone: meter.contact_phone == '' ? null: meter.contact_phone,
                 ra_number: meter.ra_number == '' ? null : meter.ra_number,
                 well_distance: meter.well_distance == '' ? null : meter.well_distance,
-                meter_height: meter.meter_height == '' ? null : meter_height,
                 tag: meter.ose_tag == '' ? null : meter.ose_tag,
                 latitude: meter.latitude == '' ? null : meter.latitude,
                 longitude: meter.longitude == '' ? null : meter.longitude,
@@ -454,7 +453,8 @@ export default function MeterActivitiesForm(props){
         }
         if(activity.activity_id == '2'){
             installation = {
-                contact_id: null,
+                contact_name: null,
+                contact_phone: null,
                 ra_number: null,
                 well_distance: null,
                 meter_height: null,
@@ -526,10 +526,14 @@ export default function MeterActivitiesForm(props){
             if(rspjson.status == 'success'){
                 resetForm()
             }else{
-                console.log(rspjson)
+                handleFormError(rspjson)
             }
         })
 
+    }
+
+    function handleFormError(submit_response){
+        console.log(submit_response)
     }
 
     function resetForm(){
@@ -552,7 +556,7 @@ export default function MeterActivitiesForm(props){
             {
                 id:null,
                 serial_number:null,
-                contact_id:'',
+                contact_phone:'',
                 contact_name:'',
                 organization:'',
                 phone:'',
@@ -562,7 +566,6 @@ export default function MeterActivitiesForm(props){
                 ra_number:'',
                 ose_tag:'',
                 well_distance:'',
-                meter_height:'',
                 notes:''
             }
         )
@@ -666,13 +669,25 @@ export default function MeterActivitiesForm(props){
                 <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                     <h4>Installation:</h4>
                     <TextField 
-                        id="contact"
+                        id="contact_name"
                         label="Contact Name"
-                        variant={ activity.activity_id == "1" ? "outlined":"filled" }
-                        disabled={ activity.activity_id !="1" }
+                        variant={ activity.activity_id != "2" ? "outlined":"filled" }
+                        disabled={ activity.activity_id =="2" }
                         margin="normal"
                         sx = {{ m:1 }}
                         value={ meter.contact_name }
+                        onChange={handleMeterChange}
+                    />
+                    <TextField 
+                        id="contact_phone"
+                        label="Phone (xxx-xxx-xxxx)"
+                        type="tel"
+                        inputProps={{pattern: "[0-9]{3}-[0-9]{3}-[0-9]{4}" }}
+                        variant={ activity.activity_id != "2" ? "outlined":"filled" }
+                        disabled={ activity.activity_id =="2" }
+                        margin="normal"
+                        sx = {{ m:1 }}
+                        value={ meter.contact_phone }
                         onChange={handleMeterChange}
                     />
                     <TextField 
@@ -683,16 +698,6 @@ export default function MeterActivitiesForm(props){
                         margin="normal"
                         sx = {{ m:1 }}
                         value={ meter.organization }
-                        onChange={handleMeterChange}
-                    />
-                    <TextField 
-                        id="phone"
-                        label="Phone Number"
-                        variant={ activity.activity_id == "1" ? "outlined":"filled" }
-                        disabled={ activity.activity_id !="1" }
-                        margin="normal"
-                        sx = {{ m:1 }}
-                        value={ meter.phone }
                         onChange={handleMeterChange}
                     />
                     <TextField 
@@ -748,22 +753,13 @@ export default function MeterActivitiesForm(props){
                     <div>
                         <TextField 
                             id="well_distance"
-                            label="Well Distance"
+                            label="Well Distance (ft)"
                             variant={ activity.activity_id != "2" ? "outlined":"filled" }
                             disabled={ activity.activity_id =="2" }
                             value={ meter.well_distance }
                             margin="normal"
                             sx = {{ m:1 }}
                             onChange={handleMeterChange}
-                        />
-                        <TextField 
-                            id="meter_height"
-                            label="Meter Height"
-                            variant="outlined"
-                            margin="normal"
-                            sx = {{ m:1 }}
-                            value={ meter.meter_height }
-                            onChange={ handleMeterChange }
                         />
                         <TextField 
                             id="notes"

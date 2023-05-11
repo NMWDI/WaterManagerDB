@@ -4,9 +4,15 @@ FastAPI input and response schemas related to PVACD activities
 
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 
 from api.schemas.part_schemas import Part
+
+#Define a phone number - nnn-nnn-nnnn
+PhoneConstr = constr(
+    strip_whitespace=True,
+    regex="\d{3}-\d{3}-\d{4}",
+)
 
 class Technician(BaseModel):
     '''
@@ -32,7 +38,6 @@ class Activity(BaseModel):
     technician_id: int
     notes: Optional[str]
     
-
 class ActivityType(BaseModel):
     '''
     Details the type of activity
@@ -63,10 +68,11 @@ class InstallationUpdate(BaseModel):
     '''
     Used in Maintenance
     '''
-    contact_id: Optional[int]
+    contact_name: Optional[str]
+    contact_phone: Optional[PhoneConstr]
+    organization_id: Optional[int]
     ra_number: Optional[str]
-    well_distance: Optional[float]
-    meter_height: Optional[float]
+    well_distance_ft: Optional[float]
     tag: Optional[str]
     latitude: Optional[float]
     longitude: Optional[float]

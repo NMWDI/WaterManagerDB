@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr, validator, constr
+from pydantic import BaseModel
 
 
 class ORMBase(BaseModel):
@@ -14,12 +14,6 @@ class ORMBase(BaseModel):
 
     class Config:
         orm_mode = True
-
-#Currently not used...
-PhoneConstr = constr(
-    strip_whitespace=True,
-    regex="^(\\+)[1-9][0-9\\-\\(\\)\\.]{9,15}$",
-)
 
 class MeterCreate(ORMBase):
     name: str
@@ -34,15 +28,14 @@ class Meter(ORMBase):
     size: float
     status: str
     contact_name: str = None
+    contact_phone: str = None
     organization: str = None
-    phone: str = None
     ra_number: str = None
     tag: str = None
     latitude: float = None
     longitude: float = None
     trss: str = None
-    well_distance: float = None
-    meter_height: float = None
+    well_distance_ft: float = None
     notes: str = None
 
 class MeterPatch(ORMBase):
