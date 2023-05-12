@@ -6,7 +6,11 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from api.schemas.activity_schemas import Maintenance, ActivitiesFormOptions, ObservationType
+from api.schemas.activity_schemas import (
+    Maintenance, 
+    ActivitiesFormOptions,
+    ObservationType
+)
 from api.models import *
 from api.security import scoped_user
 from api.session import get_db
@@ -69,12 +73,19 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
     for row in technicians:
         technician_list.append({'technician_id':row[0],'technician_name':row[1]})
 
+    #Get organizations
+    organization_list = []
+    organizations = db.execute(select(Contacts.id,Contacts.organization))
+    for row in organizations:
+        organization_list.append({'organization_id':row[0],'organization_name':row[1]})
+
     #Create form options
     form_options = ActivitiesFormOptions(
         serial_numbers=serial_number_list,
         activity_types=activities_list,
         observed_properties=list(properties_map.values()),
-        technicians=technician_list
+        technicians=technician_list,
+        organizations=organization_list
     )
 
     return form_options

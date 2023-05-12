@@ -21,6 +21,10 @@ class Technician(BaseModel):
     technician_id: int
     technician_name: str
 
+class Organization(BaseModel):
+    organization_id: int
+    organization_name: str
+
 class Unit(BaseModel):
     '''
     Describes Units
@@ -87,6 +91,7 @@ class ActivitiesFormOptions(BaseModel):
     activity_types: List[ActivityType]
     observed_properties: List[ObservationType]
     technicians: List[Technician]
+    organizations: List[Organization]
 
 class Maintenance(BaseModel):
     '''

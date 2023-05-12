@@ -1,7 +1,7 @@
 //An Activities Form component
 
 import { useState, useEffect } from "react"
-import { Box, Button, Divider, TextField, MenuItem } from "@mui/material"
+import { Box, Button, ToggleButton, Divider, TextField, MenuItem } from "@mui/material"
 import { Dialog, DialogContent, DialogActions } from "@mui/material"
 import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material"
 import { Autocomplete } from "@mui/material"
@@ -201,7 +201,7 @@ export default function MeterActivitiesForm(props){
             serial_number:null,
             contact_name:'',
             contact_phone:'',
-            organization:'',
+            organization:null,
             latitude:'',
             longitude:'',
             trss:'',
@@ -213,13 +213,22 @@ export default function MeterActivitiesForm(props){
     )
     const [ meterWorkingRadio, setMeterWorkingRadio ] = useState('n/a')
     const [ observations, setObservations ] = useState([])
-    const [ parts, setParts ] = useState([])
+
+    const [ default_parts, setDefaultParts ] = useState([
+        {part_number: '005-ff', label: 'Canopy', selected: false},
+        {part_number: '00699-ff', label: 'Bearing', selected: false},
+        {part_number: '006-ff', label: 'Nipple', selected: false},
+        {part_number: '0058-ff', label: 'Gasket', selected: false},
+        {part_number: '009-ff', label: 'Cable', selected: false}
+    ])
+    const [ other_parts, setOtherParts ] = useState([])
 
     //Form options loaded from database
     const [ meterlist, setMeterList ] = useState([])
     const [ activitylist, setActivityList ] = useState([])
     const [ technicianlist, setTechnicianList ] = useState([])
     const [ observedproperties, setObservedProperties ] = useState([])
+    const [ organizationlist, setOrganizationList ] = useState([])
 
     //State of warning modal
     const [ openwarn, setOpenWarn ] = useState(false)
@@ -259,6 +268,7 @@ export default function MeterActivitiesForm(props){
         setActivityList(data.activity_types)
         setTechnicianList(data.technicians)
         setObservedProperties(data.observed_properties)
+        setOrganizationList(data.organizations)
     }
 
     function handleMeterChange(event){
@@ -301,6 +311,7 @@ export default function MeterActivitiesForm(props){
 
     function loadInstallData(data){
         //Sets inputs in installation section with meter information
+        console.log(data)
         if(data.length > 0){
             //Set any null values to ''
             let datavals = data[0]
@@ -329,6 +340,11 @@ export default function MeterActivitiesForm(props){
         let newval = {}
         newval[event.target.id] = event.target.value
         setActivityDate({...activity_datetime, ...newval})
+    }
+
+    function handleOrganizationChange(event, new_org){
+        //Assign selected organization to current meter
+        setMeter({...meter, 'organization': new_org})
     }
 
     function handleObservationChange(input_val){
@@ -378,10 +394,24 @@ export default function MeterActivitiesForm(props){
         )
     }
 
+    function handlePartToggle(event,toggled_part_num){
+        console.log(toggled_part_num)
+        setDefaultParts(default_parts.map(part => {
+            if(part.part_number == toggled_part_num){
+                let new_state = !part.selected
+                return {
+                    ...part, selected: new_state
+                }
+            }else{
+                return part
+            }
+        }))
+    }
+
     function addPart(event){
         //Add a new part to parts used section
         part_count++
-        setParts(
+        setOtherParts(
             [
                 ...parts,
                 {
@@ -439,9 +469,13 @@ export default function MeterActivitiesForm(props){
             notes: meter.notes == '' ? null : meter.notes
         }
         if(activity.activity_id == '1'){
+            //First get organization id from organization list
+            let selected_org = organizationlist.find(org => org.organization_name == meter.organization)
+
             installation = {
                 contact_name: meter.contact_name == '' ? null : meter.contact_name,
                 contact_phone: meter.contact_phone == '' ? null: meter.contact_phone,
+                organization_id: selected_org.organization_id,
                 ra_number: meter.ra_number == '' ? null : meter.ra_number,
                 well_distance: meter.well_distance == '' ? null : meter.well_distance,
                 tag: meter.ose_tag == '' ? null : meter.ose_tag,
@@ -455,6 +489,7 @@ export default function MeterActivitiesForm(props){
             installation = {
                 contact_name: null,
                 contact_phone: null,
+                organization_id: null,
                 ra_number: null,
                 well_distance: null,
                 meter_height: null,
@@ -503,8 +538,8 @@ export default function MeterActivitiesForm(props){
         
 
         //Collect parts
-        if(parts.length > 0){
-            maintenance['parts'] = parts
+        if(other_parts.length > 0){
+            maintenance['parts'] = other_parts
         }
 
         console.log(JSON.stringify(maintenance))
@@ -690,15 +725,23 @@ export default function MeterActivitiesForm(props){
                         value={ meter.contact_phone }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <Autocomplete
                         id="organization"
-                        label="Organization"
-                        variant={ activity.activity_id == "1" ? "outlined":"filled" }
-                        disabled={ activity.activity_id !="1" }
-                        margin="normal"
-                        sx = {{ m:1 }}
+                        options={ organizationlist.map(org => org.organization_name) }
                         value={ meter.organization }
-                        onChange={handleMeterChange}
+                        onChange={ handleOrganizationChange }
+                        fullWidth={ false }
+                        sx = {{ display: 'inline-flex' }}
+                        renderInput={(params) => 
+                            <TextField
+                                {...params}
+                                required
+                                label="Organization"
+                                variant={ activity.activity_id == "1" ? "outlined":"filled" }
+                                disabled={ activity.activity_id !="1" }
+                                margin="normal"
+                                sx = {{ m:1, width: 200 }}
+                            />}
                     />
                     <TextField 
                         id="latitude"
@@ -848,7 +891,15 @@ export default function MeterActivitiesForm(props){
                     />
 
                     <h5>Parts Used:</h5>
-                    { parts.map((part) => (
+                    { default_parts.map((part) => (
+                        <ToggleButton
+                            key={part.part_number}
+                            value={part.part_number}
+                            selected={part.selected}
+                            onChange={handlePartToggle}
+                        >{part.label}</ToggleButton>
+                    )) }
+                    { other_parts.map((part) => (
                         <PartInput
                             key={part.id}
                             input_id={part.id}
