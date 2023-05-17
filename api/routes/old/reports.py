@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
 from api.schemas import meter_schemas
-from api.models import Repair, Meters, Well, MeterHistory, Contacts, MeterStatusLU
+from api.models import Repair, Meters, Well, MeterHistory, Organizations, MeterStatusLU
 from api.security import scoped_user
 from api.session import get_db
 from api.xls_persistence import make_xls_backup
@@ -54,7 +54,7 @@ async def get_xls_backup(db: Session = Depends(get_db)):
         (
             Meters,
             Well,
-            Contacts,
+            Organizations,
             MeterHistory,
             MeterStatusLU,
         ),

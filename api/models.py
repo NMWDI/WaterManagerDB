@@ -45,7 +45,7 @@ class Meters(Base):
     '''
     serial_number = Column(String, nullable=False)
     meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
-    organization_id = Column(Integer, ForeignKey("Contacts.id"))
+    organization_id = Column(Integer, ForeignKey("Organizations.id"))
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
 
     #Contact information specific to particular meter
@@ -154,16 +154,16 @@ class PartsUsed(Base):
 
 # ---------- Other Tables ---------------  
 
-class Contacts(Base):
+class Organizations(Base):
     '''
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
     '''
-    name = Column(String)
-    organization = Column(String)
+    contact_name = Column(String)
+    organization_name = Column(String)
     phone = Column(String)
     email = Column(String)
-    
+    city = Column(String)
 
 class Alert(Base):
     # id = Column(Integer, primary_key=True, index=True)

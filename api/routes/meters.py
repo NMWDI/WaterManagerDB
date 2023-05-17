@@ -8,7 +8,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from api.schemas import meter_schemas
-from api.models import Meters, MeterTypes, MeterStatusLU, Well, Contacts
+from api.models import Meters, MeterTypes, MeterStatusLU, Well, Organizations
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
 from api.security_models import User
@@ -46,7 +46,7 @@ async def read_meters(
             MeterStatusLU.status_name.label('status'),
             Meters.contact_name,
             Meters.contact_phone,
-            Contacts.organization,
+            Organizations.organization_name,
             Meters.ra_number,
             Meters.tag,
             Meters.latitude,
@@ -57,7 +57,7 @@ async def read_meters(
         )
         .join(MeterTypes)
         .join(MeterStatusLU)
-        .join(Contacts)
+        .join(Organizations)
     )
 
     if meter_sn:
@@ -69,7 +69,7 @@ async def read_meters(
                 Meters.serial_number.like(f"%{fuzzy_search}%"),
                 Meters.ra_number.like(f"%{fuzzy_search}%"),
                 MeterTypes.brand.like(f"%{fuzzy_search}%"),
-                Contacts.organization.like(f"%{fuzzy_search}%")
+                Organizations.organization_name.like(f"%{fuzzy_search}%")
             )
         )
     print(stmt)

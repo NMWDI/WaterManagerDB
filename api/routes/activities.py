@@ -75,7 +75,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     #Get organizations
     organization_list = []
-    organizations = db.execute(select(Contacts.id,Contacts.organization))
+    organizations = db.execute(select(Organizations.id,Organizations.organization_name))
     for row in organizations:
         organization_list.append({'organization_id':row[0],'organization_name':row[1]})
 

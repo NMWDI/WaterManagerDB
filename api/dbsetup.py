@@ -35,7 +35,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_contacts.csv','r') as f:
-        qry = 'COPY "Contacts"(id,organization,phone,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Organizations"(id,organization_name,phone,city) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_meterstatus.csv','r') as f:
