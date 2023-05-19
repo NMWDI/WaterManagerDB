@@ -1,12 +1,13 @@
-id,brand,model,size
-1,MCCROMETER,304,4
-2,MCCROMETER,306,6
-3,MCCROMETER,308,8
-4,MCCROMETER,310,10
-5,MCCROMETER,312,12
-6,MCCROMETER,314,14
-7,MCCROMETER,316,16
-8,ROCKWELL,1.5,1.5
-9,ROCKWELL,2,2
-10,ROCKWELL,3,3
-11,SPARLIN,6,6
+id,brand,series,model_number,size,description
+1,McCrometer,,M0304,4,
+2,McCrometer,,M0306,6,
+3,McCrometer,,M0308,8,
+4,McCrometer,,M0310,10,
+5,McCrometer,,M0312,12,
+6,McCrometer,,M0314,14,
+7,McCrometer,,M0316,16,
+8,McCrometer,,MW503,3,Flanged tube top plate
+9,ROCKWELL,,1.5,1.5,
+10,ROCKWELL,,2,2,
+11,ROCKWELL,,3,3,
+12,SPARLIN,,6,6,

@@ -31,7 +31,7 @@ if os.environ.get("POPULATE_DB"):
 
     #Load meter types CSV
     with open('api/data/devdata_metertypes.csv','r') as f:
-        qry = 'COPY "MeterTypes"(id,brand,model,size) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "MeterTypes"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_contacts.csv','r') as f:
@@ -66,12 +66,6 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "Worker"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
-
-    # with open('api/data/devdata_meterhistory.csv','r') as f:
-    #     qry = 'COPY "MeterHistory"(meter_id,timestamp,activity_id,energy_reading,description,initial_reading,final_reading,technician_id,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-    #     cursor.copy_expert(qry,f)
-    #   
-
     with open('api/data/devdata_well.csv','r') as f:
         qry = 'COPY "Well"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
@@ -85,7 +79,11 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry,f)
 
     with open('api/data/devdata_parts.csv','r') as f:
-        qry = 'COPY "Part"(part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Part"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry,f)
+
+    with open('api/data/devdata_partsassociated.csv','r') as f:
+        qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry,f)
 
     conn.commit()

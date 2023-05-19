@@ -69,8 +69,10 @@ class MeterTypes(Base):
     - See parts table for sub-components
     '''
     brand = Column(String)
-    model = Column(String)
+    series = Column(String)
+    model_number = Column(String)
     size = Column(Float)
+    description = Column(String)
 
 class MeterStatusLU(Base):
     '''
@@ -147,6 +149,11 @@ class Part(Base):
     count = Column(Integer, default=0)
     note = Column(String)
 
+class PartAssociation(Base):
+    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"),nullable=False)
+    part_id = Column(Integer,ForeignKey("Part.id"),nullable=False)
+    commonly_used = Column(Boolean)
+    
 class PartsUsed(Base):
     meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
     part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
