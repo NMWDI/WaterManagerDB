@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, constr
 
-from api.schemas.part_schemas import Part
+from api.schemas.part_schemas import PartUsed
 
 #Define a phone number - nnn-nnn-nnnn
 PhoneConstr = constr(
@@ -101,4 +101,4 @@ class Maintenance(BaseModel):
     activity: Activity
     installation_update: Optional[InstallationUpdate]
     observations: Optional[List[Observation]]
-    parts: Optional[List[Part]]
+    parts: Optional[List[PartUsed]]
