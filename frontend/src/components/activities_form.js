@@ -1,6 +1,6 @@
 //An Activities Form component
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Box, Button, ToggleButton, Divider, TextField, MenuItem } from "@mui/material"
 import { Dialog, DialogContent, DialogActions } from "@mui/material"
 import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material"
@@ -115,60 +115,6 @@ function ObservationInput(props){
 
 }
 
-function PartInput(props){
-    //A small component that is the observation input
-    //Making this a component facilitates adding new inputs
-    //props:
-    //  input_id: unique id for each input created
-    //  part_id: database part_id 
-    //  count: number of parts used
-    //  parts_list: list of parts for select [{part_id: , part_type: , part_number: }]
-    //  onChange: handler in parent component
-    function handleTypeChange(event){
-        props.onChange({id: props.input_id, part_id: event.target.value})
-    }
-    
-    function handleCountChange(event){
-        props.onChange({id: props.input_id, count: event.target.value})
-    }
-
-    return(
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-            <TextField 
-                id={ "part_type_" + props.input_id }
-                name="part_type"
-                label="Part Type"
-                variant="outlined"
-                select
-                required
-                sx = {{ m:1, width:200 }}
-                value={ props.part_id }
-                onChange={ handleTypeChange }
-            >
-                { props.parts_list.map((parttype) => (
-                        <MenuItem key={parttype.part_id} value={parttype.part_id}>
-                            { parttype.part_type + ' - ' + parttype.part_number }
-                        </MenuItem>
-                    ))}
-            </TextField>
-            <TextField 
-                id="part_quantitiy"
-                label="Part Quantity"
-                variant="outlined"
-                margin="normal"
-                sx = {{ m:1 }}
-                required
-                type="number"
-                InputProps={{ inputProps: { step: 1, min: 0 } }}
-                value={ props.count }
-                onChange={ handleCountChange }
-            />
-        </Box>
-    )
-    
-
-}
-
 export default function MeterActivitiesForm(props){
     //
     //Form for entering meter maintenance and repair information
@@ -214,13 +160,7 @@ export default function MeterActivitiesForm(props){
     const [ meterWorkingRadio, setMeterWorkingRadio ] = useState('n/a')
     const [ observations, setObservations ] = useState([])
 
-    const [ default_parts, setDefaultParts ] = useState([
-        {part_number: '005-ff', label: 'Canopy', selected: false},
-        {part_number: '00699-ff', label: 'Bearing', selected: false},
-        {part_number: '006-ff', label: 'Nipple', selected: false},
-        {part_number: '0058-ff', label: 'Gasket', selected: false},
-        {part_number: '009-ff', label: 'Cable', selected: false}
-    ])
+    const [ default_parts, setDefaultParts ] = useState([])
     const [ other_parts, setOtherParts ] = useState([])
 
     //Form options loaded from database
@@ -259,7 +199,10 @@ export default function MeterActivitiesForm(props){
         .then(r => r.json()).then(data => loadFormOptions(data))
         
     },[])
-    
+
+    //Refs
+    const other_part_selected = useRef('')
+
     //Callbacks
     function loadFormOptions(data){
         //Set up all the drop down options on the form
@@ -303,7 +246,7 @@ export default function MeterActivitiesForm(props){
         auth_headers.set(
             "Authorization", authHeader()
         )
-        let url = new URL(API_URL+'/meters')
+        let url = new URL(API_URL+'/meter')
         url.searchParams.set("meter_sn",new_val)
         fetch(url,{ headers: auth_headers })
             .then(r => r.json()).then(loadInstallData)
@@ -312,15 +255,26 @@ export default function MeterActivitiesForm(props){
     function loadInstallData(data){
         //Sets inputs in installation section with meter information
         console.log(data)
-        if(data.length > 0){
+        if(data){
+            //Pop off parts associated
+            let parts = data['parts_associated']
+            delete data['parts_associated']
+
             //Set any null values to ''
-            let datavals = data[0]
-            for(let p in datavals){
-                if(datavals[p] === null){
-                    datavals[p] = ''
+            for(let p in data){
+                if(data[p] === null){
+                    data[p] = ''
                 }
             }
-            setMeter(datavals)
+            setMeter(data)
+
+            //Add selected on to all parts associated
+            parts = parts.map(p => { return { ...p, selected: false }})
+
+            //Split parts into default and other
+            setDefaultParts(parts.filter(p => p.commonly_used))
+            setOtherParts(parts.filter(p => !p.commonly_used))
+
         }else{
             console.log('Meter not found')
         }
@@ -408,18 +362,20 @@ export default function MeterActivitiesForm(props){
         }))
     }
 
-    function addPart(event){
-        //Add a new part to parts used section
-        part_count++
-        setOtherParts(
-            [
-                ...parts,
-                {
-                    id: part_count,
-                    part_id: '',
-                    count: ''
-                }
-            ])
+    function addPart(){
+        //Add a part from "Other Parts" to "default parts"
+        console.log(other_part_selected.current)
+
+        // part_count++
+        // setOtherParts(
+        //     [
+        //         ...parts,
+        //         {
+        //             id: part_count,
+        //             part_id: '',
+        //             count: ''
+        //         }
+        //     ])
     }
 
     function handleSubmit(event){
@@ -891,25 +847,34 @@ export default function MeterActivitiesForm(props){
                     />
 
                     <h5>Parts Used:</h5>
-                    { default_parts.map((part) => (
-                        <ToggleButton
-                            key={part.part_number}
-                            value={part.part_number}
-                            selected={part.selected}
-                            onChange={handlePartToggle}
-                        >{part.label}</ToggleButton>
-                    )) }
-                    { other_parts.map((part) => (
-                        <PartInput
-                            key={part.id}
-                            input_id={part.id}
-                            part_id={part.part_id}
-                            count={part.count}
-                            parts_list={props.part_types}
-                            onChange={ handlePartChange }
-                        />
-                    )) }
-                    
+                    <Box component="div" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
+                        { default_parts.map((part) => (
+                            <ToggleButton
+                                sx = {{ m:1 }}
+                                key={part.part_number}
+                                value={part.part_number}
+                                selected={part.selected}
+                                onChange={handlePartToggle}
+                            >
+                                { `${part.part_type}: ${part.description} (${part.part_number})` }
+                            </ToggleButton>
+                        )) }
+                    </Box>
+                    <TextField
+                        id="other_parts"
+                        label="Other Parts"
+                        select
+                        sx = {{ m:1, width:300 }}
+                        defaultValue = ''
+                        inputRef={ other_part_selected }
+                    >
+                        <MenuItem key="0" value=""></MenuItem>
+                        { other_parts.map((part) => (
+                            <MenuItem key={part.part_id} value={part.part_id}>
+                                { `${part.part_type}: ${part.description} (${part.part_number})` }
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <Button
                         variant="outlined"
                         sx={{ m:1 }}
