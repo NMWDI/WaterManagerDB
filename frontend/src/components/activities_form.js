@@ -1,6 +1,6 @@
 //An Activities Form component
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Box, Button, ToggleButton, Divider, TextField, MenuItem } from "@mui/material"
 import { Dialog, DialogContent, DialogActions } from "@mui/material"
 import { Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material"
@@ -9,7 +9,6 @@ import { useAuthHeader } from 'react-auth-kit'
 import { API_URL } from "../API_config.js"
 
 let observation_count = 0  //Counters for adding new observation and part ids
-let part_count = 0
 
 function ObservationInput(props){
     //A small component that is the observation input
@@ -162,6 +161,7 @@ export default function MeterActivitiesForm(props){
 
     const [ default_parts, setDefaultParts ] = useState([])
     const [ other_parts, setOtherParts ] = useState([])
+    const [ other_part_selected, setOtherPartSelected ] = useState('')
 
     //Form options loaded from database
     const [ meterlist, setMeterList ] = useState([])
@@ -200,8 +200,7 @@ export default function MeterActivitiesForm(props){
         
     },[])
 
-    //Refs
-    const other_part_selected = useRef('')
+    
 
     //Callbacks
     function loadFormOptions(data){
@@ -315,20 +314,6 @@ export default function MeterActivitiesForm(props){
         }))
     }
 
-    function handlePartChange(input_val){
-        //Update parts
-        setParts(parts.map(prt => {
-            if(prt.id == input_val.id){
-                return {
-                    ...prt,
-                    ...input_val
-                }
-            }else{
-                return prt
-            }
-        }))
-    }
-
     function addObservation(event){
         //Add a new observation to the observations section
         observation_count++
@@ -363,19 +348,20 @@ export default function MeterActivitiesForm(props){
     }
 
     function addPart(){
-        //Add a part from "Other Parts" to "default parts"
-        console.log(other_part_selected.current)
+        //Remove part from "other Parts" and transfer to "default parts"
+        console.log(other_part_selected)
+        let other_part_selected_id = other_part_selected
+        let new_default_part = other_parts.find(x => x.part_id == other_part_selected_id)
 
-        // part_count++
-        // setOtherParts(
-        //     [
-        //         ...parts,
-        //         {
-        //             id: part_count,
-        //             part_id: '',
-        //             count: ''
-        //         }
-        //     ])
+        //Reset other parts selection
+        setOtherPartSelected('')
+
+        //Include new part in default
+        setDefaultParts(default_parts.concat(new_default_part))
+
+        //Remove from other_parts
+        setOtherParts(other_parts.filter(x => x.part_id != other_part_selected_id))
+
     }
 
     function handleSubmit(event){
@@ -865,8 +851,8 @@ export default function MeterActivitiesForm(props){
                         label="Other Parts"
                         select
                         sx = {{ m:1, width:300 }}
-                        defaultValue = ''
-                        inputRef={ other_part_selected }
+                        value={ other_part_selected }
+                        onChange={ event => setOtherPartSelected(event.target.value) }
                     >
                         <MenuItem key="0" value=""></MenuItem>
                         { other_parts.map((part) => (
