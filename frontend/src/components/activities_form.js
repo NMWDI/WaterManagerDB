@@ -677,7 +677,6 @@ export default function MeterActivitiesForm(props){
                         renderInput={(params) => 
                             <TextField
                                 {...params}
-                                required
                                 label="Organization"
                                 variant={ activity.activity_id == "1" ? "outlined":"filled" }
                                 disabled={ activity.activity_id !="1" }
@@ -836,7 +835,13 @@ export default function MeterActivitiesForm(props){
                     <Box component="div" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                         { default_parts.map((part) => (
                             <ToggleButton
-                                sx = {{ m:1 }}
+                                color="primary"
+                                sx = {
+                                    {
+                                        m:1,
+                                        '&.Mui-selected':{'borderColor':'blue','border': 2}
+                                    }
+                                }
                                 key={part.part_number}
                                 value={part.part_number}
                                 selected={part.selected}
