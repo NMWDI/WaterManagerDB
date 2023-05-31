@@ -142,7 +142,7 @@ export default function MeterActivitiesForm(props){
     )
     const [ meter, setMeter ] = useState(
         {
-            id:null,
+            meter_id:null,
             serial_number:null,
             contact_name:'',
             contact_phone:'',
@@ -185,8 +185,6 @@ export default function MeterActivitiesForm(props){
     //Effects
     useEffect(() => {
         //Get meter serial numbers
-        console.log('Getting form options')
-        
         let auth_headers = new Headers()
         auth_headers.set(
             "Authorization", authHeader()
@@ -265,6 +263,11 @@ export default function MeterActivitiesForm(props){
                     data[p] = ''
                 }
             }
+
+            //Set organization back to null if '' because Autocomplete works differently
+            if(data.organization == ''){
+                data.organization = null
+            }
             setMeter(data)
 
             //Add selected on to all parts associated
@@ -334,7 +337,6 @@ export default function MeterActivitiesForm(props){
     }
 
     function handlePartToggle(event,toggled_part_num){
-        console.log(toggled_part_num)
         setDefaultParts(default_parts.map(part => {
             if(part.part_number == toggled_part_num){
                 let new_state = !part.selected
@@ -349,7 +351,6 @@ export default function MeterActivitiesForm(props){
 
     function addPart(){
         //Remove part from "other Parts" and transfer to "default parts"
-        console.log(other_part_selected)
         let other_part_selected_id = other_part_selected
         let new_default_part = other_parts.find(x => x.part_id == other_part_selected_id)
 
@@ -390,7 +391,7 @@ export default function MeterActivitiesForm(props){
         
         //Create Maintenance object
         let maintenance = {
-            meter_id: meter.id,
+            meter_id: meter.meter_id,
             activity:{
                 timestamp_start: start_datetime,
                 timestamp_end: end_datetime,
