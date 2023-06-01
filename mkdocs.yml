@@ -1,0 +1,6 @@
+site_name: WaterManager DB Application
+theme: readthedocs
+nav:
+  - Home: index.md
+  - User: user_manual.md
+  - Developer: developer_manual.md
