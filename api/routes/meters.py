@@ -86,7 +86,7 @@ async def get_meter(
             MeterTypes.model_number,
             Meters.contact_name,
             Meters.contact_phone,
-            Organizations.organization_name,
+            Organizations.organization_name.label("organization"),
             Meters.ra_number,
             Meters.tag,
             Meters.latitude,

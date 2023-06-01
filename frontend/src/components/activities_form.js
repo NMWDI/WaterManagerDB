@@ -198,7 +198,6 @@ export default function MeterActivitiesForm(props){
         
     },[])
 
-    
 
     //Callbacks
     function loadFormOptions(data){
@@ -270,8 +269,8 @@ export default function MeterActivitiesForm(props){
             }
             setMeter(data)
 
-            //Add selected on to all parts associated
-            parts = parts.map(p => { return { ...p, selected: false }})
+            //Add selected and count on to all parts associated
+            parts = parts.map(p => { return { ...p, selected: false, count: 1 }})
 
             //Split parts into default and other
             setDefaultParts(parts.filter(p => p.commonly_used))
@@ -480,9 +479,10 @@ export default function MeterActivitiesForm(props){
         }
         
 
-        //Collect parts
-        if(other_parts.length > 0){
-            maintenance['parts'] = other_parts
+        //Collect parts used
+        let used_parts = default_parts.filter(x => x.selected)
+        if(used_parts.length > 0){
+            maintenance['parts'] = used_parts
         }
 
         console.log(JSON.stringify(maintenance))
@@ -536,7 +536,7 @@ export default function MeterActivitiesForm(props){
                 serial_number:null,
                 contact_phone:'',
                 contact_name:'',
-                organization:'',
+                organization:null,
                 phone:'',
                 latitude:'',
                 longitude:'',
@@ -548,7 +548,8 @@ export default function MeterActivitiesForm(props){
             }
         )
         setObservations([])
-        setParts([])
+        setDefaultParts([])
+        setOtherParts([])
     }
 
     return(
