@@ -1,6 +1,8 @@
-site_name: WaterManager DB Application
+site_name: Water Meter Manager
 theme: readthedocs
 nav:
   - Home: index.md
   - User: user_manual.md
-  - Developer: developer_manual.md
+  - 'Developer Manual': 
+    - Overview: developer_overview.md
+    - Architecture: architecture.md
