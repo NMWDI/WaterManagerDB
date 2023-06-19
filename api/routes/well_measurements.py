@@ -44,7 +44,7 @@ async def patch_waterlevel(
 @well_measurement_router.post(
     "/waterlevel",
     dependencies=[Depends(write_user)],
-    response_model=well_schemas.WaterLevel,
+    response_model=well_schemas.WaterLevelCreate,
     tags=["waterlevels"],
 )
 async def add_waterlevel(

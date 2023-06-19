@@ -5,7 +5,7 @@ import Sidebar from "./sidebar";
 import { AuthProvider, RequireAuth } from 'react-auth-kit'; //https://authkit.arkadip.dev/
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
-import WellView from "./WellsView";
+import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import MetersView from "./MetersView";
 import Home from "./Home";
 import Topbar from "./Topbar";
@@ -19,7 +19,7 @@ import ActivityView from './views/Activities';
 function App() {
 
     return (
-        <AuthProvider 
+        <AuthProvider
             authType = {'localstorage'}
             authName={'_auth'}
             cookieDomain={window.location.hostname}
@@ -43,7 +43,7 @@ function App() {
                                     <Sidebar /><Home />
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/meters" element={
                             <RequireAuth loginPath={'/'}>
@@ -52,7 +52,7 @@ function App() {
                                     <Sidebar /><MetersView/>
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/activities" element={
                             <RequireAuth loginPath={'/'}>
@@ -61,16 +61,16 @@ function App() {
                                     <Sidebar /><ActivityView />
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/wells" element={
                             <RequireAuth loginPath={'/'}>
                                 <Topbar />
                                 <div className="container">
-                                    <Sidebar /><WellView/>
+                                    <Sidebar /><MonitoringWellsView/>
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/chlorides" element={
                             <RequireAuth loginPath={'/'}>
@@ -79,7 +79,7 @@ function App() {
                                     <Sidebar /><ChloridesView/>
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/parts" element={
                             <RequireAuth loginPath={'/'}>
@@ -88,7 +88,7 @@ function App() {
                                     <Sidebar /><PartsView/>
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                     <Route path="/alerts" element={
                             <RequireAuth loginPath={'/'}>
@@ -97,7 +97,7 @@ function App() {
                                     <Sidebar /><AlertsView/>
                                 </div>
                             </RequireAuth>
-                        } 
+                        }
                     />
                 </Routes>
             </Router>

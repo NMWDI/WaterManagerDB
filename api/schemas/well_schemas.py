@@ -47,10 +47,13 @@ class WaterLevel(ORMBase):
     well_id: int
     technician: str
 
-
-class WaterLevelCreate(WaterLevel):
-    pass
-
+class WaterLevelCreate(ORMBase):
+    well_id: int
+    timestamp: datetime
+    value: float
+    observed_property_id: int
+    worker_id: int
+    unit_id: int
 
 class WaterLevelPatch(ORMBase):
     timestamp: Optional[datetime] = None
