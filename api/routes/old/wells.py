@@ -19,7 +19,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from api import schemas
+from api.schemas import meter_schemas
 from api.models import Well, WellConstruction
 from api.route_util import _patch, _add
 from api.security import scoped_user
@@ -32,14 +32,14 @@ write_user = scoped_user(["read", "wells:write"])
 
 @well_router.get(
     "/wellconstruction/{well_id}",
-    response_model=schemas.WellConstruction,
+    response_model=meter_schemas.WellConstruction,
     tags=["wells"],
 )
 async def read_wellconstruction(well_id, db: Session = Depends(get_db)):
     return db.query(WellConstruction).filter_by(well_id=well_id).first()
 
 
-@well_router.get("/wells", response_model=List[schemas.Well], tags=["wells"])
+@well_router.get("/wells", response_model=List[meter_schemas.Well], tags=["wells"])
 def read_wells(
     radius: float = None,
     latlng: str = None,
@@ -84,20 +84,22 @@ def read_wells(
 @well_router.patch(
     "/wells/{well_id}",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Well,
+    response_model=meter_schemas.Well,
     tags=["wells"],
 )
-async def patch_wells(well_id: int, obj: schemas.Well, db: Session = Depends(get_db)):
+async def patch_wells(
+    well_id: int, obj: meter_schemas.Well, db: Session = Depends(get_db)
+):
     return _patch(db, Well, well_id, obj)
 
 
 @well_router.post(
     "/wells",
     dependencies=[Depends(write_user)],
-    response_model=schemas.Well,
+    response_model=meter_schemas.Well,
     tags=["wells"],
 )
-async def add_well(obj: schemas.WellCreate, db: Session = Depends(get_db)):
+async def add_well(obj: meter_schemas.WellCreate, db: Session = Depends(get_db)):
     return _add(db, Well, obj)
 
 

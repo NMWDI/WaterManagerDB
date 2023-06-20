@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import TableView from "./tableView";
-
+import { Box } from "@mui/material";
 
 export default function PartsView(){
 
@@ -11,14 +11,14 @@ export default function PartsView(){
     }
 
     return (
-        <Box>
+        <Box sx={{ width: '100%' }}>
             <h1>Parts</h1>
             <div className='container'>
                 <input name="part_search" type="text"/>
                 <button>Search</button>
             </div>
             <TableView 
-                urltag={'/workers'}
+                urltag={''}
                 tag={'Worker'}
                 nrowstag={'/nworkers'}
                 rowGenerator={rowGenerator}

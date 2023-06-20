@@ -1,17 +1,5 @@
 # ===============================================================================
-# Copyright 2022 ross
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Models in database
 # ===============================================================================
 from typing import Any
 
@@ -36,6 +24,11 @@ from geoalchemy2.shape import to_shape
 
 @as_declarative()
 class Base:
+    """
+    Base class for all models
+    - Adds id column on all tables
+    """
+
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     __name__: str
 
@@ -45,14 +38,178 @@ class Base:
         return cls.__name__
 
 
+# ---------  Meter Related Tables ---------
+
+
+class Meters(Base):
+    """
+    Primary table for tracking meters
+    """
+
+    serial_number = Column(String, nullable=False)
+    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
+    organization_id = Column(Integer, ForeignKey("Organizations.id"))
+    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
+
+    # Contact information specific to particular meter
+    contact_name = Column(String)
+    contact_phone = Column(String)
+
+    # RA Number is an identifier of the well the meter is attached to
+    ra_number = Column(String)
+
+    latitude = Column(Float)
+    longitude = Column(Float)
+    trss = Column(String)  # Township, range, section
+    tag = Column(String)  # OSE tag
+    well_distance_ft = Column(Float)  # Distance of meter install from well
+    notes = Column(String)
+
+
+class MeterTypes(Base):
+    """
+    Details different meter types, but does not include parts
+    - See parts table for sub-components
+    """
+
+    brand = Column(String)
+    series = Column(String)
+    model_number = Column(String)
+    size = Column(Float)
+    description = Column(String)
+
+
+class MeterStatusLU(Base):
+    """
+    Establishes if a meter is installed, in inventory, retired, or other options as needed.
+    """
+
+    status_name = Column(String)
+    description = Column(String)
+
+
+class MeterActivities(Base):
+    """
+    Logs all meter activities
+    """
+
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    timestamp_start = Column(DateTime, nullable=False)
+    timestamp_end = Column(DateTime, nullable=False)
+    activity_id = Column(Integer, ForeignKey("Activities.id"), nullable=False)
+    notes = Column(String)
+    technician_id = Column(Integer, ForeignKey("Worker.id"))
+
+
+class Activities(Base):
+    """
+    Details the different types of activities PVACD implements
+    """
+
+    name = Column(String)
+    description = Column(String)
+
+
+class MeterObservations(Base):
+    """
+    Tracks all observations associated with a meter
+    """
+
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    value = Column(Float, nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedProperties.id"), nullable=False
+    )
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    notes = Column(String)
+    technician_id = Column(Integer, ForeignKey("Worker.id"))
+
+
+class ObservedProperties(Base):
+    """
+    Defines the types of observations made during meter maintenance
+    """
+
+    name = Column(String)
+    description = Column(String)
+
+
+class Units(Base):
+    """
+    Defines units used in observations
+    """
+
+    name = Column(String)
+    name_short = Column(String)
+    description = Column(String)
+
+
+class PropertyUnits(Base):
+    """
+    Table linking Observed Properties to Units
+    Describes which units are associated with which properties
+    """
+
+    property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+
+
+# ---------- Parts Inventory ------------
+
+
+class PartTypeLU(Base):
+    name = Column(String)
+    description = Column(String)
+
+
+class Part(Base):
+    part_number = Column(String, unique=True, nullable=False)
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+    description = Column(String)
+    vendor = Column(String)
+    count = Column(Integer, default=0)
+    note = Column(String)
+
+
+class PartAssociation(Base):
+    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
+    part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
+    commonly_used = Column(Boolean)
+
+
+class PartsUsed(Base):
+    meter_activity_id = Column(
+        Integer, ForeignKey("MeterActivities.id"), nullable=False
+    )
+    part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
+    count = Column(Integer, nullable=False)
+
+
+# ---------- Other Tables ---------------
+
+
+class Organizations(Base):
+    """
+    Organizations and people that have some relationship with a PVACD meter
+    - Typically irrigators?
+    """
+
+    contact_name = Column(String)
+    organization_name = Column(String)
+    phone = Column(String)
+    email = Column(String)
+    city = Column(String)
+
+
 class Alert(Base):
     # id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
+    meter_id = Column(Integer, ForeignKey("Meters.id"))
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
 
-    meter = relationship("Meter", uselist=False)
+    # meter = relationship("Meter", uselist=False)
 
     @property
     def meter_serial_number(self):
@@ -63,155 +220,9 @@ class Alert(Base):
         return not bool(self.closed_timestamp)
 
 
-# associate parts with a meter
-class MeterParts(Base):
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
-    part_id = Column(Integer, ForeignKey("Part.id"))
-
-
-class Meter(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    serial_year = Column(Integer)
-    serial_case_diameter = Column(Integer)
-    serial_id = Column(Integer)
-
-    part_id = Column(Integer, ForeignKey("Part.id"))
-
-    # well = relationship('Well', back_populates='meter')
-
-    @property
-    def serial_number(self):
-        return f"{self.serial_year}-{self.serial_case_diameter}-{self.serial_id}"
-
-
-class MeterHistory(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-
-    well_id = Column(Integer, ForeignKey("Well.id"))
-    meter_id = Column(Integer, ForeignKey("Meter.id"))
-    timestamp = Column(DateTime, default=func.now())
-    note = Column(LargeBinary)
-
-    meter = relationship("Meter", uselist=False)
-
-
-class Well(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-
-    township = Column(Integer)
-    range = Column(Integer)
-    section = Column(Integer)
-    quarter = Column(Integer)
-    half_quarter = Column(Integer)
-    quarter_quarter = Column(Integer)
-
-    # latitude = Column(Float)
-    # longitude = Column(Float)
-
-    geom = Column(Geometry("POINT"))
-
-    owner_id = Column(Integer, ForeignKey("Owner.id"))
-    osepod = Column(String)
-
-    # meter = relationship('Meter', uselist=False, back_populates='well')
-    owner = relationship("Owner", back_populates="wells")
-    waterlevels = relationship("WellMeasurement", back_populates="well")
-
-    meter_history = relationship("MeterHistory", uselist=False)
-    construction = relationship("WellConstruction", uselist=False)
-
-    @property
-    def latitude(self):
-        try:
-            return to_shape(self.geom).y
-        except BaseException:
-            return
-
-    @property
-    def longitude(self):
-        try:
-            return to_shape(self.geom).x
-        except BaseException:
-            return
-
-    @property
-    def location(self):
-        return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
-
-
-class WellConstruction(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    casing_diameter = Column(Float, default=0)
-    hole_depth = Column(Float, default=0)
-    well_depth = Column(Float, default=0)
-    well_id = Column(Integer, ForeignKey("Well.id"))
-
-    screens = relationship("ScreenInterval")
-
-
-class ScreenInterval(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    top = Column(Float)
-    bottom = Column(Float)
-    well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
-
-
-class ObservedProperty(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String)
-
-
-class WellMeasurement(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    value = Column(Float)
-    timestamp = Column(DateTime, default=func.now())
-    well_id = Column(Integer, ForeignKey("Well.id"))
-
-    well = relationship("Well", back_populates="waterlevels")
-    observed_property_id = Column(Integer, ForeignKey("ObservedProperty.id"))
-
-
-class Owner(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    phone = Column(String)
-    email = Column(String)
-
-    wells = relationship("Well", back_populates="owner")
-
-
 class Worker(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-
-
-class MeterStatusLU(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    description = Column(String)
-
-
-class PartTypeLU(Base):
-    name = Column(String)
-    description = Column(String)
-
-
-class Part(Base):
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"))
-
-    part_number = Column(String)
-    count = Column(Integer)
-    vendor = Column(String)
-    note = Column(String)
-    create_date = Column(DateTime, default=func.now())
-
-
-class QC(Base):
-    user_id = Column(Integer, ForeignKey("User.id"))
-    timestamp = Column(DateTime, default=func.now())
-    status = Column(Boolean)
 
 
 class RepairPartAssociation(Base):
@@ -266,4 +277,86 @@ class Repair(Base):
         self.repair_by.id
 
 
-# ============= EOF =============================================
+# ------------ Monitoring Wells --------------
+
+
+class Well(Base):
+    # id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+
+    township = Column(Integer)
+    range = Column(Integer)
+    section = Column(Integer)
+    quarter = Column(Integer)
+    half_quarter = Column(Integer)
+    quarter_quarter = Column(Integer)
+
+    # latitude = Column(Float)
+    # longitude = Column(Float)
+
+    geom = Column(Geometry("POINT"))
+
+    # owner_id = Column(Integer, ForeignKey("Owner.id"))
+    osepod = Column(String)
+
+    # meter = relationship('Meter', uselist=False, back_populates='well')
+    # owner = relationship("Owner", back_populates="wells")
+    waterlevels = relationship("WellMeasurement", back_populates="well")
+
+    # meter_history = relationship("MeterHistory", uselist=False)
+    construction = relationship("WellConstruction", uselist=False)
+
+    @property
+    def latitude(self):
+        try:
+            return to_shape(self.geom).y
+        except BaseException:
+            return
+
+    @property
+    def longitude(self):
+        try:
+            return to_shape(self.geom).x
+        except BaseException:
+            return
+
+    @property
+    def location(self):
+        return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
+
+
+class WellConstruction(Base):
+    # id = Column(Integer, primary_key=True, index=True)
+    casing_diameter = Column(Float, default=0)
+    hole_depth = Column(Float, default=0)
+    well_depth = Column(Float, default=0)
+    well_id = Column(Integer, ForeignKey("Well.id"))
+
+    screens = relationship("ScreenInterval")
+
+
+class ScreenInterval(Base):
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    top = Column(Float)
+    bottom = Column(Float)
+    well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
+
+
+class WellMeasurement(Base):
+    well_id = Column(Integer, ForeignKey("Well.id"), nullable=False)
+    timestamp = Column(DateTime, default=func.now(), nullable=False)
+    value = Column(Float, nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedProperties.id"), nullable=False
+    )
+    worker_id = Column(Integer, ForeignKey("Worker.id"))
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+
+    # Relationships
+    well = relationship("Well", back_populates="waterlevels")
+
+
+class QC(Base):
+    # user_id = Column(Integer, ForeignKey("User.id"))
+    timestamp = Column(DateTime, default=func.now())
+    status = Column(Boolean)

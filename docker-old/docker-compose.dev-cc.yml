@@ -1,0 +1,63 @@
+# CC Dev - Loads all services for local development, Traefic not included
+# Auto database loading included
+# Auto updating when editing react code not working...
+
+version: "3.9"
+services:
+
+  db:
+    env_file:
+      - ./api/.env
+    image: postgis/postgis
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    environment:
+      # If you need to create multiple database you can add coma separated databases eg gis,data
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+      - TZ=America/Denver
+      - PGTZ=America/Denver
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
+
+  api:
+    build:
+      context: ./api/
+      dockerfile: ./Dockerfile
+    command: bash -c "
+      while !</dev/tcp/db/5432; do sleep 1; done; 
+      python -m api.dbsetup;
+      uvicorn api.main:app --host 0.0.0.0 --reload
+      "
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/api
+    depends_on:
+      - db
+    env_file:
+      - ./api/.env
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - db
+      - api
+    environment:
+      - WATCHPACK_POLLING=true   #https://stackoverflow.com/questions/70488471/docker-with-create-react-app-is-not-updating-changes
+      - REACT_APP_API_URL=http://localhost:8000
+    command: npm start
+
+volumes:
+  postgis-data:

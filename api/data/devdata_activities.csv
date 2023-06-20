@@ -1,0 +1,5 @@
+name,description
+Install,Install meter at a location
+Uninstall,Remove meter from a location
+Maintenance,Perform maintenance on meter
+Repair,Repair meter

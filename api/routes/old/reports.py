@@ -20,8 +20,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
-from api import schemas
-from api.models import Repair, Meter, Well, MeterHistory, Owner, MeterStatusLU
+from api.schemas import meter_schemas
+from api.models import Repair, Meters, Well, MeterHistory, Organizations, MeterStatusLU
 from api.security import scoped_user
 from api.session import get_db
 from api.xls_persistence import make_xls_backup
@@ -31,7 +31,7 @@ report_router = APIRouter(dependencies=[Depends(report_user)])
 
 
 @report_router.get(
-    "/repair_report", response_model=List[schemas.RepairReport], tags=["reports"]
+    "/repair_report", response_model=List[meter_schemas.RepairReport], tags=["reports"]
 )
 def read_repair_report(
     after_date: date = None,
@@ -52,9 +52,9 @@ async def get_xls_backup(db: Session = Depends(get_db)):
     path = make_xls_backup(
         db,
         (
-            Meter,
+            Meters,
             Well,
-            Owner,
+            Organizations,
             MeterHistory,
             MeterStatusLU,
         ),

@@ -1,0 +1,6 @@
+id,status_name,description
+1,Active,Meter is deployed and is active
+2,Stored,Meter is in storage
+3,Scrapped,Meter has been dismantled
+4,Returned,Meter returned to manufacturer
+5,Unknown,Status unknown

@@ -182,6 +182,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env310
 .local
 .venv
 env/
@@ -189,6 +190,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.local
+.vscode
 
 # Spyder project settings
 .spyderproject
@@ -214,5 +217,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-!/api/.env.production
+*.env.production
 /db/.env.production
