@@ -18,7 +18,6 @@ from geoalchemy2.elements import WKBElement
 
 
 def populate_sheet(sh, records, columns):
-
     for col, attr in enumerate(columns):
         sh.write(0, col, attr.name)
     #

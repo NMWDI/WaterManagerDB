@@ -10,86 +10,85 @@ from sqlalchemy import create_engine
 from api.session import SessionLocal
 from .config import settings
 
-#Set up a connection
+# Set up a connection
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-#Create all models if environmental var set
+# Create all models if environmental var set
 # Note: create_all checks for existance of the table first. So it will only add a table if it doesn't exist.
 #       if the table is changed the database will need to be created new.
 if os.environ.get("SETUP_DB"):
-    print('Setting up the database')
+    print("Setting up the database")
     api.models.Base.metadata.create_all(engine)
 
-#Load development data from CSV
+# Load development data from CSV
 # Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
 if os.environ.get("POPULATE_DB"):
-    
-    #Get the psycopg2 connector - enables running of lower level functions
+    # Get the psycopg2 connector - enables running of lower level functions
     conn = engine.raw_connection()
     cursor = conn.cursor()
 
-    #Load meter types CSV
-    with open('api/data/devdata_metertypes.csv','r') as f:
+    # Load meter types CSV
+    with open("api/data/devdata_metertypes.csv", "r") as f:
         qry = 'COPY "MeterTypes"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_contacts.csv','r') as f:
+    with open("api/data/devdata_contacts.csv", "r") as f:
         qry = 'COPY "Organizations"(id,organization_name,phone,city) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_meterstatus.csv','r') as f:
+    with open("api/data/devdata_meterstatus.csv", "r") as f:
         qry = 'COPY "MeterStatusLU"(id,status_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_observedproperties.csv','r') as f:
+    with open("api/data/devdata_observedproperties.csv", "r") as f:
         qry = 'COPY "ObservedProperties"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_units.csv','r') as f:
+    with open("api/data/devdata_units.csv", "r") as f:
         qry = 'COPY "Units"(id,name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_propertyunits.csv','r') as f:
+    with open("api/data/devdata_propertyunits.csv", "r") as f:
         qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_meters.csv','r') as f:
+    with open("api/data/devdata_meters.csv", "r") as f:
         qry = 'COPY "Meters"(serial_number,tag,meter_type_id,organization_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_activities.csv','r') as f:
+    with open("api/data/devdata_activities.csv", "r") as f:
         qry = 'COPY "Activities"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_workers.csv','r') as f:
+    with open("api/data/devdata_workers.csv", "r") as f:
         qry = 'COPY "Worker"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_well.csv','r') as f:
+    with open("api/data/devdata_well.csv", "r") as f:
         qry = 'COPY "Well"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_wellMeasurement.csv','r') as f:
+    with open("api/data/devdata_wellMeasurement.csv", "r") as f:
         qry = 'COPY "WellMeasurement"(timestamp,value,well_id,observed_property_id,worker_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_parttypeLU.csv','r') as f:
+    with open("api/data/devdata_parttypeLU.csv", "r") as f:
         qry = 'COPY "PartTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_parts.csv','r') as f:
+    with open("api/data/devdata_parts.csv", "r") as f:
         qry = 'COPY "Part"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
-    with open('api/data/devdata_partsassociated.csv','r') as f:
+    with open("api/data/devdata_partsassociated.csv", "r") as f:
         qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry,f)
+        cursor.copy_expert(qry, f)
 
     conn.commit()
     conn.close()
-    
-    #Add a user for testing
+
+    # Add a user for testing
     db = SessionLocal()
     db.add(
         api.security_models.User(
@@ -102,6 +101,3 @@ if os.environ.get("POPULATE_DB"):
 
     db.commit()
     db.close()
-
-
-

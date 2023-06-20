@@ -30,7 +30,9 @@ contacts_router = APIRouter()
 write_user = scoped_user(["read", "wells:write"])
 
 
-@contacts_router.get("/contacts", response_model=List[meter_schemas.Owner], tags=["contacts"])
+@contacts_router.get(
+    "/contacts", response_model=List[meter_schemas.Owner], tags=["contacts"]
+)
 def read_contacts(db: Session = Depends(get_db)):
     return db.query(Contacts).all()
 

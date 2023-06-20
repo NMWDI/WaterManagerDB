@@ -1,7 +1,7 @@
-'''
+"""
 FastAPI input and response schemas
 Well related
-'''
+"""
 
 from datetime import datetime
 from typing import List, Optional
@@ -15,6 +15,7 @@ class ORMBase(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Well(ORMBase):
     name: Optional[str] = None
     location: Optional[str] = None
@@ -25,14 +26,17 @@ class Well(ORMBase):
     # owner: Optional[Owner] = None
     # meter: Optional[Meter] = None
 
+
 class WellCreate(ORMBase):
     owner_id: int
     # location: str
     # osepod: Optional[str] = None
 
+
 class ScreenInterval(ORMBase):
     top: float
     bottom: float
+
 
 class WellConstruction(ORMBase):
     casing_diameter: float
@@ -40,12 +44,14 @@ class WellConstruction(ORMBase):
     well_depth: float
     screens: Optional[List[ScreenInterval]]
 
+
 class WaterLevel(ORMBase):
     id: int
     timestamp: datetime
     value: float
     well_id: int
     technician: str
+
 
 class WaterLevelCreate(ORMBase):
     well_id: int
@@ -55,18 +61,8 @@ class WaterLevelCreate(ORMBase):
     worker_id: int
     unit_id: int
 
+
 class WaterLevelPatch(ORMBase):
     timestamp: Optional[datetime] = None
     value: Optional[float]
     well_id: Optional[int]
-
-
-
-
-
-
-
-
-
-
-

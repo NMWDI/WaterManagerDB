@@ -41,15 +41,18 @@ from api.models import (
     PartTypeLU,
 )
 from api.route_util import _patch, _add, _delete
-#from api.routes.alerts import alert_router
+
+# from api.routes.alerts import alert_router
 from api.routes.meters import meter_router
-#from api.routes.contacts import contacts_router
-#from api.routes.parts import part_router
-#from api.routes.repairs import repair_query, repair_router
-#from api.routes.reports import report_router
+
+# from api.routes.contacts import contacts_router
+# from api.routes.parts import part_router
+# from api.routes.repairs import repair_query, repair_router
+# from api.routes.reports import report_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.wells import well_router
-#from api.routes.workers import worker_router
+
+# from api.routes.workers import worker_router
 from api.security import (
     get_password_hash,
     authenticate_user,
@@ -219,17 +222,24 @@ app.include_router(authenticated_router)
 
 # ============= Test Routes =============
 
-#Various routes for testing out functionality
+
+# Various routes for testing out functionality
 @app.get("/testwater")
 def testwater(well_id: int = None, db: Session = Depends(get_db)):
-    stmt = select(
-        WellMeasurement.well_id,
-        WellMeasurement.timestamp,
-        WellMeasurement.value,
-        Worker.name
-        ).join(Worker).join(ObservedProperty).where(ObservedProperty.name == 'depthtowater')
+    stmt = (
+        select(
+            WellMeasurement.well_id,
+            WellMeasurement.timestamp,
+            WellMeasurement.value,
+            Worker.name,
+        )
+        .join(Worker)
+        .join(ObservedProperty)
+        .where(ObservedProperty.name == "depthtowater")
+    )
     print(stmt)
     results = db.execute(stmt)
     return results.all()
+
 
 # ============= EOF =============================================

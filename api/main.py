@@ -82,6 +82,7 @@ app.add_middleware(
 
 # ============== Security ==============
 
+
 @app.post("/token", response_model=security_schemas.Token, tags=["login"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
@@ -98,8 +99,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# =======================================
 
+# =======================================
 
 
 # ======  Meters
@@ -117,5 +118,3 @@ authenticated_router.include_router(well_measurement_router)
 
 
 app.include_router(authenticated_router)
-
-
