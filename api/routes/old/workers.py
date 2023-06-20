@@ -29,7 +29,9 @@ worker_router = APIRouter()
 write_user = scoped_user(["read", "workers:write"])
 
 
-@worker_router.get("/workers", response_model=List[meter_schemas.Worker], tags=["workers"])
+@worker_router.get(
+    "/workers", response_model=List[meter_schemas.Worker], tags=["workers"]
+)
 def read_workers(db: Session = Depends(get_db)):
     return db.query(Worker).all()
 

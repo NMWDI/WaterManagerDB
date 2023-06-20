@@ -68,7 +68,9 @@ async def patch_repairs(
     return _patch(db, Repair, repair_id, obj)
 
 
-@repair_router.get("/repairs", response_model=List[meter_schemas.Repair], tags=["repairs"])
+@repair_router.get(
+    "/repairs", response_model=List[meter_schemas.Repair], tags=["repairs"]
+)
 async def read_repairs(
     location: str = None,
     well_id: int = None,

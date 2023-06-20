@@ -29,7 +29,7 @@ export default function Login() {
         const formData_vals = new FormData()
         formData_vals.append("username",userval)
         formData_vals.append("password",passval)
-        formData_vals.append("scope",'read activities:write') //Temporary to make work with scopes
+        formData_vals.append("scope",'read activities:write well_measurement:write ') //Temporary to make work with scopes
         fetch(API_URL+'/token', {method: "POST", body: formData_vals}).then(handleLogin)
     }
 
