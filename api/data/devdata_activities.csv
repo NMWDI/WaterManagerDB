@@ -1,5 +1,6 @@
 name,description
 Install,Install meter at a location
 Uninstall,Remove meter from a location
-Maintenance,Perform maintenance on meter
+Maintenance,Perform general maintenance
+Annual Maintenance,Annual preventative maintenance
 Repair,Repair meter
