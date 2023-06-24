@@ -1,13 +1,34 @@
 id,brand,series,model_number,size,description
-1,McCrometer,,M0304,4,
-2,McCrometer,,M0306,6,
-3,McCrometer,,M0308,8,
-4,McCrometer,,M0310,10,
-5,McCrometer,,M0312,12,
-6,McCrometer,,M0314,14,
-7,McCrometer,,M0316,16,
-8,McCrometer,,MW503,3,Flanged tube top plate
-9,ROCKWELL,,1.5,1.5,
-10,ROCKWELL,,2,2,
-11,ROCKWELL,,3,3,
-12,SPARLIN,,6,6,
+1,MCCROMETER,,MO304,4,"4"" SADDLE METER"
+2,MCCROMETER,,MO306,6,"6"" SADDLE METER"
+3,MCCROMETER,,MO308,8,"8"" SADDLE METER"
+4,MCCROMETER,,MO310,10,"10"" SADDLE METER"
+5,MCCROMETER,,MO312,12,"12"" SADDLE METER"
+6,MCCROMETER,,MO314,14,"14"" SADDLE METER"
+7,MCCROMETER,,MO316,16,"16"" SADDLE METER"
+8,MCCROMETER,,MW503,3,"3"" FLANGED TUBE"
+9,MCCROMETER,,MW504,4,"4"" FLANGED TUBE"
+10,MCCROMETER,,MW506,6,"6"" FLANGED TUBE"
+11,MCCROMETER,,MW508,8,8'' FLANGED TUBE
+12,MCCROMETER,,MW510,10,10'' FLANGED TUBE
+13,MCCROMETER,,MW512,12,12'' FLANGED TUBE
+14,MCCROMETER,,Unknown,,Unknown model number
+15,MCCROMETER,,MW502,2,"2"" FLANGED TUBE "
+16,BADGER,,"1""",1,BADGER W / CLPGS
+17,BADGER,,"2""",2,"2"" CHAMBER"
+18,BADGER,,"3""",3,"3"" CHAMBER"
+19,BADGER,,"3/4""",0.75,BADGER W / CLPGS
+20,BADGER,,"5/8""",0.625,BADGER W / CLPGS
+21,BADGER,,T-0160,1.5,1.5 TURBO W/BOLT KITS & FLGS
+22,BADGER,,T-0450,3,"3"" TURBO W/BOLT KITS & FLGS"
+23,BADGER,,T-200,2,2” Turbo W/BOLT KITS & FLGS
+24,BADGER,,Unknown,,Unknown model number
+25,Cognitis Fluid Data,,CF31-150BI-NL,1.5,1.5'' FLGS & BOLT KITS (2/set)
+26,Cognitis Fluid Data,,CF31-200BI-NL,2, 2'' FLGS & BOLT KITS (2/set)
+27,Flow Control,,FFCF-0303D,3,"3""FLANGES"
+28,ROCKWELL,,Unknown,,Unknown model number
+29,SENSUS,,Unknown,,Unknown model number
+30,SPARLIN,,Unknown,,Unknown model number
+31,METER MASTER,,Unknown,,Unknown model number
+32,Cognitis Fluid Data,,Unknown,,Unknown model number
+33,Flow Control,,Unknown,,Unknown model number

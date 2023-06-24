@@ -87,7 +87,9 @@ def read_wells(
     response_model=meter_schemas.Well,
     tags=["wells"],
 )
-async def patch_wells(well_id: int, obj: meter_schemas.Well, db: Session = Depends(get_db)):
+async def patch_wells(
+    well_id: int, obj: meter_schemas.Well, db: Session = Depends(get_db)
+):
     return _patch(db, Well, well_id, obj)
 
 

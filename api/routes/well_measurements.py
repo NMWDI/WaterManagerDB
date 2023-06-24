@@ -44,7 +44,7 @@ async def patch_waterlevel(
 @well_measurement_router.post(
     "/waterlevel",
     dependencies=[Depends(write_user)],
-    response_model=well_schemas.WaterLevel,
+    response_model=well_schemas.WaterLevelCreate,
     tags=["waterlevels"],
 )
 async def add_waterlevel(
@@ -54,8 +54,9 @@ async def add_waterlevel(
 
 
 @well_measurement_router.get(
-    #"/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
-    "/waterlevels", tags=["waterlevels"]
+    # "/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
+    "/waterlevels",
+    tags=["waterlevels"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return _read_well_measurement(db, "DTW BGS", well_id)
@@ -75,14 +76,14 @@ def _read_well_measurement(db, obsprop, well_id):
             WellMeasurement.well_id,
             WellMeasurement.timestamp,
             WellMeasurement.value,
-            Worker.name.label('technician')
+            Worker.name.label("technician"),
         )
         .join(Worker)
         .join(ObservedProperties)
         .where(ObservedProperties.name == obsprop)
         .where(WellMeasurement.well_id == well_id)
     )
-    #print(stmt)
+    # print(stmt)
     results = db.execute(stmt)
     return results.all()
 

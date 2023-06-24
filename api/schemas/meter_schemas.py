@@ -9,6 +9,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from api.schemas.part_schemas import Part
 
+
 class Meter(BaseModel):
     meter_id: int
     serial_number: str
@@ -26,4 +27,3 @@ class Meter(BaseModel):
     well_distance_ft: float = None
     notes: str = None
     parts_associated: List[Part] = None
-

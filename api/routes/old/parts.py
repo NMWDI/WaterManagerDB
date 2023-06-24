@@ -56,7 +56,9 @@ async def delete_part(part_id: int, db: Session = Depends(get_db)):
     response_model=meter_schemas.Part,
     tags=["parts"],
 )
-async def patch_parts(part_id: int, obj: meter_schemas.Part, db: Session = Depends(get_db)):
+async def patch_parts(
+    part_id: int, obj: meter_schemas.Part, db: Session = Depends(get_db)
+):
     return _patch(db, Part, part_id, obj)
 
 

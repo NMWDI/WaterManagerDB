@@ -34,7 +34,9 @@ async def read_alerts(db: Session = Depends(get_db)):
     return db.query(Alert).all()
 
 
-@alert_router.get("/alerts/{alert_id}", response_model=meter_schemas.Alert, tags=["alerts"])
+@alert_router.get(
+    "/alerts/{alert_id}", response_model=meter_schemas.Alert, tags=["alerts"]
+)
 async def read_alerts(alert_id: int, db: Session = Depends(get_db)):
     return db.query(Alert).filter(Alert.id == alert_id).first()
 
