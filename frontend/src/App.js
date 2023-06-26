@@ -7,8 +7,9 @@ import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import MetersView from "./MetersView";
+import InsufficientPermView from "./views/InsufficientPermView";
 import Home from "./Home";
-import Topbar from "./Topbar";
+import Topbar from "./components/Topbar";
 import ChloridesView from "./ChloridesView";
 import PartsView from "./PartsView";
 import AlertsView from "./AlertsView";
@@ -32,6 +33,15 @@ function App() {
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><Login />
+                                </div>
+                            </div>
+                        }
+                    />
+                    <Route path="/insufficient-permissions" element={
+                            <div>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><InsufficientPermView />
                                 </div>
                             </div>
                         }

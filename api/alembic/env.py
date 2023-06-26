@@ -40,7 +40,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from api.security_models import Base
+from api.models.security_models import Base
 
 target_metadata = Base.metadata
 
