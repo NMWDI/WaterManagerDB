@@ -66,6 +66,12 @@ function Sidebar() {
                         Alerts
                         </li>
                     </Link>
+                    <Link to="/admin" className="link">
+                        <li className={ location.pathname == '/admin' ? "sidebarListItem active" : "sidebarListItem"}>
+                        <TableViewIcon className="sidebarIcon" />
+                        Admin
+                        </li>
+                    </Link>
                     </ul>
                 </div>
         

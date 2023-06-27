@@ -7,14 +7,15 @@ import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import MetersView from "./MetersView";
+import InsufficientPermView from "./views/InsufficientPermView";
 import Home from "./Home";
-import Topbar from "./Topbar";
+import Topbar from "./components/Topbar";
 import ChloridesView from "./ChloridesView";
 import PartsView from "./PartsView";
 import AlertsView from "./AlertsView";
 import Login from './login';
 import ActivityView from './views/Activities';
-
+import RequireScopes from './components/RequireScopes'
 
 function App() {
 
@@ -37,66 +38,75 @@ function App() {
                         }
                     />
                     <Route path="/home" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={[]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><Home />
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/meters" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={["meter:write"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><MetersView/>
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/activities" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={["activities:write"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><ActivityView />
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/wells" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={["well_measurement:write"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><MonitoringWellsView/>
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/chlorides" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={[]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><ChloridesView/>
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/parts" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={[]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><PartsView/>
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
                         }
                     />
                     <Route path="/alerts" element={
-                            <RequireAuth loginPath={'/'}>
+                            <RequireScopes requiredScopes={[]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><AlertsView/>
                                 </div>
-                            </RequireAuth>
+                            </RequireScopes>
+                        }
+                    />
+                    <Route path="/admin" element={
+                            <RequireScopes requiredScopes={["admin"]}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><div>Admin Page</div>
+                                </div>
+                            </RequireScopes>
                         }
                     />
                 </Routes>

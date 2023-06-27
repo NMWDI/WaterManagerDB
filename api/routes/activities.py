@@ -11,7 +11,7 @@ from api.schemas.activity_schemas import (
     ActivitiesFormOptions,
     ObservationType,
 )
-from api.models import *
+from api.models.main_models import *
 from api.security import scoped_user
 from api.session import get_db
 

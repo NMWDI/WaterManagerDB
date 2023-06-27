@@ -22,9 +22,10 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import ValidationError
 from starlette import status
+from sqlalchemy.orm import joinedload
 
-from api import security_schemas
-from api.security_models import User
+from api.models import security_models
+from api.schemas import security_schemas
 from api.session import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -32,10 +33,10 @@ oauth2_scheme = OAuth2PasswordBearer(
     scopes={
         "read": "Read all data",
         "meters:write": "Write meters",
-        "activities:write": "Write activities",
-        "well_measurement:write": "Write well measurements, i.e. Water Levels "
-        "and Chlorides",
+        "activities:write":"Write activities",
+        "well_measurement:write": "Write well measurements, i.e. Water Levels and Chlorides",
         "reports:run": "Run reports",
+        "admin": "Admin specific scope"
     },
 )
 
@@ -75,26 +76,25 @@ def get_password_hash(password):
 
 def get_user(username: str):
     db = next(get_db())
-    dbuser = db.query(User).filter(User.username == username).first()
+
+    # Eager load roles and scopes
+    dbuser = (db.query(security_models.User)
+                .filter(security_models.User.username == username)
+                .options(
+                        joinedload(security_models.User.user_role)
+                            .joinedload(security_models.UserRoles.security_scopes)
+                ).first())
+
     if dbuser:
         return security_schemas.UserInDB(**dbuser.__dict__)
 
 
-# def fake_decode_token(token):
-#     # This doesn't provide any security at all
-#     # Check the next version
-#     user = get_user(token)
-#     return user
-
-
-async def get_current_user(
-    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
-):
+async def get_current_user(security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
         authenticate_value = f"Bearer"
-    credentials_exception = HTTPException(
+        credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": authenticate_value},
@@ -106,7 +106,7 @@ async def get_current_user(
         if username is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
-        token_data = security_schemas.TokenData(scopes=token_scopes, username=username)
+        token_data = security_schemas.TokenData(security_scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
     user = get_user(username=token_data.username)
@@ -114,7 +114,7 @@ async def get_current_user(
         raise credentials_exception
 
     for scope in security_scopes.scopes:
-        if scope not in token_data.scopes:
+        if scope not in token_data.security_scopes:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not enough permissions",
@@ -123,24 +123,8 @@ async def get_current_user(
     return user
 
 
-# async def get_current_active_user(
-#         current_user: User = Security(get_current_user, scopes=["me"])
-# ):
-#     if current_user.disabled:
-#         raise HTTPException(status_code=400, detail="Inactive user")
-#     return current_user
-
-
-# async def get_current_read_user(
-#         current_user: User = Security(get_current_user, scopes=["read"])
-# ):
-#     if current_user.disabled:
-#         raise HTTPException(status_code=400, detail="Inactive user")
-#     return current_user
-
-
 def scoped_user(scopes):
-    async def get_user(current_user: User = Security(get_current_user, scopes=scopes)):
+    async def get_user(current_user: security_models.User = Security(get_current_user, scopes=scopes)):
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user
