@@ -25,11 +25,11 @@ from sqlite3 import OperationalError
 
 from api.dbsetup import setup_db
 from api.main import app, get_db
-from api.models import Base
+from api.mdels.main_models import Base
 from api.routes.alerts import write_user
 from api.routes.reports import report_user
 from api.security import get_current_user
-from api.security_models import User
+from api.models.security_models import User
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 

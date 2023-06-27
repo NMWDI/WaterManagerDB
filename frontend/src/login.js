@@ -29,7 +29,6 @@ export default function Login() {
         const formData_vals = new FormData()
         formData_vals.append("username",userval)
         formData_vals.append("password",passval)
-        formData_vals.append("scope",'read activities:write well_measurement:write ') //Temporary to make work with scopes
         fetch(API_URL+'/token', {method: "POST", body: formData_vals}).then(handleLogin)
     }
 
@@ -39,7 +38,13 @@ export default function Login() {
             //Successful authorization
             r.json().then(
                 data => {
-                    if(signIn({token: data.access_token, expiresIn: 30, tokenType:'bearer'})){
+                    if(signIn({
+                      token: data.access_token,
+                      expiresIn: 30,
+                      tokenType:'bearer',
+                      authState: data.user
+                    })){
+                        localStorage.setItem("_auth", data.access_token)
                         console.log('Sign-in successful')
                         navigate('/home')
                     }else{

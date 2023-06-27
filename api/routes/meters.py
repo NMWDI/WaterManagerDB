@@ -8,17 +8,10 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from api.schemas import meter_schemas
-from api.models import (
-    Meters,
-    MeterTypes,
-    Part,
-    PartAssociation,
-    PartTypeLU,
-    Organizations,
-)
+from api.models.main_models import Meters, MeterTypes, Part, PartAssociation, PartTypeLU, Organizations
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
-from api.security_models import User
+from api.models.security_models import User
 from api.session import get_db
 
 meter_router = APIRouter()
