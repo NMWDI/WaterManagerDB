@@ -19,7 +19,7 @@ meter_router = APIRouter()
 write_user = scoped_user(["read", "meters:write"])
 
 
-@meter_router.get("/meters", response_model=List[meter_schemas.Meter], tags=["meters"])
+@meter_router.get("/meters", response_model=List[meter_schemas.MeterListDTO], tags=["meters"])
 async def read_meters(
     meter_sn: str = None,
     fuzzy_search: str = None,
@@ -30,9 +30,8 @@ async def read_meters(
             Meters.id,
             Meters.serial_number,
             MeterTypes.brand,
-            MeterTypes.model,
             MeterTypes.size,
-            MeterStatusLU.status_name.label("status"),
+            # MeterStatusLU.status_name.label("status"),
             Meters.contact_name,
             Meters.contact_phone,
             Organizations.organization_name,
@@ -45,7 +44,7 @@ async def read_meters(
             Meters.notes,
         )
         .join(MeterTypes)
-        .join(MeterStatusLU)
+        # .join(MeterStatusLU)
         .join(Organizations)
     )
 
@@ -66,6 +65,21 @@ async def read_meters(
 
     return results.all()
 
+@meter_router.get("/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"])
+async def read_meters_locations(
+    db: Session = Depends(get_db),
+):
+    stmt = (
+        select(
+            Meters.id,
+            Meters.latitude,
+            Meters.longitude,
+        )
+    )
+
+    results = db.execute(stmt)
+
+    return results.all()
 
 @meter_router.get("/meter", response_model=meter_schemas.Meter, tags=["meters"])
 async def get_meter(
