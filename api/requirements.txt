@@ -11,6 +11,7 @@ python-jose[cryptography]
 passlib[bcrypt]
 xlsxwriter
 alembic
+fastapi-pagination
 
 
 # dev

@@ -3,8 +3,22 @@ import { useAuthHeader } from 'react-auth-kit'
 
 import { API_URL } from '../API_config.js'
 
-export const useApiGET = (route: string, initialValue: any) => {
-    const [response, setResponse] = useState(initialValue)
+// Return a query param string with empty fields removed
+function formattedQueryParams(queryParams: any) {
+    let queryParamString = '?';
+    let params = {...queryParams}
+
+    for (let param in params) {
+        if (params[param] === '' || params[param] == null) {
+            delete params[param]
+        }
+    }
+    queryParamString += new URLSearchParams(params)
+    return queryParamString
+}
+
+export function useApiGET<T>(route: string, initialValue: any, queryParams: any = null) {
+    const [response, setResponse] = useState<T>(initialValue)
 
     const authHeader = useAuthHeader()
     const auth_headers = new Headers()
@@ -12,11 +26,12 @@ export const useApiGET = (route: string, initialValue: any) => {
         "Authorization", authHeader()
     )
 
+    // Re-fetch on updates to query params or route
     useEffect(() => {
-        fetch(API_URL + route, { headers: auth_headers })
+        fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
             .then(r => r.json())
             .then(data => setResponse(data))
-    }, [route])
+    }, [route, queryParams])
 
     return response
 }

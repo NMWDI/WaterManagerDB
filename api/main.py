@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, date
 
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi_pagination import add_pagination
 from typing import List, Union
 
 from sqlalchemy.orm import Session
@@ -116,6 +117,6 @@ async def read_nmeters(
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
-
+add_pagination(app)
 
 app.include_router(authenticated_router)

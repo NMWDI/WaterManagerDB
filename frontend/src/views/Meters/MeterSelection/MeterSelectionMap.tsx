@@ -2,6 +2,7 @@ import React from 'react'
 
 import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet';
 import { useApiGET } from '../../../service/ApiService';
+import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -18,7 +19,7 @@ interface MeterSelectionMapProps {
 export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
 
     {/* Probably better to call this meters, or meters with locations or something, meterlocation.id below is confusing */}
-    const meterLocations = useApiGET('/meters_locations', [])
+    const meterLocations: MeterMapDTO[] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
 
     const mapStyle = {
         height: '100%',

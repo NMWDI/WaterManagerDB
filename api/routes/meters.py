@@ -4,8 +4,10 @@
 from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Security
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, desc, and_
 from sqlalchemy.orm import Session
+from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import meter_schemas
 from api.models.main_models import Meters, MeterTypes, Part, PartAssociation, PartTypeLU, Organizations
@@ -14,57 +16,80 @@ from api.security import get_current_user, scoped_user
 from api.models.security_models import User
 from api.session import get_db
 
-meter_router = APIRouter()
+from enum import Enum
 
+# Find better location for these
+class MeterSortByField(Enum):
+    SerialNumber = 'serial_number'
+    RANumber = 'ra_number'
+    OrganizationName = 'organization_name'
+    TRSS = 'trss'
+
+class SortDirection(Enum):
+    Ascending = 'asc'
+    Descending = 'desc'
+
+meter_router = APIRouter()
 write_user = scoped_user(["read", "meters:write"])
 
-
-@meter_router.get("/meters", response_model=List[meter_schemas.MeterListDTO], tags=["meters"])
+# What scope is req.??
+# Get paginated, sorted list of meters, filtered by a search string if applicable
+@meter_router.get("/meters", response_model=LimitOffsetPage[meter_schemas.MeterListDTO], tags=["meters"])
 async def read_meters(
-    meter_sn: str = None,
-    fuzzy_search: str = None,
+    # offset: int, limit: int - From fastapi_pagination
+    search_string: str = None,
+    sort_by: MeterSortByField = MeterSortByField.SerialNumber,
+    sort_direction: SortDirection = SortDirection.Ascending,
     db: Session = Depends(get_db),
 ):
-    stmt = (
+    def sort_by_field_to_schema_field(name: MeterSortByField):
+        match name:
+            case MeterSortByField.SerialNumber:
+                return Meters.serial_number
+
+            case MeterSortByField.RANumber:
+                return Meters.ra_number
+
+            case MeterSortByField.OrganizationName:
+                return Organizations.organization_name
+
+            case MeterSortByField.TRSS:
+                return Meters.trss
+
+    # Build the query statement based on query params
+    query_statement = (
         select(
             Meters.id,
             Meters.serial_number,
-            MeterTypes.brand,
-            MeterTypes.size,
-            # MeterStatusLU.status_name.label("status"),
-            Meters.contact_name,
-            Meters.contact_phone,
             Organizations.organization_name,
             Meters.ra_number,
-            Meters.tag,
-            Meters.latitude,
-            Meters.longitude,
             Meters.trss,
-            Meters.well_distance_ft,
-            Meters.notes,
         )
-        .join(MeterTypes)
-        # .join(MeterStatusLU)
         .join(Organizations)
     )
 
-    if meter_sn:
-        stmt = stmt.where(Meters.serial_number == meter_sn)
-
-    elif fuzzy_search:
-        stmt = stmt.where(
+    if search_string:
+        query_statement = query_statement.where(
             or_(
-                Meters.serial_number.like(f"%{fuzzy_search}%"),
-                Meters.ra_number.like(f"%{fuzzy_search}%"),
-                MeterTypes.brand.like(f"%{fuzzy_search}%"),
-                Organizations.organization_name.like(f"%{fuzzy_search}%"),
+                Meters.serial_number.ilike(f"%{search_string}%"),
+                Meters.ra_number.ilike(f"%{search_string}%"),
+                Meters.trss.ilike(f"%{search_string}%"),
+                Organizations.organization_name.ilike(f"%{search_string}%"),
             )
         )
-    print(stmt)
-    results = db.execute(stmt)
 
-    return results.all()
+    if sort_by:
+        schema_field_name = sort_by_field_to_schema_field(sort_by)
 
+        if sort_direction != SortDirection.Ascending:
+            query_statement = query_statement.order_by(desc(schema_field_name))
+        else:
+            query_statement = query_statement.order_by(schema_field_name) # SQLAlchemy orders ascending by default
+
+
+    return paginate(db, query_statement)
+
+# Get list of all meters and their coordinates (if they have them)
 @meter_router.get("/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"])
 async def read_meters_locations(
     db: Session = Depends(get_db),
@@ -75,12 +100,17 @@ async def read_meters_locations(
             Meters.latitude,
             Meters.longitude,
         )
+        .where(
+            and_(
+                Meters.latitude.is_not(None),
+                Meters.longitude.is_not(None)
+                )
+            )
     )
 
-    results = db.execute(stmt)
+    return db.execute(stmt).all()
 
-    return results.all()
-
+# Get single, fully qualified meter
 @meter_router.get("/meter", response_model=meter_schemas.Meter, tags=["meters"])
 async def get_meter(
     meter_sn: str,
