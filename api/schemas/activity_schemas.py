@@ -37,6 +37,13 @@ class Unit(BaseModel):
     unit_id: int
     unit_name: str
 
+class ActivityType(BaseModel):
+    """
+    Details the type of activity
+    """
+
+    activity_id: int
+    activity_name: str
 
 class Activity(BaseModel):
     """
@@ -48,16 +55,7 @@ class Activity(BaseModel):
     activity_id: int  # Type ID
     technician_id: int
     notes: Optional[str]
-
-
-class ActivityType(BaseModel):
-    """
-    Details the type of activity
-    """
-
-    activity_id: int
-    activity_name: str
-
+    activity_type: ActivityType
 
 class Observation(BaseModel):
     """

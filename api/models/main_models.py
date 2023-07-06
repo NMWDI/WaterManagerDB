@@ -92,6 +92,9 @@ class MeterActivities(Base):
     notes = Column(String)
     technician_id = Column(Integer, ForeignKey("Worker.id"))
 
+    activity_type = relationship("Activities")
+    technician = relationship("Worker")
+
 class Activities(Base):
     '''
     Details the different types of activities PVACD implements

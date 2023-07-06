@@ -28,6 +28,7 @@ export function useApiGET<T>(route: string, initialValue: any, queryParams: any 
 
     // Re-fetch on updates to query params or route
     useEffect(() => {
+        console.log('qp: ', formattedQueryParams(queryParams))
         fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
             .then(r => r.json())
             .then(data => setResponse(data))

@@ -5,12 +5,23 @@ from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Security
 from sqlalchemy import or_, select, desc, and_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
-from api.schemas import meter_schemas
-from api.models.main_models import Meters, MeterTypes, Part, PartAssociation, PartTypeLU, Organizations
+from api.schemas import meter_schemas, activity_schemas
+from api.models.main_models import (
+        Meters,
+        MeterTypes,
+        Part,
+        PartAssociation,
+        PartTypeLU,
+        Organizations,
+        MeterStatusLU,
+        MeterActivities,
+        MeterObservations,
+        Activities
+)
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
 from api.models.security_models import User
@@ -35,7 +46,7 @@ write_user = scoped_user(["read", "meters:write"])
 # What scope is req.??
 # Get paginated, sorted list of meters, filtered by a search string if applicable
 @meter_router.get("/meters", response_model=LimitOffsetPage[meter_schemas.MeterListDTO], tags=["meters"])
-async def read_meters(
+async def get_meters(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
     sort_by: MeterSortByField = MeterSortByField.SerialNumber,
@@ -91,7 +102,7 @@ async def read_meters(
 
 # Get list of all meters and their coordinates (if they have them)
 @meter_router.get("/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"])
-async def read_meters_locations(
+async def get_meters_locations(
     db: Session = Depends(get_db),
 ):
     stmt = (
@@ -113,7 +124,7 @@ async def read_meters_locations(
 # Get single, fully qualified meter
 @meter_router.get("/meter", response_model=meter_schemas.Meter, tags=["meters"])
 async def get_meter(
-    meter_sn: str,
+    meter_id: int,
     db: Session = Depends(get_db),
 ):
     response_data = {}
@@ -122,13 +133,14 @@ async def get_meter(
     # Statement for meter
     stmt = (
         select(
-            Meters.id.label("meter_id"),
+            Meters.id,
             Meters.serial_number,
             MeterTypes.brand,
             MeterTypes.model_number,
             Meters.contact_name,
             Meters.contact_phone,
             Organizations.organization_name.label("organization"),
+            MeterStatusLU.status_name.label("status"),
             Meters.ra_number,
             Meters.tag,
             Meters.latitude,
@@ -139,7 +151,8 @@ async def get_meter(
         )
         .join(MeterTypes)
         .join(Organizations)
-        .where(Meters.serial_number == meter_sn)
+        .join(MeterStatusLU)
+        .where(Meters.id == meter_id)
     )
 
     result = db.execute(stmt).fetchone()
@@ -160,14 +173,54 @@ async def get_meter(
         .join(PartAssociation)
         .join(Part)
         .join(PartTypeLU)
-        .where(Meters.serial_number == meter_sn)
+        .where(Meters.id == meter_id)
     )
 
-    partresult = db.execute(partstmt)
-    for row in partresult:
-        response_data["parts_associated"].append(row)
+    #       Remove parts stuff???
+
+    # partresult = db.execute(partstmt)
+    # for row in partresult:
+    #     response_data["parts_associated"].append(row)
 
     return response_data
+
+@meter_router.get("/meter_history", response_model=meter_schemas.MeterHistory, tags=["meters"])
+async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
+
+    activitiesStmt = (
+        select(
+            Meters.id,
+            MeterActivities.meter_id,
+            MeterActivities.timestamp_start,
+            MeterActivities.timestamp_end,
+            MeterActivities.activity_id,
+            MeterActivities.technician_id,
+            MeterActivities.notes,
+            MeterActivities.activity
+        )
+        .where(Meters.id == meter_id)
+        .join(MeterActivities, MeterActivities.activity_id == Activities.id)
+    )
+
+    observationsStmt = (
+        select(
+            Meters.id,
+            MeterObservations.timestamp,
+            MeterObservations.value,
+            MeterObservations.observed_property_id,
+            MeterObservations.unit_id,
+            MeterObservations.notes,
+            MeterObservations.technician_id
+        )
+        .where(Meters.id == meter_id)
+        .join(MeterObservations)
+    )
+
+    return {
+        'activities': db.execute(activitiesStmt).all(),
+        'observations': db.execute(observationsStmt).all()
+    }
+
 
 
 """

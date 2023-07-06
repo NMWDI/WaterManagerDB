@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 
 import MeterSelection from './MeterSelection/MeterSelection'
-import MeterDetails from './MeterDetails'
+import MeterDetailsFields from './MeterDetailsFields'
 import MeterHistory from './MeterHistory/MeterHistory'
 
 import { Grid, Box } from '@mui/material'
@@ -21,7 +21,7 @@ export default function MetersView() {
                         <MeterSelection onMeterSelection={setSelectedMeterID}/>
                     </Grid>
                     <Grid item xs={7}>
-                        <MeterDetails selectedMeterID={selectedMeterID} />
+                        <MeterDetailsFields selectedMeterID={selectedMeterID} />
                     </Grid>
                 </Grid>
 

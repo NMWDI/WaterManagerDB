@@ -1,5 +1,24 @@
 import { SortDirection, MeterSortByField } from 'enums'
 
+export interface MeterDetails {
+    id: number
+    serial_number: string
+    brand: string
+    model_number: string
+    status: string
+    contact_name: string
+    contact_phone: string
+    organization: string
+    ra_number: string
+    tag: string
+    latitude: float
+    longitude: float
+    trss: string
+    well_distance_ft: float
+    notes: string
+    // Also has parts_associated: List[Part]
+}
+
 export interface MeterListQueryParams {
     search_string: string
     sort_by: MeterSortByField

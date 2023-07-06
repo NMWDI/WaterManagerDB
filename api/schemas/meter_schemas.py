@@ -8,6 +8,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 from api.schemas.part_schemas import Part
+from api.schemas.activity_schemas import Activity, Observation
+
+class MeterHistory(BaseModel):
+    activities: Optional[List[Activity]]
+    observations: Optional[List[Observation]]
 
 class MeterMapDTO(BaseModel):
     id: Optional[int]
