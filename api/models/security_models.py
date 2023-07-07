@@ -40,13 +40,15 @@ class UserRoles(Base):
 
     security_scopes = relationship("SecurityScopes", secondary=ScopesRoles)
 
-class User(Base):
+class Users(Base):
     username = Column(String, nullable=False)
     full_name = Column(String)
     email = Column(String)
     hashed_password = Column(String, nullable=False)
     disabled = Column(Boolean, default=False)
+
     user_role_id = Column(Integer, ForeignKey("UserRoles.id"), nullable=False)
+
     user_role = relationship("UserRoles")
 
 # ============= EOF =============================================

@@ -38,8 +38,9 @@ const meterTableColumns = [
         width: 150
     },
     {
-        field: 'organization_name',
-        headerName: 'Organization',
+        field: 'meter_location',
+        headerName: 'Land Owner',
+        valueFormatter: (params: any) => params.value.land_owner.land_owner_name,
         width: 200
     },
     {

@@ -1,0 +1,8 @@
+name,latitude,longitude,trss,land_owner_id
+"Location1",123,111,"test1",1
+"Location2",123,111,"test2",3
+"Location3",123,111,"test3",4
+"Location4",123,111,"test5",8
+"Location5",123,111,"test6",10
+"Location6"0,123,111,"tes71",6
+"Location7",123,111,"test8",7

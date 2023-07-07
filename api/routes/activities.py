@@ -39,7 +39,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get activity types
     activities_list = []
-    activities = db.execute(select(Activities.id, Activities.name))
+    activities = db.execute(select(ActivityTypeLU.id, ActivityTypeLU.name))
     for row in activities:
         activities_list.append({"activity_id": row[0], "activity_name": row[1]})
 
@@ -48,11 +48,11 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
     observed_props = db.execute(
         select(
             PropertyUnits.property_id,
-            ObservedProperties.name,
+            ObservedPropertyLU.name,
             PropertyUnits.unit_id,
             Units.name_short,
         )
-        .join(ObservedProperties)
+        .join(ObservedPropertyLU)
         .join(Units)
     )
     for row in observed_props:
@@ -70,18 +70,18 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get technicians
     technician_list = []
-    technicians = db.execute(select(Worker.id, Worker.name))
+    technicians = db.execute(select(Technicians.id, Technicians.name))
     for row in technicians:
         technician_list.append({"technician_id": row[0], "technician_name": row[1]})
 
     # Get organizations
-    organization_list = []
-    organizations = db.execute(
-        select(Organizations.id, Organizations.organization_name)
+    land_owner_list = []
+    land_owners = db.execute(
+        select(LandOwners.id, LandOwners.land_owner_name)
     )
-    for row in organizations:
-        organization_list.append(
-            {"organization_id": row[0], "organization_name": row[1]}
+    for row in land_owners:
+        land_owner_list.append(
+            {"land_owner_id": row[0], "land_owner_name": row[1]}
         )
 
     # Create form options
@@ -90,7 +90,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         activity_types=activities_list,
         observed_properties=list(properties_map.values()),
         technicians=technician_list,
-        organizations=organization_list,
+        organizations=land_owner_list,
     )
 
     return form_options

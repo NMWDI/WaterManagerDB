@@ -1,22 +1,59 @@
 import { SortDirection, MeterSortByField } from 'enums'
 
+export interface MeterHistoryDTO {
+    id: int
+    history_type: string
+    activity_type?: string
+    date: Date
+    history_item: any
+}
+
+export interface MeterType {
+    brand?: string
+    series?: string
+    model_number?: string
+    size?: float
+    description?: string
+}
+
+export interface MeterStatus {
+    status_name?: string
+    description?: string
+}
+
+export interface LandOwner {
+    contact_name?: string
+    land_owner_name?: string
+    phone?: string
+    email?: string
+    city?: string
+}
+
+export interface MeterLocation {
+    name?: string
+    latitude?: float
+    longitude?: float
+    trss?: string
+
+    land_owner?: LandOwner
+
+    // Also has land owner
+}
+
 export interface MeterDetails {
-    id: number
-    serial_number: string
-    brand: string
-    model_number: string
-    status: string
-    contact_name: string
-    contact_phone: string
-    organization: string
-    ra_number: string
-    tag: string
-    latitude: float
-    longitude: float
-    trss: string
-    well_distance_ft: float
-    notes: string
-    // Also has parts_associated: List[Part]
+    id?: number
+    serial_number?: string
+    contact_name?: string
+    contact_phone?: string
+    ra_number?: string
+    tag?: string
+    well_distance_ft?: float
+    notes?: string
+
+    meter_type?: MeterType
+    status?: MeterStatus
+    meter_location?: MeterLocation
+    // Also has parts_associated?: List[Part]
 }
 
 export interface MeterListQueryParams {
@@ -29,8 +66,7 @@ export interface MeterListQueryParams {
 
 export interface MeterMapDTO {
     id: number
-    longitude: number
-    latitude: number
+    meter_location: {longitude: number, latitude: number}
 }
 
 export interface MeterType {
@@ -53,23 +89,23 @@ export interface MeterListDTO {
     id: number
     serial_number: string
     trss: string
-    organization_name: string
+    meter_location: {land_owner: {land_owner_name: string}}
     ra_number: string
 }
 
 export interface Page<T> {
-  items: T[]
-  total: number
-  limit: number
-  offset: number
+    items: T[]
+    total: number
+    limit: number
+    offset: number
 }
 
 export interface MeterListQuery {
-  search_string: string
-  sort_by: MeterListSortBy
-  sort_direction: SortDirection
-  limit: number,
-  offset: number
+    search_string: string
+    sort_by: MeterListSortBy
+    sort_direction: SortDirection
+    limit: number,
+    offset: number
 }
 
 // Single manual measurement from a certain well

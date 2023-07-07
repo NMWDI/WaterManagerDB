@@ -6,6 +6,6 @@ export enum SortDirection {
 export enum MeterSortByField {
     SerialNumber = 'serial_number',
     RANumber = 'ra_number',
-    OrganizationName = 'organization_name',
+    LandOwner = 'land_owner_name',
     TRSS = 'trss'
 }

@@ -15,11 +15,13 @@ from sqlalchemy import (
     LargeBinary,
     func,
     Boolean,
+    select
 )
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
+from sqlalchemy.ext.hybrid import hybrid_property, Comparator
 
 
 @as_declarative()
@@ -39,31 +41,64 @@ class Base:
 
 # ---------  Meter Related Tables ---------
 
+class MeterLocationHistory(Base):
+    '''
+    Table for tracking a meter's locations over time
+    '''
+    install_date: Column(DateTime, nullable=False)
+    meter_id = Column(Integer, ForeignKey("Meters.id"))
+    location_id = Column(Integer, ForeignKey("MeterLocations.id"))
+    # Need to define relationships
+
+class MeterLocations(Base):
+    '''
+    Table for tracking information about a meters location
+    '''
+    name = Column(String, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    trss = Column(String)
+
+    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
+
+    land_owner = relationship("LandOwners")
+
 class Meters(Base):
     '''
     Primary table for tracking meters
     '''
     serial_number = Column(String, nullable=False)
-    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"), nullable=False)
-    organization_id = Column(Integer, ForeignKey("Organizations.id"))
-    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
-
-    #Contact information specific to particular meter
-    contact_name = Column(String)
+    contact_name = Column(String) #Contact information specific to particular meter
     contact_phone = Column(String)
-
-    #RA Number is an identifier of the well the meter is attached to
-    ra_number = Column(String)
-
-    latitude = Column(Float)
-    longitude = Column(Float)
-    trss = Column(String)  #Township, range, section
+    ra_number = Column(String) #RA Number is an identifier of the well the meter is attached to
     tag = Column(String)  #OSE tag
     well_distance_ft = Column(Float) #Distance of meter install from well
     notes = Column(String)
 
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
+    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))
+    meter_location_id = Column(Integer, ForeignKey("MeterLocations.id"))
 
-class MeterTypes(Base):
+    meter_type = relationship("MeterTypeLU", lazy="noload")
+    status = relationship("MeterStatusLU", lazy="noload")
+    meter_location = relationship("MeterLocations", lazy="noload")
+
+    @hybrid_property
+    def land_owner_name(self):
+        return self.meter_location.land_owner.land_owner_name
+
+    class LandOwnerNameComparator(Comparator):
+        def __eq__(self, other):
+            return func.lower(self.__clause_element__()) == func.lower(other)
+
+
+    # Random fields that seeder wants to fill
+    land_owner_id = Column(Integer)
+    longitude = Column(Float)
+    latitude = Column(Float)
+    trss = Column(String)
+
+class MeterTypeLU(Base):
     '''
     Details different meter types, but does not include parts
     - See parts table for sub-components
@@ -85,17 +120,19 @@ class MeterActivities(Base):
     '''
     Logs all meter activities
     '''
-    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     timestamp_start = Column(DateTime, nullable=False)
     timestamp_end = Column(DateTime, nullable=False)
-    activity_id = Column(Integer, ForeignKey("Activities.id"), nullable=False)
     notes = Column(String)
-    technician_id = Column(Integer, ForeignKey("Worker.id"))
 
-    activity_type = relationship("Activities")
-    technician = relationship("Worker")
+    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
 
-class Activities(Base):
+    technician = relationship("Technicians")
+    meter = relationship("Meters")
+    activity_type = relationship("ActivityTypeLU")
+
+class ActivityTypeLU(Base):
     '''
     Details the different types of activities PVACD implements
     '''
@@ -106,15 +143,21 @@ class MeterObservations(Base):
     '''
     Tracks all observations associated with a meter
     '''
-    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     timestamp = Column(DateTime, nullable=False)
     value = Column(Float, nullable=False)
-    observed_property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
-    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     notes = Column(String)
-    technician_id = Column(Integer, ForeignKey("Worker.id"))
 
-class ObservedProperties(Base):
+    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
+    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+
+    technician = relationship("Technicians")
+    meter = relationship("Meters")
+    observed_property = relationship("ObservedPropertyTypeLU")
+    unit = relationship("Units")
+
+class ObservedPropertyTypeLU(Base):
     '''
     Defines the types of observations made during meter maintenance
     '''
@@ -134,7 +177,7 @@ class PropertyUnits(Base):
     Table linking Observed Properties to Units
     Describes which units are associated with which properties
     '''
-    property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
+    property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
 
@@ -144,45 +187,50 @@ class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
 
-class Part(Base):
+class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
     description = Column(String)
     vendor = Column(String)
     count = Column(Integer, default=0)
     note = Column(String)
 
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+
+    part_type = relationship("PartTypeLU")
+
 class PartAssociation(Base):
-    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"),nullable=False)
-    part_id = Column(Integer,ForeignKey("Part.id"),nullable=False)
     commonly_used = Column(Boolean)
+
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
+    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
 
 class PartsUsed(Base):
     meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
+    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
     count = Column(Integer, nullable=False)
 
 # ---------- Other Tables ---------------
 
-class Organizations(Base):
+class LandOwners(Base):
     '''
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
     '''
     contact_name = Column(String)
-    organization_name = Column(String)
+    land_owner_name = Column(String)
     phone = Column(String)
     email = Column(String)
     city = Column(String)
 
-class Alert(Base):
+class Alerts(Base):
     # id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
-    meter_id = Column(Integer, ForeignKey("Meters.id"))
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
 
-    #meter = relationship("Meter", uselist=False)
+    meter_id = Column(Integer, ForeignKey("Meters.id"))
+
+    meter = relationship("Meters")
 
     @property
     def meter_serial_number(self):
@@ -192,19 +240,17 @@ class Alert(Base):
     def active(self):
         return not bool(self.closed_timestamp)
 
-class Worker(Base):
+class Technicians(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
 class RepairPartAssociation(Base):
-    repair_id = Column(Integer, ForeignKey("Repair.id"))
-    part_id = Column(Integer, ForeignKey("Part.id"))
+    repair_id = Column(Integer, ForeignKey("Repairs.id"))
+    part_id = Column(Integer, ForeignKey("Parts.id"))
 
-class Repair(Base):
+class Repairs(Base):
     # id = Column(Integer, primary_key=True, index=True)
     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
-    well_id = Column(Integer, ForeignKey("Well.id"))
-    worker_id = Column(Integer, ForeignKey("Worker.id"))
 
     timestamp = Column(DateTime, default=func.now())
     h2o_read = Column(Float)
@@ -217,8 +263,11 @@ class Repair(Base):
     qc_id = Column(Integer, ForeignKey("QC.id"))
     public_release = Column(Boolean)
 
-    well = relationship("Well", uselist=False)
-    repair_by = relationship("Worker", uselist=False)
+    well_id = Column(Integer, ForeignKey("Wells.id"))
+    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+
+    well = relationship("Wells", uselist=False)
+    technician = relationship("Technicians", uselist=False)
     meter_status = relationship("MeterStatusLU", uselist=False)
     qc = relationship("QC", uselist=False)
 
@@ -246,14 +295,9 @@ class Repair(Base):
     def worker(self, v):
         self.repair_by.id
 
-
-
-
-
-
 # ------------ Monitoring Wells --------------
 
-class Well(Base):
+class Wells(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
@@ -274,10 +318,10 @@ class Well(Base):
 
     # meter = relationship('Meter', uselist=False, back_populates='well')
     # owner = relationship("Owner", back_populates="wells")
-    waterlevels = relationship("WellMeasurement", back_populates="well")
+    waterlevels = relationship("WellMeasurements", back_populates="well")
 
     #meter_history = relationship("MeterHistory", uselist=False)
-    construction = relationship("WellConstruction", uselist=False)
+    construction = relationship("WellConstructions", uselist=False)
 
     @property
     def latitude(self):
@@ -298,33 +342,34 @@ class Well(Base):
         return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
 
 
-class WellConstruction(Base):
+class WellConstructions(Base):
     # id = Column(Integer, primary_key=True, index=True)
     casing_diameter = Column(Float, default=0)
     hole_depth = Column(Float, default=0)
     well_depth = Column(Float, default=0)
-    well_id = Column(Integer, ForeignKey("Well.id"))
+    well_id = Column(Integer, ForeignKey("Wells.id"))
 
-    screens = relationship("ScreenInterval")
+    screens = relationship("ScreenIntervals")
+    well = relationship("Wells")
 
 
-class ScreenInterval(Base):
+class ScreenIntervals(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     top = Column(Float)
     bottom = Column(Float)
-    well_construction_id = Column(Integer, ForeignKey("WellConstruction.id"))
+    well_construction_id = Column(Integer, ForeignKey("WellConstructions.id"))
 
-
-class WellMeasurement(Base):
-    well_id = Column(Integer, ForeignKey("Well.id"), nullable=False)
+class WellMeasurements(Base):
     timestamp = Column(DateTime, default=func.now(), nullable=False)
     value = Column(Float, nullable=False)
-    observed_property_id = Column(Integer, ForeignKey("ObservedProperties.id"), nullable=False)
-    worker_id = Column(Integer, ForeignKey("Worker.id"))
-    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
-    #Relationships
-    well = relationship("Well", back_populates="waterlevels")
+    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
+
+    well = relationship("Wells", back_populates="waterlevels")
+    observed_property = relationship("ObservedPropertyTypeLU")
 
 
 class QC(Base):

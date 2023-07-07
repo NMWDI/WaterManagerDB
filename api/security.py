@@ -78,10 +78,10 @@ def get_user(username: str):
     db = next(get_db())
 
     # Eager load roles and scopes
-    dbuser = (db.query(security_models.User)
-                .filter(security_models.User.username == username)
+    dbuser = (db.query(security_models.Users)
+                .filter(security_models.Users.username == username)
                 .options(
-                        joinedload(security_models.User.user_role)
+                        joinedload(security_models.Users.user_role)
                             .joinedload(security_models.UserRoles.security_scopes)
                 ).first())
 
@@ -124,7 +124,7 @@ async def get_current_user(security_scopes: SecurityScopes, token: str = Depends
 
 
 def scoped_user(scopes):
-    async def get_user(current_user: security_models.User = Security(get_current_user, scopes=scopes)):
+    async def get_user(current_user: security_models.Users = Security(get_current_user, scopes=scopes)):
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user

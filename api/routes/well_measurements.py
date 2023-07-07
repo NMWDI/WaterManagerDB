@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from api.schemas import well_schemas
-from api.models.main_models import Meters, WellMeasurement, ObservedProperties, Worker
+from api.models.main_models import Meters, WellMeasurements, ObservedPropertyTypeLU, Technicians
 from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db

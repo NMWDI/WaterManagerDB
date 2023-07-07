@@ -20,19 +20,16 @@ const disabledInputStyle = {
 const initMeterDetails: MeterDetails = {
     id: -1,
     serial_number: '',
-    brand: '',
-    model_number: '',
-    status: '',
     contact_name: '',
     contact_phone: '',
-    organization: '',
     ra_number: '',
     tag: '',
-    latitude: 0,
-    longitude: 0,
-    trss: '',
-    well_distance_ft: 0,
-    notes: ''
+    well_distance_ft: -1,
+    notes: '',
+
+    meter_type: {brand: '', series: '', model_number: '', size: '', description: ''},
+    status: {status_name: '', description: ''},
+    meter_location: {name: '', latitude: -1, longitude: -1, trss: '', land_owner: {contact_name: '', land_owner_name: '', phone: '', email: '', city: ''}}
 }
 
 interface MeterDetailsQueryParams {
@@ -80,10 +77,10 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     </FormControl>
                     */}
 
-                <TextField label="Meter Type" variant="outlined" size="small" value={emptyIfNull(meterDetails.brand)} disabled sx={disabledInputStyle} />
+                <TextField label="Meter Type" variant="outlined" size="small" value={emptyIfNull(meterDetails.meter_type?.brand)} disabled sx={disabledInputStyle} />
 
                 <br/>
-                <h4>Status: {meterDetails.status == null ? 'N/A' : meterDetails.status}</h4>
+                <h4>Status: {meterDetails.status?.status_name == null ? 'N/A' : meterDetails.status?.status_name}</h4>
 
                 <Grid container item xs={8} spacing={2}>
                     {/* First Row */}
@@ -95,23 +92,23 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     </Grid>
                     <Grid item xs={4}>
                         {/* Show admin a dropdown */}
-                        <TextField label="Organization" variant="outlined" size="small" value={emptyIfNull(meterDetails.organization)} disabled sx={disabledInputStyle} />
+                        <TextField label="Land Owner" variant="outlined" size="small" value={emptyIfNull(meterDetails.meter_location?.land_owner?.land_owner_name)} disabled sx={disabledInputStyle} />
                     </Grid>
 
                     {/* Second Row */}
                     <Grid item xs={4}>
-                        <TextField label="Lattitude" variant="outlined" size="small" value={emptyIfNull(meterDetails.latitude)} disabled sx={disabledInputStyle} />
+                        <TextField label="Latitude" variant="outlined" size="small" value={emptyIfNull(meterDetails.meter_location?.latitude)} disabled sx={disabledInputStyle} />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField label="Longitude" variant="outlined" size="small" value={emptyIfNull(meterDetails.longitude)} disabled sx={disabledInputStyle} />
+                        <TextField label="Longitude" variant="outlined" size="small" value={emptyIfNull(meterDetails.meter_location?.longitude)} disabled sx={disabledInputStyle} />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField label="TRSS" variant="outlined" size="small" value={emptyIfNull(meterDetails.trss)} disabled sx={disabledInputStyle} />
+                        <TextField label="TRSS" variant="outlined" size="small" value={emptyIfNull(meterDetails.meter_location?.trss)} disabled sx={disabledInputStyle} />
                     </Grid>
 
                     {/* Third Row */}
                     <Grid item xs={4}>
-                        <TextField label="RA Number" variant="outlined" size="small" value={emptyIfNull(meterDetails.trss)} disabled sx={disabledInputStyle} />
+                        <TextField label="RA Number" variant="outlined" size="small" value={emptyIfNull(meterDetails.ra_number)} disabled sx={disabledInputStyle} />
                     </Grid>
                     <Grid item xs={4}>
                         <TextField label="OSE Tag" variant="outlined" size="small" value={emptyIfNull(meterDetails.tag)} disabled sx={disabledInputStyle} />

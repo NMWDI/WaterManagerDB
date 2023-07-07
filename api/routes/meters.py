@@ -4,27 +4,31 @@
 from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Security
-from sqlalchemy import or_, select, desc, and_
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, select, desc, and_, text
+from sqlalchemy.orm import Session, joinedload, eagerload, selectinload, load_only, subqueryload
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import meter_schemas, activity_schemas
 from api.models.main_models import (
         Meters,
-        MeterTypes,
-        Part,
+        MeterTypeLU,
+        Parts,
         PartAssociation,
         PartTypeLU,
-        Organizations,
+        LandOwners,
         MeterStatusLU,
         MeterActivities,
         MeterObservations,
-        Activities
+        ActivityTypeLU,
+        Technicians,
+        ObservedPropertyTypeLU,
+        Units,
+        MeterLocations
 )
 from api.route_util import _add, _patch
 from api.security import get_current_user, scoped_user
-from api.models.security_models import User
+from api.models.security_models import Users
 from api.session import get_db
 
 from enum import Enum
@@ -33,7 +37,7 @@ from enum import Enum
 class MeterSortByField(Enum):
     SerialNumber = 'serial_number'
     RANumber = 'ra_number'
-    OrganizationName = 'organization_name'
+    LandOwnerName = 'land_owner_name'
     TRSS = 'trss'
 
 class SortDirection(Enum):
@@ -61,22 +65,19 @@ async def get_meters(
             case MeterSortByField.RANumber:
                 return Meters.ra_number
 
-            case MeterSortByField.OrganizationName:
-                return Organizations.organization_name
+            case MeterSortByField.LandOwnerName:
+                return LandOwners.land_owner_name
 
             case MeterSortByField.TRSS:
                 return Meters.trss
 
     # Build the query statement based on query params
+    # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
-        select(
-            Meters.id,
-            Meters.serial_number,
-            Organizations.organization_name,
-            Meters.ra_number,
-            Meters.trss,
-        )
-        .join(Organizations)
+        select(Meters)
+        .options(joinedload(Meters.meter_location))
+        .join(MeterLocations, isouter=True)
+        .join(LandOwners, isouter=True)
     )
 
     if search_string:
@@ -85,7 +86,7 @@ async def get_meters(
                 Meters.serial_number.ilike(f"%{search_string}%"),
                 Meters.ra_number.ilike(f"%{search_string}%"),
                 Meters.trss.ilike(f"%{search_string}%"),
-                Organizations.organization_name.ilike(f"%{search_string}%"),
+                LandOwners.land_owner_name.ilike(f"%{search_string}%"),
             )
         )
 
@@ -97,7 +98,6 @@ async def get_meters(
         else:
             query_statement = query_statement.order_by(schema_field_name) # SQLAlchemy orders ascending by default
 
-
     return paginate(db, query_statement)
 
 # Get list of all meters and their coordinates (if they have them)
@@ -105,21 +105,20 @@ async def get_meters(
 async def get_meters_locations(
     db: Session = Depends(get_db),
 ):
-    stmt = (
-        select(
-            Meters.id,
-            Meters.latitude,
-            Meters.longitude,
-        )
-        .where(
-            and_(
-                Meters.latitude.is_not(None),
-                Meters.longitude.is_not(None)
-                )
-            )
-    )
 
-    return db.execute(stmt).all()
+    return db.scalars(
+            select(Meters)
+                .options(
+                    joinedload(Meters.meter_location)
+                )
+                .where(
+                    and_(
+                        MeterLocations.latitude.is_not(None),
+                        MeterLocations.longitude.is_not(None)
+                        )
+                    )
+                .join(MeterLocations, isouter=True)
+            ).all()
 
 # Get single, fully qualified meter
 @meter_router.get("/meter", response_model=meter_schemas.Meter, tags=["meters"])
@@ -127,101 +126,55 @@ async def get_meter(
     meter_id: int,
     db: Session = Depends(get_db),
 ):
-    response_data = {}
-    response_data["parts_associated"] = []
 
-    # Statement for meter
-    stmt = (
-        select(
-            Meters.id,
-            Meters.serial_number,
-            MeterTypes.brand,
-            MeterTypes.model_number,
-            Meters.contact_name,
-            Meters.contact_phone,
-            Organizations.organization_name.label("organization"),
-            MeterStatusLU.status_name.label("status"),
-            Meters.ra_number,
-            Meters.tag,
-            Meters.latitude,
-            Meters.longitude,
-            Meters.trss,
-            Meters.well_distance_ft,
-            Meters.notes,
-        )
-        .join(MeterTypes)
-        .join(Organizations)
-        .join(MeterStatusLU)
-        .where(Meters.id == meter_id)
-    )
+    return db.scalars(
+            select(Meters)
+                .options(
+                    joinedload(Meters.meter_type),
+                    joinedload(Meters.meter_location)
+                )
+                .filter(Meters.id == meter_id)
+            ).first()
 
-    result = db.execute(stmt).fetchone()
-    for col in result.keys():
-        response_data[col] = result[col]
-
-    # Get associated parts
-    partstmt = (
-        select(
-            Part.id.label("part_id"),
-            Part.part_number,
-            Part.description,
-            PartTypeLU.name.label("part_type"),
-            PartAssociation.commonly_used,
-        )
-        .select_from(Meters)
-        .join(MeterTypes)
-        .join(PartAssociation)
-        .join(Part)
-        .join(PartTypeLU)
-        .where(Meters.id == meter_id)
-    )
-
-    #       Remove parts stuff???
-
-    # partresult = db.execute(partstmt)
-    # for row in partresult:
-    #     response_data["parts_associated"].append(row)
-
-    return response_data
-
-@meter_router.get("/meter_history", response_model=meter_schemas.MeterHistory, tags=["meters"])
+@meter_router.get("/meter_history", response_model=None, tags=["meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
-    activitiesStmt = (
-        select(
-            Meters.id,
-            MeterActivities.meter_id,
-            MeterActivities.timestamp_start,
-            MeterActivities.timestamp_end,
-            MeterActivities.activity_id,
-            MeterActivities.technician_id,
-            MeterActivities.notes,
-            MeterActivities.activity
-        )
-        .where(Meters.id == meter_id)
-        .join(MeterActivities, MeterActivities.activity_id == Activities.id)
-    )
+    class HistoryType(Enum):
+        Activity = 'Activity'
+        Observation = 'Observation'
+        LocationChange = 'LocationChange'
 
-    observationsStmt = (
-        select(
-            Meters.id,
-            MeterObservations.timestamp,
-            MeterObservations.value,
-            MeterObservations.observed_property_id,
-            MeterObservations.unit_id,
-            MeterObservations.notes,
-            MeterObservations.technician_id
-        )
-        .where(Meters.id == meter_id)
-        .join(MeterObservations)
-    )
+    activities = db.scalars(select(MeterActivities).filter(MeterActivities.meter_id == meter_id)).all()
+    observations = db.scalars(select(MeterObservations).filter(MeterObservations.meter_id == meter_id)).all()
 
-    return {
-        'activities': db.execute(activitiesStmt).all(),
-        'observations': db.execute(observationsStmt).all()
-    }
+    # Take all the history object we just got from the database and make them into a object that's easy for the frontend to consume
+    formattedHistoryItems = []
+    itemID = 0
 
+    for activity in activities:
+        formattedHistoryItems.append({
+            'id': itemID,
+            'history_type': HistoryType.Activity,
+            'activity_type': activity.activity_type_id,
+            'date': activity.timestamp_start,
+            'history_item': activity
+        })
+        itemID += 1
 
+    for observation in observations:
+        formattedHistoryItems.append({
+            'id': itemID,
+            'history_type': HistoryType.Observation,
+            'date': observation.timestamp,
+            'history_item': observation
+        })
+        itemID += 1
+
+    # Add location history also
+
+    formattedHistoryItems.sort(key=lambda x: x['date'])
+
+    return formattedHistoryItems
 
 """
 @meter_router.get(

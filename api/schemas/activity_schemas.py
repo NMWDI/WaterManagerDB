@@ -55,7 +55,7 @@ class Activity(BaseModel):
     activity_id: int  # Type ID
     technician_id: int
     notes: Optional[str]
-    activity_type: ActivityType
+    activity_type: Optional[ActivityType]
 
 class Observation(BaseModel):
     """

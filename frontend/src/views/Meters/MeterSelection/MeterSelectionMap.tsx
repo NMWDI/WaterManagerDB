@@ -27,17 +27,15 @@ export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapP
     }
 
     const meterMarkers = meterLocations.map((meterLocation: any) => {
-            if(meterLocation.longitude != null && meterLocation.latitude != null) {
-                return (
-                    <Marker
-                        key={meterLocation.id}
-                        position={[meterLocation.latitude, meterLocation.longitude]}
-                        eventHandlers={{
-                            click: () => {onMeterSelection(meterLocation.id)}
-                        }}
-                    ></Marker>
-                    )
-            }
+            return (
+                <Marker
+                    key={meterLocation.id}
+                    position={[meterLocation.meter_location.latitude, meterLocation.meter_location.longitude]}
+                    eventHandlers={{
+                        click: () => {onMeterSelection(meterLocation.id)}
+                    }}
+                ></Marker>
+                )
         })
 
     return (
