@@ -23,12 +23,12 @@ id,brand,series,model_number,size,description
 22,BADGER,,T-0450,3,"3"" TURBO W/BOLT KITS & FLGS"
 23,BADGER,,T-200,2,2” Turbo W/BOLT KITS & FLGS
 24,BADGER,,Unknown,,Unknown model number
-25,Cognitis Fluid Data,,CF31-150BI-NL,1.5,1.5'' FLGS & BOLT KITS (2/set)
-26,Cognitis Fluid Data,,CF31-200BI-NL,2, 2'' FLGS & BOLT KITS (2/set)
-27,Flow Control,,FFCF-0303D,3,"3""FLANGES"
+25,COGNITIS FLUID DATA,,CF31-150BI-NL,1.5,1.5'' FLGS & BOLT KITS (2/set)
+26,COGNITIS FLUID DATA,,CF31-200BI-NL,2, 2'' FLGS & BOLT KITS (2/set)
+27,FLOW CONTROL,,FFCF-0303D,3,"3""FLANGES"
 28,ROCKWELL,,Unknown,,Unknown model number
 29,SENSUS,,Unknown,,Unknown model number
 30,SPARLIN,,Unknown,,Unknown model number
-31,METER MASTER,,Unknown,,Unknown model number
-32,Cognitis Fluid Data,,Unknown,,Unknown model number
-33,Flow Control,,Unknown,,Unknown model number
+31,MASTER METER,,Unknown,,Unknown model number
+32,COGNITIS FLUID DATA,,Unknown,,Unknown model number
+33,FLOW CONTROL,,Unknown,,Unknown model number
