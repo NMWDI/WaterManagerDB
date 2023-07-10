@@ -1,4 +1,5 @@
 import React from 'react'
+import { useState, useEffect } from 'react'
 
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -6,22 +7,19 @@ import { DataGrid } from '@mui/x-data-grid'
 import { MeterHistoryDTO } from '../../../interfaces'
 
 interface MeterHistoryTableProps {
-    onHistorySelection: Function
+    onHistoryItemSelection: Function
     selectedMeterHistory: MeterHistoryDTO[]
 }
 
-// Starting point for this model/interface (act. type prob its own)
-interface MeterHistory {
-    id: number,
-    date: string,
-    activity_type: string
-}
-
-export default function MeterHistoryTable({onHistorySelection, selectedMeterHistory}: MeterHistoryTableProps) {
+export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
 
     function handleRowSelect(rowDetails: any) {
-        onHistorySelection(rowDetails.row.id)
+        onHistoryItemSelection(rowDetails.row)
     }
+
+    useEffect(() => {
+      onHistoryItemSelection(null) // Clear the selected history details when user has selected another meter
+    }, [selectedMeterHistory])
 
     const columns = [
         {

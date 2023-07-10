@@ -16,12 +16,12 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
     const [selectedHistoryID, setSelectedHistoryID] = useState(null)
     const [meterHistoryQueryParams, setMeterHistoryQueryParams] = useState<any>(null)
+    const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null)
 
     const meterHistory = useApiGET<MeterHistoryDTO[]>('/meter_history', [], meterHistoryQueryParams)
 
     useEffect(() => {setMeterHistoryQueryParams({meter_id: selectedMeterID})}, [selectedMeterID])
-
-    useEffect(() => {console.log(meterHistory)}, [meterHistory])
+    // useEffect(() => {console.log(meterHistory)}, [meterHistory])
 
     return (
             <Box sx={{width: '100%' }}>
@@ -29,10 +29,10 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
                 <Grid container spacing={6} sx={{height: '30vh', minHeight: '300px'}}>
                     <Grid item xs={5}>
-                        <MeterHistoryTable onHistorySelection={setSelectedHistoryID} selectedMeterHistory={meterHistory}/>
+                        <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory}/>
                     </Grid>
                     <Grid item xs={7}>
-                        <SelectedHistoryDetails selectedHistoryID={selectedHistoryID} />
+                        <SelectedHistoryDetails selectedHistoryItem={selectedHistoryItem} />
                     </Grid>
                 </Grid>
             </Box>

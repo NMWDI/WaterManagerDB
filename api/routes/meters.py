@@ -144,8 +144,28 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         Observation = 'Observation'
         LocationChange = 'LocationChange'
 
-    activities = db.scalars(select(MeterActivities).filter(MeterActivities.meter_id == meter_id)).all()
-    observations = db.scalars(select(MeterObservations).filter(MeterObservations.meter_id == meter_id)).all()
+    activities = (
+            db.scalars(
+                select(MeterActivities)
+                    .options(
+                        joinedload(MeterActivities.technician),
+                        joinedload(MeterActivities.activity_type)
+                    )
+                    .filter(MeterActivities.meter_id == meter_id)
+            ).all()
+        )
+
+    observations = (
+            db.scalars(
+                select(MeterObservations)
+                    .options(
+                        joinedload(MeterObservations.technician),
+                        joinedload(MeterObservations.observed_property),
+                        joinedload(MeterObservations.unit)
+                    )
+                    .filter(MeterObservations.meter_id == meter_id)
+            ).all()
+        )
 
     # Take all the history object we just got from the database and make them into a object that's easy for the frontend to consume
     formattedHistoryItems = []
@@ -172,7 +192,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     # Add location history also
 
-    formattedHistoryItems.sort(key=lambda x: x['date'])
+    formattedHistoryItems.sort(key=lambda x: x['date'], reverse=True)
 
     return formattedHistoryItems
 
