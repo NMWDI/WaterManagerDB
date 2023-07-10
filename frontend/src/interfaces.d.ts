@@ -129,7 +129,7 @@ export interface CreateManualWaterLevelMeasurement {
     timestamp: Date
     value: number
     observed_property_id: number
-    worker_id: number
+    technician_id: number
     unit_id: number
 }
 

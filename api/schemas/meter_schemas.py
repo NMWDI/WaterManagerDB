@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 from api.schemas.part_schemas import Part
-from api.schemas.activity_schemas import Activity, Observation
+from api.schemas.activity_schemas import Activity, Observation, LandOwner
 
 class MeterActivityDTO(BaseModel):
     timestamp_start: datetime
@@ -76,14 +76,6 @@ class MeterListDTO(BaseModel):
 
 
 
-class LandOwner(BaseModel):
-    contact_name: Optional[str]
-    land_owner_name: Optional[str]
-    phone: Optional[str]
-    email: Optional[str]
-    city: Optional[str]
-    class Config:
-        orm_mode = True
 
 class MeterLocation(BaseModel):
     name: str

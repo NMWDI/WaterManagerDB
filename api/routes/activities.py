@@ -11,7 +11,22 @@ from api.schemas.activity_schemas import (
     ActivitiesFormOptions,
     ObservationType,
 )
-from api.models.main_models import *
+from api.models.main_models import (
+        Meters,
+        MeterTypeLU,
+        Parts,
+        PartAssociation,
+        PartTypeLU,
+        ActivityTypeLU,
+        Technicians,
+        ObservedPropertyTypeLU,
+        Units,
+        PartsUsed,
+        LandOwners,
+        MeterActivities,
+        MeterObservations,
+        PropertyUnits
+)
 from api.security import scoped_user
 from api.session import get_db
 
@@ -48,11 +63,11 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
     observed_props = db.execute(
         select(
             PropertyUnits.property_id,
-            ObservedPropertyLU.name,
+            ObservedPropertyTypeLU.name,
             PropertyUnits.unit_id,
             Units.name_short,
         )
-        .join(ObservedPropertyLU)
+        .join(ObservedPropertyTypeLU)
         .join(Units)
     )
     for row in observed_props:
@@ -90,7 +105,8 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         activity_types=activities_list,
         observed_properties=list(properties_map.values()),
         technicians=technician_list,
-        organizations=land_owner_list,
+        land_owners=land_owner_list,
+
     )
 
     return form_options
@@ -137,7 +153,7 @@ async def add_maintenance(maintenance: Maintenance, db: Session = Depends(get_db
     # Also subtract count off of parts inventory for a part used
     if maintenance.parts:
         for part in maintenance.parts:
-            part_used = db.scalars(select(Part).where(Part.id == part.part_id)).one()
+            part_used = db.scalars(select(Parts).where(Parts.id == part.part_id)).one()
             part_used.count = part_used.count - part.count
             db.add(PartsUsed(meter_activity_id=activity.id, **part.dict()))
 

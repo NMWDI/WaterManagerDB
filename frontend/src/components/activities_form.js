@@ -15,7 +15,7 @@ function ObservationInput(props){
     //Making this a component facilitates adding new inputs
     //props:
     //  id = unique value to ensure input has unique ID
-    //  input_vals = timestamp:, value:, observed_property_id:, unit_id: 
+    //  input_vals = timestamp:, value:, observed_property_id:, unit_id:
     //  observed_properties = list of observed properties objects which include units
     //                        see /activities_options api endpoint
 
@@ -41,7 +41,7 @@ function ObservationInput(props){
         let selected_observed_property = props.observed_properties.find(obs => obs.observed_property_id == event.target.value)
         setUnitList(selected_observed_property.observed_property_units)
     }
-    
+
     function handleUnitChange(event){
         setUnitID(event.target.value)
         props.onChange({id: props.id, unit_id: event.target.value})
@@ -49,7 +49,7 @@ function ObservationInput(props){
 
     return (
         <Box sx={{ display: "flex" }}>
-            <TextField 
+            <TextField
                 required
                 id={ props.id + '_time' }
                 type="time"
@@ -63,7 +63,7 @@ function ObservationInput(props){
                 }}
                 onChange={ handleDateChange }
             />
-            <TextField 
+            <TextField
                 required
                 id={ props.id + '_value'}
                 label="Value"
@@ -75,7 +75,7 @@ function ObservationInput(props){
                 value={ props.value }
                 onChange={ handleValueChange }
             />
-            <TextField 
+            <TextField
                 required
                 id={props.id + '_type'}
                 name="obs_type"
@@ -92,7 +92,7 @@ function ObservationInput(props){
                         </MenuItem>
                     ))}
             </TextField>
-            <TextField 
+            <TextField
                 required
                 id={props.id + '_units'}
                 name="obs_unit"
@@ -195,7 +195,7 @@ export default function MeterActivitiesForm(props){
             { headers: auth_headers }
         )
         .then(r => r.json()).then(data => loadFormOptions(data))
-        
+
     },[])
 
 
@@ -376,7 +376,7 @@ export default function MeterActivitiesForm(props){
         }
 
     }
-    
+
     function submitForm(){
         //Activities form submission
         //Called either by handleSubmit or by warning dialog
@@ -387,7 +387,7 @@ export default function MeterActivitiesForm(props){
         //Determine datetimes
         let start_datetime = activity_datetime.date_val + 'T' + activity_datetime.start_time
         let end_datetime = activity_datetime.date_val + 'T' + activity_datetime.end_time
-        
+
         //Create Maintenance object
         let maintenance = {
             meter_id: meter.meter_id,
@@ -456,7 +456,7 @@ export default function MeterActivitiesForm(props){
                 technician_id: activity.technician_id
             }
         }
-        
+
         //Collect observations (not including Working on Arrival)
         if(observations.length > 0){
             //Add on date and technician id to each observation
@@ -470,14 +470,14 @@ export default function MeterActivitiesForm(props){
 
             //Combine with allObservations
             allObservations = allObservations.concat(added_observations)
-            
+
         }
 
         //Assign observations to maintenance object
         if(allObservations.length > 0){
             maintenance['observations'] = allObservations
         }
-        
+
 
         //Collect parts used
         let used_parts = default_parts.filter(x => x.selected)
@@ -564,7 +564,7 @@ export default function MeterActivitiesForm(props){
                         onChange={ handleMeterSelect }
                         fullWidth={ false }
                         sx = {{ display: 'inline-flex' }}
-                        renderInput={(params) => 
+                        renderInput={(params) =>
                             <TextField
                                 {...params}
                                 required
@@ -573,7 +573,7 @@ export default function MeterActivitiesForm(props){
                                 margin="normal"
                                 sx = {{ m:1, width: 200 }}
                             />}
-                    />  
+                    />
                     <TextField
                         required
                         id="activity_id"
@@ -607,7 +607,7 @@ export default function MeterActivitiesForm(props){
                         ))}
                     </TextField>
                     <TextField
-                        required 
+                        required
                         id="date_val"
                         variant="outlined"
                         sx = {{ m:1 }}
@@ -615,7 +615,7 @@ export default function MeterActivitiesForm(props){
                         value={ activity_datetime.date_val }
                         onChange= { handleDateTimeSelect }
                     />
-                     <TextField 
+                     <TextField
                         required
                         id="start_time"
                         label="Start Time"
@@ -628,7 +628,7 @@ export default function MeterActivitiesForm(props){
                             shrink: true
                         }}
                     />
-                    <TextField 
+                    <TextField
                         required
                         id="end_time"
                         label="End Time"
@@ -647,7 +647,7 @@ export default function MeterActivitiesForm(props){
                 {/*----- Meter Installation Details ----*/}
                 <Box component="section" sx={{ flexWrap: 'wrap', maxWidth: 800 }}>
                     <h4>Installation:</h4>
-                    <TextField 
+                    <TextField
                         id="contact_name"
                         label="Contact Name"
                         variant={ activity.activity_id != "2" ? "outlined":"filled" }
@@ -657,7 +657,7 @@ export default function MeterActivitiesForm(props){
                         value={ meter.contact_name }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <TextField
                         id="contact_phone"
                         label="Phone (xxx-xxx-xxxx)"
                         type="tel"
@@ -671,12 +671,12 @@ export default function MeterActivitiesForm(props){
                     />
                     <Autocomplete
                         id="organization"
-                        options={ organizationlist.map(org => org.organization_name) }
+                        options={ organizationlist?.map(org => org.organization_name) }
                         value={ meter.organization }
                         onChange={ handleOrganizationChange }
                         fullWidth={ false }
                         sx = {{ display: 'inline-flex' }}
-                        renderInput={(params) => 
+                        renderInput={(params) =>
                             <TextField
                                 {...params}
                                 label="Organization"
@@ -686,7 +686,7 @@ export default function MeterActivitiesForm(props){
                                 sx = {{ m:1, width: 200 }}
                             />}
                     />
-                    <TextField 
+                    <TextField
                         id="latitude"
                         label="Latitude"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
@@ -696,7 +696,7 @@ export default function MeterActivitiesForm(props){
                         value={ meter.latitude }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <TextField
                         id="longitude"
                         label="Longitude"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
@@ -706,7 +706,7 @@ export default function MeterActivitiesForm(props){
                         value={ meter.longitude }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <TextField
                         id="trss"
                         label="TRSS"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
@@ -716,7 +716,7 @@ export default function MeterActivitiesForm(props){
                         value={ meter.trss }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <TextField
                         id="ra_number"
                         label="RA Number"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
@@ -726,7 +726,7 @@ export default function MeterActivitiesForm(props){
                         value={ meter.ra_number }
                         onChange={handleMeterChange}
                     />
-                    <TextField 
+                    <TextField
                         id="ose_tag"
                         label="OSE Tag"
                         variant={ activity.activity_id == "1" ? "outlined":"filled" }
@@ -737,7 +737,7 @@ export default function MeterActivitiesForm(props){
                         onChange={handleMeterChange}
                     />
                     <div>
-                        <TextField 
+                        <TextField
                             id="well_distance"
                             label="Well Distance (ft)"
                             variant={ activity.activity_id != "2" ? "outlined":"filled" }
@@ -747,7 +747,7 @@ export default function MeterActivitiesForm(props){
                             sx = {{ m:1 }}
                             onChange={handleMeterChange}
                         />
-                        <TextField 
+                        <TextField
                             id="notes"
                             label="Installation Notes"
                             variant={ activity.activity_id != "2" ? "outlined":"filled" }
@@ -773,7 +773,7 @@ export default function MeterActivitiesForm(props){
                             <Button onClick={() => setOpenWarn(false) }>Cancel</Button>
                         </DialogActions>
                     </Dialog>
-                    
+
                 </Box>
 
                 {/*-----------  Observations ----------*/}
@@ -806,7 +806,7 @@ export default function MeterActivitiesForm(props){
                             onChange = { handleObservationChange }
                         />
                     )) }
-                    
+
                     <Button
                         variant="outlined"
                         sx={{ m:1 }}
@@ -814,14 +814,14 @@ export default function MeterActivitiesForm(props){
                     >
                         Add
                     </Button>
-                    
+
                     <Divider variant='middle'/>
                 </Box>
-                
+
                 {/*----- Meter Maintenance/Repairs ----*/}
                 <Box component="section">
                     <h4>Maintenance/Repair:</h4>
-                    <TextField 
+                    <TextField
                         id="description"
                         label="Description"
                         variant="outlined"
@@ -878,14 +878,14 @@ export default function MeterActivitiesForm(props){
 
                     <Divider variant='middle'/>
                 </Box>
-                
+
                 <Box sx={{ mt: 1 }}>
                     <Button
                         type="submit"
                         variant="contained"
                     >Submit</Button>
                 </Box>
-                
+
             </form>
        </Box>
     )

@@ -14,6 +14,15 @@ PhoneConstr = constr(
     regex="\d{3}-\d{3}-\d{4}",
 )
 
+class LandOwner(BaseModel):
+    contact_name: Optional[str]
+    land_owner_name: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    city: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 class Technician(BaseModel):
     """
@@ -24,9 +33,9 @@ class Technician(BaseModel):
     technician_name: str
 
 
-class Organization(BaseModel):
-    organization_id: int
-    organization_name: str
+# class Organization(BaseModel):
+#     organization_id: int
+#     organization_name: str
 
 
 class Unit(BaseModel):
@@ -87,7 +96,7 @@ class InstallationUpdate(BaseModel):
 
     contact_name: Optional[str]
     contact_phone: Optional[PhoneConstr]
-    organization_id: Optional[int]
+    land_owner_id: Optional[int]
     ra_number: Optional[str]
     well_distance_ft: Optional[float]
     tag: Optional[str]
@@ -106,7 +115,7 @@ class ActivitiesFormOptions(BaseModel):
     activity_types: List[ActivityType]
     observed_properties: List[ObservationType]
     technicians: List[Technician]
-    organizations: List[Organization]
+    land_owners: List[LandOwner]
 
 
 class Maintenance(BaseModel):
