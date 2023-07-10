@@ -38,7 +38,7 @@ write_user = scoped_user(["read", "well_measurement:write"])
 async def patch_waterlevel(
     waterlevel_id: int, obj: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)
 ):
-    return _patch(db, WellMeasurement, waterlevel_id, obj)
+    return _patch(db, WellMeasurements, waterlevel_id, obj)
 
 
 @well_measurement_router.post(
@@ -50,7 +50,7 @@ async def patch_waterlevel(
 async def add_waterlevel(
     waterlevel: well_schemas.WaterLevelCreate, db: Session = Depends(get_db)
 ):
-    return _add(db, WellMeasurement, waterlevel)
+    return _add(db, WellMeasurements, waterlevel)
 
 
 @well_measurement_router.get(
@@ -72,16 +72,16 @@ async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
 def _read_well_measurement(db, obsprop, well_id):
     stmt = (
         select(
-            WellMeasurement.id,
-            WellMeasurement.well_id,
-            WellMeasurement.timestamp,
-            WellMeasurement.value,
-            Worker.name.label("technician"),
+            WellMeasurements.id,
+            WellMeasurements.well_id,
+            WellMeasurements.timestamp,
+            WellMeasurements.value,
+            Technicians.name.label("technician"),
         )
-        .join(Worker)
-        .join(ObservedProperties)
-        .where(ObservedProperties.name == obsprop)
-        .where(WellMeasurement.well_id == well_id)
+        .join(Technicians)
+        .join(ObservedPropertyTypeLU)
+        .where(ObservedPropertyTypeLU.name == obsprop)
+        .where(WellMeasurements.well_id == well_id)
     )
     # print(stmt)
     results = db.execute(stmt)
