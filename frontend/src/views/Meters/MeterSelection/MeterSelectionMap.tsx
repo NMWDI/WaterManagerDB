@@ -19,7 +19,7 @@ interface MeterSelectionMapProps {
 export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
 
     {/* Probably better to call this meters, or meters with locations or something, meterlocation.id below is confusing */}
-    const meterLocations: MeterMapDTO[] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
+    const [meterLocations, setMeterLocations] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
 
     const mapStyle = {
         height: '100%',

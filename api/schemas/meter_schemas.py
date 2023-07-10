@@ -105,6 +105,10 @@ class Meter(BaseModel):
     well_distance_ft: Optional[float]
     notes: Optional[str]
 
+    meter_type_id: Optional[int]
+    status_id: Optional[int]
+    meter_location_id: Optional[int]
+
     meter_type: Optional[MeterTypeLU]
     status: Optional[MeterStatusLU]
     meter_location: Optional[MeterLocation]

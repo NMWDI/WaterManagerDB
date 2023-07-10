@@ -21,10 +21,20 @@ const initMeterListQueryParams: MeterListQueryParams = {
     limit: 25,
     offset: 0
 }
+
 const initMeterListSortModel: GridSortModel = [{
     field: 'serial_number',
     sort: 'asc'
 }]
+
+// For now, only the meter_location field on
+function getSortByString(field: string) {
+    switch(field) {
+        case ('meter_location'): return 'land_owner_name'
+        default: field
+    }
+}
+
 
 const meterTableColumns = [
     {
@@ -58,13 +68,13 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
     const [gridPageSize, setGridPageSize] = useState<number>(25)
     const [gridRowCount, setGridRowCount] = useState<number>(100)
 
-    const meterList: Page<MeterListDTO> = useApiGET<Page<MeterListDTO>>('/meters', {items: [], total: 0, limit: 50, offset: 0}, meterListQueryParams)
+    const [meterList,  setMeterList]: [Page<MeterListDTO>, Function] = useApiGET<Page<MeterListDTO>>('/meters', {items: [], total: 0, limit: 50, offset: 0}, meterListQueryParams)
 
     // On any query param change from the table, update meterListQueryParam
     useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
-            sort_by: gridSortModel[0] ? gridSortModel[0].field : MeterSortByField.SerialNumber,
+            sort_by: gridSortModel[0] ? getSortByString(gridSortModel[0].field) : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel[0] ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: gridPageSize,
             offset: gridPage * gridPageSize

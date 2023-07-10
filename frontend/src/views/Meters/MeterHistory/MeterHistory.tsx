@@ -14,11 +14,10 @@ interface MeterHistoryProps {
 
 export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
-    const [selectedHistoryID, setSelectedHistoryID] = useState(null)
     const [meterHistoryQueryParams, setMeterHistoryQueryParams] = useState<any>(null)
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null)
 
-    const meterHistory = useApiGET<MeterHistoryDTO[]>('/meter_history', [], meterHistoryQueryParams)
+    const [meterHistory, setMeterHistory] = useApiGET<MeterHistoryDTO[]>('/meter_history', [], meterHistoryQueryParams)
 
     useEffect(() => {setMeterHistoryQueryParams({meter_id: selectedMeterID})}, [selectedMeterID])
     // useEffect(() => {console.log(meterHistory)}, [meterHistory])

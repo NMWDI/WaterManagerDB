@@ -1,13 +1,24 @@
-import React from 'react'
+import React, { ChangeEventHandler } from 'react'
 import { useState, useEffect } from 'react'
 
 import { Box, TextField, InputLabel, Select, MenuItem, FormControl, Button, Grid } from '@mui/material'
 
-import { MeterDetails } from '../../interfaces'
-import { useApiGET } from '../../service/ApiService'
+import { MeterDetails, SecurityScope } from '../../interfaces'
+import { useApiGET, useApiPATCH } from '../../service/ApiService'
+import { useAuthUser } from 'react-auth-kit'
+import { produce } from 'immer'
 
 interface MeterDetailsProps {
     selectedMeterID: number | null
+}
+
+interface MeterDetailsTextFieldProps {
+    label: string
+    value: any
+    onChange: ChangeEventHandler
+    hasAdminScope: boolean
+    rows?: number
+    isNumberInput?: boolean
 }
 
 const disabledInputStyle = {
@@ -40,26 +51,60 @@ function emptyIfNull(value: any) {
     return (value == null || value== -1) ? '' : value
 }
 
+// Abstracted way to show and edit meter details as text fields (must be outside main component to avoid focus loss on state updates)
+function MeterDetailsTextField({label, value, onChange, hasAdminScope, rows=1, isNumberInput=false }: MeterDetailsTextFieldProps) {
+
+    return (
+        <TextField
+            key={label}
+            label={label}
+            variant="outlined"
+            size="small"
+            value={emptyIfNull(value)}
+            disabled={!hasAdminScope}
+            sx={disabledInputStyle}
+            onChange={onChange}
+            rows={rows}
+            multiline={rows > 1}
+            fullWidth={rows > 1}
+            type={isNumberInput ? "number" : "text"}
+        />
+    )
+}
+
 export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps) {
-
     const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>({meter_id: 0})
-    const meterDetails = useApiGET<MeterDetails>('/meter', initMeterDetails, meterDetailsQueryParams)
+    const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', initMeterDetails, meterDetailsQueryParams)
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
+    // Update meter ID used in get hook
     useEffect(() => {
-
-        {/* Get selected meter's details here */}
-        console.log("From details: ", selectedMeterID)
         setMeterDetailsQueryParams({meter_id: selectedMeterID})
     }, [selectedMeterID])
 
-    useEffect(() => {console.log(meterDetails)}, [meterDetails])
+    const [patchResponse, patchMeter] = useApiPATCH<MeterDetails>('/meter')
+    useEffect(() => {
+        console.log("RESPNSE: ", patchResponse)
+    }, [patchResponse])
+
+    function saveChanges() {
+        console.log("SAVING METER CHANGES")
+        patchMeter(meterDetails, {meter_id: 3})
+    }
 
     return (
             <Box>
                 <h3 style={{marginTop: 0}}>Selected Meter Details</h3>
 
                 {/* Wrap all of this in FormControl */}
-                <TextField label="Serial Number" variant="outlined" size="small" value={emptyIfNull(meterDetails.serial_number)} disabled sx={disabledInputStyle} />
+                <MeterDetailsTextField
+                    label="Serial Number"
+                    value={meterDetails.serial_number}
+                    onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.serial_number = event.target.value}))}}
+                    hasAdminScope={hasAdminScope}
+                />
+
                 <br/>
                 <br/>
                 {/* Show admin a dropdown */}
@@ -85,10 +130,20 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 <Grid container item xs={8} spacing={2}>
                     {/* First Row */}
                     <Grid item xs={4}>
-                        <TextField label="Contact Name" variant="outlined" size="small" value={emptyIfNull(meterDetails.contact_name)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="Contact Name"
+                            value={meterDetails.contact_name}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.contact_name = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField label="Phone" variant="outlined" size="small" value={emptyIfNull(meterDetails.contact_phone)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="Contact Phone"
+                            value={meterDetails.contact_phone}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.contact_phone = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
                     <Grid item xs={4}>
                         {/* Show admin a dropdown */}
@@ -108,29 +163,55 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
 
                     {/* Third Row */}
                     <Grid item xs={4}>
-                        <TextField label="RA Number" variant="outlined" size="small" value={emptyIfNull(meterDetails.ra_number)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="RA Number"
+                            value={meterDetails.ra_number}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.ra_number = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField label="OSE Tag" variant="outlined" size="small" value={emptyIfNull(meterDetails.tag)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="OSE Tag"
+                            value={meterDetails.tag}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.tag = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField label="Well Distance (ft)" variant="outlined" size="small" value={emptyIfNull(meterDetails.well_distance_ft)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="Well Distance"
+                            value={meterDetails.well_distance_ft}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well_distance_ft = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                            isNumberInput
+                        />
                     </Grid>
 
                     {/* Fourth Row */}
                     <Grid item xs={12}>
-                        <TextField label="Installation Notes" fullWidth variant="outlined" size="small" multiline rows={3} value={emptyIfNull(meterDetails.notes)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsTextField
+                            label="Notes"
+                            value={meterDetails.notes}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.notes = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                            rows={3}
+                        />
                     </Grid>
 
                     {/* Fifth Row */}
                     <Grid container item xs={12} spacing={2}>
+                        {hasAdminScope &&
+                            <Grid item >
+                                <Button type="submit" variant="contained" color="success" style={{}} onClick={saveChanges} >Save Changes</Button>
+                            </Grid>
+                        }
                         <Grid item >
                             <Button type="submit" variant="contained" style={{}} onClick={() => {}} >New Activity</Button>
                         </Grid>
                         <Grid item >
                             <Button type="submit" variant="contained" style={{}} onClick={() => {}} >New Work Order</Button>
                         </Grid>
-
                     </Grid>
                 </Grid>
             </Box>

@@ -47,7 +47,6 @@ class SortDirection(Enum):
 meter_router = APIRouter()
 write_user = scoped_user(["read", "meters:write"])
 
-# What scope is req.??
 # Get paginated, sorted list of meters, filtered by a search string if applicable
 @meter_router.get("/meters", response_model=LimitOffsetPage[meter_schemas.MeterListDTO], tags=["meters"])
 async def get_meters(
@@ -135,6 +134,13 @@ async def get_meter(
                 )
                 .filter(Meters.id == meter_id)
             ).first()
+
+@meter_router.patch("/meter", response_model=meter_schemas.Meter, tags=["meters"])
+async def update_meter(
+    updated_meter: meter_schemas.Meter,
+    db: Session = Depends(get_db)
+):
+    return _patch(db, Meters, updated_meter.id, updated_meter)
 
 @meter_router.get("/meter_history", response_model=None, tags=["meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
