@@ -77,17 +77,17 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,technician_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    # with open("api/data/devdata_parttypeLU.csv", "r") as f:
-    #     qry = 'COPY "PartTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-    #     cursor.copy_expert(qry, f)
+    with open("api/data/devdata_parttypeLU.csv", "r") as f:
+        qry = 'COPY "PartTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
 
-    # with open("api/data/devdata_parts.csv", "r") as f:
-    #     qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-    #     cursor.copy_expert(qry, f)
+    with open("api/data/devdata_parts.csv", "r") as f:
+        qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
 
-    # with open("api/data/devdata_partsassociated.csv", "r") as f:
-    #     qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-    #     cursor.copy_expert(qry, f)
+    with open("api/data/devdata_partsassociated.csv", "r") as f:
+        qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meterobservations.csv", "r") as f:
         qry = 'COPY "MeterObservations"(timestamp, value, notes, technician_id, meter_id, observed_property_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
@@ -95,6 +95,10 @@ if os.environ.get("POPULATE_DB"):
 
     with open("api/data/devdata_meteractivities.csv", "r") as f:
         qry = 'COPY "MeterActivities"(timestamp_start, timestamp_end, notes, technician_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_partsused.csv", "r") as f:
+        qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     conn.commit()

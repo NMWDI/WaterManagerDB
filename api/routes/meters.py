@@ -170,10 +170,11 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                     .options(
                         joinedload(MeterActivities.technician),
                         joinedload(MeterActivities.activity_type),
-                        joinedload(MeterActivities.location)
+                        joinedload(MeterActivities.location),
+                        joinedload(MeterActivities.parts_used)
                     )
                     .filter(MeterActivities.meter_id == meter_id)
-            ).all()
+            ).unique().all()
         )
 
     observations = (

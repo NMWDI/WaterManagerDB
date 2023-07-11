@@ -33,12 +33,6 @@ class Technician(BaseModel):
     technician_id: int
     technician_name: str
 
-
-# class Organization(BaseModel):
-#     organization_id: int
-#     organization_name: str
-
-
 class Unit(BaseModel):
     """
     Describes Units

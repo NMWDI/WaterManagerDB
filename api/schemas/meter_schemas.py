@@ -10,20 +10,6 @@ from pydantic import BaseModel
 from api.schemas.part_schemas import Part
 from api.schemas.activity_schemas import Activity, Observation, LandOwner
 
-class MeterActivityDTO(BaseModel):
-    timestamp_start: datetime
-    timestamp_end: datetime
-    notes: Optional[str]
-
-class MeterObservationDTO(BaseModel):
-    timestamp: datetime
-    value: float
-    notes: Optional[str]
-
-class MeterHistory(BaseModel):
-    activities: Optional[List[MeterActivityDTO]]
-    observations: Optional[List[MeterObservationDTO]]
-
 class MeterMapDTO(BaseModel):
     class MeterLocationDTO(BaseModel):
         longitude: Optional[float]
@@ -37,7 +23,6 @@ class MeterMapDTO(BaseModel):
 
     class Config:
         orm_mode = True
-
 
 class MeterTypeLU(BaseModel):
     id: int

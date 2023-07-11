@@ -11,6 +11,7 @@ from sqlalchemy import (
     LargeBinary,
     func,
     Boolean,
+    Table
 )
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
@@ -31,6 +32,37 @@ class Base:
     @declared_attr
     def __tablename__(cls) -> str:
         return cls.__name__
+
+# ---------- Parts Inventory ------------
+
+class PartTypeLU(Base):
+    name = Column(String)
+    description = Column(String)
+
+class Parts(Base):
+    part_number = Column(String, unique=True, nullable=False)
+    description = Column(String)
+    vendor = Column(String)
+    count = Column(Integer, default=0)
+    note = Column(String)
+
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+
+    part_type = relationship("PartTypeLU")
+
+class PartAssociation(Base):
+    commonly_used = Column(Boolean)
+
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
+    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
+
+PartsUsed = Table(
+    "PartsUsed",
+    Base.metadata,
+    Column("meter_activity_id", ForeignKey("MeterActivities.id"), nullable=False),
+    Column("part_id", ForeignKey("Parts.id"), nullable=False),
+    Column("count", Integer)
+)
 
 # ---------  Meter Related Tables ---------
 
@@ -119,6 +151,7 @@ class MeterActivities(Base):
     meter = relationship("Meters")
     activity_type = relationship("ActivityTypeLU")
     location = relationship("MeterLocations")
+    parts_used = relationship("Parts", secondary=PartsUsed)
 
 class ActivityTypeLU(Base):
     '''
@@ -170,34 +203,6 @@ class PropertyUnits(Base):
     property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
-
-# ---------- Parts Inventory ------------
-
-class PartTypeLU(Base):
-    name = Column(String)
-    description = Column(String)
-
-class Parts(Base):
-    part_number = Column(String, unique=True, nullable=False)
-    description = Column(String)
-    vendor = Column(String)
-    count = Column(Integer, default=0)
-    note = Column(String)
-
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
-
-    part_type = relationship("PartTypeLU")
-
-class PartAssociation(Base):
-    commonly_used = Column(Boolean)
-
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
-    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
-
-class PartsUsed(Base):
-    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
-    count = Column(Integer, nullable=False)
 
 # ---------- Other Tables ---------------
 

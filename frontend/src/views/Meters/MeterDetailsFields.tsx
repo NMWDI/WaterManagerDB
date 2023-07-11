@@ -70,7 +70,6 @@ function LandOwnerField({value, onChange, hasAdminScope}: any) {
 
     if (hasAdminScope && value) {
         const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', undefined)
-        console.log(value)
         return (
             <FormControl size="small" >
                 <InputLabel>Land Owner</InputLabel>

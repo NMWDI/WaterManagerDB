@@ -31,6 +31,12 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
         return (value == null || value== -1) ? '' : value
     }
 
+    function getPartsUsedList(partsUsed: any) {
+        if (!partsUsed) return ''
+        const partNames = partsUsed.map((partUsed: any) => {return `${partUsed.description} (${partUsed.part_number})`})
+        return partNames.join(', ')
+    }
+
     return (
             <Box >
                 <Grid container item xs={10} sx={{py: 1, px: 2, border: 'solid #E0E0E0 1px', borderRadius: '5px'}}>
@@ -63,6 +69,12 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
 
                         <Grid container item xs={12} sx={{mt:2}}>
                             <TextField label="Notes" variant="outlined" size="small" multiline rows={2} fullWidth value={emptyIfNull(selectedHistoryItem?.history_item.notes)} disabled sx={disabledInputStyle} />
+                        </Grid>
+
+                        <Grid container item xs={12} sx={{mt:2}}>
+                            <TextField label="Parts Used" variant="outlined" size="small" multiline rows={2} fullWidth
+                                value={emptyIfNull(getPartsUsedList(selectedHistoryItem?.history_item.parts_used))}
+                                disabled sx={disabledInputStyle} />
                         </Grid>
                     </> }
 
