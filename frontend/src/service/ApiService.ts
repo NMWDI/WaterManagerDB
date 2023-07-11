@@ -1,9 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAuthHeader } from 'react-auth-kit'
 
 import { API_URL } from '../API_config.js'
 
-// Return a query param string with empty fields removed
+export function useDidMountEffect(func: Function, dependencies: any[]) {
+    const didMount = useRef(false)
+
+    useEffect(() => {
+        if (didMount.current) func()
+        else didMount.current = true
+    }, dependencies)
+}
+
+// Return a query param string with empty and null fields removed
 function formattedQueryParams(queryParams: any) {
     let queryParamString = '?';
     let params = {...queryParams}
@@ -17,30 +26,44 @@ function formattedQueryParams(queryParams: any) {
     return queryParamString
 }
 
-export function useApiGET<T>(route: string, initialValue: any, queryParams: any = null): [T, React.Dispatch<React.SetStateAction<T>>]{
+// GET the specified resource of type T, updates the returned value when the passed queryParams are updated
+// SetStateAction is returned so the frontend may update the resource visually
+export function useApiGET<T>(route: string, initialValue: any, queryParams: any = null, dontFetchWithoutParams = false): [T, React.Dispatch<React.SetStateAction<T>>]{
     const [response, setResponse] = useState<T>(initialValue)
-
+    const didMount = useRef(false)
     const authHeader = useAuthHeader()
-    const auth_headers = new Headers()
-    auth_headers.set(
-        "Authorization", authHeader()
-    )
 
-    // Re-fetch on updates to query params
+    const auth_headers = {
+        "Authorization": authHeader()
+    }
+
+    // Re-fetch on updates to query params (if the component has mounted, or the caller wants it anyways)
     useEffect(() => {
-        fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
-            .then(r => r.json())
-            .then(data => setResponse(data))
+        if (queryParams == null && dontFetchWithoutParams) { return } // If an endpoint expects params, dont call it until they are defined
+        if (didMount.current) {
+            fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
+                .then(r => r.json())
+                .then(data => setResponse(data))
+        }
+        else didMount.current = true
     }, [queryParams])
 
     return [response, setResponse]
 }
 
-export function useApiPATCH<T>(route: string): [(T|null) | undefined, Function] {
+export function useApiPATCH<T>(route: string): [T | null, Function] {
 
-    function patchCallback(object: any, params: any) {
-        console.log("PATCHING: ", object)
-        console.log("PARAMS: ", params)
+    // Response object from the patch request, expects that API returns patched obj on success
+    const [response, setResponse] = useState<T | null>(null)
+
+    const authHeader = useAuthHeader()
+    const auth_headers = {
+        "Authorization": authHeader(),
+        'Content-type': 'application/json'
+    }
+
+    // Callback that the parent component will use to initiate the patch
+    function patchCallback(object: any, params: any = null) {
         fetch(API_URL + route + formattedQueryParams(params), {
                 method: 'PATCH',
                 headers: auth_headers,
@@ -49,20 +72,6 @@ export function useApiPATCH<T>(route: string): [(T|null) | undefined, Function] 
             .then(r => r.json())
             .then(data => setResponse(data))
     }
-
-    const [response, setResponse] = useState<T | null>(null)
-
-    const authHeader = useAuthHeader()
-    const auth_headers = new Headers()
-    auth_headers.set(
-        "Authorization", authHeader()
-    )
-    auth_headers.set(
-        'Content-type', 'application/json'
-    )
-    // auth_headers.set(
-    //     'method', 'PATCH'
-    // )
 
     return [response, patchCallback]
 }

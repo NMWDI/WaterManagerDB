@@ -17,25 +17,23 @@ interface MeterSelectionMapProps {
 }
 
 export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
-
-    {/* Probably better to call this meters, or meters with locations or something, meterlocation.id below is confusing */}
-    const [meterLocations, setMeterLocations] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
+    const [meters, setMeters] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
 
     const mapStyle = {
         height: '100%',
         width: '100%'
     }
 
-    const meterMarkers = meterLocations.map((meterLocation: any) => {
+    const meterMarkers = meters.map((meter: any) => {
             return (
                 <Marker
-                    key={meterLocation.id}
-                    position={[meterLocation.meter_location.latitude, meterLocation.meter_location.longitude]}
+                    key={meter.id}
+                    position={[meter.meter_location.latitude, meter.meter_location.longitude]}
                     eventHandlers={{
-                        click: () => {onMeterSelection(meterLocation.id)}
+                        click: () => {onMeterSelection(meter.id)}
                     }}
                 ></Marker>
-                )
+              )
         })
 
     return (

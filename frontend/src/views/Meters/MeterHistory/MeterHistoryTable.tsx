@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -43,7 +43,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             <Box sx={{width: '100%', height: '100%'}}>
               <DataGrid
                 columns={columns}
-                rows={selectedMeterHistory}
+                rows={Array.isArray(selectedMeterHistory) ? selectedMeterHistory : []}
                 onRowClick={handleRowSelect}
               />
             </Box>

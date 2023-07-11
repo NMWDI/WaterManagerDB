@@ -13,10 +13,7 @@ from api.schemas.activity_schemas import (
 )
 from api.models.main_models import (
         Meters,
-        MeterTypeLU,
         Parts,
-        PartAssociation,
-        PartTypeLU,
         ActivityTypeLU,
         Technicians,
         ObservedPropertyTypeLU,

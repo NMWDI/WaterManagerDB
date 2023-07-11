@@ -1,6 +1,4 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
-
 import { Box, TextField, Grid } from '@mui/material'
 
 interface SelectedHistoryDetailsProps {
@@ -15,10 +13,6 @@ const disabledInputStyle = {
 }
 
 export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHistoryDetailsProps) {
-
-    // useEffect(() => {
-    //     console.log("Rec: ", selectedHistoryItem)
-    // }, [selectedHistoryItem])
 
     function formatDate(dateIN: any) {
         if (dateIN == null) return dateIN
@@ -44,7 +38,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                     </Grid>
 
                     {/* If Activity history item selected */}
-                    {selectedHistoryItem?.history_type == 'Activity' &&  <>
+                    {(selectedHistoryItem?.history_type == 'Activity' || selectedHistoryItem == undefined) &&  <>
                         <Grid container item xs={12} spacing={2} >
                             <Grid item xs={4}>
                                 <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.technician.name)} disabled sx={disabledInputStyle} />
@@ -99,8 +93,6 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                         </Grid>
                     </>}
                 </Grid>
-
-
             </Box>
         )
 }

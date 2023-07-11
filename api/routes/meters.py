@@ -3,32 +3,22 @@
 # ===============================================================================
 from typing import List
 
-from fastapi import Depends, APIRouter, HTTPException, Security
-from sqlalchemy import or_, select, desc, and_, text
-from sqlalchemy.orm import Session, joinedload, eagerload, selectinload, load_only, subqueryload
+from fastapi import Depends, APIRouter
+from sqlalchemy import or_, select, desc, and_
+from sqlalchemy.orm import Session, joinedload
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
-from api.schemas import meter_schemas, activity_schemas
+from api.schemas import meter_schemas
 from api.models.main_models import (
         Meters,
-        MeterTypeLU,
-        Parts,
-        PartAssociation,
-        PartTypeLU,
         LandOwners,
-        MeterStatusLU,
         MeterActivities,
         MeterObservations,
-        ActivityTypeLU,
-        Technicians,
-        ObservedPropertyTypeLU,
-        Units,
         MeterLocations
 )
-from api.route_util import _add, _patch
-from api.security import get_current_user, scoped_user
-from api.models.security_models import Users
+from api.route_util import _patch
+from api.security import scoped_user
 from api.session import get_db
 
 from enum import Enum
@@ -130,7 +120,8 @@ async def get_meter(
             select(Meters)
                 .options(
                     joinedload(Meters.meter_type),
-                    joinedload(Meters.meter_location)
+                    joinedload(Meters.meter_location),
+                    joinedload(Meters.status)
                 )
                 .filter(Meters.id == meter_id)
             ).first()

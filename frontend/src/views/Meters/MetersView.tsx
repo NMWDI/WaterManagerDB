@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import MeterSelection from './MeterSelection/MeterSelection'
 import MeterDetailsFields from './MeterDetailsFields'
@@ -8,8 +8,7 @@ import MeterHistory from './MeterHistory/MeterHistory'
 import { Grid, Box } from '@mui/material'
 
 export default function MetersView() {
-
-    const [selectedMeterID, setSelectedMeterID] = useState(null)
+    const [selectedMeterID, setSelectedMeterID] = useState<number>()
 
     return (
             <Box sx={{width: '100vw', height: '100%', m: 2, mt: 0}}>
