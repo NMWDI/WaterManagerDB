@@ -15,7 +15,8 @@ from api.models.main_models import (
         LandOwners,
         MeterActivities,
         MeterObservations,
-        MeterLocations
+        MeterLocations,
+        MeterTypeLU
 )
 from api.route_util import _patch
 from api.security import scoped_user
@@ -126,6 +127,13 @@ async def get_meter(
                 )
                 .filter(Meters.id == meter_id)
             ).first()
+
+# Get list of meter types
+@meter_router.get("/meter_type_list", response_model=List[meter_schemas.MeterTypeLU], tags=["meters"])
+async def get_meter_type_list(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(MeterTypeLU)).all()
 
 @meter_router.patch("/meter",
     response_model=meter_schemas.Meter,

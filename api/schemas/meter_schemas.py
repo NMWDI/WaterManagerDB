@@ -40,6 +40,7 @@ class MeterMapDTO(BaseModel):
 
 
 class MeterTypeLU(BaseModel):
+    id: int
     brand: Optional[str]
     series: Optional[str]
     model_number: str

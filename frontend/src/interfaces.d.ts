@@ -36,8 +36,15 @@ export interface MeterLocation {
     trss?: string
 
     land_owner?: LandOwner
+}
 
-    // Also has land owner
+export interface MeterTypeLU {
+    id: number
+    brand: string
+    series: string
+    model_number: string
+    size: number
+    description: string
 }
 
 export interface MeterDetails {
@@ -51,6 +58,7 @@ export interface MeterDetails {
     tag?: string
     well_distance_ft?: float
     notes?: string
+    meter_type_id?: int
 
     meter_type?: MeterType
     status?: MeterStatus

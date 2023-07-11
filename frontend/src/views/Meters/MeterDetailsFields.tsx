@@ -1,9 +1,18 @@
 import React, { ChangeEventHandler } from 'react'
 import { useState } from 'react'
 
-import { Box, TextField, Button, Grid } from '@mui/material'
+import {
+    Box,
+    TextField,
+    Button,
+    Grid,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
+} from '@mui/material'
 
-import { MeterDetails, SecurityScope } from '../../interfaces'
+import { MeterDetails, SecurityScope, MeterTypeLU } from '../../interfaces'
 import { useApiGET, useApiPATCH, useDidMountEffect } from '../../service/ApiService'
 import { useAuthUser } from 'react-auth-kit'
 import { produce } from 'immer'
@@ -33,7 +42,7 @@ interface MeterDetailsQueryParams {
 }
 
 function emptyIfNull(value: any) {
-    return (value == null || value== -1) ? '' : value
+    return (value == null || value == -1 || value == ' - ') ? '' : value
 }
 
 // Abstracted way to show and edit meter details as text fields (must be outside main component to avoid focus loss on state updates)
@@ -56,6 +65,41 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
     )
 }
 
+// Show regular users the meter's type as a regular field, show admins an editable dropdown
+function MeterTypeField({value, onChange, hasAdminScope}: any) {
+
+    if (hasAdminScope && value) {
+        const [meterTypeList, setMeterTypeList] = useApiGET<MeterTypeLU[]>('/meter_type_list', undefined)
+        return (
+            <FormControl size="small" >
+                <InputLabel>Meter Type</InputLabel>
+                <Select
+                    value={value?.meter_type_id}
+                    label="Meter Type"
+                    onChange={onChange}
+                >
+                    {meterTypeList?.map((meterType: MeterTypeLU) => {
+                        return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model_number}</MenuItem>
+                    })}
+                </Select>
+            </FormControl>
+        )
+    }
+
+    else {
+        return (
+            <TextField
+                label={"Meter Type"}
+                variant="outlined"
+                size="small"
+                value={value?.meter_type ? value.meter_type.brand + ' - ' + value.meter_type.model_number : ''}
+                disabled
+                sx={disabledInputStyle}
+            />
+        )
+    }
+}
+
 export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps) {
     const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>()
     const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', undefined, meterDetailsQueryParams, true)
@@ -72,7 +116,6 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     function onSaveMeterChanges() {
         patchMeter(meterDetails)
     }
-
     return (
             <Box>
                 <h3 style={{marginTop: 0}}>Selected Meter Details</h3>
@@ -86,22 +129,12 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
 
                 <br/>
                 <br/>
-                {/* Show admin a dropdown */}
-                {/*
-                <FormControl size="small" >
-                      <InputLabel>Meter Type</InputLabel>
-                      <Select
-                        value={10}
-                        label="Meter Type"
-                        sx={disabledInputStyle}
-                        disabled
-                      >
-                        <MenuItem value={10} >McCrometer</MenuItem>
-                      </Select>
-                    </FormControl>
-                    */}
 
-                <TextField label="Meter Type" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_type?.brand)} disabled sx={disabledInputStyle} />
+                <MeterTypeField
+                    value={meterDetails}
+                    onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_type_id = event.target.value}))}}
+                    hasAdminScope={hasAdminScope}
+                />
 
                 <br/>
                 <h4>Status: {meterDetails?.status?.status_name == null ? 'N/A' : meterDetails.status?.status_name}</h4>

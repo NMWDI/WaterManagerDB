@@ -36,7 +36,6 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             field: 'history_type',
             headerName: 'History Type',
             valueGetter: (params: any) => {
-                console.log(params)
                 if (params.row.history_type == MeterHistoryType.Activity) {
                     return params.row.history_item.activity_type.name
                 }
