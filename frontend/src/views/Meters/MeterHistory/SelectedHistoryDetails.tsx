@@ -1,5 +1,6 @@
 import React from 'react'
 import { Box, TextField, Grid } from '@mui/material'
+import { MeterHistoryType } from '../../../enums'
 
 interface SelectedHistoryDetailsProps {
     selectedHistoryItem: any
@@ -38,7 +39,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                     </Grid>
 
                     {/* If Activity history item selected */}
-                    {(selectedHistoryItem?.history_type == 'Activity' || selectedHistoryItem == undefined) &&  <>
+                    {(selectedHistoryItem?.history_type == MeterHistoryType.Activity || selectedHistoryItem == undefined) &&  <>
                         <Grid container item xs={12} spacing={2} >
                             <Grid item xs={4}>
                                 <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.technician.name)} disabled sx={disabledInputStyle} />
@@ -66,7 +67,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                     </> }
 
                     {/* If Observation history item selected */}
-                    {selectedHistoryItem?.history_type == 'Observation' &&  <>
+                    {selectedHistoryItem?.history_type == MeterHistoryType.Observation &&  <>
                         <Grid container item xs={12} spacing={2} >
                             <Grid item xs={4}>
                                 <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.technician.name)} disabled sx={disabledInputStyle} />

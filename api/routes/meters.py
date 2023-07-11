@@ -36,6 +36,7 @@ class SortDirection(Enum):
 
 meter_router = APIRouter()
 write_user = scoped_user(["read", "meters:write"])
+admin_user = scoped_user(["read", "admin"])
 
 # Get paginated, sorted list of meters, filtered by a search string if applicable
 @meter_router.get("/meters", response_model=LimitOffsetPage[meter_schemas.MeterListDTO], tags=["meters"])
@@ -126,13 +127,19 @@ async def get_meter(
                 .filter(Meters.id == meter_id)
             ).first()
 
-@meter_router.patch("/meter", response_model=meter_schemas.Meter, tags=["meters"])
+@meter_router.patch("/meter",
+    response_model=meter_schemas.Meter,
+    dependencies=[Depends(admin_user)],
+    tags=["meters"]
+)
 async def update_meter(
     updated_meter: meter_schemas.Meter,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     return _patch(db, Meters, updated_meter.id, updated_meter)
 
+# Build a list of a meter's history (activities and observations)
+# There's no real defined structure/schema to this on the front or backend
 @meter_router.get("/meter_history", response_model=None, tags=["meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
@@ -146,7 +153,8 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 select(MeterActivities)
                     .options(
                         joinedload(MeterActivities.technician),
-                        joinedload(MeterActivities.activity_type)
+                        joinedload(MeterActivities.activity_type),
+                        joinedload(MeterActivities.location)
                     )
                     .filter(MeterActivities.meter_id == meter_id)
             ).all()
@@ -158,7 +166,8 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                     .options(
                         joinedload(MeterObservations.technician),
                         joinedload(MeterObservations.observed_property),
-                        joinedload(MeterObservations.unit)
+                        joinedload(MeterObservations.unit),
+                        joinedload(MeterObservations.location)
                     )
                     .filter(MeterObservations.meter_id == meter_id)
             ).all()
@@ -172,6 +181,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         formattedHistoryItems.append({
             'id': itemID,
             'history_type': HistoryType.Activity,
+            'location': activity.location,
             'activity_type': activity.activity_type_id,
             'date': activity.timestamp_start,
             'history_item': activity
@@ -182,6 +192,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         formattedHistoryItems.append({
             'id': itemID,
             'history_type': HistoryType.Observation,
+            'location': observation.location,
             'date': observation.timestamp,
             'history_item': observation
         })

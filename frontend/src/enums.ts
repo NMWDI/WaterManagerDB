@@ -9,3 +9,8 @@ export enum MeterSortByField {
     LandOwner = 'land_owner_name',
     TRSS = 'trss'
 }
+
+export enum MeterHistoryType {
+    Activity = 'Activity',
+    Observation = 'Observation'
+}

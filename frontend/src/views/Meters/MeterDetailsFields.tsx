@@ -106,10 +106,10 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 <br/>
                 <h4>Status: {meterDetails?.status?.status_name == null ? 'N/A' : meterDetails.status?.status_name}</h4>
 
-                <Grid container item xs={8} spacing={2}>
+                <Grid container item xs={10} spacing={2}>
 
                     {/* First Row */}
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <MeterDetailsField
                             label="Contact Name"
                             value={meterDetails?.contact_name}
@@ -117,7 +117,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <MeterDetailsField
                             label="Contact Phone"
                             value={meterDetails?.contact_phone}
@@ -125,24 +125,40 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
+                        <MeterDetailsField
+                            label="Old Contact Name"
+                            value={meterDetails?.old_contact_name}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.old_contact_name = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
+                        <MeterDetailsField
+                            label="Old Contact Phone"
+                            value={meterDetails?.old_contact_phone}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.old_contact_phone = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
                         {/* Show admin a dropdown */}
                         <TextField label="Land Owner" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.land_owner?.land_owner_name)} disabled sx={disabledInputStyle} />
                     </Grid>
 
                     {/* Second Row */}
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <TextField label="Latitude" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.latitude)} disabled sx={disabledInputStyle} />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <TextField label="Longitude" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.longitude)} disabled sx={disabledInputStyle} />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <TextField label="TRSS" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.trss)} disabled sx={disabledInputStyle} />
                     </Grid>
 
                     {/* Third Row */}
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <MeterDetailsField
                             label="RA Number"
                             value={meterDetails?.ra_number}
@@ -150,7 +166,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <MeterDetailsField
                             label="OSE Tag"
                             value={meterDetails?.tag}
@@ -158,7 +174,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
                         <MeterDetailsField
                             label="Well Distance"
                             value={meterDetails?.well_distance_ft}

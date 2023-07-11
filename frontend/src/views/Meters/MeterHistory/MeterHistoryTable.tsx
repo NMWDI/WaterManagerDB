@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
+import { MeterHistoryType } from '../../../enums'
 import { MeterHistoryDTO } from '../../../interfaces'
 
 interface MeterHistoryTableProps {
@@ -29,12 +30,27 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
                 const date = new Date(params.value)
                 return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
             },
-            width: 300
+            width: 200
         },
         {
             field: 'history_type',
             headerName: 'History Type',
-            width: 300
+            valueGetter: (params: any) => {
+                console.log(params)
+                if (params.row.history_type == MeterHistoryType.Activity) {
+                    return params.row.history_item.activity_type.name
+                }
+                else return params.value
+            },
+            width: 200
+        },
+        {
+            field: 'location',
+            headerName: 'Location',
+            valueGetter: (params: any) => {
+                return params.value.name
+            },
+            width: 200
         },
     ];
 

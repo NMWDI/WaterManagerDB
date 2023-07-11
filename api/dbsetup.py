@@ -6,6 +6,7 @@ import os
 import api.models
 from api.security import get_password_hash
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 from api.session import SessionLocal
 from .config import settings
 
@@ -53,7 +54,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meters.csv", "r") as f:
-        qry = 'COPY "Meters"(serial_number,tag,meter_type_id,land_owner_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Meters"(serial_number,tag,meter_type_id,land_owner_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes, old_contact_phone, old_contact_name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meterlocations.csv", "r") as f:
@@ -76,16 +77,24 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,technician_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_parttypeLU.csv", "r") as f:
-        qry = 'COPY "PartTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    # with open("api/data/devdata_parttypeLU.csv", "r") as f:
+    #     qry = 'COPY "PartTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    #     cursor.copy_expert(qry, f)
+
+    # with open("api/data/devdata_parts.csv", "r") as f:
+    #     qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    #     cursor.copy_expert(qry, f)
+
+    # with open("api/data/devdata_partsassociated.csv", "r") as f:
+    #     qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    #     cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_meterobservations.csv", "r") as f:
+        qry = 'COPY "MeterObservations"(timestamp, value, notes, technician_id, meter_id, observed_property_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_parts.csv", "r") as f:
-        qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_partsassociated.csv", "r") as f:
-        qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    with open("api/data/devdata_meteractivities.csv", "r") as f:
+        qry = 'COPY "MeterActivities"(timestamp_start, timestamp_end, notes, technician_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     conn.commit()
@@ -125,6 +134,9 @@ if os.environ.get("POPULATE_DB"):
     )
 
     db.add_all([admin_scope, meter_write_scope, activities_write_scope, well_measurements_write_scope, reports_run_scope, read_scope, technician_role, admin_role, technician_user, admin_user])
+
+    # Temporary fix to give locations to meters, until a new meters seeder is created
+    db.execute(text('UPDATE "Meters" SET meter_location_id=1'))
 
     db.commit()
     db.close()

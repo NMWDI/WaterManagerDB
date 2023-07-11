@@ -1,28 +1,22 @@
 # ===============================================================================
 # Models in database
 # ===============================================================================
-from typing import Any
-
 from sqlalchemy import (
     Column,
     Integer,
     String,
-    ForeignKeyConstraint,
     ForeignKey,
     Float,
-    BLOB,
     DateTime,
     LargeBinary,
     func,
     Boolean,
-    select
 )
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from sqlalchemy.ext.hybrid import hybrid_property, Comparator
-
 
 @as_declarative()
 class Base:
@@ -38,17 +32,7 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__
 
-
 # ---------  Meter Related Tables ---------
-
-class MeterLocationHistory(Base):
-    '''
-    Table for tracking a meter's locations over time
-    '''
-    install_date: Column(DateTime, nullable=False)
-    meter_id = Column(Integer, ForeignKey("Meters.id"))
-    location_id = Column(Integer, ForeignKey("MeterLocations.id"))
-    # Need to define relationships
 
 class MeterLocations(Base):
     '''
@@ -70,6 +54,8 @@ class Meters(Base):
     serial_number = Column(String, nullable=False)
     contact_name = Column(String) #Contact information specific to particular meter
     contact_phone = Column(String)
+    old_contact_name = Column(String)
+    old_contact_phone = Column(String)
     ra_number = Column(String) #RA Number is an identifier of the well the meter is attached to
     tag = Column(String)  #OSE tag
     well_distance_ft = Column(Float) #Distance of meter install from well
@@ -127,10 +113,12 @@ class MeterActivities(Base):
     technician_id = Column(Integer, ForeignKey("Technicians.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
+    location_id = Column(Integer, ForeignKey("MeterLocations.id"), nullable=False)
 
     technician = relationship("Technicians")
     meter = relationship("Meters")
     activity_type = relationship("ActivityTypeLU")
+    location = relationship("MeterLocations")
 
 class ActivityTypeLU(Base):
     '''
@@ -151,11 +139,13 @@ class MeterObservations(Base):
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    location_id = Column(Integer, ForeignKey("MeterLocations.id"), nullable=False)
 
     technician = relationship("Technicians")
     meter = relationship("Meters")
     observed_property = relationship("ObservedPropertyTypeLU")
     unit = relationship("Units")
+    location = relationship("MeterLocations")
 
 class ObservedPropertyTypeLU(Base):
     '''
