@@ -14,6 +14,7 @@ PhoneConstr = constr(
     regex="\d{3}-\d{3}-\d{4}",
 )
 
+
 class LandOwner(BaseModel):
     id: int
     contact_name: Optional[str]
@@ -25,6 +26,7 @@ class LandOwner(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Technician(BaseModel):
     """
     Details technician information
@@ -32,6 +34,7 @@ class Technician(BaseModel):
 
     technician_id: int
     technician_name: str
+
 
 class Unit(BaseModel):
     """
@@ -41,6 +44,7 @@ class Unit(BaseModel):
     unit_id: int
     unit_name: str
 
+
 class ActivityType(BaseModel):
     """
     Details the type of activity
@@ -48,6 +52,7 @@ class ActivityType(BaseModel):
 
     activity_id: int
     activity_name: str
+
 
 class Activity(BaseModel):
     """
@@ -60,6 +65,7 @@ class Activity(BaseModel):
     technician_id: int
     notes: Optional[str]
     activity_type: Optional[ActivityType]
+
 
 class Observation(BaseModel):
     """

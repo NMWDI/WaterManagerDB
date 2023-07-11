@@ -17,6 +17,7 @@ from typing import Union, List
 
 from pydantic import BaseModel
 
+
 class SecurityScope(BaseModel):
     id: int
     scope_string: str
@@ -25,13 +26,15 @@ class SecurityScope(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserRole(BaseModel):
     id: int
     name: str
-    security_scopes: Union[List[SecurityScope], None] = None # Can be optionally joined
+    security_scopes: Union[List[SecurityScope], None] = None  # Can be optionally joined
 
     class Config:
         orm_mode = True
+
 
 class User(BaseModel):
     username: str
@@ -39,21 +42,25 @@ class User(BaseModel):
     full_name: Union[str, None] = None
     disabled: Union[bool, None] = None
     user_role_id: int
-    user_role: Union[UserRole, None] = None # Can be optionally joined
+    user_role: Union[UserRole, None] = None  # Can be optionally joined
 
     class Config:
         orm_mode = True
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     user: User
 
+
 class TokenData(BaseModel):
     username: Union[str, None] = None
     security_scopes: List[str] = []
 
+
 class UserInDB(User):
     hashed_password: str
+
 
 # ============= EOF =============================================

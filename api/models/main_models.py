@@ -11,7 +11,7 @@ from sqlalchemy import (
     LargeBinary,
     func,
     Boolean,
-    Table
+    Table,
 )
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
@@ -19,12 +19,14 @@ from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from sqlalchemy.ext.hybrid import hybrid_property, Comparator
 
+
 @as_declarative()
 class Base:
-    '''
+    """
     Base class for all models
     - Adds id column on all tables
-    '''
+    """
+
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     __name__: str
 
@@ -33,11 +35,14 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__
 
+
 # ---------- Parts Inventory ------------
+
 
 class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
+
 
 class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
@@ -50,26 +55,30 @@ class Parts(Base):
 
     part_type = relationship("PartTypeLU")
 
+
 class PartAssociation(Base):
     commonly_used = Column(Boolean)
 
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
-    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
+    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
+
 
 PartsUsed = Table(
     "PartsUsed",
     Base.metadata,
     Column("meter_activity_id", ForeignKey("MeterActivities.id"), nullable=False),
     Column("part_id", ForeignKey("Parts.id"), nullable=False),
-    Column("count", Integer)
+    Column("count", Integer),
 )
 
 # ---------  Meter Related Tables ---------
 
+
 class MeterLocations(Base):
-    '''
+    """
     Table for tracking information about a meters location
-    '''
+    """
+
     name = Column(String, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
@@ -79,18 +88,22 @@ class MeterLocations(Base):
 
     land_owner = relationship("LandOwners")
 
+
 class Meters(Base):
-    '''
+    """
     Primary table for tracking meters
-    '''
+    """
+
     serial_number = Column(String, nullable=False)
-    contact_name = Column(String) #Contact information specific to particular meter
+    contact_name = Column(String)  # Contact information specific to particular meter
     contact_phone = Column(String)
     old_contact_name = Column(String)
     old_contact_phone = Column(String)
-    ra_number = Column(String) #RA Number is an identifier of the well the meter is attached to
-    tag = Column(String)  #OSE tag
-    well_distance_ft = Column(Float) #Distance of meter install from well
+    ra_number = Column(
+        String
+    )  # RA Number is an identifier of the well the meter is attached to
+    tag = Column(String)  # OSE tag
+    well_distance_ft = Column(Float)  # Distance of meter install from well
     notes = Column(String)
 
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
@@ -109,35 +122,40 @@ class Meters(Base):
         def __eq__(self, other):
             return func.lower(self.__clause_element__()) == func.lower(other)
 
-
     # Random fields that seeder wants to fill
     land_owner_id = Column(Integer)
     longitude = Column(Float)
     latitude = Column(Float)
     trss = Column(String)
 
+
 class MeterTypeLU(Base):
-    '''
+    """
     Details different meter types, but does not include parts
     - See parts table for sub-components
-    '''
+    """
+
     brand = Column(String)
     series = Column(String)
     model_number = Column(String)
     size = Column(Float)
     description = Column(String)
 
+
 class MeterStatusLU(Base):
-    '''
+    """
     Establishes if a meter is installed, in inventory, retired, or other options as needed.
-    '''
+    """
+
     status_name = Column(String)
     description = Column(String)
 
+
 class MeterActivities(Base):
-    '''
+    """
     Logs all meter activities
-    '''
+    """
+
     timestamp_start = Column(DateTime, nullable=False)
     timestamp_end = Column(DateTime, nullable=False)
     notes = Column(String)
@@ -153,24 +171,30 @@ class MeterActivities(Base):
     location = relationship("MeterLocations")
     parts_used = relationship("Parts", secondary=PartsUsed)
 
+
 class ActivityTypeLU(Base):
-    '''
+    """
     Details the different types of activities PVACD implements
-    '''
+    """
+
     name = Column(String)
     description = Column(String)
 
+
 class MeterObservations(Base):
-    '''
+    """
     Tracks all observations associated with a meter
-    '''
+    """
+
     timestamp = Column(DateTime, nullable=False)
     value = Column(Float, nullable=False)
     notes = Column(String)
 
     technician_id = Column(Integer, ForeignKey("Technicians.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("MeterLocations.id"), nullable=False)
 
@@ -180,42 +204,53 @@ class MeterObservations(Base):
     unit = relationship("Units")
     location = relationship("MeterLocations")
 
+
 class ObservedPropertyTypeLU(Base):
-    '''
+    """
     Defines the types of observations made during meter maintenance
-    '''
+    """
+
     name = Column(String)
     description = Column(String)
 
+
 class Units(Base):
-    '''
+    """
     Defines units used in observations
-    '''
+    """
+
     name = Column(String)
     name_short = Column(String)
     description = Column(String)
 
+
 class PropertyUnits(Base):
-    '''
+    """
     Table linking Observed Properties to Units
     Describes which units are associated with which properties
-    '''
-    property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    """
+
+    property_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
 
 # ---------- Other Tables ---------------
 
+
 class LandOwners(Base):
-    '''
+    """
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
-    '''
+    """
+
     contact_name = Column(String)
     land_owner_name = Column(String)
     phone = Column(String)
     email = Column(String)
     city = Column(String)
+
 
 class Alerts(Base):
     # id = Column(Integer, primary_key=True, index=True)
@@ -235,13 +270,16 @@ class Alerts(Base):
     def active(self):
         return not bool(self.closed_timestamp)
 
+
 class Technicians(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
+
 class RepairPartAssociation(Base):
     repair_id = Column(Integer, ForeignKey("Repairs.id"))
     part_id = Column(Integer, ForeignKey("Parts.id"))
+
 
 class Repairs(Base):
     # id = Column(Integer, primary_key=True, index=True)
@@ -290,7 +328,9 @@ class Repairs(Base):
     def worker(self, v):
         self.repair_by.id
 
+
 # ------------ Monitoring Wells --------------
+
 
 class Wells(Base):
     # id = Column(Integer, primary_key=True, index=True)
@@ -315,7 +355,7 @@ class Wells(Base):
     # owner = relationship("Owner", back_populates="wells")
     waterlevels = relationship("WellMeasurements", back_populates="well")
 
-    #meter_history = relationship("MeterHistory", uselist=False)
+    # meter_history = relationship("MeterHistory", uselist=False)
     construction = relationship("WellConstructions", uselist=False)
 
     @property
@@ -354,11 +394,14 @@ class ScreenIntervals(Base):
     bottom = Column(Float)
     well_construction_id = Column(Integer, ForeignKey("WellConstructions.id"))
 
+
 class WellMeasurements(Base):
     timestamp = Column(DateTime, default=func.now(), nullable=False)
     value = Column(Float, nullable=False)
 
-    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     technician_id = Column(Integer, ForeignKey("Technicians.id"))
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
@@ -371,5 +414,3 @@ class QC(Base):
     # user_id = Column(Integer, ForeignKey("User.id"))
     timestamp = Column(DateTime, default=func.now())
     status = Column(Boolean)
-
-

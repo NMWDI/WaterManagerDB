@@ -12,17 +12,17 @@ from api.schemas.activity_schemas import (
     ObservationType,
 )
 from api.models.main_models import (
-        Meters,
-        Parts,
-        ActivityTypeLU,
-        Technicians,
-        ObservedPropertyTypeLU,
-        Units,
-        PartsUsed,
-        LandOwners,
-        MeterActivities,
-        MeterObservations,
-        PropertyUnits
+    Meters,
+    Parts,
+    ActivityTypeLU,
+    Technicians,
+    ObservedPropertyTypeLU,
+    Units,
+    PartsUsed,
+    LandOwners,
+    MeterActivities,
+    MeterObservations,
+    PropertyUnits,
 )
 from api.security import scoped_user
 from api.session import get_db
@@ -88,13 +88,9 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get organizations
     land_owner_list = []
-    land_owners = db.execute(
-        select(LandOwners.id, LandOwners.land_owner_name)
-    )
+    land_owners = db.execute(select(LandOwners.id, LandOwners.land_owner_name))
     for row in land_owners:
-        land_owner_list.append(
-            {"land_owner_id": row[0], "land_owner_name": row[1]}
-        )
+        land_owner_list.append({"land_owner_id": row[0], "land_owner_name": row[1]})
 
     # Create form options
     form_options = ActivitiesFormOptions(
@@ -103,7 +99,6 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         observed_properties=list(properties_map.values()),
         technicians=technician_list,
         land_owners=land_owner_list,
-
     )
 
     return form_options

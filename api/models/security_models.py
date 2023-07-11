@@ -13,14 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from sqlalchemy import (
-        String,
-        Column,
-        Boolean,
-        Integer,
-        ForeignKey,
-        Table
-)
+from sqlalchemy import String, Column, Boolean, Integer, ForeignKey, Table
 from api.models.main_models import Base
 from sqlalchemy.orm import relationship
 
@@ -28,17 +21,20 @@ ScopesRoles = Table(
     "ScopesRoles",
     Base.metadata,
     Column("security_scope_id", ForeignKey("SecurityScopes.id"), nullable=False),
-    Column("user_role_id", ForeignKey("UserRoles.id"), nullable=False)
+    Column("user_role_id", ForeignKey("UserRoles.id"), nullable=False),
 )
+
 
 class SecurityScopes(Base):
     scope_string = Column(String, nullable=False)
     description = Column(String)
 
+
 class UserRoles(Base):
     name = Column(String, nullable=False)
 
     security_scopes = relationship("SecurityScopes", secondary=ScopesRoles)
+
 
 class Users(Base):
     username = Column(String, nullable=False)
@@ -50,5 +46,6 @@ class Users(Base):
     user_role_id = Column(Integer, ForeignKey("UserRoles.id"), nullable=False)
 
     user_role = relationship("UserRoles")
+
 
 # ============= EOF =============================================
