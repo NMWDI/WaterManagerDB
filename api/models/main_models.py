@@ -135,7 +135,7 @@ class PropertyUnits(Base):
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
 
-# ---------- Parts Inventory ------------
+# ---------- Parts/Services/Notes ------------
 
 class PartTypeLU(Base):
     name = Column(String)
@@ -158,6 +158,34 @@ class PartsUsed(Base):
     meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
     part_id = Column(Integer, ForeignKey("Part.id"), nullable=False)
     count = Column(Integer, nullable=False)
+
+class ServiceTypeLU(Base):
+    '''
+    Describes the type of service performed during an activity
+    '''
+    service_name = Column(String)
+    description = Column(String)
+
+class ServicesPerformed(Base):
+    '''
+    Tracks services performed during an activity
+    '''
+    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
+    service_type_id = Column(Integer, ForeignKey("ServiceTypeLU.id"), nullable=False)
+
+class NoteTypeLU(Base):
+    '''
+    Commonly used notes associated with meter activities
+    '''
+    note = Column(String)
+    description = Column(String)
+
+class Notes(Base):
+    '''
+    Tracks notes associated with meter activities
+    '''
+    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
+    note_type_id = Column(Integer, ForeignKey("NoteTypeLU.id"), nullable=False)
 
 # ---------- Other Tables ---------------
 

@@ -1,7 +1,5 @@
-id,name,description
-1,Meter reading,The current meter value
-2,Energy reading,The current value of the device powering the meter
-3,Pipe condition,The condition of the discharge pipe from 0 to 100 with 0 needing replacement.
-4,Meter working,Indicates if the meter is working or not with any value other than 0 true.
-5,Pipe obstruction,Observation of obstructed pipe with any value other than 0 true.
-6,DTW BGS,Depth to water below ground surface
+id,name,description,context
+1,Meter reading,The current meter value,meter
+2,Energy reading,The current value of the device powering the meter,meter
+3,Pipe condition,The condition of the discharge pipe from 0 to 100 with 0 needing replacement.,meter
+4,Depth to water,Depth to water below ground surface,well
