@@ -22,6 +22,7 @@ export interface MeterStatus {
 }
 
 export interface LandOwner {
+    id: number
     contact_name?: string
     land_owner_name?: string
     phone?: string
@@ -34,6 +35,7 @@ export interface MeterLocation {
     latitude?: float
     longitude?: float
     trss?: string
+    land_owner_id: number
 
     land_owner?: LandOwner
 }
@@ -62,7 +64,7 @@ export interface MeterDetails {
 
     meter_type?: MeterType
     status?: MeterStatus
-    meter_location?: MeterLocation
+    meter_location: MeterLocation
     // Also has parts_associated?: List[Part]
 }
 

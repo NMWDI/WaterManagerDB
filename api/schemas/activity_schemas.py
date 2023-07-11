@@ -15,6 +15,7 @@ PhoneConstr = constr(
 )
 
 class LandOwner(BaseModel):
+    id: int
     contact_name: Optional[str]
     land_owner_name: Optional[str]
     phone: Optional[str]

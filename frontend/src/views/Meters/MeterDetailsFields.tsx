@@ -12,7 +12,7 @@ import {
     MenuItem
 } from '@mui/material'
 
-import { MeterDetails, SecurityScope, MeterTypeLU } from '../../interfaces'
+import { MeterDetails, SecurityScope, MeterTypeLU, LandOwner } from '../../interfaces'
 import { useApiGET, useApiPATCH, useDidMountEffect } from '../../service/ApiService'
 import { useAuthUser } from 'react-auth-kit'
 import { produce } from 'immer'
@@ -66,10 +66,46 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
 }
 
 // Show regular users the meter's type as a regular field, show admins an editable dropdown
+function LandOwnerField({value, onChange, hasAdminScope}: any) {
+
+    if (hasAdminScope && value) {
+        const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', undefined)
+        console.log(value)
+        return (
+            <FormControl size="small" >
+                <InputLabel>Land Owner</InputLabel>
+                <Select
+                    value={value?.meter_location?.land_owner_id}
+                    label="Land Owner"
+                    onChange={onChange}
+                >
+                    {landOwnerList?.map((landOwner: LandOwner) => {
+                        return <MenuItem key={landOwner.id} value={landOwner.id}>{landOwner.land_owner_name}</MenuItem>
+                    })}
+                </Select>
+            </FormControl>
+        )
+    }
+
+    else {
+        return (
+            <TextField
+                label={"Land Owner"}
+                variant="outlined"
+                size="small"
+                value={value?.land_owner ? value.land_owner.land_owner_name : ''}
+                disabled
+                sx={disabledInputStyle}
+            />
+        )
+    }
+}
+
+// Show regular users the meter's type as a regular field, show admins an editable dropdown
 function MeterTypeField({value, onChange, hasAdminScope}: any) {
 
     if (hasAdminScope && value) {
-        const [meterTypeList, setMeterTypeList] = useApiGET<MeterTypeLU[]>('/meter_type_list', undefined)
+        const [meterTypeList, setMeterTypeList] = useApiGET<MeterTypeLU[]>('/meter_types', undefined)
         return (
             <FormControl size="small" >
                 <InputLabel>Meter Type</InputLabel>
@@ -175,19 +211,39 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        {/* Show admin a dropdown */}
-                        <TextField label="Land Owner" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.land_owner?.land_owner_name)} disabled sx={disabledInputStyle} />
+                        <LandOwnerField
+                            value={meterDetails}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.land_owner_id = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
 
                     {/* Second Row */}
                     <Grid item xs={3}>
-                        <TextField label="Latitude" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.latitude)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsField
+                            label="Latitude"
+                            value={meterDetails?.meter_location?.latitude}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.latitude = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                            isNumberInput
+                        />
                     </Grid>
                     <Grid item xs={3}>
-                        <TextField label="Longitude" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.longitude)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsField
+                            label="Longitude"
+                            value={meterDetails?.meter_location?.longitude}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.longitude = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                            isNumberInput
+                        />
                     </Grid>
                     <Grid item xs={3}>
-                        <TextField label="TRSS" variant="outlined" size="small" value={emptyIfNull(meterDetails?.meter_location?.trss)} disabled sx={disabledInputStyle} />
+                        <MeterDetailsField
+                            label="TRSS"
+                            value={meterDetails?.meter_location?.trss}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.latitude = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                        />
                     </Grid>
 
                     {/* Third Row */}

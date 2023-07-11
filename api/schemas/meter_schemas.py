@@ -75,14 +75,13 @@ class MeterListDTO(BaseModel):
 
 # NEW ------------------------------------
 
-
-
-
 class MeterLocation(BaseModel):
+    id: int
     name: str
     latitude: float
     longitude: float
     trss: Optional[str]
+    land_owner_id: int
 
     land_owner: Optional[LandOwner]
 

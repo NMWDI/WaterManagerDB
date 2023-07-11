@@ -128,22 +128,30 @@ async def get_meter(
                 .filter(Meters.id == meter_id)
             ).first()
 
-# Get list of meter types
-@meter_router.get("/meter_type_list", response_model=List[meter_schemas.MeterTypeLU], tags=["meters"])
-async def get_meter_type_list(
+@meter_router.get("/meter_types", response_model=List[meter_schemas.MeterTypeLU], tags=["meters"])
+async def get_meter_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(MeterTypeLU)).all()
+
+@meter_router.get("/land_owners", response_model=List[meter_schemas.LandOwner], tags=["meters"])
+async def get_land_owners(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(LandOwners)).all()
 
 @meter_router.patch("/meter",
     response_model=meter_schemas.Meter,
     dependencies=[Depends(admin_user)],
     tags=["meters"]
 )
-async def update_meter(
+async def patch_meter(
     updated_meter: meter_schemas.Meter,
     db: Session = Depends(get_db),
 ):
+    # Not ideal, but location info can be updated from the meter
+    _patch(db, MeterLocations, updated_meter.meter_location_id, updated_meter.meter_location)
+
     return _patch(db, Meters, updated_meter.id, updated_meter)
 
 # Build a list of a meter's history (activities and observations)
