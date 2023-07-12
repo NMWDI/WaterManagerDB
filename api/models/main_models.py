@@ -74,19 +74,7 @@ PartsUsed = Table(
 # ---------  Meter Related Tables ---------
 
 
-class MeterLocations(Base):
-    """
-    Table for tracking information about a meters location
-    """
 
-    name = Column(String, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
-    trss = Column(String)
-
-    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
-
-    land_owner = relationship("LandOwners")
 
 
 class Meters(Base):
@@ -98,22 +86,22 @@ class Meters(Base):
     contact_name = Column(String)  # Contact information specific to particular meter
     contact_phone = Column(String)
     old_contact_name = Column(String)
-    old_contact_phone = Column(String)
-    ra_number = Column(
-        String
-    )  # RA Number is an identifier of the well the meter is attached to
-    tag = Column(String)  # OSE tag
+    tag = Column(String)  # OSE tag of some sort?
+    
     well_distance_ft = Column(Float)  # Distance of meter install from well
     notes = Column(String)
 
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))
-    meter_location_id = Column(Integer, ForeignKey("MeterLocations.id"))
+    location_id = Column(Integer, ForeignKey("Locations.id"))
+    well_id = Column(Integer, ForeignKey("Wells.id"))
 
     meter_type = relationship("MeterTypeLU", lazy="noload")
     status = relationship("MeterStatusLU", lazy="noload")
-    meter_location = relationship("MeterLocations", lazy="noload")
+    #meter_location = relationship("MeterLocations", lazy="noload")
 
+    '''
+    delete?
     @hybrid_property
     def land_owner_name(self):
         return self.meter_location.land_owner.land_owner_name
@@ -127,6 +115,8 @@ class Meters(Base):
     longitude = Column(Float)
     latitude = Column(Float)
     trss = Column(String)
+    '''
+    
 
 
 class MeterTypeLU(Base):
@@ -279,18 +269,70 @@ class Notes(Base):
 
 # ---------- Other Tables ---------------
 
+class Locations(Base):
+    """
+    Table for tracking information about a meters location
+    """
+
+    name = Column(String, nullable=False)
+    type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    township = Column(Integer)
+    range = Column(Integer)
+    section = Column(Integer)
+    quarter = Column(Integer)
+    half_quarter = Column(Integer)
+    quarter_quarter = Column(Integer)
+
+    '''
+    Future stuff
+    #geom = Column(Geometry("POINT"))
+      @property
+    def latitude(self):
+        try:
+            return to_shape(self.geom).y
+        except BaseException:
+            return
+
+    @property
+    def longitude(self):
+        try:
+            return to_shape(self.geom).x
+        except BaseException:
+            return
+
+    @property
+    def location(self):
+        return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
+    '''
+
+    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
+    land_owner = relationship("LandOwners")
+
+class LocationTypeLU(Base):
+    '''
+    Defines the type of location, such as well
+    '''
+    type_name = Column(String)
+    description = Column(String)
+
 
 class LandOwners(Base):
     """
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
     """
-
     contact_name = Column(String)
-    land_owner_name = Column(String)
-    phone = Column(String)
-    email = Column(String)
+    organization = Column(String)
+    address = Column(String)
     city = Column(String)
+    state = Column(String)
+    zip = Column(String)
+    phone = Column(String)
+    mobile = Column(String)
+    email = Column(String)
+    note = Column(String)
 
 
 class Alerts(Base):
@@ -370,52 +412,18 @@ class Repairs(Base):
         self.repair_by.id
 
 
-# ------------ Monitoring Wells --------------
+# ------------ Wells --------------
 
 
 class Wells(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    location_id = Column(Integer, ForeignKey("Locations.id"))
+    ra_number = Column(String)  # RA Number is an OSE well identifier
+    osepod = Column(String) #Another OSE identifier?
 
-    township = Column(Integer)
-    range = Column(Integer)
-    section = Column(Integer)
-    quarter = Column(Integer)
-    half_quarter = Column(Integer)
-    quarter_quarter = Column(Integer)
-
-    # latitude = Column(Float)
-    # longitude = Column(Float)
-
-    geom = Column(Geometry("POINT"))
-
-    # owner_id = Column(Integer, ForeignKey("Owner.id"))
-    osepod = Column(String)
-
-    # meter = relationship('Meter', uselist=False, back_populates='well')
-    # owner = relationship("Owner", back_populates="wells")
     waterlevels = relationship("WellMeasurements", back_populates="well")
-
-    # meter_history = relationship("MeterHistory", uselist=False)
     construction = relationship("WellConstructions", uselist=False)
-
-    @property
-    def latitude(self):
-        try:
-            return to_shape(self.geom).y
-        except BaseException:
-            return
-
-    @property
-    def longitude(self):
-        try:
-            return to_shape(self.geom).x
-        except BaseException:
-            return
-
-    @property
-    def location(self):
-        return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
 
 
 class WellConstructions(Base):
