@@ -11,7 +11,19 @@ from api.schemas.activity_schemas import (
     ActivitiesFormOptions,
     ObservationType,
 )
-from api.models.main_models import *
+from api.models.main_models import (
+    Meters,
+    Parts,
+    ActivityTypeLU,
+    Technicians,
+    ObservedPropertyTypeLU,
+    Units,
+    PartsUsed,
+    LandOwners,
+    MeterActivities,
+    MeterObservations,
+    PropertyUnits,
+)
 from api.security import scoped_user
 from api.session import get_db
 
@@ -39,7 +51,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get activity types
     activities_list = []
-    activities = db.execute(select(Activities.id, Activities.name))
+    activities = db.execute(select(ActivityTypeLU.id, ActivityTypeLU.name))
     for row in activities:
         activities_list.append({"activity_id": row[0], "activity_name": row[1]})
 
@@ -48,11 +60,11 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
     observed_props = db.execute(
         select(
             PropertyUnits.property_id,
-            ObservedProperties.name,
+            ObservedPropertyTypeLU.name,
             PropertyUnits.unit_id,
             Units.name_short,
         )
-        .join(ObservedProperties)
+        .join(ObservedPropertyTypeLU)
         .join(Units)
     )
     for row in observed_props:
@@ -70,19 +82,15 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get technicians
     technician_list = []
-    technicians = db.execute(select(Worker.id, Worker.name))
+    technicians = db.execute(select(Technicians.id, Technicians.name))
     for row in technicians:
         technician_list.append({"technician_id": row[0], "technician_name": row[1]})
 
     # Get organizations
-    organization_list = []
-    organizations = db.execute(
-        select(Organizations.id, Organizations.organization_name)
-    )
-    for row in organizations:
-        organization_list.append(
-            {"organization_id": row[0], "organization_name": row[1]}
-        )
+    land_owner_list = []
+    land_owners = db.execute(select(LandOwners.id, LandOwners.land_owner_name))
+    for row in land_owners:
+        land_owner_list.append({"land_owner_id": row[0], "land_owner_name": row[1]})
 
     # Create form options
     form_options = ActivitiesFormOptions(
@@ -90,7 +98,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         activity_types=activities_list,
         observed_properties=list(properties_map.values()),
         technicians=technician_list,
-        organizations=organization_list,
+        land_owners=land_owner_list,
     )
 
     return form_options
@@ -137,7 +145,7 @@ async def add_maintenance(maintenance: Maintenance, db: Session = Depends(get_db
     # Also subtract count off of parts inventory for a part used
     if maintenance.parts:
         for part in maintenance.parts:
-            part_used = db.scalars(select(Part).where(Part.id == part.part_id)).one()
+            part_used = db.scalars(select(Parts).where(Parts.id == part.part_id)).one()
             part_used.count = part_used.count - part.count
             db.add(PartsUsed(meter_activity_id=activity.id, **part.dict()))
 

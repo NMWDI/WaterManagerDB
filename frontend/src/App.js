@@ -6,7 +6,8 @@ import { AuthProvider, RequireAuth } from 'react-auth-kit'; //https://authkit.ar
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
-import MetersView from "./MetersView";
+// import MetersView from "./MetersView";
+import MetersView from './views/Meters/MetersView'
 import InsufficientPermView from "./views/InsufficientPermView";
 import Home from "./Home";
 import Topbar from "./components/Topbar";

@@ -58,7 +58,7 @@ class WaterLevelCreate(ORMBase):
     timestamp: datetime
     value: float
     observed_property_id: int
-    worker_id: int
+    technician_id: int
     unit_id: int
 
 

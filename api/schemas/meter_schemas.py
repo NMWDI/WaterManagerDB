@@ -4,26 +4,109 @@
 # ===============================================================================
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 from api.schemas.part_schemas import Part
+from api.schemas.activity_schemas import Activity, Observation, LandOwner
+
+
+class MeterMapDTO(BaseModel):
+    class MeterLocationDTO(BaseModel):
+        longitude: Optional[float]
+        latitude: Optional[float]
+
+        class Config:
+            orm_mode = True
+
+    id: int
+    meter_location: Optional[MeterLocationDTO]
+
+    class Config:
+        orm_mode = True
+
+
+class MeterTypeLU(BaseModel):
+    id: int
+    brand: Optional[str]
+    series: Optional[str]
+    model_number: str
+    size: float
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class MeterListDTO(BaseModel):
+    class MeterLocationDTO(BaseModel):
+        class LandOwnerDTO(BaseModel):
+            land_owner_name: Optional[str]
+
+            class Config:
+                orm_mode = True
+
+        land_owner: Optional[LandOwnerDTO]
+
+        class Config:
+            orm_mode = True
+
+    id: int
+    serial_number: Optional[str]
+    trss: Optional[str]
+    ra_number: Optional[str]
+    meter_location: Optional[MeterLocationDTO]
+
+    class Config:
+        orm_mode = True
+
+
+# NEW ------------------------------------
+
+
+class MeterLocation(BaseModel):
+    id: int
+    name: str
+    latitude: float
+    longitude: float
+    trss: Optional[str]
+    land_owner_id: int
+
+    land_owner: Optional[LandOwner]
+
+    class Config:
+        orm_mode = True
+
+
+class MeterStatusLU(BaseModel):
+    status_name: Optional[str]
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
 class Meter(BaseModel):
-    meter_id: int
+    id: int
     serial_number: str
-    brand: str
-    model_number: str
-    status: str = None
-    contact_name: str = None
-    contact_phone: str = None
-    organization: str = None
-    ra_number: str = None
-    tag: str = None
-    latitude: float = None
-    longitude: float = None
-    trss: str = None
-    well_distance_ft: float = None
-    notes: str = None
-    parts_associated: List[Part] = None
+    contact_name: Optional[str]
+    contact_phone: Optional[str]
+    old_contact_name: Optional[str]
+    old_contact_phone: Optional[str]
+    ra_number: Optional[str]
+    tag: Optional[str]
+    well_distance_ft: Optional[float]
+    notes: Optional[str]
+
+    meter_type_id: Optional[int]
+    status_id: Optional[int]
+    meter_location_id: Optional[int]
+
+    meter_type: Optional[MeterTypeLU]
+    status: Optional[MeterStatusLU]
+    meter_location: Optional[MeterLocation]
+
+    class Config:
+        orm_mode = True
+
+    # Can also have location history

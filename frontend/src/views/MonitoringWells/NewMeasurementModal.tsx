@@ -44,7 +44,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
             timestamp: new Date(Date.parse(date + ' ' + time)),
             value: value as number,
             observed_property_id: 6, // Should likely be an enum at some point
-            worker_id: technicianID as number,
+            technician_id: technicianID as number,
             unit_id: 7, // Should likely be enum
             well_id: 0 // Set by parent
         })
