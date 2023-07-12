@@ -6,6 +6,7 @@ import os
 import api.models
 from api.security import get_password_hash
 from sqlalchemy import create_engine
+from sqlalchemy.sql import text
 from api.session import SessionLocal
 from .config import settings
 
@@ -17,7 +18,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # Note: create_all checks for existance of the table first. So it will only add a table if it doesn't exist.
 #       if the table is changed the database will need to be created new.
 if os.environ.get("SETUP_DB"):
-    print('Setting up the database')
+    print("Setting up the database")
     api.models.main_models.Base.metadata.create_all(engine)
 
 # Load development data from CSV
@@ -29,11 +30,11 @@ if os.environ.get("POPULATE_DB"):
 
     # Load meter types CSV
     with open("api/data/devdata_metertypes.csv", "r") as f:
-        qry = 'COPY "MeterTypes"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_contacts.csv", "r") as f:
-        qry = 'COPY "Organizations"(id,organization_name,phone,city) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "LandOwners"(id,land_owner_name,phone,city) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meterstatus.csv", "r") as f:
@@ -41,7 +42,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_observedproperties.csv", "r") as f:
-        qry = 'COPY "ObservedProperties"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ObservedPropertyTypeLU"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_units.csv", "r") as f:
@@ -53,23 +54,27 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meters.csv", "r") as f:
-        qry = 'COPY "Meters"(serial_number,tag,meter_type_id,organization_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Meters"(serial_number,tag,meter_type_id,land_owner_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes, old_contact_phone, old_contact_name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_meterlocations.csv", "r") as f:
+        qry = 'COPY "MeterLocations"(name,latitude,longitude,trss,land_owner_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_activities.csv", "r") as f:
-        qry = 'COPY "Activities"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ActivityTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_workers.csv", "r") as f:
-        qry = 'COPY "Worker"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Technicians"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_well.csv", "r") as f:
-        qry = 'COPY "Well"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Wells"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_wellMeasurement.csv", "r") as f:
-        qry = 'COPY "WellMeasurement"(timestamp,value,well_id,observed_property_id,worker_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,technician_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_parttypeLU.csv", "r") as f:
@@ -77,11 +82,23 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_parts.csv", "r") as f:
-        qry = 'COPY "Part"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_partsassociated.csv", "r") as f:
         qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_meterobservations.csv", "r") as f:
+        qry = 'COPY "MeterObservations"(timestamp, value, notes, technician_id, meter_id, observed_property_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_meteractivities.csv", "r") as f:
+        qry = 'COPY "MeterActivities"(timestamp_start, timestamp_end, notes, technician_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_partsused.csv", "r") as f:
+        qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     conn.commit()
@@ -92,35 +109,81 @@ if os.environ.get("POPULATE_DB"):
 
     SecurityScopes = api.models.security_models.SecurityScopes
     UserRoles = api.models.security_models.UserRoles
-    User = api.models.security_models.User
+    Users = api.models.security_models.Users
 
-    admin_scope = SecurityScopes(scope_string="admin", description="Admin-specific scope.")
-    meter_write_scope = SecurityScopes(scope_string="meter:write", description="Write meters")
-    activities_write_scope = SecurityScopes(scope_string="activities:write", description="Write activities")
-    well_measurements_write_scope = SecurityScopes(scope_string="well_measurement:write", description="Write well measurements, i.e. Water Levels and Chlorides")
-    reports_run_scope = SecurityScopes(scope_string="reports:run", description="Run reports")
+    admin_scope = SecurityScopes(
+        scope_string="admin", description="Admin-specific scope."
+    )
+    meter_write_scope = SecurityScopes(
+        scope_string="meter:write", description="Write meters"
+    )
+    activities_write_scope = SecurityScopes(
+        scope_string="activities:write", description="Write activities"
+    )
+    well_measurements_write_scope = SecurityScopes(
+        scope_string="well_measurement:write",
+        description="Write well measurements, i.e. Water Levels and Chlorides",
+    )
+    reports_run_scope = SecurityScopes(
+        scope_string="reports:run", description="Run reports"
+    )
     read_scope = SecurityScopes(scope_string="read", description="Read all data.")
 
-    technician_role = UserRoles(name="Technician", security_scopes=[read_scope, meter_write_scope, activities_write_scope, well_measurements_write_scope, reports_run_scope])
-    admin_role = UserRoles(name="Admin", security_scopes=[read_scope, meter_write_scope, activities_write_scope, well_measurements_write_scope, reports_run_scope, admin_scope])
+    technician_role = UserRoles(
+        name="Technician",
+        security_scopes=[
+            read_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+        ],
+    )
+    admin_role = UserRoles(
+        name="Admin",
+        security_scopes=[
+            read_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+            admin_scope,
+        ],
+    )
 
-    technician_user = User(
+    technician_user = Users(
         full_name="Technician User",
         username="test",
         email="johndoe@example.com",
         hashed_password=get_password_hash("secret"),
-        user_role=technician_role
+        user_role=technician_role,
     )
 
-    admin_user = User(
+    admin_user = Users(
         full_name="Admin User",
         username="admin",
         email="admin@example.com",
         hashed_password=get_password_hash("secret"),
-        user_role=admin_role
+        user_role=admin_role,
     )
 
-    db.add_all([admin_scope, meter_write_scope, activities_write_scope, well_measurements_write_scope, reports_run_scope, read_scope, technician_role, admin_role, technician_user, admin_user])
+    db.add_all(
+        [
+            admin_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+            read_scope,
+            technician_role,
+            admin_role,
+            technician_user,
+            admin_user,
+        ]
+    )
+
+    # Temporary fix to give locations to meters, until a new meters seeder is created
+    db.execute(text('UPDATE "Meters" SET meter_location_id=1'))
 
     db.commit()
     db.close()

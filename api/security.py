@@ -33,10 +33,10 @@ oauth2_scheme = OAuth2PasswordBearer(
     scopes={
         "read": "Read all data",
         "meters:write": "Write meters",
-        "activities:write":"Write activities",
+        "activities:write": "Write activities",
         "well_measurement:write": "Write well measurements, i.e. Water Levels and Chlorides",
         "reports:run": "Run reports",
-        "admin": "Admin specific scope"
+        "admin": "Admin specific scope",
     },
 )
 
@@ -78,27 +78,33 @@ def get_user(username: str):
     db = next(get_db())
 
     # Eager load roles and scopes
-    dbuser = (db.query(security_models.User)
-                .filter(security_models.User.username == username)
-                .options(
-                        joinedload(security_models.User.user_role)
-                            .joinedload(security_models.UserRoles.security_scopes)
-                ).first())
+    dbuser = (
+        db.query(security_models.Users)
+        .filter(security_models.Users.username == username)
+        .options(
+            joinedload(security_models.Users.user_role).joinedload(
+                security_models.UserRoles.security_scopes
+            )
+        )
+        .first()
+    )
 
     if dbuser:
         return security_schemas.UserInDB(**dbuser.__dict__)
 
 
-async def get_current_user(security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+    security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme)
+):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
         authenticate_value = f"Bearer"
         credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": authenticate_value},
-    )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": authenticate_value},
+        )
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -106,7 +112,9 @@ async def get_current_user(security_scopes: SecurityScopes, token: str = Depends
         if username is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
-        token_data = security_schemas.TokenData(security_scopes=token_scopes, username=username)
+        token_data = security_schemas.TokenData(
+            security_scopes=token_scopes, username=username
+        )
     except (JWTError, ValidationError):
         raise credentials_exception
     user = get_user(username=token_data.username)
@@ -124,7 +132,9 @@ async def get_current_user(security_scopes: SecurityScopes, token: str = Depends
 
 
 def scoped_user(scopes):
-    async def get_user(current_user: security_models.User = Security(get_current_user, scopes=scopes)):
+    async def get_user(
+        current_user: security_models.Users = Security(get_current_user, scopes=scopes)
+    ):
         if current_user.disabled:
             raise HTTPException(status_code=400, detail="Inactive user")
         return current_user

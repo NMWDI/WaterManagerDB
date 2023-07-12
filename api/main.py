@@ -16,6 +16,7 @@ from datetime import datetime, timedelta, date
 
 from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi_pagination import add_pagination
 from typing import List, Union
 
 from sqlalchemy.orm import Session
@@ -39,7 +40,7 @@ from api.security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     authenticated_router,
 )
-from api.models.security_models import User
+from api.models.security_models import Users
 from api.session import engine, SessionLocal, get_db
 from api.xls_persistence import make_xls_backup
 
@@ -95,7 +96,12 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username, "scopes": list(map(lambda scope: scope.scope_string, user.user_role.security_scopes))},
+        data={
+            "sub": user.username,
+            "scopes": list(
+                map(lambda scope: scope.scope_string, user.user_role.security_scopes)
+            ),
+        },
         expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer", "user": user}
@@ -116,6 +122,6 @@ async def read_nmeters(
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
-
+add_pagination(app)
 
 app.include_router(authenticated_router)
