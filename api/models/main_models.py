@@ -35,33 +35,24 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__
 
-
-# ---------- Parts Inventory ------------
-
+# ---------- Parts/Services/Notes ------------
 
 class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
 
-
 class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
     description = Column(String)
     vendor = Column(String)
     count = Column(Integer, default=0)
     note = Column(String)
 
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
-
-    part_type = relationship("PartTypeLU")
-
-
 class PartAssociation(Base):
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
+    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
     commonly_used = Column(Boolean)
-
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
-    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
-
 
 PartsUsed = Table(
     "PartsUsed",
@@ -71,11 +62,35 @@ PartsUsed = Table(
     Column("count", Integer),
 )
 
+class ServiceTypeLU(Base):
+    '''
+    Describes the type of service performed during an activity
+    '''
+    service_name = Column(String)
+    description = Column(String)
+
+class ServicesPerformed(Base):
+    '''
+    Tracks services performed during an activity
+    '''
+    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
+    service_type_id = Column(Integer, ForeignKey("ServiceTypeLU.id"), nullable=False)
+
+class NoteTypeLU(Base):
+    '''
+    Commonly used notes associated with meter activities
+    '''
+    note = Column(String)
+    details = Column(String)
+
+class Notes(Base):
+    '''
+    Tracks notes associated with meter activities
+    '''
+    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
+    note_type_id = Column(Integer, ForeignKey("NoteTypeLU.id"), nullable=False)
+
 # ---------  Meter Related Tables ---------
-
-
-
-
 
 class Meters(Base):
     """
@@ -118,7 +133,6 @@ class Meters(Base):
     '''
     
 
-
 class MeterTypeLU(Base):
     """
     Details different meter types, but does not include parts
@@ -153,12 +167,12 @@ class MeterActivities(Base):
     technician_id = Column(Integer, ForeignKey("Technicians.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
-    location_id = Column(Integer, ForeignKey("MeterLocations.id"), nullable=False)
+    location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
     technician = relationship("Technicians")
     meter = relationship("Meters")
     activity_type = relationship("ActivityTypeLU")
-    location = relationship("MeterLocations")
+    location = relationship("Locations")
     parts_used = relationship("Parts", secondary=PartsUsed)
 
 
@@ -169,6 +183,7 @@ class ActivityTypeLU(Base):
 
     name = Column(String)
     description = Column(String)
+    permission = Column(String) #Specifies who can perform this activity
 
 
 class MeterObservations(Base):
@@ -186,13 +201,13 @@ class MeterObservations(Base):
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
     )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
-    location_id = Column(Integer, ForeignKey("MeterLocations.id"), nullable=False)
+    location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
     technician = relationship("Technicians")
     meter = relationship("Meters")
     observed_property = relationship("ObservedPropertyTypeLU")
     unit = relationship("Units")
-    location = relationship("MeterLocations")
+    location = relationship("Locations")
 
 
 class ObservedPropertyTypeLU(Base):
@@ -202,6 +217,7 @@ class ObservedPropertyTypeLU(Base):
 
     name = Column(String)
     description = Column(String)
+    context = Column(String) # Specifies if property associated with meter or well
 
 
 class Units(Base):
@@ -219,53 +235,8 @@ class PropertyUnits(Base):
     Table linking Observed Properties to Units
     Describes which units are associated with which properties
     """
-
-# ---------- Parts/Services/Notes ------------
-
-class PartTypeLU(Base):
-    name = Column(String)
-    description = Column(String)
-
-class Part(Base):
-    part_number = Column(String, unique=True, nullable=False)
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
-    description = Column(String)
-    vendor = Column(String)
-    count = Column(Integer, default=0)
-    note = Column(String)
-
-class PartAssociation(Base):
-    meter_type_id = Column(Integer, ForeignKey("MeterTypes.id"),nullable=False)
-    part_id = Column(Integer,ForeignKey("Part.id"),nullable=False)
-    commonly_used = Column(Boolean)
-
-class ServiceTypeLU(Base):
-    '''
-    Describes the type of service performed during an activity
-    '''
-    service_name = Column(String)
-    description = Column(String)
-
-class ServicesPerformed(Base):
-    '''
-    Tracks services performed during an activity
-    '''
-    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    service_type_id = Column(Integer, ForeignKey("ServiceTypeLU.id"), nullable=False)
-
-class NoteTypeLU(Base):
-    '''
-    Commonly used notes associated with meter activities
-    '''
-    note = Column(String)
-    description = Column(String)
-
-class Notes(Base):
-    '''
-    Tracks notes associated with meter activities
-    '''
-    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    note_type_id = Column(Integer, ForeignKey("NoteTypeLU.id"), nullable=False)
+    property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
 
 # ---------- Other Tables ---------------
 
@@ -276,6 +247,7 @@ class Locations(Base):
 
     name = Column(String, nullable=False)
     type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
+    trss = Column(String)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     township = Column(Integer)
@@ -316,7 +288,6 @@ class LocationTypeLU(Base):
     '''
     type_name = Column(String)
     description = Column(String)
-
 
 class LandOwners(Base):
     """

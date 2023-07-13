@@ -33,8 +33,8 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_contacts.csv", "r") as f:
-        qry = 'COPY "LandOwners"(id,land_owner_name,phone,city) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    with open("api/data/landowners.csv", "r") as f:
+        qry = 'COPY "LandOwners"(organization,address,city,state,zip,phone,mobile,note,id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_meterstatus.csv", "r") as f:
@@ -42,7 +42,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_observedproperties.csv", "r") as f:
-        qry = 'COPY "ObservedPropertyTypeLU"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ObservedPropertyTypeLU"(id,name,description,context) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_units.csv", "r") as f:
@@ -53,24 +53,28 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_meters.csv", "r") as f:
-        qry = 'COPY "Meters"(serial_number,tag,meter_type_id,land_owner_id,status_id,contact_name,contact_phone,ra_number,latitude,longitude,trss,notes, old_contact_phone, old_contact_name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    with open("api/data/meters.csv", "r") as f:
+        qry = 'COPY "Meters"(id,serial_number,old_contact_name,tag,meter_type_id,status_id,location_id,well_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_meterlocations.csv", "r") as f:
-        qry = 'COPY "MeterLocations"(name,latitude,longitude,trss,land_owner_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    with open("api/data/devdata_locationtypeLU.csv", "r") as f:
+        qry = 'COPY "LocationTypeLU"(id,type_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/locations.csv", "r") as f:
+        qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,owner_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_activities.csv", "r") as f:
-        qry = 'COPY "ActivityTypeLU"(name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ActivityTypeLU"(name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_workers.csv", "r") as f:
         qry = 'COPY "Technicians"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_well.csv", "r") as f:
-        qry = 'COPY "Wells"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    with open("api/data/wells.csv", "r") as f:
+        qry = 'COPY "Wells"(id,name,ra_number,location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_wellMeasurement.csv", "r") as f:
@@ -89,15 +93,15 @@ if os.environ.get("POPULATE_DB"):
         qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_meterobservations.csv", "r") as f:
+    with open("api/data/testdata_meterobservations.csv", "r") as f:
         qry = 'COPY "MeterObservations"(timestamp, value, notes, technician_id, meter_id, observed_property_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_meteractivities.csv", "r") as f:
+    with open("api/data/testdata_meteractivities.csv", "r") as f:
         qry = 'COPY "MeterActivities"(timestamp_start, timestamp_end, notes, technician_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
-    with open("api/data/devdata_partsused.csv", "r") as f:
+    with open("api/data/testdata_partsused.csv", "r") as f:
         qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
