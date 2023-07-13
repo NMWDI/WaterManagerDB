@@ -15,7 +15,7 @@ from api.models.main_models import (
     LandOwners,
     MeterActivities,
     MeterObservations,
-    MeterLocations,
+    Locations,
     MeterTypeLU,
 )
 from api.route_util import _patch
@@ -75,7 +75,7 @@ async def get_meters(
     query_statement = (
         select(Meters)
         .options(joinedload(Meters.meter_location))
-        .join(MeterLocations, isouter=True)
+        .join(Locations, isouter=True)
         .join(LandOwners, isouter=True)
     )
 
@@ -114,11 +114,11 @@ async def get_meters_locations(
         .options(joinedload(Meters.meter_location))
         .where(
             and_(
-                MeterLocations.latitude.is_not(None),
-                MeterLocations.longitude.is_not(None),
+                Locations.latitude.is_not(None),
+                Locations.longitude.is_not(None),
             )
         )
-        .join(MeterLocations, isouter=True)
+        .join(Locations, isouter=True)
     ).all()
 
 
@@ -170,7 +170,7 @@ async def patch_meter(
     # Not ideal, but location info can be updated from the meter
     _patch(
         db,
-        MeterLocations,
+        Locations,
         updated_meter.meter_location_id,
         updated_meter.meter_location,
     )

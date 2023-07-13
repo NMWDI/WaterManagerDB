@@ -102,7 +102,7 @@ class Meters(Base):
     contact_phone = Column(String)
     old_contact_name = Column(String)
     tag = Column(String)  # OSE tag of some sort?
-    
+
     well_distance_ft = Column(Float)  # Distance of meter install from well
     notes = Column(String)
 
@@ -131,7 +131,7 @@ class Meters(Base):
     latitude = Column(Float)
     trss = Column(String)
     '''
-    
+
 
 class MeterTypeLU(Base):
     """
@@ -256,6 +256,10 @@ class Locations(Base):
     quarter = Column(Integer)
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
+    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"), nullable=False)
+
+    land_owner = relationship("LandOwners")
+
 
     '''
     Future stuff

@@ -70,7 +70,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_activities.csv", "r") as f:
-        qry = 'COPY "ActivityTypeLU"(name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "ActivityTypeLU"(id,name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/devdata_workers.csv", "r") as f:
