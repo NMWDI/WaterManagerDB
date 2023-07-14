@@ -2,13 +2,12 @@ import logo from './logo.svg';
 import './App.css';
 
 import Sidebar from "./sidebar";
-import { AuthProvider, RequireAuth } from 'react-auth-kit'; //https://authkit.arkadip.dev/
+import { AuthProvider } from 'react-auth-kit'; //https://authkit.arkadip.dev/
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
-// import MetersView from "./MetersView";
+import ActivitiesView from './views/Activities/ActivitiesView';
 import MetersView from './views/Meters/MetersView'
-import InsufficientPermView from "./views/InsufficientPermView";
 import Home from "./Home";
 import Topbar from "./components/Topbar";
 import ChloridesView from "./ChloridesView";
@@ -17,10 +16,13 @@ import AlertsView from "./AlertsView";
 import Login from './login';
 import ActivityView from './views/Activities';
 import RequireScopes from './components/RequireScopes'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers'
 
 function App() {
 
     return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
         <AuthProvider
             authType = {'localstorage'}
             authName={'_auth'}
@@ -60,7 +62,7 @@ function App() {
                             <RequireScopes requiredScopes={["activities:write"]}>
                                 <Topbar />
                                 <div className="container">
-                                    <Sidebar /><ActivityView />
+                                    <Sidebar /><ActivitiesView />
                                 </div>
                             </RequireScopes>
                         }
@@ -113,6 +115,7 @@ function App() {
                 </Routes>
             </Router>
         </AuthProvider>
+        </LocalizationProvider>
   );
 
 }

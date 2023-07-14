@@ -1,5 +1,19 @@
 import { SortDirection, MeterSortByField } from 'enums'
 
+export interface ObservedPropertyTypeLU {
+    id: number
+    name: string
+    description: string
+    context: string
+}
+
+export interface Unit {
+    id: number
+    name: string
+    name_short: string
+    description: string
+}
+
 export interface MeterHistoryDTO {
     id: int
     history_type: string
