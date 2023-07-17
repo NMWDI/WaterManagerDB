@@ -36,7 +36,7 @@ const meterTableColumns = [
     {
         field: 'meter_location',
         headerName: 'Land Owner',
-        valueFormatter: (params: any) => params.value.land_owner.land_owner_name,
+        valueFormatter: (params: any) => params.value?.land_owner?.land_owner_name,
         width: 200
     },
     {
@@ -61,7 +61,8 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
     useDidMountEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
-            sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
+            // sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
+            sort_by: MeterSortByField.SerialNumber, // until location is fixed
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: gridPageSize,
             offset: gridPage * gridPageSize

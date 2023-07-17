@@ -87,10 +87,12 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         technician_list.append({"technician_id": row[0], "technician_name": row[1]})
 
     # Get organizations
-    land_owner_list = []
-    land_owners = db.execute(select(LandOwners.id, LandOwners.land_owner_name))
-    for row in land_owners:
-        land_owner_list.append({"land_owner_id": row[0], "land_owner_name": row[1]})
+
+    # Removing until locations is fixed
+    # land_owner_list = []
+    # land_owners = db.execute(select(LandOwners.id, LandOwners.land_owner_name))
+    # for row in land_owners:
+    #     land_owner_list.append({"land_owner_id": row[0], "land_owner_name": row[1]})
 
     # Create form options
     form_options = ActivitiesFormOptions(
@@ -98,7 +100,8 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
         activity_types=activities_list,
         observed_properties=list(properties_map.values()),
         technicians=technician_list,
-        land_owners=land_owner_list,
+        # land_owners=land_owner_list,
+        land_owners=[],
     )
 
     return form_options

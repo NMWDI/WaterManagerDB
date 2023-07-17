@@ -114,9 +114,9 @@ export interface Meter {
 export interface MeterListDTO {
     id: number
     serial_number: string
-    trss: string
-    meter_location: {land_owner: {land_owner_name: string}}
-    ra_number: string
+    trss?: string
+    meter_location?: {land_owner?: {land_owner_name?: string}}
+    ra_number?: string
 }
 
 export interface Page<T> {

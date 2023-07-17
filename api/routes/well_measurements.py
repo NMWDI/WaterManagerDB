@@ -59,7 +59,7 @@ async def add_waterlevel(
     tags=["waterlevels"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "DTW BGS", well_id)
+    return _read_well_measurement(db, "Depth to water", well_id)
 
 
 @well_measurement_router.get(

@@ -111,12 +111,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 # ======  Meters
-@app.get("/nmeters", response_model=int, tags=["meters"])
-async def read_nmeters(
-    db: Session = Depends(get_db),
-):
-    q = db.query(Meters)
-    return q.count()
+# Not in use, commenting out for now
+# @app.get("/nmeters", response_model=int, tags=["meters"])
+# async def read_nmeters(
+#     db: Session = Depends(get_db),
+# ):
+#     q = db.query(Meters)
+#     return q.count()
 
 
 authenticated_router.include_router(meter_router)

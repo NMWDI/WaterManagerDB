@@ -64,28 +64,28 @@ async def get_meters(
             case MeterSortByField.RANumber:
                 return Meters.ra_number
 
-            case MeterSortByField.LandOwnerName:
-                return LandOwners.land_owner_name
+            # case MeterSortByField.LandOwnerName:
+            #     return LandOwners.land_owner_name
 
-            case MeterSortByField.TRSS:
-                return Meters.trss
+            # case MeterSortByField.TRSS:
+            #     return Meters.trss
 
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
         select(Meters)
-        .options(joinedload(Meters.meter_location))
-        .join(Locations, isouter=True)
-        .join(LandOwners, isouter=True)
+        # .options(joinedload(Meters.meter_location))
+        # .join(Locations, isouter=True)
+        # .join(LandOwners, isouter=True)
     )
 
     if search_string:
         query_statement = query_statement.where(
             or_(
                 Meters.serial_number.ilike(f"%{search_string}%"),
-                Meters.ra_number.ilike(f"%{search_string}%"),
-                Meters.trss.ilike(f"%{search_string}%"),
-                LandOwners.land_owner_name.ilike(f"%{search_string}%"),
+                # Meters.ra_number.ilike(f"%{search_string}%"),
+                # Meters.trss.ilike(f"%{search_string}%"),
+                # LandOwners.land_owner_name.ilike(f"%{search_string}%"),
             )
         )
 
@@ -103,23 +103,25 @@ async def get_meters(
 
 
 # Get list of all meters and their coordinates (if they have them)
-@meter_router.get(
-    "/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"]
-)
-async def get_meters_locations(
-    db: Session = Depends(get_db),
-):
-    return db.scalars(
-        select(Meters)
-        .options(joinedload(Meters.meter_location))
-        .where(
-            and_(
-                Locations.latitude.is_not(None),
-                Locations.longitude.is_not(None),
-            )
-        )
-        .join(Locations, isouter=True)
-    ).all()
+
+# Removing until locations is fixed
+# @meter_router.get(
+#     "/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"]
+# )
+# async def get_meters_locations(
+#     db: Session = Depends(get_db),
+# ):
+#     return db.scalars(
+#         select(Meters)
+#         .options(joinedload(Meters.meter_location))
+#         .where(
+#             and_(
+#                 Locations.latitude.is_not(None),
+#                 Locations.longitude.is_not(None),
+#             )
+#         )
+#         .join(Locations, isouter=True)
+#     ).all()
 
 
 # Get single, fully qualified meter
@@ -132,7 +134,7 @@ async def get_meter(
         select(Meters)
         .options(
             joinedload(Meters.meter_type),
-            joinedload(Meters.meter_location),
+            # joinedload(Meters.meter_location),
             joinedload(Meters.status),
         )
         .filter(Meters.id == meter_id)

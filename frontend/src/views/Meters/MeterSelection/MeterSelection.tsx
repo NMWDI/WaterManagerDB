@@ -46,7 +46,8 @@ export default function MeterSelection({onMeterSelection}: MeterSelectionProps) 
                     </TabPanel>
 
                     <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
-                        <MeterSelectionMap onMeterSelection={onMeterSelection}/>
+                        {/*  <MeterSelectionMap onMeterSelection={onMeterSelection}/> */}
+                        Disabled until locations is fixed
                     </TabPanel>
                 </Box>
             </Box>
