@@ -5,6 +5,9 @@ import TabPanel from '../../components/TabPanel'
 
 import MeterActivitySelection from './MeterActivityEntry/MeterActivitySelection'
 import ObservationSelection from './MeterActivityEntry/ObservationsSelection'
+import NotesSelection from './MeterActivityEntry/NotesSelection'
+
+export const gridBreakpoints = {xs: 12, md: 10, xl:5}
 
 export default function ActivitiesView() {
     const [currentTabIndex, setCurrentTabIndex] = useState(0)
@@ -29,6 +32,7 @@ export default function ActivitiesView() {
                 <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
                     <MeterActivitySelection />
                     <ObservationSelection />
+                    <NotesSelection />
                 </TabPanel>
 
                 <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>

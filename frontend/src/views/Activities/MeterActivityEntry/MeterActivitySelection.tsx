@@ -12,11 +12,12 @@ import {
 } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
+import { gridBreakpoints } from '../ActivitiesView'
 import dayjs from 'dayjs'
 
 export default function MeterActivitySelection() {
     return (
-        <Grid container item xs={5}>
+        <Grid container item {...gridBreakpoints}>
             <h4>Activity Details</h4>
 
             {/* Start First Row */}
@@ -63,21 +64,21 @@ export default function MeterActivitySelection() {
                     <DatePicker
                         label="Date"
                         defaultValue={dayjs()}
-                        slotProps={{textField: {size: "small"}}}
+                        slotProps={{textField: {size: "small", fullWidth: true}}}
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <TimePicker
                         label="Start Time"
                         defaultValue={dayjs()}
-                        slotProps={{textField: {size: "small"}}}
+                        slotProps={{textField: {size: "small", fullWidth: true}}}
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <TimePicker
                         label="End Time"
                         defaultValue={dayjs()}
-                        slotProps={{textField: {size: "small"}}}
+                        slotProps={{textField: {size: "small", fullWidth: true}}}
                     />
                 </Grid>
             </Grid>

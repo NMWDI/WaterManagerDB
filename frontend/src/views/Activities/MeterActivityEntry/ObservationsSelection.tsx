@@ -38,7 +38,7 @@ function ObservationRow({observation, setObservation, removeObservation}: Observ
     return (
             <Grid container item xs={12} sx={{mb: 2}}>
 
-                <Grid container item xs={5} spacing={2}>
+                <Grid container item xs={10} xl={5} spacing={2}>
                     <Grid item xs={3}>
                         <TimePicker
                             label="Time"

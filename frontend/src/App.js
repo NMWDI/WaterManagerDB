@@ -67,6 +67,15 @@ function App() {
                             </RequireScopes>
                         }
                     />
+                    <Route path="/activities2" element={
+                            <RequireScopes requiredScopes={["activities:write"]}>
+                                <Topbar />
+                                <div className="container">
+                                    <Sidebar /><ActivityView />
+                                </div>
+                            </RequireScopes>
+                        }
+                    />
                     <Route path="/wells" element={
                             <RequireScopes requiredScopes={["well_measurement:write"]}>
                                 <Topbar />
