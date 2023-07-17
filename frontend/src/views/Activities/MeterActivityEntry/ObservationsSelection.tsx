@@ -17,7 +17,6 @@ import IconButton from '@mui/material/IconButton'
 
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs, {Dayjs} from 'dayjs'
-import { Unit, ObservedPropertyTypeLU } from '../../../interfaces'
 
 interface Observation {
     id: number // Dont forget that this is defined in the frontend and cant be sent to API
@@ -131,7 +130,7 @@ export default function ObservationsSelection() {
     }
 
     return (
-            <Box>
+            <Box sx={{mt: 6}}>
                 <h4>Observations</h4>
                 <Grid container item xs={12} sx={{mt: 1}}>
 

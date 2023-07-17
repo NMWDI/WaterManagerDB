@@ -4,8 +4,6 @@ import { produce } from 'immer'
 
 import {
     Box,
-    TextField,
-    Button,
     Grid,
     FormControl,
     InputLabel,
@@ -16,8 +14,9 @@ import {
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
-import { gridBreakpoints } from '../ActivitiesView'
+import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
 
+// Sample data
 const notesList: any = [
     {id: 1, name: 'Pump Off'},
     {id: 2, name: 'Low Flow'},
@@ -56,6 +55,7 @@ export default function NotesSelection() {
                     selected={isSelected(note.id)}
                     fullWidth
                     onChange={() => {isSelected(note.id) ? unselectNote(note.id) : selectNote(note.id)}}
+                    sx={toggleStyle}
                 >
                     {note.name}
                 </ToggleButton>
@@ -63,28 +63,23 @@ export default function NotesSelection() {
         )
     }
 
-    function addNote(input: any, in2: any) {
-        console.log(input)
-    }
-
     return (
-        <Box>
+        <Box sx={{mt: 6}}>
             <h4>Notes</h4>
             <Grid container>
-
                 <Grid container item xs={12}>
 
                     {/* Working on arrival selection */}
                     <ToggleButtonGroup
                         value={workingOnArrival}
-                        onChange={(_, value) => setWorkingOnArrival(value)}
+                        onChange={(_, value) => {value != null ? setWorkingOnArrival(value) : null}}
                         color="primary"
                         exclusive>
 
-                        <ToggleButton value={true}>
+                        <ToggleButton value={true} sx={toggleStyle}>
                             Meter Working On Arrival
                         </ToggleButton>
-                        <ToggleButton value={false}>
+                        <ToggleButton value={false} sx={toggleStyle}>
                             Meter Not Working On Arrival
                         </ToggleButton>
                     </ToggleButtonGroup>
@@ -102,8 +97,9 @@ export default function NotesSelection() {
                         })}
                     </Grid>
                 </Grid>
+
                 <Grid item xs={12} sx={{mt: 2}}>
-                    <Grid item {...gridBreakpoints} >
+                    <Grid item xs={3} >
 
                         <FormControl size="small" fullWidth>
                             <InputLabel>Add Other Notes</InputLabel>
