@@ -32,3 +32,4 @@ id,brand,series,model_number,size,description
 31,MASTER METER,,Unknown,,Unknown model number
 32,COGNITIS FLUID DATA,,Unknown,,Unknown model number
 33,FLOW CONTROL,,Unknown,,Unknown model number
+34,Unknown,,Unknown,,"Old, out of service meter of unknown type"

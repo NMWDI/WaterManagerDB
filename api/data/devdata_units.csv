@@ -4,6 +4,5 @@ id,name,name_short,description
 3,Kilowatt hours,kWh,Total electricity
 4,Gas BTU,btu,Total gas
 5,Percent,%,Percentage
-6,true or false,true/false,False if zero otherwise true
-7,feet,ft,feet
-8,meters,m,meters
+6,feet,ft,feet
+7,meters,m,meters

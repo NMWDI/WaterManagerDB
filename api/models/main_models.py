@@ -248,8 +248,8 @@ class Locations(Base):
     name = Column(String, nullable=False)
     type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
     trss = Column(String)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    latitude = Column(Float)
+    longitude = Column(Float)
     township = Column(Integer)
     range = Column(Integer)
     section = Column(Integer)
@@ -393,8 +393,8 @@ class Wells(Base):
     ra_number = Column(String)  # RA Number is an OSE well identifier
     osepod = Column(String) #Another OSE identifier?
 
-    waterlevels = relationship("WellMeasurements", back_populates="well")
-    construction = relationship("WellConstructions", uselist=False)
+    #waterlevels = relationship("WellMeasurements", back_populates="well")
+    #construction = relationship("WellConstructions", uselist=False)
 
 
 class WellConstructions(Base):
@@ -404,8 +404,8 @@ class WellConstructions(Base):
     well_depth = Column(Float, default=0)
     well_id = Column(Integer, ForeignKey("Wells.id"))
 
-    screens = relationship("ScreenIntervals")
-    well = relationship("Wells")
+    #screens = relationship("ScreenIntervals")
+    #well = relationship("Wells")
 
 
 class ScreenIntervals(Base):
@@ -426,8 +426,8 @@ class WellMeasurements(Base):
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
 
-    well = relationship("Wells", back_populates="waterlevels")
-    observed_property = relationship("ObservedPropertyTypeLU")
+    #well = relationship("Wells", back_populates="waterlevels")
+    #observed_property = relationship("ObservedPropertyTypeLU")
 
 
 class QC(Base):
