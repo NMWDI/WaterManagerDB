@@ -1,5 +1,22 @@
 import { SortDirection, MeterSortByField } from 'enums'
 
+// Sometimes MUI wants null, sometimes it wants ''
+export interface ActivityForm {
+    meter_id: number | null
+    activity_type_id: number | string
+    technician_id: number | string // keeping this?
+    date: Dayjs | null
+    start_time: Dayjs | null
+    end_time: Dayjs | null
+}
+
+export interface ActivityTypeLU {
+    id: number
+    name: string
+    description: string
+    permission: string
+}
+
 export interface ObservedPropertyTypeLU {
     id: number
     name: string
@@ -83,11 +100,11 @@ export interface MeterDetails {
 }
 
 export interface MeterListQueryParams {
-    search_string: string
-    sort_by: MeterSortByField
-    sort_direction: SortDirection
-    limit: number
-    offset: number
+    search_string?: string
+    sort_by?: MeterSortByField
+    sort_direction?: SortDirection
+    limit?: number
+    offset?: number
 }
 
 export interface MeterMapDTO {

@@ -3,7 +3,7 @@ import { useAuthHeader } from 'react-auth-kit'
 
 import { API_URL } from '../API_config.js'
 
-export function useDidMountEffect(func: Function, dependencies: any[]) {
+export function useDidMountEffect(func: Function, dependencies: any) {
     const didMount = useRef(false)
 
     useEffect(() => {

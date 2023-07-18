@@ -3,12 +3,7 @@ import { useState } from 'react'
 import { Box, Tabs, Tab, Grid } from '@mui/material'
 import TabPanel from '../../components/TabPanel'
 
-import MeterActivitySelection from './MeterActivityEntry/MeterActivitySelection'
-import ObservationSelection from './MeterActivityEntry/ObservationsSelection'
-import NotesSelection from './MeterActivityEntry/NotesSelection'
-import MeterInstallation from './MeterActivityEntry/MeterInstallation'
-import MaintenenceRepairSelection from './MeterActivityEntry/MaintenanceRepairSelection'
-import PartsSelection from './MeterActivityEntry/PartsSelection'
+import MeterActivityEntry from './MeterActivityEntry/MeterActivityEntry'
 
 export const gridBreakpoints = {xs: 12, md: 10, xl:5}
 export const toggleStyle = { '&.Mui-selected':{'borderColor':'blue','border': 1}}
@@ -36,12 +31,7 @@ export default function ActivitiesView() {
 
                 {/*  Activities Form */}
                 <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
-                    <MeterActivitySelection />
-                    <MeterInstallation />
-                    <ObservationSelection />
-                    <MaintenenceRepairSelection />
-                    <NotesSelection />
-                    <PartsSelection />
+                    <MeterActivityEntry />
                 </TabPanel>
 
                 {/*  Work Order Form */}
