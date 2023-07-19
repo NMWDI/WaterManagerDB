@@ -7,6 +7,7 @@ from typing import List, Optional
 from pydantic import BaseModel, constr
 
 from api.schemas.part_schemas import PartUsed
+from api.schemas.security_schemas import User
 
 # Define a phone number - nnn-nnn-nnnn
 PhoneConstr = constr(
@@ -25,15 +26,6 @@ class LandOwner(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class Technician(BaseModel):
-    """
-    Details technician information
-    """
-
-    technician_id: int
-    technician_name: str
 
 
 class Unit(BaseModel):
@@ -62,7 +54,7 @@ class Activity(BaseModel):
     timestamp_start: datetime
     timestamp_end: datetime
     activity_id: int  # Type ID
-    technician_id: int
+    submitting_user_id: int
     notes: Optional[str]
     activity_type: Optional[ActivityType]
 
@@ -77,7 +69,7 @@ class Observation(BaseModel):
     observed_property_id: int
     unit_id: int
     notes: Optional[str]
-    technician_id: int
+    submitting_user_id: int
 
 
 class ObservationType(BaseModel):
@@ -115,7 +107,7 @@ class ActivitiesFormOptions(BaseModel):
     serial_numbers: List[str]
     activity_types: List[ActivityType]
     observed_properties: List[ObservationType]
-    technicians: List[Technician]
+    users: List[User]
     land_owners: List[LandOwner]
 
 

@@ -164,12 +164,12 @@ class MeterActivities(Base):
     timestamp_end = Column(DateTime, nullable=False)
     notes = Column(String)
 
-    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
-    technician = relationship("Technicians")
+    submitting_user = relationship("Users")
     meter = relationship("Meters")
     activity_type = relationship("ActivityTypeLU")
     location = relationship("Locations")
@@ -195,7 +195,7 @@ class MeterObservations(Base):
     value = Column(Float, nullable=False)
     notes = Column(String)
 
-    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     observed_property_id = Column(
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
@@ -203,7 +203,7 @@ class MeterObservations(Base):
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
-    technician = relationship("Technicians")
+    submitting_user = relationship("Users")
     meter = relationship("Meters")
     observed_property = relationship("ObservedPropertyTypeLU")
     unit = relationship("Units")
@@ -329,11 +329,6 @@ class Alerts(Base):
         return not bool(self.closed_timestamp)
 
 
-class Technicians(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-
-
 class RepairPartAssociation(Base):
     repair_id = Column(Integer, ForeignKey("Repairs.id"))
     part_id = Column(Integer, ForeignKey("Parts.id"))
@@ -355,10 +350,10 @@ class Repairs(Base):
     public_release = Column(Boolean)
 
     well_id = Column(Integer, ForeignKey("Wells.id"))
-    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
 
     well = relationship("Wells", uselist=False)
-    technician = relationship("Technicians", uselist=False)
+    submitting_user = relationship("Users", uselist=False)
     meter_status = relationship("MeterStatusLU", uselist=False)
     qc = relationship("QC", uselist=False)
 
@@ -426,7 +421,7 @@ class WellMeasurements(Base):
     observed_property_id = Column(
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
     )
-    technician_id = Column(Integer, ForeignKey("Technicians.id"))
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
 

@@ -50,7 +50,7 @@ class WaterLevel(ORMBase):
     timestamp: datetime
     value: float
     well_id: int
-    technician: str
+    submitting_user_name: str
 
 
 class WaterLevelCreate(ORMBase):
@@ -58,7 +58,7 @@ class WaterLevelCreate(ORMBase):
     timestamp: datetime
     value: float
     observed_property_id: int
-    technician_id: int
+    submitting_user_id: int
     unit_id: int
 
 

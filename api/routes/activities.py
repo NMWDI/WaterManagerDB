@@ -15,7 +15,6 @@ from api.models.main_models import (
     Meters,
     Parts,
     ActivityTypeLU,
-    Technicians,
     ObservedPropertyTypeLU,
     Units,
     PartsUsed,
@@ -24,6 +23,7 @@ from api.models.main_models import (
     MeterObservations,
     PropertyUnits,
 )
+from api.models.security_models import Users
 from api.security import scoped_user
 from api.session import get_db
 
@@ -82,7 +82,7 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
 
     # Get technicians
     technician_list = []
-    technicians = db.execute(select(Technicians.id, Technicians.name))
+    technicians = db.execute(select(Users.id, Users.full_name))
     for row in technicians:
         technician_list.append({"technician_id": row[0], "technician_name": row[1]})
 

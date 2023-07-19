@@ -193,7 +193,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         db.scalars(
             select(MeterActivities)
             .options(
-                joinedload(MeterActivities.technician),
+                joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
                 joinedload(MeterActivities.location),
                 joinedload(MeterActivities.parts_used),
@@ -207,7 +207,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     observations = db.scalars(
         select(MeterObservations)
         .options(
-            joinedload(MeterObservations.technician),
+            joinedload(MeterObservations.submitting_user),
             joinedload(MeterObservations.observed_property),
             joinedload(MeterObservations.unit),
             joinedload(MeterObservations.location),
