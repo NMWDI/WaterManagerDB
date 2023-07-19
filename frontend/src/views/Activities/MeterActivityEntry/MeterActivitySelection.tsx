@@ -2,6 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 
 import { produce } from 'immer'
+import { useAuthUser } from 'react-auth-kit'
 
 import {
     Box,
@@ -22,7 +23,7 @@ import dayjs, {Dayjs} from 'dayjs'
 import { useDebounce } from 'use-debounce'
 import { useApiGET, useDidMountEffect } from '../../../service/ApiService'
 
-import { Page, MeterListDTO, MeterListQueryParams, ActivityTypeLU, ActivityForm } from '../../../interfaces'
+import { Page, MeterListDTO, MeterListQueryParams, ActivityTypeLU, ActivityForm, SecurityScope } from '../../../interfaces'
 //check activity permission on frontend and backend
 
 const activityTypes: ActivityTypeLU[] = [
@@ -47,7 +48,9 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
 
-    const [meterList,  setMeterList]: [Page<MeterListDTO>, Function] = useApiGET<Page<MeterListDTO>>('/meters', {items: [null], total: 0, limit: 50, offset: 0}, meterListQueryParams)
+    const [meterList,  setMeterList] = useApiGET<Page<MeterListDTO>>('/meters', {items: [null], total: 0, limit: 50, offset: 0}, meterListQueryParams)
+    const [activityList, setActivityList] = useApiGET<ActivityTypeLU[]>('/activity_types', [])
+
     const [selectedMeter, setSelectedMeter] = useState<MeterListDTO | any>(null)
 
     const [selectedActivityID, setSelectedActivityID] = useState<number | string>(activityForm.activity_type_id)
@@ -55,6 +58,11 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
     const [date, setDate] = useState<Dayjs | null>(activityForm.date)
     const [startTime, setStartTime] = useState<Dayjs | null>(activityForm.start_time)
     const [endTime, setEndTime] = useState<Dayjs | null>(activityForm.end_time)
+
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+
+
 
     useEffect(() => {
         if(selectedMeter == null) return
@@ -76,15 +84,6 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
         setMeterListQueryParams(newParams)
     }, [meterSearchQueryDebounced])
 
-    // Move these???
-    function onMeterSelection(event: any, selectedMeter: MeterListDTO) {
-        setSelectedMeter(selectedMeter)
-    }
-
-    function onSearchQueryChange(event: any, newQuery: string) {
-        setMeterSearchQuery(newQuery)
-    }
-
     return (
         <Grid container item {...gridBreakpoints}>
             <h4>Activity Details</h4>
@@ -96,10 +95,10 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
                         disableClearable
                         options={meterList.items}
                         getOptionLabel={(op: MeterListDTO) => op.serial_number}
-                        onChange={onMeterSelection}
+                        onChange={(event: any, selectedMeter: MeterListDTO) => {setSelectedMeter(selectedMeter)}}
                         value={selectedMeter}
                         inputValue={meterSearchQuery}
-                        onInputChange={onSearchQueryChange}
+                        onInputChange={(event: any, query: string) => {setMeterSearchQuery(query)}}
                         isOptionEqualToValue={(a, b) => {return a.id == b.id}}
                         renderInput={(params: any) => <TextField {...params} size="small" label="Meter" placeholder="Begin typing to search" />}
                     />
@@ -114,7 +113,8 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
                             value={selectedActivityID}
                             onChange={(event: any) => setSelectedActivityID(event.target.value)}
                         >
-                            {activityTypes.map((type: ActivityTypeLU) => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
+                            {activityList.filter((type: ActivityTypeLU) => (type.permission != 'admin' || hasAdminScope))
+                                .map((type: ActivityTypeLU) => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
                         </Select>
                     </FormControl>
                 </Grid>

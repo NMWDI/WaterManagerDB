@@ -107,6 +107,15 @@ def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOp
     return form_options
 
 
+@activity_router.get(
+    "/activity_types",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_activity_types(db: Session = Depends(get_db)):
+    return db.scalars(select(ActivityTypeLU)).all()
+
+
 # Endpoint to receive meter maintenance form submission
 @activity_router.post(
     "/meter_maintenance",

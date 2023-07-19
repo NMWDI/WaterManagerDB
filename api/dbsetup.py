@@ -192,3 +192,32 @@ if os.environ.get("POPULATE_DB"):
 
     db.commit()
     db.close()
+
+# SQL for adding additional security scopes
+# INSERT INTO "SecurityScopes" (scope_string, description)
+# VALUES
+# 	('activities:install', 'Submit install activities'),
+# 	('activities:uninstall', 'Submit install activities'),
+# 	('activities:general_maintenance', 'Submit general maintenance activities'),
+# 	('activities:preventative_maintenance', 'Submit preventative maintenance activities'),
+# 	('activities:repair', 'Submit repair activities'),
+# 	('activities:rate_meter', 'Submit rate meter activities'),
+# 	('activities:sell', 'Submit sell activities'),
+# 	('activities:scrap', 'Submit scrap activities');
+
+# INSERT INTO "ScopesRoles" (security_scope_id, user_role_id)
+# VALUES
+# 	(7, 2),
+# 	(8, 2),
+# 	(9, 2),
+# 	(10, 2),
+# 	(11, 2),
+# 	(12, 2),
+# 	(13, 2),
+# 	(14, 2),
+# 	(7, 1),
+# 	(8, 1),
+# 	(9, 1),
+# 	(10, 1),
+# 	(11, 1),
+# 	(12, 1);
