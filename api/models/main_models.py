@@ -257,18 +257,17 @@ class Locations(Base):
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
 
-    '''
-    Future stuff
-    #geom = Column(Geometry("POINT"))
-      @property
-    def latitude(self):
+    geom = Column(Geometry("POINT"))
+
+    @property
+    def lat(self):
         try:
             return to_shape(self.geom).y
         except BaseException:
             return
 
     @property
-    def longitude(self):
+    def long(self):
         try:
             return to_shape(self.geom).x
         except BaseException:
@@ -277,7 +276,6 @@ class Locations(Base):
     @property
     def location(self):
         return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
-    '''
 
     land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
     land_owner = relationship("LandOwners")
