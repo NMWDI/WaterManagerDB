@@ -19,23 +19,11 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { gridBreakpoints } from '../ActivitiesView'
-import dayjs, {Dayjs} from 'dayjs'
+import {Dayjs} from 'dayjs'
 import { useDebounce } from 'use-debounce'
-import { useApiGET, useDidMountEffect } from '../../../service/ApiService'
+import { useApiGET } from '../../../service/ApiService'
 
 import { Page, MeterListDTO, MeterListQueryParams, ActivityTypeLU, ActivityForm, SecurityScope } from '../../../interfaces'
-//check activity permission on frontend and backend
-
-const activityTypes: ActivityTypeLU[] = [
-    {id: 0, name: 'Install', description: 'Install meter', permission: 'technician'},
-    {id: 1, name: 'Uninstall', description: 'Uninstall meter', permission: 'technician'},
-    {id: 2, name: 'General Maintenence', description: 'Maintenance meter', permission: 'technician'},
-]
-
-const technicianUsers: any[] = [
-    {id: 0, name: 'Dennis'},
-    {id: 1, name: 'Jake'},
-]
 
 interface MeterActivitySelectionProps {
     activityForm: ActivityForm
@@ -50,11 +38,12 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
 
     const [meterList,  setMeterList] = useApiGET<Page<MeterListDTO>>('/meters', {items: [null], total: 0, limit: 50, offset: 0}, meterListQueryParams)
     const [activityList, setActivityList] = useApiGET<ActivityTypeLU[]>('/activity_types', [])
+    const [userList, setUserList] = useApiGET<ActivityTypeLU[]>('/users', [])
 
     const [selectedMeter, setSelectedMeter] = useState<MeterListDTO | any>(null)
 
     const [selectedActivityID, setSelectedActivityID] = useState<number | string>(activityForm.activity_type_id)
-    const [selectedTechnicianID, setSelectedTechnicianID] = useState<number | string>(activityForm.technician_id)
+    const [selectedUserID, setSelectedUserID] = useState<number | string>(activityForm.user_id)
     const [date, setDate] = useState<Dayjs | null>(activityForm.date)
     const [startTime, setStartTime] = useState<Dayjs | null>(activityForm.start_time)
     const [endTime, setEndTime] = useState<Dayjs | null>(activityForm.end_time)
@@ -62,19 +51,17 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
-
-
     useEffect(() => {
         if(selectedMeter == null) return
         setActivityForm(produce(activityForm, (newForm: ActivityForm) => {
             newForm.meter_id = selectedMeter.id,
             newForm.activity_type_id = selectedActivityID,
-            newForm.technician_id = selectedTechnicianID,
+            newForm.user_id = selectedUserID,
             newForm.date = date
             newForm.start_time = startTime,
             newForm.end_time = endTime
         }))
-    }, [selectedMeter, selectedActivityID, selectedTechnicianID, date, startTime, endTime])
+    }, [selectedMeter, selectedActivityID, selectedUserID, date, startTime, endTime])
 
     // Get list of meters based on search input
     useEffect(() => {
@@ -83,6 +70,31 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
         }
         setMeterListQueryParams(newParams)
     }, [meterSearchQueryDebounced])
+
+    // If user has the admin scope, show them a user selection, if not set the user ID to the current user's
+    function UserSelection() {
+
+        if (hasAdminScope) {
+
+            return (
+                <FormControl size="small" fullWidth>
+                    <InputLabel>User</InputLabel>
+                    <Select
+                        value={selectedUserID}
+                        onChange={(event: any) => setSelectedUserID(event.target.value)}
+                        label="User"
+                    >
+                        {userList.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.full_name}</MenuItem>)}
+                    </Select>
+                </FormControl>
+            )
+        }
+        else {
+            setSelectedUserID(authUser()?.id)
+            return (null)
+        }
+
+    }
 
     return (
         <Grid container item {...gridBreakpoints}>
@@ -119,18 +131,7 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
                     </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-
-                    {/*  Only show to admins */}
-                    <FormControl size="small" fullWidth>
-                        <InputLabel>Technician</InputLabel>
-                        <Select
-                            value={selectedTechnicianID}
-                            onChange={(event: any) => setSelectedTechnicianID(event.target.value)}
-                            label="Technician"
-                        >
-                            {technicianUsers.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.name}</MenuItem>)}
-                        </Select>
-                    </FormControl>
+                    <UserSelection />
                 </Grid>
             </Grid>
             {/* End First Row */}

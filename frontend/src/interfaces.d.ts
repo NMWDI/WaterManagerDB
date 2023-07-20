@@ -4,7 +4,7 @@ import { SortDirection, MeterSortByField } from 'enums'
 export interface ActivityForm {
     meter_id: number | null
     activity_type_id: number | string
-    technician_id: number | string // keeping this?
+    user_id: number | string
     date: Dayjs | null
     start_time: Dayjs | null
     end_time: Dayjs | null
@@ -172,7 +172,7 @@ export interface CreateManualWaterLevelMeasurement {
     timestamp: Date
     value: number
     observed_property_id: number
-    technician_id: number
+    submitting_user_id: number
     unit_id: number
 }
 

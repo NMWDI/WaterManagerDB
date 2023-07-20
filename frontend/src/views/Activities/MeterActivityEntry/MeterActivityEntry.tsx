@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 const emptyForm: ActivityForm = {
     meter_id: null,
     activity_type_id: '',
-    technician_id: '',
+    user_id: '',
     date: dayjs(),
     start_time: dayjs(),
     end_time: dayjs()

@@ -3,13 +3,18 @@ import {
     Modal,
     TextField,
     Button,
-    MenuItem
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel
 } from "@mui/material";
 import { useState, useEffect } from 'react'
-import { useAuthHeader } from 'react-auth-kit'
+import { useAuthUser } from 'react-auth-kit'
 import { API_URL } from "../../API_config.js"
 import React from 'react'
-import { CreateManualWaterLevelMeasurement } from "../../interfaces.js";
+import { CreateManualWaterLevelMeasurement, ActivityTypeLU, SecurityScope } from "../../interfaces.js";
+import { useApiGET } from '../../service/ApiService'
+
 
 interface NewMeasurementModalProps {
   isNewMeasurementModalOpen: boolean
@@ -18,23 +23,15 @@ interface NewMeasurementModalProps {
 }
 
 export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMeasurementModal, handleSubmitNewMeasurement}: NewMeasurementModalProps) {
-    const authHeader = useAuthHeader()
-
-    useEffect(() => {
-        let headers = { headers: {'Authorization': authHeader()}}
-
-        fetch(`${API_URL}/activities_options`, headers)
-            .then(r => r.json()).then(data => {
-                setTechnicianList(data.technicians)
-            })
-    },[])
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const currentDate = new Date()
     const currentMonthNumber = (currentDate.getMonth() + 1) > 10 ? currentDate.getMonth()+1 : ('0' + (currentDate.getMonth() + 1))
 
-    const [technicianList, setTechnicianList] = useState([])
+    const [userList, setUserList] = useApiGET<ActivityTypeLU[]>('/users', [])
     const [value, setValue] = useState<number>()
-    const [technicianID, setTechnicianID] = useState<number>()
+    const [selectedUserID, setSelectedUserID] = useState<number | string>('')
     const [date, setDate] = useState<string>(currentDate.getFullYear() + '-' +  (currentMonthNumber) + '-' + currentDate.getDate() )
     const [time, setTime] = useState<string>(currentDate.getHours() + ':' + currentDate.getMinutes())
 
@@ -43,11 +40,33 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
         handleSubmitNewMeasurement({
             timestamp: new Date(Date.parse(date + ' ' + time)),
             value: value as number,
-            observed_property_id: 6, // Should likely be an enum at some point
-            technician_id: technicianID as number,
-            unit_id: 7, // Should likely be enum
+            observed_property_id: 4, // Should likely be an enum at some point
+            submitting_user_id: selectedUserID as number,
+            unit_id: 6, // Should likely be enum
             well_id: 0 // Set by parent
         })
+    }
+
+    // If user has the admin scope, show them a user selection, if not set the user ID to the current user's
+    function UserSelection() {
+        if (hasAdminScope) {
+            return (
+                <FormControl size="small" fullWidth>
+                    <InputLabel>User</InputLabel>
+                    <Select
+                        value={selectedUserID}
+                        onChange={(event: any) => setSelectedUserID(event.target.value)}
+                        label="User"
+                    >
+                        {userList.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.full_name}</MenuItem>)}
+                    </Select>
+                </FormControl>
+            )
+        }
+        else {
+            setSelectedUserID(authUser()?.id)
+            return (null)
+        }
     }
 
     return (
@@ -70,22 +89,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                 <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
 
                     <h1>Record a New Measurement</h1>
-                    <TextField
-                        required
-                        select
-                        variant="outlined"
-                        margin="normal"
-                        value={ technicianID }
-                        label="Technician"
-                        sx={{width: '100%'}}
-                        onChange={(event) => setTechnicianID(event.target.value as unknown as number)}
-                    >
-                        { technicianList.map((tech: any) => (
-                            <MenuItem key={tech.technician_id} value={tech.technician_id}>
-                                {tech.technician_name}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                    <UserSelection />
 
                     <TextField
                         required
