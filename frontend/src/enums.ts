@@ -14,3 +14,14 @@ export enum MeterHistoryType {
     Activity = 'Activity',
     Observation = 'Observation'
 }
+
+export enum ActivityType {
+    Install = 'Install',
+    Uninstall = 'Uninstall',
+    GeneralMaintenance = 'General Maintenance',
+    PreventativeMaintenance = 'Preventative Maintenance',
+    Repair = 'Repair',
+    RateMeter = 'Rate Meter',
+    Sell = 'Sell',
+    Scrap = 'Scrap'
+}

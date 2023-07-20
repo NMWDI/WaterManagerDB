@@ -12,7 +12,7 @@ import {
     MenuItem
 } from '@mui/material'
 
-import { MeterDetails, SecurityScope, MeterTypeLU, LandOwner } from '../../interfaces'
+import { MeterDetails, SecurityScope, MeterTypeLU, LandOwner, MeterDetailsQueryParams } from '../../interfaces'
 import { useApiGET, useApiPATCH, useDidMountEffect } from '../../service/ApiService'
 import { useAuthUser } from 'react-auth-kit'
 import { produce } from 'immer'
@@ -35,10 +35,6 @@ const disabledInputStyle = {
       WebkitTextFillColor: "#000000",
     },
     cursor: 'default'
-}
-
-interface MeterDetailsQueryParams {
-    meter_id: number | undefined
 }
 
 function emptyIfNull(value: any) {

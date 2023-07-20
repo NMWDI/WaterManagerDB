@@ -123,6 +123,22 @@ async def get_activity_types(db: Session = Depends(get_db)):
 async def get_users(db: Session = Depends(get_db)):
     return db.scalars(select(Users).where(Users.disabled == False)).all()
 
+@activity_router.get(
+    "/units",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_units(db: Session = Depends(get_db)):
+    return db.scalars(select(Units)).all()
+
+@activity_router.get(
+    "/observed_property_types",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_observed_property_types(db: Session = Depends(get_db)):
+    return db.scalars(select(ObservedPropertyTypeLU)).all()
+
 # Endpoint to receive meter maintenance form submission
 @activity_router.post(
     "/meter_maintenance",

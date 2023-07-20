@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { API_URL } from "../../API_config.js"
 import React from 'react'
-import { CreateManualWaterLevelMeasurement, ActivityTypeLU, SecurityScope } from "../../interfaces.js";
+import { CreateManualWaterLevelMeasurement, ActivityTypeLU, SecurityScope, User } from "../../interfaces.js";
 import { useApiGET } from '../../service/ApiService'
 
 
@@ -29,7 +29,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
     const currentDate = new Date()
     const currentMonthNumber = (currentDate.getMonth() + 1) > 10 ? currentDate.getMonth()+1 : ('0' + (currentDate.getMonth() + 1))
 
-    const [userList, setUserList] = useApiGET<ActivityTypeLU[]>('/users', [])
+    const [userList, setUserList] = useApiGET<User[]>('/users', [])
     const [value, setValue] = useState<number>()
     const [selectedUserID, setSelectedUserID] = useState<number | string>('')
     const [date, setDate] = useState<string>(currentDate.getFullYear() + '-' +  (currentMonthNumber) + '-' + currentDate.getDate() )

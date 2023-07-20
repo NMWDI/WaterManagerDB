@@ -31,7 +31,6 @@ interface MeterActivitySelectionProps {
 }
 
 export default function MeterActivitySelection({activityForm, setActivityForm}: MeterActivitySelectionProps) {
-
     const [meterSearchQuery, setMeterSearchQuery] = useState<string>('')
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
@@ -42,24 +41,26 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
 
     const [selectedMeter, setSelectedMeter] = useState<MeterListDTO | any>(null)
 
-    const [selectedActivityID, setSelectedActivityID] = useState<number | string>(activityForm.activity_type_id)
-    const [selectedUserID, setSelectedUserID] = useState<number | string>(activityForm.user_id)
-    const [date, setDate] = useState<Dayjs | null>(activityForm.date)
-    const [startTime, setStartTime] = useState<Dayjs | null>(activityForm.start_time)
-    const [endTime, setEndTime] = useState<Dayjs | null>(activityForm.end_time)
+    const [selectedActivityID, setSelectedActivityID] = useState<number | string>(activityForm.activity_details?.activity_type_id ?? '')
+    const [selectedUserID, setSelectedUserID] = useState<number | string>(activityForm.activity_details?.user_id ?? '')
+    const [date, setDate] = useState<Dayjs | null>(activityForm.activity_details?.date ?? null)
+    const [startTime, setStartTime] = useState<Dayjs | null>(activityForm.activity_details?.start_time ?? null)
+    const [endTime, setEndTime] = useState<Dayjs | null>(activityForm.activity_details?.end_time ?? null)
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
+    // Keep the part of the activityForm this component is responsible for updated
     useEffect(() => {
-        if(selectedMeter == null) return
+        if(selectedMeter == null ) return
         setActivityForm(produce(activityForm, (newForm: ActivityForm) => {
-            newForm.meter_id = selectedMeter.id,
-            newForm.activity_type_id = selectedActivityID,
-            newForm.user_id = selectedUserID,
-            newForm.date = date
-            newForm.start_time = startTime,
-            newForm.end_time = endTime
+            newForm.activity_details!.meter_id = selectedMeter.id,
+            newForm.activity_details!.activity_type_id = selectedActivityID,
+            newForm.activity_details!.activity_type_name = activityList.find((activity: ActivityTypeLU) => activity.id == selectedActivityID)?.name
+            newForm.activity_details!.user_id = selectedUserID,
+            newForm.activity_details!.date = date
+            newForm.activity_details!.start_time = startTime,
+            newForm.activity_details!.end_time = endTime
         }))
     }, [selectedMeter, selectedActivityID, selectedUserID, date, startTime, endTime])
 
@@ -73,9 +74,7 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
 
     // If user has the admin scope, show them a user selection, if not set the user ID to the current user's
     function UserSelection() {
-
         if (hasAdminScope) {
-
             return (
                 <FormControl size="small" fullWidth>
                     <InputLabel>User</InputLabel>
@@ -93,7 +92,6 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
             setSelectedUserID(authUser()?.id)
             return (null)
         }
-
     }
 
     return (
@@ -114,7 +112,6 @@ export default function MeterActivitySelection({activityForm, setActivityForm}: 
                         isOptionEqualToValue={(a, b) => {return a.id == b.id}}
                         renderInput={(params: any) => <TextField {...params} size="small" label="Meter" placeholder="Begin typing to search" />}
                     />
-
 
                 </Grid>
                 <Grid item xs={4}>

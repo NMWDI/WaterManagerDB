@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { produce } from 'immer'
 
 import {
@@ -16,23 +16,19 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
-import dayjs, {Dayjs} from 'dayjs'
-
-interface Observation {
-    id: number // Dont forget that this is defined in the frontend and cant be sent to API
-    time: Dayjs
-    reading: number
-    reading_type_id: number
-    unit_id: number
-}
+import dayjs from 'dayjs'
+import { ActivityForm, ObservationForm, ObservedPropertyTypeLU, Unit } from '../../../interfaces'
+import { useApiGET } from '../../../service/ApiService'
 
 interface ObservationRowProps {
-    observation: Observation
+    observation: ObservationForm
     setObservation: Function
     removeObservation: Function
+    propertyTypes: ObservedPropertyTypeLU[]
+    units: Unit[]
 }
 
-function ObservationRow({observation, setObservation, removeObservation}: ObservationRowProps) {
+function ObservationRow({observation, setObservation, removeObservation, propertyTypes, units}: ObservationRowProps) {
 
     return (
             <Grid container item xs={12} sx={{mb: 2}}>
@@ -62,10 +58,11 @@ function ObservationRow({observation, setObservation, removeObservation}: Observ
                         <FormControl size="small" fullWidth>
                             <InputLabel>Reading Type</InputLabel>
                             <Select
-                                value={observation.reading_type_id}
+                                value={observation.property_type_id}
                                 label="Reading Type"
+                                onChange={(event: any) => {setObservation(produce(observation, newObservation => {newObservation.property_type_id = event.target.value}))}}
                             >
-                                <MenuItem key={1} value={1}>Meter Reading</MenuItem>
+                                {propertyTypes.map((type: ObservedPropertyTypeLU) => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -75,8 +72,9 @@ function ObservationRow({observation, setObservation, removeObservation}: Observ
                             <Select
                                 value={observation.unit_id}
                                 label="Units"
+                                onChange={(event: any) => {setObservation(produce(observation, newObservation => {newObservation.unit_id = event.target.value}))}}
                             >
-                                <MenuItem key={1} value={1}>Feet</MenuItem>
+                                {units.map((unit: Unit) => <MenuItem key={unit.id} value={unit.id}>{unit.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -90,18 +88,33 @@ function ObservationRow({observation, setObservation, removeObservation}: Observ
     )
 }
 
-export default function ObservationsSelection() {
-    const [observations, setObservations] = useState<Observation[]>([])
+interface ObservationSelectionProps {
+    activityForm: ActivityForm,
+    setActivityForm: Function
+}
+
+export default function ObservationsSelection({activityForm, setActivityForm}: ObservationSelectionProps) {
+    const [observations, setObservations] = useState<ObservationForm[]>([])
     const [currentObservationID, setCurrentObservationID] = useState<number>(0) // Track IDs to keep them unique
     const [numberOfObservations, setNumberOfObservations] = useState<number>(0) // Track number of observations for dynamic button verbiage
+
+    const [propertyTypes, setPropertyTypes] = useApiGET<ObservedPropertyTypeLU[]>('/observed_property_types', [])
+    const [units, setUnits] = useApiGET<Unit[]>('/units', [])
+
+    // Keep the part of the activityForm this component is responsible for updated
+    useEffect(() => {
+        setActivityForm(produce(activityForm, newForm => {
+            newForm.observations = observations
+        }))
+    }, [observations])
 
     function addObservation() {
         setObservations([...observations, {
             id: currentObservationID,
             time: dayjs(),
-            reading: currentObservationID,
-            reading_type_id: 1,
-            unit_id: 1
+            reading: '',
+            property_type_id: '',
+            unit_id: ''
         }])
         setCurrentObservationID(currentObservationID + 1)
         setNumberOfObservations(numberOfObservations + 1)
@@ -140,6 +153,8 @@ export default function ObservationsSelection() {
                                     observation={observation}
                                     setObservation={setObservation}
                                     removeObservation={removeObservation}
+                                    propertyTypes={propertyTypes}
+                                    units={units}
                                 />
                     })}
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
+import { Box } from '@mui/material'
 
 import MeterActivitySelection from './MeterActivitySelection'
 import ObservationSelection from './ObservationsSelection'
@@ -10,14 +11,30 @@ import PartsSelection from './PartsSelection'
 
 import { ActivityForm } from '../../../interfaces.d'
 import dayjs from 'dayjs'
+import { ActivityType } from '../../../enums'
 
 const emptyForm: ActivityForm = {
-    meter_id: null,
-    activity_type_id: '',
-    user_id: '',
-    date: dayjs(),
-    start_time: dayjs(),
-    end_time: dayjs()
+    activity_details: {
+        meter_id: null,
+        activity_type_id: '',
+        user_id: '',
+        date: dayjs(),
+        start_time: dayjs(),
+        end_time: dayjs(),
+    },
+
+    current_installation: {
+        contact_name: '',
+        contact_phone: '',
+        organization_id: '',
+        latitude: '',
+        longitude: '',
+        trss: '',
+        ra_number: '',
+        ose_tag: '',
+        well_distance_ft: '',
+        notes: ''
+    }
 }
 
 export default function MeterActivityEntry() {
@@ -26,13 +43,22 @@ export default function MeterActivityEntry() {
     useEffect(() => {console.log(activityForm)}, [activityForm])
 
     return (
-        <>
+            <>
             <MeterActivitySelection activityForm={activityForm} setActivityForm={setActivityForm} />
-            <MeterInstallation />
-            <ObservationSelection />
-            <MaintenenceRepairSelection />
-            <NotesSelection />
-            <PartsSelection />
-        </>
+
+            {(activityForm.activity_details?.meter_id != null && activityForm.activity_details?.activity_type_name) ?
+                <>
+                    <MeterInstallation activityForm={activityForm} setActivityForm={setActivityForm} />
+                    <ObservationSelection activityForm={activityForm} setActivityForm={setActivityForm} />
+                    <MaintenenceRepairSelection />
+                    <NotesSelection />
+                    <PartsSelection />
+                </>
+                :
+                <Box sx={{mt: 6}}>
+                    <h4>Please Select a Meter and Supported Activity Type</h4>
+                </Box>
+            }
+            </>
     )
 }

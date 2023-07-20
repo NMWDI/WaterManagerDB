@@ -1,13 +1,46 @@
 import { SortDirection, MeterSortByField } from 'enums'
+import internal from 'stream'
 
-// Sometimes MUI wants null, sometimes it wants ''
+// The underlying fields that get filled out as the user completes an activity form
+// To show a blank box MUI sometimes wants null, sometimes wants ''
 export interface ActivityForm {
-    meter_id: number | null
-    activity_type_id: number | string
-    user_id: number | string
-    date: Dayjs | null
-    start_time: Dayjs | null
-    end_time: Dayjs | null
+
+    activity_details: {
+        meter_id: number | null
+        activity_type_id: number | string
+        user_id: number | string
+        date: Dayjs | null
+        start_time: Dayjs | null
+        end_time: Dayjs | null
+        activity_type_name?: string
+    }
+
+    current_installation: {
+        contact_name: string
+        contact_phone: string
+        organization_id: number | string
+        latitude: number | string
+        longitude: number | string
+        trss: string
+        ra_number: string
+        ose_tag: string
+        well_distance_ft: number | string
+        notes: string
+    }
+
+    observations?: ObservationForm[]
+}
+
+export interface ObservationForm {
+    id: number // Just used for tracking them in the UI
+    time: Dayjs
+    reading: '' | number
+    property_type_id: '' | number
+    unit_id: '' | number
+}
+
+export interface MeterDetailsQueryParams {
+    meter_id: number | undefined
 }
 
 export interface ActivityTypeLU {
