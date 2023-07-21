@@ -101,6 +101,7 @@ class Meters(Base):
     contact_name = Column(String)  # Contact information specific to particular meter
     contact_phone = Column(String)
     old_contact_name = Column(String)
+    old_contact_phone = Column(String)
     tag = Column(String)  # OSE tag of some sort?
 
     well_distance_ft = Column(Float)  # Distance of meter install from well
@@ -108,29 +109,11 @@ class Meters(Base):
 
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))
-    location_id = Column(Integer, ForeignKey("Locations.id"))
     well_id = Column(Integer, ForeignKey("Wells.id"))
 
-    meter_type = relationship("MeterTypeLU", lazy="noload")
+    meter_type = relationship("MeterTypeLU", lazy="noload") # Indicate that these relationships have to be manually loaded
     status = relationship("MeterStatusLU", lazy="noload")
-    #meter_location = relationship("MeterLocations", lazy="noload")
-
-    '''
-    delete?
-    @hybrid_property
-    def land_owner_name(self):
-        return self.meter_location.land_owner.land_owner_name
-
-    class LandOwnerNameComparator(Comparator):
-        def __eq__(self, other):
-            return func.lower(self.__clause_element__()) == func.lower(other)
-
-    # Random fields that seeder wants to fill
-    land_owner_id = Column(Integer)
-    longitude = Column(Float)
-    latitude = Column(Float)
-    trss = Column(String)
-    '''
+    well = relationship("Wells", lazy="noload")
 
 
 class MeterTypeLU(Base):
@@ -197,7 +180,7 @@ class MeterObservations(Base):
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    observed_property_id = Column(
+    observed_property_type_id = Column(
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
     )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
@@ -329,57 +312,59 @@ class Alerts(Base):
         return not bool(self.closed_timestamp)
 
 
-class RepairPartAssociation(Base):
-    repair_id = Column(Integer, ForeignKey("Repairs.id"))
-    part_id = Column(Integer, ForeignKey("Parts.id"))
+# class RepairPartAssociation(Base):
+#     repair_id = Column(Integer, ForeignKey("Repairs.id"))
+#     part_id = Column(Integer, ForeignKey("Parts.id"))
 
+# Not used? Now represented by a MeterActivity
+# class Repairs(Base):
+#     # id = Column(Integer, primary_key=True, index=True)
+#     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
 
-class Repairs(Base):
-    # id = Column(Integer, primary_key=True, index=True)
-    # meter_id = Column(Integer, ForeignKey('metertbl.id'))
+#     timestamp = Column(DateTime, default=func.now())
+#     h2o_read = Column(Float)
+#     e_read = Column(String)
+#     new_read = Column(String)
+#     repair_description = Column(LargeBinary)
+#     note = Column(LargeBinary)
+#     preventative_maintenance = Column(String)
+#     public_release = Column(Boolean)
 
-    timestamp = Column(DateTime, default=func.now())
-    h2o_read = Column(Float)
-    e_read = Column(String)
-    new_read = Column(String)
-    repair_description = Column(LargeBinary)
-    note = Column(LargeBinary)
-    meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
-    preventative_maintenance = Column(String)
-    qc_id = Column(Integer, ForeignKey("QC.id"))
-    public_release = Column(Boolean)
+#     well_id = Column(Integer, ForeignKey("Wells.id"))
+#     meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
+#     qc_id = Column(Integer, ForeignKey("QC.id"))
+#     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
+#     location_id = Column(Integer, ForeignKey("Locations.id"))
 
-    well_id = Column(Integer, ForeignKey("Wells.id"))
-    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
+#     well = relationship("Wells", uselist=False)
+#     submitting_user = relationship("Users", uselist=False)
+#     meter_status = relationship("MeterStatusLU", uselist=False)
+#     qc = relationship("QC", uselist=False)
+#     location = relationship("Locations", uselist=False)
 
-    well = relationship("Wells", uselist=False)
-    submitting_user = relationship("Users", uselist=False)
-    meter_status = relationship("MeterStatusLU", uselist=False)
-    qc = relationship("QC", uselist=False)
+#     @property
+#     def well_name(self):
+#         return self.well.name
 
-    @property
-    def well_name(self):
-        return self.well.name
+#     @property
+#     def well_location(self):
+#         return self.well.location
 
-    @property
-    def well_location(self):
-        return self.well.location
+#     @property
+#     def meter_serial_number(self):
+#         return self.well.meter_history.meter.serial_number
 
-    @property
-    def meter_serial_number(self):
-        return self.well.meter_history.meter.serial_number
+#     @property
+#     def meter_status_name(self):
+#         return self.meter_status.name
 
-    @property
-    def meter_status_name(self):
-        return self.meter_status.name
+#     @property
+#     def worker(self):
+#         return self.repair_by.name
 
-    @property
-    def worker(self):
-        return self.repair_by.name
-
-    @worker.setter
-    def worker(self, v):
-        self.repair_by.id
+#     @worker.setter
+#     def worker(self, v):
+#         self.repair_by.id
 
 
 # ------------ Wells --------------

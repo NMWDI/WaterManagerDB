@@ -10,6 +10,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import meter_schemas
+from api.schemas import well_schemas
 from api.models.main_models import (
     Meters,
     LandOwners,
@@ -151,7 +152,7 @@ async def get_meter_types(
 
 
 @meter_router.get(
-    "/land_owners", response_model=List[meter_schemas.LandOwner], tags=["meters"]
+    "/land_owners", response_model=List[well_schemas.LandOwner], tags=["meters"]
 )
 async def get_land_owners(
     db: Session = Depends(get_db),

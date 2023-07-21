@@ -6,22 +6,31 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class Part(BaseModel):
+class ORMBase(BaseModel):
+    id: Optional[int] = None
+
+    class Config:
+        orm_mode = True
+
+
+class Part(ORMBase):
     """
     Complete description of a part
     """
 
-    part_id: int
     part_number: str
-    description: str
-    part_type: str
-    commonly_used: bool
+    part_type_id: int
+    description: Optional[str]
+    vendor: Optional[str]
+    count: Optional[int]
+    note: Optional[str]
 
 
-class PartUsed(BaseModel):
+class PartUsed(ORMBase):
     """
     Describes quantity used of a given part number
     """
 
     part_id: int
+    meter_id: int
     count: int

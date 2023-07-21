@@ -17,14 +17,48 @@ class ORMBase(BaseModel):
 
 
 class Well(ORMBase):
-    name: Optional[str] = None
-    location: Optional[str] = None
-    osepod: Optional[str] = None
-    owner_id: Optional[int] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    # owner: Optional[Owner] = None
-    # meter: Optional[Meter] = None
+    name: Optional[str]
+    location_id: Optional[str]
+    ra_number: Optional[str]
+    osepod: Optional[str]
+
+
+class LandOwner(ORMBase):
+    contact_name: Optional[str]
+    organization: Optional[str]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    zip: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    city: Optional[str]
+
+
+class Location(ORMBase):
+    name: str
+    type_id: int
+    trss: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    township: Optional[int]
+    range: Optional[int]
+    section: Optional[int]
+    quarter: Optional[int]
+    half_quarter: Optional[int]
+    quarter_quarter: Optional[int]
+    land_owner_id: int
+
+    land_owner: Optional[LandOwner]
+
+
+class LocationTypeLU(ORMBase):
+    type_name: Optional[str]
+    description: Optional[str]
+
+
+class WellMeasurement(ORMBase):
+    id: int
 
 
 class WellCreate(ORMBase):

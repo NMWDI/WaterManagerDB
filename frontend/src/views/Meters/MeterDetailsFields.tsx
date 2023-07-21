@@ -64,7 +64,8 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
 // Show regular users the meter's type as a regular field, show admins an editable dropdown
 function LandOwnerField({value, onChange, hasAdminScope}: any) {
 
-    if (hasAdminScope && value) {
+    // Omitting until locations are decided on
+    if (false) {
         const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', undefined)
         return (
             <FormControl size="small" >

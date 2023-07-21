@@ -56,7 +56,7 @@ export default function MeterActivityEntry() {
                 </>
                 :
                 <Box sx={{mt: 6}}>
-                    <h4>Please Select a Meter and Supported Activity Type</h4>
+                    <h4>Please Select a Meter and Activity Type</h4>
                 </Box>
             }
             </>
