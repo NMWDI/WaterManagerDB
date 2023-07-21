@@ -16,13 +16,6 @@ class ORMBase(BaseModel):
         orm_mode = True
 
 
-class Well(ORMBase):
-    name: Optional[str]
-    location_id: Optional[str]
-    ra_number: Optional[str]
-    osepod: Optional[str]
-
-
 class LandOwner(ORMBase):
     contact_name: Optional[str]
     organization: Optional[str]
@@ -47,9 +40,18 @@ class Location(ORMBase):
     quarter: Optional[int]
     half_quarter: Optional[int]
     quarter_quarter: Optional[int]
-    land_owner_id: int
+    land_owner_id: Optional[int]
 
     land_owner: Optional[LandOwner]
+
+
+class Well(ORMBase):
+    name: Optional[str]
+    location_id: Optional[str]
+    ra_number: Optional[str]
+    osepod: Optional[str]
+
+    location: Optional[Location]
 
 
 class LocationTypeLU(ORMBase):

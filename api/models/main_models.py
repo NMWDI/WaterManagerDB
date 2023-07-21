@@ -377,6 +377,8 @@ class Wells(Base):
     ra_number = Column(String)  # RA Number is an OSE well identifier
     osepod = Column(String) #Another OSE identifier?
 
+    location = relationship("Locations")
+
     #waterlevels = relationship("WellMeasurements", back_populates="well")
     #construction = relationship("WellConstructions", uselist=False)
 

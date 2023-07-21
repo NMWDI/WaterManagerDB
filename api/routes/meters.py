@@ -18,6 +18,7 @@ from api.models.main_models import (
     MeterObservations,
     Locations,
     MeterTypeLU,
+    Wells
 )
 from api.route_util import _patch
 from api.security import scoped_user
@@ -63,30 +64,31 @@ async def get_meters(
                 return Meters.serial_number
 
             case MeterSortByField.RANumber:
-                return Meters.ra_number
+                return Wells.ra_number
 
-            # case MeterSortByField.LandOwnerName:
-            #     return LandOwners.land_owner_name
+            case MeterSortByField.LandOwnerName:
+                return LandOwners.contact_name
 
-            # case MeterSortByField.TRSS:
-            #     return Meters.trss
+            case MeterSortByField.TRSS:
+                return Locations.trss
 
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
         select(Meters)
-        # .options(joinedload(Meters.meter_location))
-        # .join(Locations, isouter=True)
-        # .join(LandOwners, isouter=True)
+        .options(joinedload(Meters.well))
+        .join(Wells, isouter=True)
+        .join(Locations, isouter=True)
+        .join(LandOwners, isouter=True)
     )
 
     if search_string:
         query_statement = query_statement.where(
             or_(
                 Meters.serial_number.ilike(f"%{search_string}%"),
-                # Meters.ra_number.ilike(f"%{search_string}%"),
-                # Meters.trss.ilike(f"%{search_string}%"),
-                # LandOwners.land_owner_name.ilike(f"%{search_string}%"),
+                Wells.ra_number.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%"),
+                LandOwners.contact_name.ilike(f"%{search_string}%"),
             )
         )
 
@@ -106,23 +108,24 @@ async def get_meters(
 # Get list of all meters and their coordinates (if they have them)
 
 # Removing until locations is fixed
-# @meter_router.get(
-#     "/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"]
-# )
-# async def get_meters_locations(
-#     db: Session = Depends(get_db),
-# ):
-#     return db.scalars(
-#         select(Meters)
-#         .options(joinedload(Meters.meter_location))
-#         .where(
-#             and_(
-#                 Locations.latitude.is_not(None),
-#                 Locations.longitude.is_not(None),
-#             )
-#         )
-#         .join(Locations, isouter=True)
-#     ).all()
+@meter_router.get(
+    "/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"]
+)
+async def get_meters_locations(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(
+        select(Meters)
+        .options(joinedload(Meters.well))
+        .where(
+            and_(
+                Locations.latitude.is_not(None),
+                Locations.longitude.is_not(None),
+            )
+        )
+        .join(Wells, isouter=True)
+        .join(Locations, isouter=True)
+    ).all()
 
 
 # Get single, fully qualified meter
@@ -135,7 +138,7 @@ async def get_meter(
         select(Meters)
         .options(
             joinedload(Meters.meter_type),
-            # joinedload(Meters.meter_location),
+            joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
         )
         .filter(Meters.id == meter_id)
@@ -170,13 +173,6 @@ async def patch_meter(
     updated_meter: meter_schemas.Meter,
     db: Session = Depends(get_db),
 ):
-    # Not ideal, but location info can be updated from the meter
-    _patch(
-        db,
-        Locations,
-        updated_meter.meter_location_id,
-        updated_meter.meter_location,
-    )
 
     return _patch(db, Meters, updated_meter.id, updated_meter)
 

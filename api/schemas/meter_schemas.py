@@ -18,12 +18,15 @@ class ORMBase(BaseModel):
         orm_mode = True
 
 class MeterMapDTO(ORMBase):
-    class MeterLocationDTO(ORMBase):
-        longitude: Optional[float]
-        latitude: Optional[float]
+    class WellDTO(ORMBase):
+        class MeterLocationDTO(ORMBase):
+            longitude: Optional[float]
+            latitude: Optional[float]
+        location: Optional[MeterLocationDTO]
+
 
     id: int
-    meter_location: Optional[MeterLocationDTO]
+    well: Optional[WellDTO]
 
 
 class MeterTypeLU(ORMBase):
@@ -35,18 +38,22 @@ class MeterTypeLU(ORMBase):
     description: Optional[str]
 
 
+# The minimal information used by the meters list
 class MeterListDTO(ORMBase):
-    class MeterLocationDTO(ORMBase):
-        class LandOwnerDTO(ORMBase):
-            land_owner_name: Optional[str]
 
-        land_owner: Optional[LandOwnerDTO]
+    class WellDTO(ORMBase):
+        class LocationDTO(ORMBase):
+            class LandOwnerDTO(ORMBase):
+                contact_name: Optional[str]
 
-    id: int
-    serial_number: Optional[str]
-    trss: Optional[str]
-    ra_number: Optional[str]
-    meter_location: Optional[MeterLocationDTO]
+            trss: Optional[str]
+            land_owner: Optional[LandOwnerDTO]
+
+        ra_number: Optional[str]
+        location: Optional[LocationDTO]
+
+    serial_number: str
+    well: Optional[WellDTO]
 
 
 class MeterStatusLU(ORMBase):
