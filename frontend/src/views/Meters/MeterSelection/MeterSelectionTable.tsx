@@ -17,34 +17,10 @@ interface MeterSelectionTableProps {
 // For now, only the meter_location field on
 function getSortByString(field: string) {
     switch(field) {
-        case ('meter_location'): return 'land_owner_name'
+        case ('well2'): return 'land_owner_name'
         default: field
     }
 }
-
-const meterTableColumns = [
-    {
-        field: 'serial_number',
-        headerName: 'Serial Number',
-        width: 150
-    },
-    {
-        field: 'trss',
-        headerName: 'TRSS',
-        width: 150
-    },
-    {
-        field: 'meter_location',
-        headerName: 'Land Owner',
-        valueFormatter: (params: any) => params.value?.land_owner?.land_owner_name,
-        width: 200
-    },
-    {
-        field: 'ra_number',
-        headerName: 'RA Number',
-        width: 100
-    },
-];
 
 export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}: MeterSelectionTableProps) {
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
@@ -56,13 +32,44 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
 
     const [meterList,  setMeterList]: [Page<MeterListDTO>, Function] = useApiGET<Page<MeterListDTO>>('/meters', {items: [], total: 0, limit: 50, offset: 0}, meterListQueryParams)
 
+    const meterTableColumns = [
+        {
+            field: 'serial_number',
+            headerName: 'Serial Number',
+            width: 150
+        },
+        {
+            field: 'well',
+            headerName: 'TRSS',
+            width: 150,
+            valueFormatter: (params: any) => params.value?.location?.trss,
+        },
+        {
+            field: 'well2',
+            headerName: 'Land Owner',
+            valueGetter: ({ id }: any) => {
+                const item = meterList.items.find(item => item.id === id);
+                return item?.well?.location?.land_owner?.organization;
+            },
+            width: 200
+        },
+        {
+            field: 'ra_number',
+            headerName: 'RA Number',
+            valueGetter: ({ id }: any) => {
+                const item = meterList.items.find(item => item.id === id);
+                return item?.well?.ra_number;
+            },
+            width: 100
+        },
+    ];
+
     // On any query param change from the table, update meterListQueryParam
     // Ternaries in sorting make sure that the view defaults to showing the backend's defaults
     useDidMountEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
-            // sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
-            sort_by: MeterSortByField.SerialNumber, // until location is fixed
+            sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: gridPageSize,
             offset: gridPage * gridPageSize

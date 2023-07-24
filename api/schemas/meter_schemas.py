@@ -44,7 +44,7 @@ class MeterListDTO(ORMBase):
     class WellDTO(ORMBase):
         class LocationDTO(ORMBase):
             class LandOwnerDTO(ORMBase):
-                contact_name: Optional[str]
+                organization: Optional[str]
 
             trss: Optional[str]
             land_owner: Optional[LandOwnerDTO]

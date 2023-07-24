@@ -64,19 +64,19 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
 // Show regular users the meter's type as a regular field, show admins an editable dropdown
 function LandOwnerField({value, onChange, hasAdminScope}: any) {
 
-    // Omitting until locations are decided on
-    if (false) {
-        const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', undefined)
+    console.log(value)
+    if (hasAdminScope) {
+        const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', [])
         return (
-            <FormControl size="small" >
+            <FormControl size="small" fullWidth>
                 <InputLabel>Land Owner</InputLabel>
                 <Select
-                    value={value?.meter_location?.land_owner_id}
+                    value={value?.well?.location?.land_owner_id ?? ''}
                     label="Land Owner"
                     onChange={onChange}
                 >
                     {landOwnerList?.map((landOwner: LandOwner) => {
-                        return <MenuItem key={landOwner.id} value={landOwner.id}>{landOwner.land_owner_name}</MenuItem>
+                        return <MenuItem key={landOwner.id} value={landOwner.id}>{landOwner.organization}</MenuItem>
                     })}
                 </Select>
             </FormControl>
@@ -89,7 +89,7 @@ function LandOwnerField({value, onChange, hasAdminScope}: any) {
                 label={"Land Owner"}
                 variant="outlined"
                 size="small"
-                value={value?.land_owner ? value.land_owner.land_owner_name : ''}
+                value={value?.well?.location?.land_owner?.organization ?? ''}
                 disabled
                 sx={disabledInputStyle}
             />
@@ -106,7 +106,7 @@ function MeterTypeField({value, onChange, hasAdminScope}: any) {
             <FormControl size="small" >
                 <InputLabel>Meter Type</InputLabel>
                 <Select
-                    value={value?.meter_type_id}
+                    value={value?.meter_type_id ?? ''}
                     label="Meter Type"
                     onChange={onChange}
                 >
@@ -209,7 +209,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <LandOwnerField
                             value={meterDetails}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.land_owner_id = event.target.value}))}}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.land_owner_id = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
@@ -218,8 +218,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <MeterDetailsField
                             label="Latitude"
-                            value={meterDetails?.meter_location?.latitude}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.latitude = event.target.value}))}}
+                            value={meterDetails?.well?.location?.latitude}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.latitude = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                             isNumberInput
                         />
@@ -227,8 +227,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <MeterDetailsField
                             label="Longitude"
-                            value={meterDetails?.meter_location?.longitude}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.longitude = event.target.value}))}}
+                            value={meterDetails?.well?.location?.longitude}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.longitude = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                             isNumberInput
                         />
@@ -236,8 +236,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <MeterDetailsField
                             label="TRSS"
-                            value={meterDetails?.meter_location?.trss}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.meter_location.latitude = event.target.value}))}}
+                            value={meterDetails?.well?.location?.trss}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.trss = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
@@ -246,8 +246,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <MeterDetailsField
                             label="RA Number"
-                            value={meterDetails?.ra_number}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.ra_number = event.target.value}))}}
+                            value={meterDetails?.well?.ra_number}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.ra_number = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                         />
                     </Grid>
@@ -262,7 +262,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid item xs={3}>
                         <MeterDetailsField
                             label="Well Distance"
-                            value={meterDetails?.well_distance_ft}
+                            value={meterDetails?.well?.well_distance_ft}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well_distance_ft = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                             isNumberInput

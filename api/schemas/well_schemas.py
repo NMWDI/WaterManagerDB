@@ -50,6 +50,7 @@ class Well(ORMBase):
     location_id: Optional[str]
     ra_number: Optional[str]
     osepod: Optional[str]
+    well_distance_ft: Optional[float]
 
     location: Optional[Location]
 

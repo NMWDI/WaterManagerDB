@@ -115,6 +115,10 @@ class Meters(Base):
     status = relationship("MeterStatusLU", lazy="noload")
     well = relationship("Wells", lazy="noload")
 
+    @property
+    def land_owner_organization(self):
+        return self.well.location.land_owner.organization
+
 
 class MeterTypeLU(Base):
     """
@@ -376,6 +380,7 @@ class Wells(Base):
     location_id = Column(Integer, ForeignKey("Locations.id"))
     ra_number = Column(String)  # RA Number is an OSE well identifier
     osepod = Column(String) #Another OSE identifier?
+    well_distance_ft: Column(Float)
 
     location = relationship("Locations")
 

@@ -39,6 +39,15 @@ export interface ObservationForm {
     unit_id: '' | number
 }
 
+export interface Well {
+    name?: string
+    location_id?: number
+    ra_number?: string
+    osepod?: string
+    well_distance_ft: number
+    location: Location
+}
+
 export interface MeterDetailsQueryParams {
     meter_id: number | undefined
 }
@@ -89,16 +98,17 @@ export interface LandOwner {
     id: number
     contact_name?: string
     land_owner_name?: string
+    organization?: string
     phone?: string
     email?: string
     city?: string
 }
 
-export interface MeterLocation {
-    name?: string
-    latitude?: float
-    longitude?: float
-    trss?: string
+export interface Location {
+    name: string
+    latitude: float
+    longitude: float
+    trss: string
     land_owner_id: number
 
     land_owner?: LandOwner
@@ -126,9 +136,9 @@ export interface MeterDetails {
     notes?: string
     meter_type_id?: int
 
-    meter_type?: MeterType
-    status?: MeterStatus
-    meter_location: MeterLocation
+    meter_type: MeterType
+    status: MeterStatus
+    well: Well
     // Also has parts_associated?: List[Part]
 }
 
@@ -142,7 +152,12 @@ export interface MeterListQueryParams {
 
 export interface MeterMapDTO {
     id: number
-    meter_location: {longitude: number, latitude: number}
+    well: {
+        location: {
+            longitude: number
+            latitude: number
+        }
+    }
 }
 
 export interface MeterType {
@@ -154,19 +169,36 @@ export interface Organization {
 }
 
 export interface Meter {
-    id: number
     serial_number: string
-    meter_type: MeterType
-    organization: Organization
-    ra_number: string
+    contact_name?: string
+    contact_phone?: string
+    old_contact_name?: string
+    tag?: string
+
+    well_distance_ft?: float
+    notes?: string
+
+    meter_type_id?: number
+    status_id?: number
+    well_id?: number
+
+    meter_type?: MeterType
+    status?: MeterStatus
+    well?: Well
 }
 
 export interface MeterListDTO {
     id: number
     serial_number: string
-    trss?: string
-    meter_location?: {land_owner?: {land_owner_name?: string}}
-    ra_number?: string
+    well: {
+        ra_number: string
+        location: {
+            trss: string
+            land_owner: {
+                organization: string
+            }
+        }
+    }
 }
 
 export interface Page<T> {
