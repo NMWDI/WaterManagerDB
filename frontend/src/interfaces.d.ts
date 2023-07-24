@@ -40,11 +40,12 @@ export interface ObservationForm {
 }
 
 export interface Well {
+    id: int
     name?: string
     location_id?: number
     ra_number?: string
     osepod?: string
-    well_distance_ft: number
+    well_distance_ft?: number
     location: Location
 }
 
@@ -135,6 +136,7 @@ export interface MeterDetails {
     well_distance_ft?: float
     notes?: string
     meter_type_id?: int
+    well_id?: int
 
     meter_type: MeterType
     status: MeterStatus

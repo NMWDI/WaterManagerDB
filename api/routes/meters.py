@@ -162,6 +162,13 @@ async def get_land_owners(
 ):
     return db.scalars(select(LandOwners)).all()
 
+@meter_router.get(
+    "/wells", response_model=List[well_schemas.WellListDTO], tags=["meters"]
+)
+async def get_wells(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(Wells)).all()
 
 @meter_router.patch(
     "/meter",

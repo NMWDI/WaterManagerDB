@@ -12,7 +12,7 @@ import {
     MenuItem
 } from '@mui/material'
 
-import { MeterDetails, SecurityScope, MeterTypeLU, LandOwner, MeterDetailsQueryParams } from '../../interfaces'
+import { MeterDetails, SecurityScope, MeterTypeLU, LandOwner, MeterDetailsQueryParams, Well } from '../../interfaces'
 import { useApiGET, useApiPATCH, useDidMountEffect } from '../../service/ApiService'
 import { useAuthUser } from 'react-auth-kit'
 import { produce } from 'immer'
@@ -27,7 +27,8 @@ interface MeterDetailsFieldProps {
     onChange: ChangeEventHandler
     hasAdminScope: boolean
     rows?: number
-    isNumberInput?: boolean
+    isNumberInput?: boolean,
+    disabled?: boolean
 }
 
 const disabledInputStyle = {
@@ -42,7 +43,7 @@ function emptyIfNull(value: any) {
 }
 
 // Abstracted way to show and edit meter details as text fields (must be outside main component to avoid focus loss on state updates)
-function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNumberInput=false }: MeterDetailsFieldProps) {
+function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNumberInput=false, disabled=false }: MeterDetailsFieldProps) {
     return (
         <TextField
             key={label}
@@ -50,7 +51,7 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
             variant="outlined"
             size="small"
             value={emptyIfNull(value)}
-            disabled={!hasAdminScope}
+            disabled={!hasAdminScope || disabled}
             sx={disabledInputStyle}
             onChange={onChange}
             rows={rows}
@@ -62,21 +63,19 @@ function MeterDetailsField({label, value, onChange, hasAdminScope, rows=1, isNum
 }
 
 // Show regular users the meter's type as a regular field, show admins an editable dropdown
-function LandOwnerField({value, onChange, hasAdminScope}: any) {
-
-    console.log(value)
+function WellSelection({value, onChange, hasAdminScope}: any) {
     if (hasAdminScope) {
-        const [landOwnerList, setLandOwnerList] = useApiGET<LandOwner[]>('/land_owners', [])
+        const [wellList, setWellList] = useApiGET<Well[]>('/wells', [])
         return (
             <FormControl size="small" fullWidth>
-                <InputLabel>Land Owner</InputLabel>
+                <InputLabel>Well</InputLabel>
                 <Select
-                    value={value?.well?.location?.land_owner_id ?? ''}
-                    label="Land Owner"
+                    value={value?.well_id ?? ''}
+                    label="Well"
                     onChange={onChange}
                 >
-                    {landOwnerList?.map((landOwner: LandOwner) => {
-                        return <MenuItem key={landOwner.id} value={landOwner.id}>{landOwner.organization}</MenuItem>
+                    {wellList?.map((well: Well) => {
+                        return <MenuItem key={well.id} value={well.id}>{well.name}</MenuItem>
                     })}
                 </Select>
             </FormControl>
@@ -86,10 +85,10 @@ function LandOwnerField({value, onChange, hasAdminScope}: any) {
     else {
         return (
             <TextField
-                label={"Land Owner"}
+                label={"Well"}
                 variant="outlined"
                 size="small"
-                value={value?.well?.location?.land_owner?.organization ?? ''}
+                value={value?.well?.name ?? ''}
                 disabled
                 sx={disabledInputStyle}
             />
@@ -207,10 +206,19 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        <LandOwnerField
+                        <WellSelection
                             value={meterDetails}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.land_owner_id = event.target.value}))}}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well_id = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
+                        <MeterDetailsField
+                            label="Land Owner"
+                            value={meterDetails?.well?.location?.land_owner?.organization}
+                            onChange={() => {}}
+                            hasAdminScope={hasAdminScope}
+                            disabled
                         />
                     </Grid>
 
@@ -221,7 +229,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             value={meterDetails?.well?.location?.latitude}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.latitude = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
-                            isNumberInput
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={3}>
@@ -230,25 +238,27 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             value={meterDetails?.well?.location?.longitude}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.longitude = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
-                            isNumberInput
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="TRSS"
-                            value={meterDetails?.well?.location?.trss}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.trss = event.target.value}))}}
-                            hasAdminScope={hasAdminScope}
+                            disabled
                         />
                     </Grid>
 
                     {/* Third Row */}
                     <Grid item xs={3}>
                         <MeterDetailsField
+                            label="TRSS"
+                            value={meterDetails?.well?.location?.trss}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.location.trss = event.target.value}))}}
+                            hasAdminScope={hasAdminScope}
+                            disabled
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
+                        <MeterDetailsField
                             label="RA Number"
                             value={meterDetails?.well?.ra_number}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well.ra_number = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={3}>
@@ -257,6 +267,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             value={meterDetails?.tag}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.tag = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={3}>
@@ -265,7 +276,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             value={meterDetails?.well?.well_distance_ft}
                             onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.well_distance_ft = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
-                            isNumberInput
+                            disabled
                         />
                     </Grid>
 

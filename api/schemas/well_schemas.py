@@ -55,6 +55,10 @@ class Well(ORMBase):
     location: Optional[Location]
 
 
+class WellListDTO(ORMBase):
+    name: Optional[str]
+
+
 class LocationTypeLU(ORMBase):
     type_name: Optional[str]
     description: Optional[str]
