@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, forwardRef } from 'react'
 import { produce } from 'immer'
 
 import {
@@ -33,6 +33,9 @@ function ObservationRow({observation, setObservation, removeObservation, propert
     return (
             <Grid container item xs={12} sx={{mb: 2}}>
 
+            {/*  Dont load until units and property types are loaded */}
+            {(propertyTypes.length > 1 && units.length > 1) &&
+            <>
                 <Grid container item xs={10} xl={5} spacing={2}>
                     <Grid item xs={3}>
                         <TimePicker
@@ -84,30 +87,58 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                         <DeleteIcon />
                     </IconButton>
                 </Grid>
+            </>
+            }
             </Grid>
     )
 }
 
 interface ObservationSelectionProps {
-    activityForm: ActivityForm,
-    setActivityForm: Function
+    activityForm: React.MutableRefObject<ActivityForm>
 }
 
-export default function ObservationsSelection({activityForm, setActivityForm}: ObservationSelectionProps) {
-    const [observations, setObservations] = useState<ObservationForm[]>([])
-    const [currentObservationID, setCurrentObservationID] = useState<number>(0) // Track IDs to keep them unique
-    const [numberOfObservations, setNumberOfObservations] = useState<number>(0) // Track number of observations for dynamic button verbiage
+const defaultObservations: ObservationForm[] = [
+    {
+        id: 1,
+        time: dayjs(),
+        reading: '',
+        property_type_id: 2,
+        unit_id: 3
+    },
+    {
+        id: 2,
+        time: dayjs(),
+        reading: '',
+        property_type_id: 1,
+        unit_id: 1
+    },
+    {
+        id: 3,
+        time: dayjs(),
+        reading: '',
+        property_type_id: 1,
+        unit_id: 1
+    },
+]
 
+export const ObservationSelection = forwardRef(({activityForm}: ObservationSelectionProps, submitRef) => {
+
+    // Exposed submit function to allow parent to request the form values
+    React.useImperativeHandle(submitRef, () => {
+        return {
+            onSubmit() {
+                activityForm.current.observations = observations
+            }
+        }
+    })
+
+    const [observations, setObservations] = useState<ObservationForm[]>(defaultObservations)
+    const [currentObservationID, setCurrentObservationID] = useState<number>(defaultObservations.length + 1) // Track IDs to keep them unique
+    const [numberOfObservations, setNumberOfObservations] = useState<number>(defaultObservations.length) // Track number of observations for dynamic button verbiage
     const [propertyTypes, setPropertyTypes] = useApiGET<ObservedPropertyTypeLU[]>('/observed_property_types', [])
     const [units, setUnits] = useApiGET<Unit[]>('/units', [])
 
-    // Keep the part of the activityForm this component is responsible for updated
-    useEffect(() => {
-        setActivityForm(produce(activityForm, newForm => {
-            newForm.observations = observations
-        }))
-    }, [observations])
-
+    // Functions to manage local list of observations, should ideally be impl as useReducer
     function addObservation() {
         setObservations([...observations, {
             id: currentObservationID,
@@ -164,4 +195,4 @@ export default function ObservationsSelection({activityForm, setActivityForm}: O
                 </Grid>
             </Box>
         )
-}
+})

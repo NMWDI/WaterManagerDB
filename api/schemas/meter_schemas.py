@@ -24,7 +24,6 @@ class MeterMapDTO(ORMBase):
             latitude: Optional[float]
         location: Optional[MeterLocationDTO]
 
-
     id: int
     well: Optional[WellDTO]
 
@@ -52,8 +51,12 @@ class MeterListDTO(ORMBase):
         ra_number: Optional[str]
         location: Optional[LocationDTO]
 
+    class StatusDTO(ORMBase):
+        status_name: Optional[str]
+
     serial_number: str
     well: Optional[WellDTO]
+    status: Optional[StatusDTO]
 
 
 class MeterStatusLU(ORMBase):

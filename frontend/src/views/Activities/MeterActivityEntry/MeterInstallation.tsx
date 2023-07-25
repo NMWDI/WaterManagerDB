@@ -1,19 +1,25 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
-import { produce } from 'immer'
-
+import { useState, useEffect, forwardRef } from 'react'
 import {
     TextField,
     Grid,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Autocomplete
 } from '@mui/material'
+
 import { gridBreakpoints } from '../ActivitiesView'
-import { ActivityForm, MeterDetails, MeterDetailsQueryParams } from '../../../interfaces'
+import { WellSearchQueryParams, ActivityForm, MeterDetails, MeterDetailsQueryParams, WellDetailsQueryParams, Well, Page } from '../../../interfaces'
 import { ActivityType } from '../../../enums'
 import { useApiGET } from '../../../service/ApiService'
+import { useDebounce } from 'use-debounce'
 
 interface MeterInstallationProps {
-    activityForm: ActivityForm,
-    setActivityForm: Function
+    activityForm: React.MutableRefObject<ActivityForm>,
+    meterID: number | null,
+    activityType: ActivityType | null,
 }
 
 interface InstallationTextFieldProps {
@@ -22,6 +28,13 @@ interface InstallationTextFieldProps {
     updateCallback: Function
     disabled: boolean
     rows?: number
+}
+
+const disabledInputStyle = {
+    "& .MuiInputBase-input.Mui-disabled": {
+      WebkitTextFillColor: "#000000",
+    },
+    cursor: 'default'
 }
 
 function InstallationTextField({label, value, updateCallback, disabled, rows}: InstallationTextFieldProps) {
@@ -36,60 +49,129 @@ function InstallationTextField({label, value, updateCallback, disabled, rows}: I
             disabled={disabled}
             rows={rows}
             multiline={rows != null}
+            sx={disabledInputStyle}
         />
     )
 }
 
-export default function MeterInstallation({activityForm, setActivityForm}: MeterInstallationProps) {
-    const [contactName, setContactName] = useState<string>(activityForm.current_installation.contact_name)
-    const [contactPhone, setContactPhone] = useState<string>(activityForm.current_installation.contact_phone)
-    const [organizationID, setOrganizationID] = useState<string | number>(activityForm.current_installation.organization_id)
-    const [latitude, setLatitude] = useState<string | number>(activityForm.current_installation.latitude)
-    const [longitude, setLongitude] = useState<string | number>(activityForm.current_installation.longitude)
-    const [trss, setTrss] = useState<string>(activityForm.current_installation.trss)
-    const [raNumber, setRaNumber] = useState<string>(activityForm.current_installation.ra_number)
-    const [oseTag, setOseTag] = useState<string>(activityForm.current_installation.ose_tag)
-    const [wellDistance, setWellDistance] = useState<string | number>(activityForm.current_installation.well_distance_ft)
-    const [notes, setNotes] = useState<string>(activityForm.current_installation.notes)
+function WellSelection({selectedWellName, updateCallback, disabled}: any) {
+
+    // If the field is disabled (when not installing), show the well name that came from the meter details in the parent
+    if (disabled) {
+        return (
+            <TextField
+                label={"Well"}
+                variant="outlined"
+                size="small"
+                value={selectedWellName}
+                onChange={() => {}}
+                fullWidth
+                disabled={disabled}
+                sx={disabledInputStyle}
+            />
+        )
+    }
+
+    // If the user should be allowed to select a well (when installing), manage it all here and tell the parent which well ID is selected
+    else {
+        const [wellSearchQueryParams, setWellSearchQueryParams] = useState<WellSearchQueryParams>()
+        const [wellSearchQuery, setWellSearchQuery] = useState<string>('')
+        const [wellSearchQueryDebounced] = useDebounce(wellSearchQuery, 250)
+        const [wellList, setWellList] = useApiGET<Page<Well>>('/wells', [], wellSearchQueryParams, true)
+        const [selectedWell, setSelectedWell] = useState<Well>()
+
+        useEffect(() => {
+            setWellSearchQueryParams({search_string: wellSearchQueryDebounced})
+        }, [wellSearchQueryDebounced])
+
+        return (
+            <Autocomplete
+                disableClearable
+                options={wellList.items}
+                getOptionLabel={(well: Well) => {return well.name ?? ''}}
+                onChange={(event: any, selectedWell: Well) => {updateCallback(selectedWell.id)}}
+                value={selectedWell}
+                inputValue={wellSearchQuery}
+                onInputChange={(event: any, query: string) => {setWellSearchQuery(query)}}
+                isOptionEqualToValue={(a, b) => {return a.id == b.id}}
+                renderInput={(params: any) => <TextField {...params} size="small" label="Well" placeholder="Begin typing to search" />}
+            />
+        )
+    }
+}
+
+export const MeterInstallation = forwardRef(({activityForm, meterID, activityType}: MeterInstallationProps, submitRef) => {
+
+    // Exposed submit function to allow parent to request the form values
+    React.useImperativeHandle(submitRef, () => {
+        return {
+            onSubmit() {
+                activityForm.current.current_installation = {
+                    contact_name: contactName,
+                    contact_phone: contactPhone,
+                    well_id: wellID as number,
+                    well_distance_ft: wellDistance,
+                    notes: notes
+                }
+            }
+        }
+    })
+
+    const [contactName, setContactName] = useState<string>('')
+    const [contactPhone, setContactPhone] = useState<string>('')
+    const [wellID, setWellID] = useState<number | undefined | string>()
+    const [latitude, setLatitude] = useState<number | undefined>()
+    const [longitude, setLongitude] = useState<number | undefined>()
+    const [trss, setTrss] = useState<string>('')
+    const [raNumber, setRaNumber] = useState<string>('')
+    const [oseTag, setOseTag] = useState<string>('')
+    const [wellDistance, setWellDistance] = useState<number | undefined>()
+    const [notes, setNotes] = useState<string>('')
+    const [locationName, setLocationName] = useState<string>('')
+    const [meterStatus, setMeterStatus] = useState<string>('')
 
     const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>()
     const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', undefined, meterDetailsQueryParams, true)
 
-    // Keep the part of the activityForm this component is responsible for updated
+    const [wellDetailsQueryParams, setWellDetailsQueryParams] = useState<WellDetailsQueryParams>()
+    const [wellDetails, setWellDetails] = useApiGET<Well>('/well', undefined, wellDetailsQueryParams, true)
+
+    // Clear well and location related fields if install is selected
     useEffect(() => {
-        setActivityForm(produce(activityForm, (newForm: ActivityForm) => {
-            newForm.current_installation.contact_name = contactName
-            newForm.current_installation.contact_phone = contactPhone
-            newForm.current_installation.organization_id = organizationID
-            newForm.current_installation.latitude = latitude
-            newForm.current_installation.longitude = longitude
-            newForm.current_installation.trss = trss
-            newForm.current_installation.ra_number = raNumber
-            newForm.current_installation.ose_tag = oseTag
-            newForm.current_installation.well_distance_ft = wellDistance
-            newForm.current_installation.notes = notes
-        }))
-    }, [contactName, contactPhone, organizationID, latitude, longitude, trss, raNumber, oseTag, wellDistance, notes])
+        if (activityType != ActivityType.Install) return
+        setWellID(undefined)
+        setLocationName('')
+        setTrss('')
+        setRaNumber('')
+    }, [activityType])
 
-    // Update the values of the fields to reflect the currently selected meter
+    // Update meter related fields on new meter selection
+    useEffect(() => {if (meterID != undefined) setMeterDetailsQueryParams({meter_id: meterID})}, [meterID])
     useEffect(() => {
-        const meterID = activityForm.activity_details.meter_id
-        if (meterID == null) return
-
-        setMeterDetailsQueryParams({meter_id: meterID})
-
+        setWellID(meterDetails?.well_id ?? undefined)
         setOseTag(meterDetails?.tag ?? '')
         setNotes(meterDetails?.notes ?? '')
-        //setOthers() here (when location stuff decided)
+        setContactName(meterDetails?.contact_name ?? '')
+        setContactPhone(meterDetails?.contact_phone ?? '')
+        setMeterStatus(meterDetails?.status?.status_name ?? '')
+    }, [meterDetails])
 
-    }, [activityForm.activity_details.meter_id])
+    // Update well related fields on new well selection
+    useEffect(() => { if (wellID != undefined) {setWellDetailsQueryParams({well_id: wellID as number})}}, [wellID])
+    useEffect(() => {
+        setLongitude(wellDetails?.location?.longitude ?? '')
+        setLatitude(wellDetails?.location?.latitude ?? '')
+        setTrss(wellDetails?.location?.trss ?? '')
+        setRaNumber(wellDetails?.ra_number ?? '')
+        setLocationName(wellDetails?.location?.name ?? '')
+    }, [wellDetails, meterDetails])
 
     function isNotActivity(activitiesList: ActivityType[]) {
-        return !activitiesList.some((activityType: ActivityType) => activityType == activityForm.activity_details.activity_type_name)
+        return !activitiesList.some((type: ActivityType) => type == activityType)
     }
 
     function isActivity(activitiesList: ActivityType[]) {
-        return activitiesList.some((activityType: ActivityType) => activityType == activityForm.activity_details.activity_type_name)
+        return activitiesList.some((type: ActivityType) => type == activityType)
     }
 
     return (
@@ -98,6 +180,61 @@ export default function MeterInstallation({activityForm, setActivityForm}: Meter
 
             {/*  First Row */}
             <Grid container item xs={12} spacing={2}>
+                <Grid item xs={4}>
+                    <InstallationTextField
+                        label="Current Meter Status"
+                        value={meterStatus}
+                        updateCallback={setMeterStatus}
+                        disabled={true}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <WellSelection
+                        selectedWellName={meterDetails?.well?.name ?? ''}
+                        updateCallback={setWellID}
+                        disabled={isNotActivity([ActivityType.Install])}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <InstallationTextField
+                        label="Location"
+                        value={locationName}
+                        updateCallback={setLocationName}
+                        disabled={true}
+                    />
+                </Grid>
+            </Grid>
+
+            {/*  Second Row */}
+            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
+                <Grid item xs={4}>
+                    <InstallationTextField
+                        label="RA Number"
+                        value={raNumber}
+                        updateCallback={setRaNumber}
+                        disabled={true}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <InstallationTextField
+                        label="OSE Tag"
+                        value={oseTag}
+                        updateCallback={setOseTag}
+                        disabled={true}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <InstallationTextField
+                        label="TRSS"
+                        value={trss}
+                        updateCallback={setTrss}
+                        disabled={true}
+                    />
+                </Grid>
+            </Grid>
+
+            {/*  Third Row */}
+            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
                 <Grid item xs={4}>
                     <InstallationTextField
                         label="Contact Name"
@@ -116,64 +253,8 @@ export default function MeterInstallation({activityForm, setActivityForm}: Meter
                 </Grid>
                 <Grid item xs={4}>
                     <InstallationTextField
-                        label="Organization"
-                        value={organizationID}
-                        updateCallback={setOrganizationID}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-            </Grid>
-
-            {/*  Second Row */}
-            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                <Grid item xs={4}>
-                    <InstallationTextField
-                        label="Latitude"
-                        value={latitude}
-                        updateCallback={setLatitude}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <InstallationTextField
-                        label="Longitude"
-                        value={longitude}
-                        updateCallback={setLongitude}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <InstallationTextField
-                        label="TRSS"
-                        value={trss}
-                        updateCallback={setTrss}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-            </Grid>
-
-            {/*  Third Row */}
-            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                <Grid item xs={4}>
-                    <InstallationTextField
-                        label="RA Number"
-                        value={raNumber}
-                        updateCallback={setRaNumber}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <InstallationTextField
-                        label="OSE Tag"
-                        value={oseTag}
-                        updateCallback={setOseTag}
-                        disabled={isNotActivity([ActivityType.Install])}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <InstallationTextField
                         label="Well Distance"
-                        value={wellDistance}
+                        value={wellDistance ?? ''}
                         updateCallback={setWellDistance}
                         disabled={isActivity([ActivityType.Uninstall])}
                     />
@@ -191,4 +272,4 @@ export default function MeterInstallation({activityForm, setActivityForm}: Meter
             </Grid>
         </Grid>
     )
-}
+})

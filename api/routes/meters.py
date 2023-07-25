@@ -76,7 +76,7 @@ async def get_meters(
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
         select(Meters)
-        .options(joinedload(Meters.well))
+        .options(joinedload(Meters.well), joinedload(Meters.status))
         .join(Wells, isouter=True)
         .join(Locations, isouter=True)
         .join(LandOwners, isouter=True)
@@ -163,12 +163,34 @@ async def get_land_owners(
     return db.scalars(select(LandOwners)).all()
 
 @meter_router.get(
-    "/wells", response_model=List[well_schemas.WellListDTO], tags=["meters"]
+    "/wells", response_model=LimitOffsetPage[well_schemas.WellListDTO], tags=["meters"]
 )
 async def get_wells(
+    # offset: int, limit: int - From fastapi_pagination
+    search_string: str = None,
     db: Session = Depends(get_db),
 ):
-    return db.scalars(select(Wells)).all()
+    queryStatement = select(Wells)
+
+    if search_string:
+        queryStatement = queryStatement.where(Wells.name.ilike(f"%{search_string}%"))
+
+    return paginate(db, queryStatement)
+
+@meter_router.get(
+    "/well", response_model=well_schemas.Well, tags=["meters"]
+)
+async def get_well(
+    well_id: int,
+    db: Session = Depends(get_db)
+):
+    return db.scalars(
+        select(Wells)
+        .options(
+            joinedload(Wells.location).joinedload(Locations.land_owner),
+        )
+        .filter(Wells.id == well_id)
+    ).first()
 
 @meter_router.patch(
     "/meter",

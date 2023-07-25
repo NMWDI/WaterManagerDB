@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, forwardRef } from 'react'
 import { produce } from 'immer'
 
 import {
@@ -15,24 +15,33 @@ import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
+import { ActivityForm, NoteTypeLU } from '../../../interfaces'
+import { useApiGET } from '../../../service/ApiService'
 
-// Sample data
-const notesList: any = [
-    {id: 1, name: 'Pump Off'},
-    {id: 2, name: 'Low Flow'},
-    {id: 3, name: 'No Flow'},
-    {id: 4, name: 'Meter Broken'},
-    {id: 5, name: 'Unreadable'},
-    {id: 6, name: 'Not Functioning'},
-    {id: 7, name: 'Dirty'},
-]
+interface NotesSelectionProps {
+    activityForm: React.MutableRefObject<ActivityForm>
+    meterID: number | null
+}
 
-const defaultNotes: number[] = [1, 2, 3]
+export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectionProps, submitRef) => {
 
-export default function NotesSelection() {
+    // Exposed submit function to allow parent to request the form values
+    React.useImperativeHandle(submitRef, () => {
+        return {
+            onSubmit() {
+                activityForm.current.notes = {
+                    working_on_arrival: workingOnArrival,
+                    selected_note_ids: selectedNoteIDs
+                }
+            }
+        }
+    })
+
     const [workingOnArrival, setWorkingOnArrival] = useState<boolean>(true)
     const [selectedNoteIDs, setSelectedNoteIDs] = useState<number[]>([]) // Notes toggled by the user
-    const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>(defaultNotes) // The default notes, and user-added ones from select dropdown
+    const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([1, 2, 3]) // The default notes, and user-added ones from select dropdown
+
+    const [notesList, setNotesList] = useApiGET<NoteTypeLU[]>('/note_types', [])
 
     function isSelected(ID: number) {
         return selectedNoteIDs.some(x => x == ID)
@@ -57,7 +66,7 @@ export default function NotesSelection() {
                     onChange={() => {isSelected(note.id) ? unselectNote(note.id) : selectNote(note.id)}}
                     sx={toggleStyle}
                 >
-                    {note.name}
+                    {note.note}
                 </ToggleButton>
             </Grid>
         )
@@ -69,7 +78,7 @@ export default function NotesSelection() {
             <Grid container>
                 <Grid container item xs={12}>
 
-                    {/* Working on arrival selection */}
+                    {/* Is working on arrival boolean selection */}
                     <ToggleButtonGroup
                         value={workingOnArrival}
                         onChange={(_, value) => {value != null ? setWorkingOnArrival(value) : null}}
@@ -85,7 +94,7 @@ export default function NotesSelection() {
                     </ToggleButtonGroup>
                 </Grid>
 
-                {/*  Note selection buttons */}
+                {/*  Visible note toggles */}
                 <Grid container item xs={12} sx={{mt: 2}}>
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
@@ -98,20 +107,26 @@ export default function NotesSelection() {
                     </Grid>
                 </Grid>
 
+                {/*  Dropdown to add non-visible notes */}
                 <Grid item xs={12} sx={{mt: 2}}>
                     <Grid item xs={3} >
-
                         <FormControl size="small" fullWidth>
                             <InputLabel>Add Other Notes</InputLabel>
                             <Select
                                 value={''}
                                 label="Add Other Notes"
-                                onChange={(event: any) => setVisibleNoteIDs(produce(visibleNoteIDs, newNotes => {newNotes.push(event.target.value)}))}
+                                onChange={(event: any) => {
+                                    setVisibleNoteIDs(produce(visibleNoteIDs, newNotes => {newNotes.push(event.target.value)}))
+                                    selectNote(event.target.value)
+                                }}
                             >
-                                <MenuItem key={4} value={4}>Meter Broken</MenuItem>
-                                <MenuItem key={5} value={5}>Unreadable</MenuItem>
-                                <MenuItem key={6} value={6}>Not Functioning</MenuItem>
-                                <MenuItem key={7} value={7}>Dirty</MenuItem>
+
+                                {/*  List of notes not already visible */}
+                                {notesList.map((nt: NoteTypeLU) => {
+                                    if(!visibleNoteIDs.some(x => x == nt.id)) {
+                                        return <MenuItem key={nt.id} value={nt.id}>{nt.note}</MenuItem>
+                                    }
+                                })}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -121,4 +136,4 @@ export default function NotesSelection() {
 
         </Box>
     )
-}
+})

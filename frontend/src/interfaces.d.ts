@@ -1,34 +1,38 @@
 import { SortDirection, MeterSortByField } from 'enums'
 import internal from 'stream'
 
-// The underlying fields that get filled out as the user completes an activity form
-// To show a blank box MUI sometimes wants null, sometimes wants ''
 export interface ActivityForm {
 
-    activity_details: {
-        meter_id: number | null
-        activity_type_id: number | string
-        user_id: number | string
-        date: Dayjs | null
-        start_time: Dayjs | null
-        end_time: Dayjs | null
-        activity_type_name?: string
+    activity_details?: {
+        meter_id?: number
+        activity_type_id?: number
+        user_id?: number
+        date?: Dayjs
+        start_time?: Dayjs
+        end_time?: Dayjs
     }
 
-    current_installation: {
-        contact_name: string
-        contact_phone: string
-        organization_id: number | string
-        latitude: number | string
-        longitude: number | string
-        trss: string
-        ra_number: string
-        ose_tag: string
-        well_distance_ft: number | string
-        notes: string
+    current_installation?: {
+        contact_name?: string
+        contact_phone?: string
+        well_id?: number
+        well_distance_ft?: number
+        notes?: string
     }
 
     observations?: ObservationForm[]
+
+    maintenance_repair?: {
+        service_type_ids: number[]
+        description: string
+    }
+
+    notes?: {
+        working_on_arrival: boolean
+        selected_note_ids: number[]
+    }
+
+    part_used_ids?: number[]
 }
 
 export interface ObservationForm {
@@ -37,6 +41,44 @@ export interface ObservationForm {
     reading: '' | number
     property_type_id: '' | number
     unit_id: '' | number
+}
+
+export interface PartTypeLU {
+    id: int
+    name: string
+    description?: string
+}
+
+export interface Part {
+    id: number
+    part_number: string
+    part_type_id: number
+    vendor?: string
+    note?: string
+    description?: string
+    count?: number
+
+    part_type?: PartTypeLU
+}
+
+export interface PartAssociation {
+    id: int
+    meter_type_id: int
+    part_id: int
+    commonly_used: boolean
+    part?: Part
+}
+
+export interface ServiceTypeLU {
+    id: number
+    service_name: string
+    description?: string
+}
+
+export interface NoteTypeLU {
+    id: number
+    note: string
+    details?: string
 }
 
 export interface Well {
@@ -51,6 +93,10 @@ export interface Well {
 
 export interface MeterDetailsQueryParams {
     meter_id: number | undefined
+}
+
+export interface WellDetailsQueryParams {
+    well_id: number | undefined
 }
 
 export interface ActivityTypeLU {
@@ -192,6 +238,7 @@ export interface Meter {
 export interface MeterListDTO {
     id: number
     serial_number: string
+    status?: {status_name?: string}
     well: {
         ra_number: string
         location: {
@@ -201,6 +248,10 @@ export interface MeterListDTO {
             }
         }
     }
+}
+
+interface WellSearchQueryParams {
+    search_string: string
 }
 
 export interface Page<T> {

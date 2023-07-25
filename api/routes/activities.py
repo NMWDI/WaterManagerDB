@@ -3,7 +3,7 @@
 # ===============================================================================
 
 from fastapi import Depends, APIRouter
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 
 from api.schemas.meter_schemas import (
@@ -21,6 +21,9 @@ from api.models.main_models import (
     MeterActivities,
     MeterObservations,
     PropertyUnits,
+    ServiceTypeLU,
+    NoteTypeLU,
+    PartAssociation,
 )
 from api.models.security_models import Users
 from api.security import scoped_user
@@ -137,6 +140,43 @@ async def get_units(db: Session = Depends(get_db)):
 )
 async def get_observed_property_types(db: Session = Depends(get_db)):
     return db.scalars(select(ObservedPropertyTypeLU)).all()
+
+@activity_router.get(
+    "/service_types",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_service_types(db: Session = Depends(get_db)):
+    return db.scalars(select(ServiceTypeLU)).all()
+
+@activity_router.get(
+    "/note_types",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_note_types(db: Session = Depends(get_db)):
+    return db.scalars(select(NoteTypeLU)).all()
+
+@activity_router.get(
+    "/parts",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_parts(db: Session = Depends(get_db)):
+    return db.scalars(select(Parts)).all()
+
+@activity_router.get(
+    "/meter_parts",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
+        meter_type_id = db.scalars(select(Meters.meter_type_id).where(Meters.id == meter_id)).first()
+        # return db.scalars(select(PartAssociation.part_id, PartAssociation.commonly_used).where(PartAssociation.meter_type_id == meter_type_id)).all()
+        return db.scalars(
+                select(PartAssociation)
+                    .where(PartAssociation.meter_type_id == meter_type_id)
+                    .options(joinedload(PartAssociation.part).joinedload(Parts.part_type))).all()
 
 # Endpoint to receive meter maintenance form submission
 # @activity_router.post(

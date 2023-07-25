@@ -49,10 +49,14 @@ class Parts(Base):
     count = Column(Integer, default=0)
     note = Column(String)
 
+    part_type = relationship("PartTypeLU")
+
 class PartAssociation(Base):
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
     part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
     commonly_used = Column(Boolean)
+
+    part = relationship("Parts")
 
 PartsUsed = Table(
     "PartsUsed",

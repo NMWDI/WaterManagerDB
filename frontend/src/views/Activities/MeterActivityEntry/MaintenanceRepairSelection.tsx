@@ -1,33 +1,38 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, forwardRef } from 'react'
 import { produce } from 'immer'
-
 import {
     Box,
     TextField,
-    Button,
     Grid,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem
 } from '@mui/material'
-
 import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
+import { ActivityForm, ServiceTypeLU } from '../../../interfaces'
+import { useApiGET } from '../../../service/ApiService'
 
-const maintanenceRepairList: any = [
-    {id: 1, name: 'Remove Sand and Debris'},
-    {id: 2, name: 'Repair Leak'},
-    {id: 3, name: 'Remove Moisture'},
-    {id: 4, name: 'Tighten Register'},
-    {id: 5, name: 'Grease Bearing'},
-]
+interface MaintenanceRepairSelectionProps {
+    activityForm: React.MutableRefObject<ActivityForm>
+    meterID: number | null
+}
 
-export default function MaintenenceRepairSelection() {
-    // specify what ID is selected, also may need seperate lists of IDs if maintanence and repair and 2 things
+export const MaintenanceRepairSelection = forwardRef(({activityForm, meterID}: MaintenanceRepairSelectionProps, submitRef) => {
+
+    // Exposed submit function to allow parent to request the form values
+    React.useImperativeHandle(submitRef, () => {
+        return {
+            onSubmit() {
+                activityForm.current.maintenance_repair = {
+                    service_type_ids: selectedIDs,
+                    description: description
+                }
+            }
+        }
+    })
+
+    const [serviceTypes, setServiceTypes] = useApiGET<ServiceTypeLU[]>('/service_types', [])
+    const [description, setDescription] = useState<string>('')
     const [selectedIDs, setSelectedIDs] = useState<number[]>([])
 
     function isSelected(ID: number) {
@@ -44,7 +49,7 @@ export default function MaintenenceRepairSelection() {
 
     function MaintanenceToggleButton({item}: any) {
         return (
-            <Grid item xs={4}>
+            <Grid item xs={4} key={item.id}>
                 <ToggleButton
                     value="check"
                     color="primary"
@@ -53,7 +58,7 @@ export default function MaintenenceRepairSelection() {
                     onChange={() => {isSelected(item.id) ? unselectItem(item.id) : selectItem(item.id)}}
                     sx={toggleStyle}
                 >
-                    {item.name}
+                    {item.service_name}
                 </ToggleButton>
             </Grid>
         )
@@ -67,7 +72,7 @@ export default function MaintenenceRepairSelection() {
                 <Grid container item xs={12}>
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
-                        {maintanenceRepairList.map((item: any) => {
+                        {serviceTypes.map((item: any) => {
                                 return <MaintanenceToggleButton item={item} />
                         })}
                     </Grid>
@@ -76,8 +81,8 @@ export default function MaintenenceRepairSelection() {
                 <Grid container item {...gridBreakpoints} sx={{mt: 2}}>
                     <TextField
                         label={'Description'}
-                        value={'...'}
-                        onChange={() => {}}
+                        value={description}
+                        onChange={(event: any) => {setDescription(event.target.value)}}
                         multiline
                         fullWidth
                         rows={3}
@@ -87,4 +92,4 @@ export default function MaintenenceRepairSelection() {
             </Grid>
         </Box>
     )
-}
+})

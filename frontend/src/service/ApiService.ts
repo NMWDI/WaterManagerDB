@@ -18,7 +18,7 @@ function formattedQueryParams(queryParams: any) {
     let params = {...queryParams}
 
     for (let param in params) {
-        if (params[param] === '' || params[param] == null) {
+        if (params[param] === '' || params[param] == undefined) {
             delete params[param]
         }
     }
@@ -28,7 +28,7 @@ function formattedQueryParams(queryParams: any) {
 
 // GET the specified resource of type T, updates the returned value when the passed queryParams are updated
 // SetStateAction is returned so the frontend may update the resource visually
-export function useApiGET<T>(route: string, initialValue: any, queryParams: any = null, dontFetchWithoutParams = false): [T, React.Dispatch<React.SetStateAction<T>>]{
+export function useApiGET<T>(route: string, initialValue: any, queryParams: any = undefined, dontFetchWithoutParams = false): [T, React.Dispatch<React.SetStateAction<T>>]{
     const [response, setResponse] = useState<T>(initialValue)
     const didMount = useRef(false)
     const authHeader = useAuthHeader()
@@ -39,8 +39,8 @@ export function useApiGET<T>(route: string, initialValue: any, queryParams: any 
 
     // Re-fetch on updates to query params (if the component has mounted, or the caller wants it anyways)
     useEffect(() => {
-        if (queryParams == null && dontFetchWithoutParams) { return } // If an endpoint expects params, dont call it until they are defined
         if (didMount.current) {
+            if (queryParams == undefined && dontFetchWithoutParams) { return } // If an endpoint expects params, dont call it until they are defined
             fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
                 .then(r => r.json())
                 .then(data => setResponse(data))
