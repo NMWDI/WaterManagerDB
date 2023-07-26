@@ -48,7 +48,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                     {(selectedHistoryItem?.history_type == MeterHistoryType.Activity || selectedHistoryItem == undefined) &&  <>
                         <Grid container item xs={12} spacing={2} >
                             <Grid item xs={4}>
-                                <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.technician.name)} disabled sx={disabledInputStyle} />
+                                <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.submitting_user.full_name)} disabled sx={disabledInputStyle} />
                             </Grid>
                             <Grid item xs={4}>
                                 <TextField label="Activity Type" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.activity_type.name)} disabled sx={disabledInputStyle} />
@@ -82,7 +82,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                     {selectedHistoryItem?.history_type == MeterHistoryType.Observation &&  <>
                         <Grid container item xs={12} spacing={2} >
                             <Grid item xs={4}>
-                                <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.technician.name)} disabled sx={disabledInputStyle} />
+                                <TextField label="Technician Name" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.submitting_user.full_name)} disabled sx={disabledInputStyle} />
                             </Grid>
                             <Grid item xs={4}>
                                 <TextField label="Observed Property" variant="outlined" size="small" value={emptyIfNull(selectedHistoryItem?.history_item.observed_property.name)} disabled sx={disabledInputStyle} />

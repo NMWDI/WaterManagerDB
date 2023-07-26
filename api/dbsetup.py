@@ -21,100 +21,6 @@ if os.environ.get("SETUP_DB"):
     print("Setting up the database")
     api.models.main_models.Base.metadata.create_all(engine)
 
-# Load development data from CSV
-# Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
-if os.environ.get("POPULATE_DB"):
-    # Get the psycopg2 connector - enables running of lower level functions
-    conn = engine.raw_connection()
-    cursor = conn.cursor()
-
-    # Load meter types CSV
-    with open("api/data/devdata_metertypes.csv", "r") as f:
-        qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/landowners.csv", "r") as f:
-        qry = 'COPY "LandOwners"(organization,address,city,state,zip,phone,mobile,note,id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_meterstatus.csv", "r") as f:
-        qry = 'COPY "MeterStatusLU"(id,status_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_observedproperties.csv", "r") as f:
-        qry = 'COPY "ObservedPropertyTypeLU"(id,name,description,context) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_units.csv", "r") as f:
-        qry = 'COPY "Units"(id,name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_propertyunits.csv", "r") as f:
-        qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_locationtypeLU.csv", "r") as f:
-        qry = 'COPY "LocationTypeLU"(id,type_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/locations.csv", "r") as f:
-        qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,land_owner_id,township,range,section,quarter) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/wells.csv", "r") as f:
-        qry = 'COPY "Wells"(id,name,ra_number,location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/meters.csv", "r") as f:
-        qry = 'COPY "Meters"(id,serial_number,old_contact_name,tag,meter_type_id,status_id,location_id,well_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_activities.csv", "r") as f:
-        qry = 'COPY "ActivityTypeLU"(name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_workers.csv", "r") as f:
-        qry = 'COPY "Technicians"(id,name) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_wellMeasurement.csv", "r") as f:
-        qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,technician_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_parttypeLU.csv", "r") as f:
-        qry = 'COPY "PartTypeLU"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_parts.csv", "r") as f:
-        qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    with open("api/data/devdata_partsassociated.csv", "r") as f:
-        qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-        cursor.copy_expert(qry, f)
-
-    #Only load the following for local testing
-    testing = False
-    if testing:
-
-        with open("api/data/testdata_meterobservations.csv", "r") as f:
-            qry = 'COPY "MeterObservations"(timestamp, value, notes, technician_id, meter_id, observed_property_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
-
-        with open("api/data/testdata_meteractivities.csv", "r") as f:
-            qry = 'COPY "MeterActivities"(timestamp_start, timestamp_end, notes, technician_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
-
-        with open("api/data/testdata_partsused.csv", "r") as f:
-            qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
-
-    #Create geometries from location lat longs
-    cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
-    
-    conn.commit()
-    conn.close()
-
     # Add users, roles, and scopes for testing
     db = SessionLocal()
 
@@ -195,3 +101,127 @@ if os.environ.get("POPULATE_DB"):
 
     db.commit()
     db.close()
+
+# Load development data from CSV
+# Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
+if os.environ.get("POPULATE_DB"):
+    # Get the psycopg2 connector - enables running of lower level functions
+    conn = engine.raw_connection()
+    cursor = conn.cursor()
+
+    # Load meter types CSV
+    with open("api/data/devdata_metertypes.csv", "r") as f:
+        qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/landowners.csv", "r") as f:
+        qry = 'COPY "LandOwners"(organization,address,city,state,zip,phone,mobile,note,id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_meterstatus.csv", "r") as f:
+        qry = 'COPY "MeterStatusLU"(id,status_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_observedproperties.csv", "r") as f:
+        qry = 'COPY "ObservedPropertyTypeLU"(id,name,description,context) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_units.csv", "r") as f:
+        qry = 'COPY "Units"(id,name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_propertyunits.csv", "r") as f:
+        qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_locationtypeLU.csv", "r") as f:
+        qry = 'COPY "LocationTypeLU"(id,type_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/locations.csv", "r") as f:
+        qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,land_owner_id,township,range,section,quarter) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/wells.csv", "r") as f:
+        qry = 'COPY "Wells"(id,name,ra_number,location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/meters.csv", "r") as f:
+        qry = 'COPY "Meters"(id,serial_number,old_contact_name,tag,meter_type_id,status_id,location_id,well_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_activities.csv", "r") as f:
+        qry = 'COPY "ActivityTypeLU"(id,name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_wellMeasurement.csv", "r") as f:
+        qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,submitting_user_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_parttypeLU.csv", "r") as f:
+        qry = 'COPY "PartTypeLU"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_parts.csv", "r") as f:
+        qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_partsassociated.csv", "r") as f:
+        qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    #Only load the following for local testing
+    testing = True
+    if testing:
+
+        with open("api/data/testdata_users.csv", "r") as f:
+            qry = 'COPY "Users"(id, username, full_name, email, hashed_password, disabled, user_role_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+            cursor.copy_expert(qry, f)
+
+        with open("api/data/testdata_meterobservations.csv", "r") as f:
+            qry = 'COPY "MeterObservations"(timestamp, value, notes, submitting_user_id, meter_id, observed_property_type_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+            cursor.copy_expert(qry, f)
+
+        with open("api/data/testdata_meteractivities.csv", "r") as f:
+            qry = 'COPY "MeterActivities"(id, timestamp_start, timestamp_end, notes, submitting_user_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+            cursor.copy_expert(qry, f)
+
+        with open("api/data/testdata_partsused.csv", "r") as f:
+            qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+            cursor.copy_expert(qry, f)
+
+    #Create geometries from location lat longs
+    cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
+    
+    conn.commit()
+    conn.close()
+
+
+# SQL for activity type security scopes if we ever decide to go that route
+# INSERT INTO "SecurityScopes" (scope_string, description)
+# VALUES
+# 	('activities:install', 'Submit install activities'),
+# 	('activities:uninstall', 'Submit install activities'),
+# 	('activities:general_maintenance', 'Submit general maintenance activities'),
+# 	('activities:preventative_maintenance', 'Submit preventative maintenance activities'),
+# 	('activities:repair', 'Submit repair activities'),
+# 	('activities:rate_meter', 'Submit rate meter activities'),
+# 	('activities:sell', 'Submit sell activities'),
+# 	('activities:scrap', 'Submit scrap activities');
+
+# INSERT INTO "ScopesRoles" (security_scope_id, user_role_id)
+# VALUES
+# 	(7, 2),
+# 	(8, 2),
+# 	(9, 2),
+# 	(10, 2),
+# 	(11, 2),
+# 	(12, 2),
+# 	(13, 2),
+# 	(14, 2),
+# 	(7, 1),
+# 	(8, 1),
+# 	(9, 1),
+# 	(10, 1),
+# 	(11, 1),
+# 	(12, 1);

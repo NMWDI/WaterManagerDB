@@ -37,6 +37,7 @@ class UserRole(BaseModel):
 
 
 class User(BaseModel):
+    id: int
     username: str
     email: Union[str, None] = None
     full_name: Union[str, None] = None

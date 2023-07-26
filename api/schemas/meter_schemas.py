@@ -7,106 +7,198 @@ from datetime import datetime
 from typing import List, Optional, Union
 
 from pydantic import BaseModel
-from api.schemas.part_schemas import Part
-from api.schemas.activity_schemas import Activity, Observation, LandOwner
+from api.schemas.part_schemas import PartUsed
+from api.schemas.well_schemas import Well, Location
+from api.schemas.security_schemas import User
 
-
-class MeterMapDTO(BaseModel):
-    class MeterLocationDTO(BaseModel):
-        longitude: Optional[float]
-        latitude: Optional[float]
-
-        class Config:
-            orm_mode = True
-
-    id: int
-    meter_location: Optional[MeterLocationDTO]
+class ORMBase(BaseModel):
+    id: Optional[int] = None
 
     class Config:
         orm_mode = True
 
+class MeterMapDTO(ORMBase):
+    class WellDTO(ORMBase):
+        class MeterLocationDTO(ORMBase):
+            longitude: Optional[float]
+            latitude: Optional[float]
+        location: Optional[MeterLocationDTO]
 
-class MeterTypeLU(BaseModel):
+    id: int
+    well: Optional[WellDTO]
+
+
+class MeterTypeLU(ORMBase):
     id: int
     brand: Optional[str]
     series: Optional[str]
     model_number: str
-    size: float
+    size: Optional[float]
     description: Optional[str]
 
-    class Config:
-        orm_mode = True
+
+# The minimal information used by the meters list
+class MeterListDTO(ORMBase):
+
+    class WellDTO(ORMBase):
+        class LocationDTO(ORMBase):
+            class LandOwnerDTO(ORMBase):
+                organization: Optional[str]
+
+            trss: Optional[str]
+            land_owner: Optional[LandOwnerDTO]
+
+        ra_number: Optional[str]
+        location: Optional[LocationDTO]
+
+    class StatusDTO(ORMBase):
+        status_name: Optional[str]
+
+    serial_number: str
+    well: Optional[WellDTO]
+    status: Optional[StatusDTO]
 
 
-class MeterListDTO(BaseModel):
-    class MeterLocationDTO(BaseModel):
-        class LandOwnerDTO(BaseModel):
-            land_owner_name: Optional[str]
-
-            class Config:
-                orm_mode = True
-
-        land_owner: Optional[LandOwnerDTO]
-
-        class Config:
-            orm_mode = True
-
-    id: int
-    serial_number: Optional[str]
-    trss: Optional[str]
-    ra_number: Optional[str]
-    meter_location: Optional[MeterLocationDTO]
-
-    class Config:
-        orm_mode = True
-
-
-# NEW ------------------------------------
-
-
-class MeterLocation(BaseModel):
-    id: int
-    name: str
-    latitude: float
-    longitude: float
-    trss: Optional[str]
-    land_owner_id: int
-
-    land_owner: Optional[LandOwner]
-
-    class Config:
-        orm_mode = True
-
-
-class MeterStatusLU(BaseModel):
+class MeterStatusLU(ORMBase):
     status_name: Optional[str]
     description: Optional[str]
 
-    class Config:
-        orm_mode = True
 
-
-class Meter(BaseModel):
-    id: int
+class Meter(ORMBase):
     serial_number: str
     contact_name: Optional[str]
     contact_phone: Optional[str]
     old_contact_name: Optional[str]
-    old_contact_phone: Optional[str]
-    ra_number: Optional[str]
     tag: Optional[str]
+
     well_distance_ft: Optional[float]
     notes: Optional[str]
 
-    meter_type_id: Optional[int]
+    meter_type_id: int
     status_id: Optional[int]
-    meter_location_id: Optional[int]
+    well_id: Optional[str]
+    location_id: Optional[str]
 
     meter_type: Optional[MeterTypeLU]
     status: Optional[MeterStatusLU]
-    meter_location: Optional[MeterLocation]
+    well: Optional[Well]
+    location: Optional[Location]
 
-    class Config:
-        orm_mode = True
+class Unit(ORMBase):
+    """
+    Describes Units
+    """
 
-    # Can also have location history
+    id: int
+    name: Optional[str]
+    name_short: Optional[str]
+    description: Optional[str]
+
+
+class ActivityTypeLU(ORMBase):
+    """
+    Details the type of activity
+    """
+
+    id: int
+    name: Optional[str]
+    description: Optional[str]
+
+
+class MeterActivity(ORMBase):
+    """
+    Used in Maintenance schema
+    """
+
+    id: int
+    timestamp_start: datetime
+    timestamp_end: datetime
+    notes: Optional[str]
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int
+
+    submitting_user: Optional[User]
+    meter: Optional[Meter]
+    activity_type: Optional[ActivityTypeLU]
+    location: Optional[Location]
+    parts_used: Optional[List[PartUsed]]
+
+
+class ObservedPropertyTypeLU(ORMBase):
+    """
+    Details the type of observation
+    """
+
+    id: int
+    name: Optional[str]
+    description: Optional[str]
+    context: Optional[str]
+
+
+class MeterObservation(ORMBase):
+    """
+    Used in Maintenance schema
+    """
+
+    id: int
+    timestamp: datetime
+    value: float
+    notes: Optional[str]
+
+    submitting_user_id: int
+    meter_id: int
+    observed_property_type_id: int
+    unit_id: int
+    location_id: int
+
+    submitting_user: Optional[User]
+    meter: Optional[Meter]
+    observed_property_type: Optional[ObservedPropertyTypeLU]
+    unit: Optional[Unit]
+    location: Optional[Unit]
+
+
+# Not used? This is represented as a MeterActivity now
+# class InstallationUpdate(ORMBase):
+#     """
+#     Used in Maintenance
+#     """
+
+#     contact_name: Optional[str]
+#     contact_phone: Optional[PhoneConstr]
+#     land_owner_id: Optional[int]
+#     ra_number: Optional[str]
+#     well_distance_ft: Optional[float]
+#     tag: Optional[str]
+#     latitude: Optional[float]
+#     longitude: Optional[float]
+#     trss: Optional[str]
+#     notes: Optional[str]
+
+
+# Not used? These come from seperate endpoints now
+# class ActivitiesFormOptions(ORMBase):
+#     """
+#     Details available options to be used in activities form
+#     """
+
+#     serial_numbers: List[str]
+#     activity_types: List[ActivityType]
+#     observed_properties: List[ObservationType]
+#     users: List[User]
+#     land_owners: List[LandOwner]
+
+
+# Not used? Represented as a MeterActivity now
+# class Maintenance(ORMBase):
+#     """
+#     Data associated with maintenance
+#     """
+
+#     meter_id: int
+#     activity: Activity
+#     installation_update: Optional[InstallationUpdate]
+#     observations: Optional[List[Observation]]
+#     parts: Optional[List[PartUsed]]

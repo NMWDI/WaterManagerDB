@@ -3,34 +3,12 @@ import { useState } from 'react'
 
 import MeterSelectionTable from './MeterSelectionTable'
 import MeterSelectionMap from './MeterSelectionMap'
+import TabPanel from '../../../components/TabPanel'
 
-import { Box, Tabs, Tab, TextField, Grid } from '@mui/material'
-
-interface TabPanelProps {
-    children?: React.ReactNode
-    tabIndex: number
-    currentTabIndex: number
-}
+import { Box, Tabs, Tab, TextField, Grid, Autocomplete } from '@mui/material'
 
 interface MeterSelectionProps {
   onMeterSelection: Function
-}
-
-function TabPanel({children, tabIndex, currentTabIndex}: TabPanelProps) {
-    return (
-        <div
-            role="tabpanel"
-            hidden={currentTabIndex !== tabIndex}
-            id={`simple-tabpanel-${tabIndex}`}
-            style={{height: '100%'}}
-        >
-            {currentTabIndex == tabIndex && (
-                <>
-                    {children}
-                </>
-            )}
-        </div>
-    )
 }
 
 export default function MeterSelection({onMeterSelection}: MeterSelectionProps) {

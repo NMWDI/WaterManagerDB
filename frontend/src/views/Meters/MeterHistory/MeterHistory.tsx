@@ -18,6 +18,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const [meterHistory, setMeterHistory] = useApiGET<MeterHistoryDTO[]>('/meter_history', [], meterHistoryQueryParams, true)
 
     useEffect(() => {
+        if (selectedMeterID == null) return
         setMeterHistoryQueryParams({meter_id: selectedMeterID})
     }, [selectedMeterID])
 

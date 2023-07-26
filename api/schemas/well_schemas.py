@@ -16,15 +16,56 @@ class ORMBase(BaseModel):
         orm_mode = True
 
 
+class LandOwner(ORMBase):
+    contact_name: Optional[str]
+    organization: Optional[str]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    zip: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    city: Optional[str]
+
+
+class Location(ORMBase):
+    name: str
+    type_id: int
+    trss: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    township: Optional[int]
+    range: Optional[int]
+    section: Optional[int]
+    quarter: Optional[int]
+    half_quarter: Optional[int]
+    quarter_quarter: Optional[int]
+    land_owner_id: Optional[int]
+
+    land_owner: Optional[LandOwner]
+
+
 class Well(ORMBase):
-    name: Optional[str] = None
-    location: Optional[str] = None
-    osepod: Optional[str] = None
-    owner_id: Optional[int] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    # owner: Optional[Owner] = None
-    # meter: Optional[Meter] = None
+    name: Optional[str]
+    location_id: Optional[str]
+    ra_number: Optional[str]
+    osepod: Optional[str]
+    well_distance_ft: Optional[float]
+
+    location: Optional[Location]
+
+
+class WellListDTO(ORMBase):
+    name: Optional[str]
+
+
+class LocationTypeLU(ORMBase):
+    type_name: Optional[str]
+    description: Optional[str]
+
+
+class WellMeasurement(ORMBase):
+    id: int
 
 
 class WellCreate(ORMBase):
@@ -50,7 +91,7 @@ class WaterLevel(ORMBase):
     timestamp: datetime
     value: float
     well_id: int
-    technician: str
+    submitting_user_name: str
 
 
 class WaterLevelCreate(ORMBase):
@@ -58,7 +99,7 @@ class WaterLevelCreate(ORMBase):
     timestamp: datetime
     value: float
     observed_property_id: int
-    technician_id: int
+    submitting_user_id: int
     unit_id: int
 
 

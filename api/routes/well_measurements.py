@@ -20,7 +20,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from api.schemas import well_schemas
-from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU, Technicians
+from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU
+from api.models.security_models import Users
 from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db
@@ -59,7 +60,7 @@ async def add_waterlevel(
     tags=["waterlevels"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "DTW BGS", well_id)
+    return _read_well_measurement(db, "Depth to water", well_id)
 
 
 @well_measurement_router.get(
@@ -76,9 +77,9 @@ def _read_well_measurement(db, obsprop, well_id):
             WellMeasurements.well_id,
             WellMeasurements.timestamp,
             WellMeasurements.value,
-            Technicians.name.label("technician"),
+            Users.full_name.label("technician"),
         )
-        .join(Technicians)
+        .join(Users)
         .join(ObservedPropertyTypeLU)
         .where(ObservedPropertyTypeLU.name == obsprop)
         .where(WellMeasurements.well_id == well_id)

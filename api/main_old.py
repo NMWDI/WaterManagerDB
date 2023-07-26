@@ -60,7 +60,7 @@ from api.security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     authenticated_router,
 )
-from api.security_models import User
+from api.security_models import Users
 from api.session import engine, SessionLocal, get_db
 from api.xls_persistence import make_xls_backup
 
