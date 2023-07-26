@@ -114,10 +114,12 @@ class Meters(Base):
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
     status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))
     well_id = Column(Integer, ForeignKey("Wells.id"))
+    location_id = Column(Integer, ForeignKey("Locations.id"))
 
     meter_type = relationship("MeterTypeLU", lazy="noload") # Indicate that these relationships have to be manually loaded
     status = relationship("MeterStatusLU", lazy="noload")
     well = relationship("Wells", lazy="noload")
+    location = relationship("Locations", lazy="noload")
 
     @property
     def land_owner_organization(self):

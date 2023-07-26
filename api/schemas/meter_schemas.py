@@ -77,10 +77,12 @@ class Meter(ORMBase):
     meter_type_id: int
     status_id: Optional[int]
     well_id: Optional[str]
+    location_id: Optional[str]
 
     meter_type: Optional[MeterTypeLU]
     status: Optional[MeterStatusLU]
     well: Optional[Well]
+    location: Optional[Location]
 
 class Unit(ORMBase):
     """
