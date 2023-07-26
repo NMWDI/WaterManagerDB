@@ -106,7 +106,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
 
     // Get list of meters based on search input
     useEffect(() => {
-        setMeterListQueryParams( {search_string: meterSearchQueryDebounced} )
+        setMeterListQueryParams( {search_string: meterSearchQueryDebounced, exclude_inactive: true} )
     }, [meterSearchQueryDebounced])
 
     return (

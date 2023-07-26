@@ -56,6 +56,7 @@ async def get_meters(
     search_string: str = None,
     sort_by: MeterSortByField = MeterSortByField.SerialNumber,
     sort_direction: SortDirection = SortDirection.Ascending,
+    exclude_inactive: bool = False,
     db: Session = Depends(get_db),
 ):
     def sort_by_field_to_schema_field(name: MeterSortByField):
@@ -81,6 +82,15 @@ async def get_meters(
         .join(Locations, isouter=True)
         .join(LandOwners, isouter=True)
     )
+
+    if exclude_inactive:
+        query_statement = query_statement.where(
+                and_(
+                    Meters.status_id != 3,
+                    Meters.status_id != 4,
+                    Meters.status_id != 5
+                )
+            )
 
     if search_string:
         query_statement = query_statement.where(
