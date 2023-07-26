@@ -139,7 +139,7 @@ if os.environ.get("POPULATE_DB"):
         cursor.copy_expert(qry, f)
 
     with open("api/data/locations.csv", "r") as f:
-        qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,land_owner_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,land_owner_id,township,range,section,quarter) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/wells.csv", "r") as f:
@@ -190,6 +190,9 @@ if os.environ.get("POPULATE_DB"):
             qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
             cursor.copy_expert(qry, f)
 
+    #Create geometries from location lat longs
+    cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
+    
     conn.commit()
     conn.close()
 
