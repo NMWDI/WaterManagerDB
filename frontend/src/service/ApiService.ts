@@ -51,10 +51,45 @@ export function useApiGET<T>(route: string, initialValue: any, queryParams: any 
     return [response, setResponse]
 }
 
-export function useApiPATCH<T>(route: string): [T | null, Function] {
+export function useApiPOST<T>(route: string): [T | Error | undefined, number | undefined, Function] {
+
+    // Response object from the post request, expects that API returns created object of type T on success
+    const [data, setData] = useState<T | Error>()
+    const [code, setCode] = useState<number>()
+
+    const authHeader = useAuthHeader()
+    const auth_headers = {
+        "Authorization": authHeader(),
+        'Content-type': 'application/json'
+    }
+
+    // Callback that the parent component will use to initiate the post
+    function postCallback(object: any, params: any = null) {
+        try {
+            const result = fetch(API_URL + route + formattedQueryParams(params), {
+                    method: 'POST',
+                    headers: auth_headers,
+                    body: JSON.stringify(object)
+                })
+
+            result.then(r => r.json()).then(data => setData(data))
+            result.then(r => setCode(r.status))
+            result.catch(err => {setData(err); setCode(400)})
+        }
+        catch (err: any) {
+            setCode(400)
+            setData(err)
+        }
+    }
+
+    return [data, code, postCallback]
+}
+
+// Ideally this should function like the post
+export function useApiPATCH<T>(route: string): [T | Error | null, Function] {
 
     // Response object from the patch request, expects that API returns patched obj on success
-    const [response, setResponse] = useState<T | null>(null)
+    const [response, setResponse] = useState<T | Error | null>(null)
 
     const authHeader = useAuthHeader()
     const auth_headers = {
@@ -64,13 +99,20 @@ export function useApiPATCH<T>(route: string): [T | null, Function] {
 
     // Callback that the parent component will use to initiate the patch
     function patchCallback(object: any, params: any = null) {
-        fetch(API_URL + route + formattedQueryParams(params), {
-                method: 'PATCH',
-                headers: auth_headers,
-                body: JSON.stringify(object)
-            })
-            .then(r => r.json())
-            .then(data => setResponse(data))
+        try {
+            fetch(API_URL + route + formattedQueryParams(params), {
+                    method: 'PATCH',
+                    headers: auth_headers,
+                    body: JSON.stringify(object)
+                })
+                .then(r => r.json())
+                .then(data => setResponse(data))
+                .catch(err => setResponse(err))
+        }
+        catch (err: any) {
+            setResponse(err)
+        }
+
     }
 
     return [response, patchCallback]

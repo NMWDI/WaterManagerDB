@@ -57,7 +57,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
 
     function NoteToggleButton({note}: any) {
         return (
-            <Grid item xs={4}>
+            <Grid item xs={4} key={note.id}>
                 <ToggleButton
                     value="check"
                     color="primary"

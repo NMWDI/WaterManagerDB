@@ -18,11 +18,13 @@ import ActivityView from './views/Activities';
 import RequireScopes from './components/RequireScopes'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers'
+import { SnackbarProvider } from 'notistack'
 
 function App() {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <SnackbarProvider anchorOrigin={{horizontal: 'right', vertical: 'bottom'}} maxSnack={10}>
         <AuthProvider
             authType = {'localstorage'}
             authName={'_auth'}
@@ -124,6 +126,7 @@ function App() {
                 </Routes>
             </Router>
         </AuthProvider>
+        </SnackbarProvider>
         </LocalizationProvider>
   );
 

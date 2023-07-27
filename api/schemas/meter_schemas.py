@@ -84,6 +84,48 @@ class Meter(ORMBase):
     well: Optional[Well]
     location: Optional[Location]
 
+class ActivityForm(ORMBase):
+    """
+    The activity informaiton that is submitted by the frontend
+    """
+
+    class ActivityDetails(ORMBase):
+        meter_id: int
+        activity_type_id: int
+        user_id: int
+        date: datetime
+        start_time: datetime
+        end_time: datetime
+
+    class CurrentInstallation(ORMBase):
+        contact_name: Optional[str]
+        contact_phone: Optional[str]
+        well_id: Optional[int]
+        well_distance_ft: Optional[int]
+        notes: Optional[str]
+
+    class ObservationForm(ORMBase):
+        time: datetime
+        reading: int
+        property_type_id: int
+        unit_id: int
+
+    class MaintenanceRepair(ORMBase):
+        service_type_ids: Optional[List[int]]
+        description: Optional[str]
+
+    class Notes(ORMBase):
+        working_on_arrival: bool
+        selected_note_ids: Optional[List[int]]
+
+    activity_details: ActivityDetails
+    current_installation: CurrentInstallation
+    observations: Optional[List[ObservationForm]]
+    maintenance_repair: Optional[MaintenanceRepair]
+    notes: Notes
+    part_used_ids: Optional[List[int]]
+
+
 class Unit(ORMBase):
     """
     Describes Units

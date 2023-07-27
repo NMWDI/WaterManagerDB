@@ -218,7 +218,7 @@ async def patch_meter(
 
 # Build a list of a meter's history (activities and observations)
 # There's no real defined structure/schema to this on the front or backend
-@meter_router.get("/meter_history", response_model=None, tags=["meters"])
+@meter_router.get("/meter_history", tags=["meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     class HistoryType(Enum):
         Activity = "Activity"
@@ -229,9 +229,9 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         db.scalars(
             select(MeterActivities)
             .options(
+                joinedload(MeterActivities.location),
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
-                joinedload(MeterActivities.location),
                 joinedload(MeterActivities.parts_used),
             )
             .filter(MeterActivities.meter_id == meter_id)
@@ -256,6 +256,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     itemID = 0
 
     for activity in activities:
+        activity.location.geom = None # FastAPI errors when returning this
         formattedHistoryItems.append(
             {
                 "id": itemID,
@@ -269,6 +270,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
         itemID += 1
 
     for observation in observations:
+        observation.location.geom = None
         formattedHistoryItems.append(
             {
                 "id": itemID,

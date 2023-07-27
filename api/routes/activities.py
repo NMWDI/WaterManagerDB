@@ -8,7 +8,8 @@ from sqlalchemy import select
 
 from api.schemas.meter_schemas import (
     ObservedPropertyTypeLU,
-    MeterActivity
+    MeterActivity,
+    ActivityForm
 )
 from api.models.main_models import (
     Meters,
@@ -108,6 +109,32 @@ write_user = scoped_user(["read", "activities:write"])
 
 #     return form_options
 
+# Process a submitted activity
+# Returns 442 when one or more required fields of ActivityForm are not present
+# Returns the new MeterActivity on success
+@activity_router.post(
+    "/activities",
+    dependencies=[Depends(write_user)],
+    tags=["Activities"],
+)
+async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_db)):
+
+    # for the recieved activity
+    # create MeterActivity
+    # add notes section info into Notes table and associate with MeterActivity id
+    # add used parts to PartsUsed table and associate with MeterActivity id
+
+    # for all observations
+    # turn into a MeterObservation by adding required fields
+
+    # if install
+    # associate meter with provided well id
+
+    # if uninstall
+    # associate meter with HQ location
+
+    print(activity_form.__dict__)
+    return db.scalars(select(MeterActivities).where(MeterActivities.id == 1)).first()
 
 @activity_router.get(
     "/activity_types",

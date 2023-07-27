@@ -1,5 +1,6 @@
 import React, { ChangeEventHandler } from 'react'
 import { useState, useEffect } from 'react'
+import { useSnackbar } from 'notistack'
 
 import {
     Box,
@@ -165,6 +166,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>()
     const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', undefined, meterDetailsQueryParams, true)
     const [patchResponse, patchMeter] = useApiPATCH<MeterDetails>('/meter')
+    const { enqueueSnackbar } = useSnackbar()
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -174,6 +176,17 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
         if (selectedMeterID == undefined) return
         setMeterDetailsQueryParams({meter_id: selectedMeterID})
     }, [selectedMeterID])
+
+    useDidMountEffect(() => {
+        if (meterDetails == undefined) return
+
+        if(patchResponse instanceof Error) {
+            enqueueSnackbar('Meter Update Failed!', {variant: 'error'})
+        }
+        else {
+            enqueueSnackbar('Updated Meter!', {variant: 'success'})
+        }
+    }, [patchResponse])
 
     function onSaveMeterChanges() {
         patchMeter(meterDetails)

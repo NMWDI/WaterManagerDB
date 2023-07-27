@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, forwardRef } from 'react'
 import { produce } from 'immer'
+import { useSnackbar } from 'notistack'
 
 import {
     Box,
@@ -31,7 +32,7 @@ interface ObservationRowProps {
 function ObservationRow({observation, setObservation, removeObservation, propertyTypes, units}: ObservationRowProps) {
 
     return (
-            <Grid container item xs={12} sx={{mb: 2}}>
+            <Grid container item xs={12} sx={{mb: 2}} key={observation.id}>
 
             {/*  Dont load until units and property types are loaded */}
             {(propertyTypes.length > 1 && units.length > 1) &&
@@ -137,6 +138,7 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
     const [numberOfObservations, setNumberOfObservations] = useState<number>(defaultObservations.length) // Track number of observations for dynamic button verbiage
     const [propertyTypes, setPropertyTypes] = useApiGET<ObservedPropertyTypeLU[]>('/observed_property_types', [])
     const [units, setUnits] = useApiGET<Unit[]>('/units', [])
+    const { enqueueSnackbar } = useSnackbar()
 
     // Functions to manage local list of observations, should ideally be impl as useReducer
     function addObservation() {
