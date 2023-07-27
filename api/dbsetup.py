@@ -109,9 +109,16 @@ if os.environ.get("POPULATE_DB"):
     conn = engine.raw_connection()
     cursor = conn.cursor()
 
-    # Load meter types CSV
     with open("api/data/devdata_metertypes.csv", "r") as f:
         qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_NoteTypeLU.csv", "r") as f:
+        qry = 'COPY "NoteTypeLU"(id,note,details) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        cursor.copy_expert(qry, f)
+
+    with open("api/data/devdata_ServiceTypeLU.csv", "r") as f:
+        qry = 'COPY "ServiceTypeLU"(id,service_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
 
     with open("api/data/landowners.csv", "r") as f:

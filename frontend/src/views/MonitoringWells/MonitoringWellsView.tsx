@@ -25,6 +25,7 @@ export default function MonitoringWellsView(){
 
     const handleSelect = (event: SelectChangeEvent<string>) => {
         const siteName = event.target.value
+        console.log(siteName)
         setSiteName(siteName)
         getMeasurements(siteName)
         getLoggerVals(siteName)
@@ -38,7 +39,7 @@ export default function MonitoringWellsView(){
             'TransWestern':2,
             'Berrendo-Smith':3,
             'LFD':4,
-            'OrchardPark':5,
+            'Orchard Park':5,
             'Greenfield':6,
             'Bartlett':7,
             'Cottonwood':8,
@@ -143,7 +144,7 @@ export default function MonitoringWellsView(){
                     <MenuItem value={'TransWestern'}>TransWestern</MenuItem>
                     <MenuItem value={'Berrendo-Smith'}>Berredo-Smith</MenuItem>
                     <MenuItem value={'LFD'}>LFD</MenuItem>
-                    <MenuItem value={'OrchardPark'}>OrchardPark</MenuItem>
+                    <MenuItem value={'Orchard Park'}>Orchard Park</MenuItem>
                     <MenuItem value={'Greenfield'}>Greenfield</MenuItem>
                     <MenuItem value={'Bartlett'}>Bartlett</MenuItem>
                     <MenuItem value={'Cottonwood'}>Cottonwood</MenuItem>
