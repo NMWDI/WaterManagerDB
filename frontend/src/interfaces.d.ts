@@ -28,7 +28,7 @@ export interface ActivityForm {
     }
 
     notes?: {
-        working_on_arrival: boolean
+        working_on_arrival: string
         selected_note_ids: number[]
     }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { Box, Button, Grid } from '@mui/material'
 import { useSnackbar } from 'notistack'
@@ -26,6 +27,7 @@ export default function MeterActivityEntry() {
     const [currentMeterStatus, setCurrentMeterStatus] = useState<string>()
     const [postRespData, postRespCode, postForm] = useApiPOST<MeterActivity | Error>('/activities')
 
+    const navigate = useNavigate()
     const activitySelectionRef = useRef<FormSubmitRef>()
     const installationRef = useRef<FormSubmitRef>()
     const observationRef = useRef<FormSubmitRef>()
@@ -43,15 +45,13 @@ export default function MeterActivityEntry() {
         partsRef.current?.onSubmit()
 
         postForm(activityForm.current)
-        //redirect to homepage
-
-        console.log(activityForm.current)
     }
 
     useDidMountEffect(() => {
         if (!postRespCode) return
         if(postRespCode == 200) {
             enqueueSnackbar('Successfully Submitted Activity!', {variant: 'success'})
+            navigate('/meters')
         }
         else if (postRespCode == 422) {
             enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})

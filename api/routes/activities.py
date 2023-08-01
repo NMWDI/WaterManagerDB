@@ -25,6 +25,11 @@ from api.models.main_models import (
     ServiceTypeLU,
     NoteTypeLU,
     PartAssociation,
+    Wells,
+    Notes,
+    ServicesPerformed,
+    Locations,
+    MeterStatusLU
 )
 from api.models.security_models import Users
 from api.security import scoped_user
@@ -33,81 +38,6 @@ from api.session import get_db
 activity_router = APIRouter()
 
 write_user = scoped_user(["read", "activities:write"])
-
-
-# Endpoint to retrieve activities form options
-# @activity_router.get(
-#     "/activities_options",
-#     dependencies=[Depends(write_user)],
-#     response_model=ActivitiesFormOptions,
-#     tags=["Activities"],
-# )
-# def get_activity_form_options(db: Session = Depends(get_db)) -> ActivitiesFormOptions:
-#     """
-#     Retrieve all options associated with Activities Form
-#     """
-#     # Get serial numbers
-#     serial_number_list = []
-#     serial_numbers = db.execute(select(Meters.serial_number))
-#     for row in serial_numbers:
-#         serial_number_list.append(row[0])
-
-#     # Get activity types
-#     activities_list = []
-#     activities = db.execute(select(ActivityTypeLU.id, ActivityTypeLU.name))
-#     for row in activities:
-#         activities_list.append({"activity_id": row[0], "activity_name": row[1]})
-
-#     # Get observed properties
-#     properties_map = {}
-#     observed_props = db.execute(
-#         select(
-#             PropertyUnits.property_id,
-#             ObservedPropertyTypeLU.name,
-#             PropertyUnits.unit_id,
-#             Units.name_short,
-#         )
-#         .join(ObservedPropertyTypeLU)
-#         .join(Units)
-#     )
-#     for row in observed_props:
-#         # Parse rows into ObservationType schema
-#         row_units = {"unit_id": row[2], "unit_name": row[3]}
-#         try:
-#             # If existing property, just add units
-#             properties_map[row[1]].observed_property_units.append(row_units)
-#         except KeyError as ke:
-#             properties_map[row[1]] = ObservationType(
-#                 observed_property_id=row[0],
-#                 observed_property_name=row[1],
-#                 observed_property_units=[row_units],
-#             )
-
-#     # Get technicians
-#     technician_list = []
-#     technicians = db.execute(select(Users.id, Users.full_name))
-#     for row in technicians:
-#         technician_list.append({"technician_id": row[0], "technician_name": row[1]})
-
-#     # Get organizations
-
-#     # Removing until locations is fixed
-#     # land_owner_list = []
-#     # land_owners = db.execute(select(LandOwners.id, LandOwners.land_owner_name))
-#     # for row in land_owners:
-#     #     land_owner_list.append({"land_owner_id": row[0], "land_owner_name": row[1]})
-
-#     # Create form options
-#     form_options = ActivitiesFormOptions(
-#         serial_numbers=serial_number_list,
-#         activity_types=activities_list,
-#         observed_properties=list(properties_map.values()),
-#         technicians=technician_list,
-#         # land_owners=land_owner_list,
-#         land_owners=[],
-#     )
-
-#     return form_options
 
 # Process a submitted activity
 # Returns 442 when one or more required fields of ActivityForm are not present
@@ -119,22 +49,85 @@ write_user = scoped_user(["read", "activities:write"])
 )
 async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_db)):
 
-    # for the recieved activity
-    # create MeterActivity
-    # add notes section info into Notes table and associate with MeterActivity id
-    # add used parts to PartsUsed table and associate with MeterActivity id
+    # IF NOT UNINSTALL/INSTALL
 
-    # for all observations
-    # turn into a MeterObservation by adding required fields
+    activity_meter = db.scalars(select(Meters).where(activity_form.activity_details.meter_id == Meters.id)).first()
+    activity_well = db.scalars(select(Wells).where(activity_form.current_installation.well_id == Wells.id)).first()
+    activity_type = db.scalars(select(ActivityTypeLU).where(activity_form.activity_details.activity_type_id == ActivityTypeLU.id)).first()
 
-    # if install
-    # associate meter with provided well id
+    # If uninstalling
+    if (activity_type.name == 'Uninstall'): # This needs to be a slug
+        warehouse_status = db.scalars(select(MeterStatusLU).where(MeterStatusLU.status_name == 'Warehouse')).first()
+        assumed_hq_location = db.scalars(select(Locations).where(Locations.type_id == 1)).first() # Probably needs a slug
+        activity_meter.location_id = assumed_hq_location.id
+        activity_meter.well_id = None
+        activity_meter.status_id = warehouse_status.id
 
-    # if uninstall
-    # associate meter with HQ location
+    # If installing
+    if (activity_type.name == 'Install'):
+        installed_status = db.scalars(select(MeterStatusLU).where(MeterStatusLU.status_name == 'Installed')).first()
+        activity_meter.well_id = activity_well.id
+        activity_meter.location_id = activity_well.location.id
+        activity_meter.status_id = installed_status.id
 
-    print(activity_form.__dict__)
-    return db.scalars(select(MeterActivities).where(MeterActivities.id == 1)).first()
+    # Make updates to the meter based on user's entry in the current installation section
+    if (activity_type.name != 'Uninstall'):
+        activity_meter.contact_name = activity_form.current_installation.contact_name
+        activity_meter.contact_phone = activity_form.current_installation.contact_phone
+        activity_meter.well_distance_ft = activity_form.current_installation.well_distance_ft
+        activity_meter.notes = activity_form.current_installation.notes
+
+    # Create and commit the meter activity
+    meter_activity = MeterActivities(
+            timestamp_start = activity_form.activity_details.start_time,
+            timestamp_end = activity_form.activity_details.end_time,
+            notes = activity_form.maintenance_repair.description,
+
+            submitting_user_id = activity_form.activity_details.user_id,
+            meter_id = activity_form.activity_details.meter_id,
+            activity_type_id = activity_form.activity_details.activity_type_id,
+            location_id = activity_well.location.id,
+    )
+
+    # If testing this with seeded test data, must run 'alter sequence "MeterActivities_id_seq" restart with 401' for correct autoinc ID
+    db.add(meter_activity)
+    db.flush()
+
+    # Create the regular notes
+    for note_id in activity_form.notes.selected_note_ids:
+        note = Notes(meter_activity_id = meter_activity.id, note_type_id = note_id)
+        db.add(note)
+
+    # Create the working status note
+    status_note_type = db.scalars(select(NoteTypeLU).where(NoteTypeLU.details == activity_form.notes.working_on_arrival)).first()
+    note = Notes(meter_activity_id = meter_activity.id, note_type_id = status_note_type.id)
+    db.add(note)
+
+    # Create the observations
+    for observation_form in activity_form.observations:
+        observation = MeterObservations(
+            timestamp = observation_form.time,
+            value = observation_form.reading,
+            observed_property_type_id = observation_form.property_type_id,
+            unit_id = observation_form.unit_id,
+            submitting_user_id = activity_form.activity_details.user_id,
+            meter_id = activity_form.activity_details.meter_id,
+            location_id = activity_well.location.id
+        )
+        db.add(observation)
+
+    # Create the part use
+    used_parts = db.scalars(select(Parts).where(Parts.id.in_(activity_form.part_used_ids))).all()
+    meter_activity.parts_used = used_parts
+
+    # Create the services performed
+    for service_type_id in activity_form.maintenance_repair.service_type_ids:
+        service = ServicesPerformed(meter_activity_id = meter_activity.id, service_type_id = service_type_id)
+        db.add(service)
+
+    db.commit()
+
+    return meter_activity
 
 @activity_router.get(
     "/activity_types",
