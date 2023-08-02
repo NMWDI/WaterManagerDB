@@ -98,30 +98,6 @@ interface ObservationSelectionProps {
     activityForm: React.MutableRefObject<ActivityForm>
 }
 
-const defaultObservations: ObservationForm[] = [
-    {
-        id: 1,
-        time: dayjs(),
-        reading: '',
-        property_type_id: 2,
-        unit_id: 3
-    },
-    {
-        id: 2,
-        time: dayjs(),
-        reading: '',
-        property_type_id: 1,
-        unit_id: 1
-    },
-    {
-        id: 3,
-        time: dayjs(),
-        reading: '',
-        property_type_id: 1,
-        unit_id: 1
-    },
-]
-
 export const ObservationSelection = forwardRef(({activityForm}: ObservationSelectionProps, submitRef) => {
 
     // Exposed submit function to allow parent to request the form values
@@ -132,6 +108,30 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
             }
         }
     })
+
+    const defaultObservations: ObservationForm[] = [
+        {
+            id: 1,
+            time: dayjs(),
+            reading: '',
+            property_type_id: 2,
+            unit_id: 3
+        },
+        {
+            id: 2,
+            time: dayjs(),
+            reading: '',
+            property_type_id: 1,
+            unit_id: 1
+        },
+        {
+            id: 3,
+            time: dayjs(),
+            reading: '',
+            property_type_id: 1,
+            unit_id: 1
+        },
+    ]
 
     const [observations, setObservations] = useState<ObservationForm[]>(defaultObservations)
     const [currentObservationID, setCurrentObservationID] = useState<number>(defaultObservations.length + 1) // Track IDs to keep them unique

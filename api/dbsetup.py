@@ -178,21 +178,21 @@ if os.environ.get("POPULATE_DB"):
             qry = 'COPY "Users"(id, username, full_name, email, hashed_password, disabled, user_role_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
             cursor.copy_expert(qry, f)
 
-        with open("api/data/testdata_meterobservations.csv", "r") as f:
-            qry = 'COPY "MeterObservations"(timestamp, value, notes, submitting_user_id, meter_id, observed_property_type_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
+        # with open("api/data/testdata_meterobservations.csv", "r") as f:
+        #     qry = 'COPY "MeterObservations"(timestamp, value, notes, submitting_user_id, meter_id, observed_property_type_id, unit_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        #     cursor.copy_expert(qry, f)
 
-        with open("api/data/testdata_meteractivities.csv", "r") as f:
-            qry = 'COPY "MeterActivities"(id, timestamp_start, timestamp_end, notes, submitting_user_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
+        # with open("api/data/testdata_meteractivities.csv", "r") as f:
+        #     qry = 'COPY "MeterActivities"(id, timestamp_start, timestamp_end, notes, submitting_user_id, meter_id, activity_type_id, location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        #     cursor.copy_expert(qry, f)
 
-        with open("api/data/testdata_partsused.csv", "r") as f:
-            qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
-            cursor.copy_expert(qry, f)
+        # with open("api/data/testdata_partsused.csv", "r") as f:
+        #     qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+        #     cursor.copy_expert(qry, f)
 
     #Create geometries from location lat longs
     cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
-    
+
     conn.commit()
     conn.close()
 
