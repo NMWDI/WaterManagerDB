@@ -37,7 +37,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
         }
     })
 
-    const [workingOnArrival, setWorkingOnArrival] = useState<boolean>(true)
+    const [workingOnArrival, setWorkingOnArrival] = useState<string>('not-checked')
     const [selectedNoteIDs, setSelectedNoteIDs] = useState<number[]>([]) // Notes toggled by the user
     const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([1, 2, 3]) // The default notes, and user-added ones from select dropdown
 
@@ -57,7 +57,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
 
     function NoteToggleButton({note}: any) {
         return (
-            <Grid item xs={4}>
+            <Grid item xs={4} key={note.id}>
                 <ToggleButton
                     value="check"
                     color="primary"
@@ -76,7 +76,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
         <Box sx={{mt: 6}}>
             <h4>Notes</h4>
             <Grid container>
-                <Grid container item xs={12}>
+                <Grid container item {...gridBreakpoints} xs={12}>
 
                     {/* Is working on arrival boolean selection */}
                     <ToggleButtonGroup
@@ -85,10 +85,13 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
                         color="primary"
                         exclusive>
 
-                        <ToggleButton value={true} sx={toggleStyle}>
+                        <ToggleButton value={'not-checked'} sx={toggleStyle}>
+                            Working Status Not Checked
+                        </ToggleButton>
+                        <ToggleButton value={'working'} sx={toggleStyle}>
                             Meter Working On Arrival
                         </ToggleButton>
-                        <ToggleButton value={false} sx={toggleStyle}>
+                        <ToggleButton value={'not-working'} sx={toggleStyle}>
                             Meter Not Working On Arrival
                         </ToggleButton>
                     </ToggleButtonGroup>
@@ -121,9 +124,9 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
                                 }}
                             >
 
-                                {/*  List of notes not already visible */}
+                                {/*  List of notes not already visible, quick fix to exclude notes shown in the tri-state selection */}
                                 {notesList.map((nt: NoteTypeLU) => {
-                                    if(!visibleNoteIDs.some(x => x == nt.id)) {
+                                    if(!visibleNoteIDs.some(x => x == nt.id) && !['not-working', 'not-checked', 'working'].some(x => x == nt.details) ) {
                                         return <MenuItem key={nt.id} value={nt.id}>{nt.note}</MenuItem>
                                     }
                                 })}

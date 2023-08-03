@@ -69,7 +69,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
 
     function PartToggleButton({pa}: {pa: PartAssociation}) {
         return (
-            <Grid item xs={4}>
+            <Grid item xs={4} key={pa.id}>
                 <ToggleButton
                     value="check"
                     color="primary"

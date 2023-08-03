@@ -1,5 +1,7 @@
 import React, { ChangeEventHandler } from 'react'
 import { useState, useEffect } from 'react'
+import { useSnackbar } from 'notistack'
+import { createSearchParams, useNavigate } from 'react-router-dom'
 
 import {
     Box,
@@ -165,6 +167,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>()
     const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', undefined, meterDetailsQueryParams, true)
     const [patchResponse, patchMeter] = useApiPATCH<MeterDetails>('/meter')
+    const { enqueueSnackbar } = useSnackbar()
+    const navigate = useNavigate()
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -175,9 +179,31 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
         setMeterDetailsQueryParams({meter_id: selectedMeterID})
     }, [selectedMeterID])
 
+    useDidMountEffect(() => {
+        if (meterDetails == undefined) return
+
+        if(patchResponse instanceof Error) {
+            enqueueSnackbar('Meter Update Failed!', {variant: 'error'})
+        }
+        else {
+            enqueueSnackbar('Updated Meter!', {variant: 'success'})
+        }
+    }, [patchResponse])
+
     function onSaveMeterChanges() {
         patchMeter(meterDetails)
     }
+
+    function navigateToNewActivity() {
+        navigate({
+            pathname: '/activities',
+            search: createSearchParams({
+                meter_id: selectedMeterID?.toString() ?? '',
+                serial_number: meterDetails.serial_number ?? ''
+            }).toString()
+        })
+    }
+
     return (
             <Box>
                 <h3 style={{marginTop: 0}}>Selected Meter Details</h3>
@@ -330,7 +356,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             </Grid>
                         }
                         <Grid item >
-                            <Button type="submit" variant="contained" style={{}} onClick={() => {}} >New Activity</Button>
+                            <Button type="submit" variant="contained" style={{}} onClick={navigateToNewActivity} >New Activity</Button>
                         </Grid>
                         <Grid item >
                             <Button type="submit" variant="contained" style={{}} onClick={() => {}} >New Work Order</Button>

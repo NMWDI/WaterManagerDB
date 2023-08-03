@@ -19,6 +19,7 @@ import { gridBreakpoints } from '../ActivitiesView'
 import { useApiGET } from '../../../service/ApiService'
 import { Page, MeterListDTO, MeterListQueryParams, ActivityTypeLU, ActivityForm, SecurityScope } from '../../../interfaces'
 import { ActivityType } from '../../../enums'
+import { useSearchParams } from 'react-router-dom'
 
 interface MeterActivitySelectionProps {
     activityForm: React.MutableRefObject<ActivityForm>
@@ -85,6 +86,16 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+    const [searchParams] = useSearchParams()
+
+    // If search params are defined, use them to select the meter
+    useEffect(() => {
+        const meter_id = searchParams.get('meter_id')
+        const serial_number = searchParams.get('serial_number')
+        if (meter_id && serial_number) {
+            setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number} as MeterListDTO)
+        }
+    }, [searchParams])
 
     // Meter ID is used by other components and must remain stateful
     useEffect(() => {
@@ -133,12 +144,12 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                     <Autocomplete
                         disableClearable
                         options={meterList.items}
-                        getOptionLabel={(op: MeterListDTO) => `${op.serial_number} (${op.status?.status_name})`}
+                        getOptionLabel={(op: MeterListDTO) => `${op.serial_number}` + (op.status ? `(${op.status?.status_name})` : '')}
                         onChange={(event: any, selectedMeter: MeterListDTO) => {setSelectedMeter(selectedMeter)}}
                         value={selectedMeter}
                         inputValue={meterSearchQuery}
                         onInputChange={(event: any, query: string) => {setMeterSearchQuery(query)}}
-                        isOptionEqualToValue={(a, b) => {return a.id == b.id}}
+                        isOptionEqualToValue={(a, b) => {return a?.id == b?.id}}
                         renderInput={(params: any) => <TextField {...params} size="small" label="Meter" placeholder="Begin typing to search" />}
                     />
                 </Grid>

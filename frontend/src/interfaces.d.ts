@@ -28,11 +28,28 @@ export interface ActivityForm {
     }
 
     notes?: {
-        working_on_arrival: boolean
+        working_on_arrival: string
         selected_note_ids: number[]
     }
 
     part_used_ids?: number[]
+}
+
+export interface MeterActivity {
+    id: int
+    timestamp_start: Date
+    timestamp_end: Date
+    notes?: string
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int
+
+    submitting_user?: User
+    meter?: Meter
+    activity_type?: ActivityTypeLU
+    location?: Location
+    parts_used?: []
 }
 
 export interface ObservationForm {
