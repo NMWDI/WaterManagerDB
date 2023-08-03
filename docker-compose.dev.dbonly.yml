@@ -3,7 +3,7 @@ services:
 
   db:
     env_file:
-      - ./api/.env
+      - ./api/.env_local
     image: postgis/postgis
     volumes:
       - postgis-data:/var/lib/postgresql
