@@ -31,6 +31,7 @@ from api.route_util import _patch, _add, _delete
 from api.routes.meters import meter_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.activities import activity_router
+from api.routes.OSE import ose_router
 from api.schemas import meter_schemas
 
 from api.security import (
@@ -123,6 +124,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
+authenticated_router.include_router(ose_router)
 add_pagination(app)
 
 app.include_router(authenticated_router)

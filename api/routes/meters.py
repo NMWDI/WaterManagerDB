@@ -26,7 +26,6 @@ from api.session import get_db
 
 from enum import Enum
 
-
 # Find better location for these
 class MeterSortByField(Enum):
     SerialNumber = "serial_number"

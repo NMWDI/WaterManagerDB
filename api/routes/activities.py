@@ -5,6 +5,7 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
+from datetime import datetime
 
 from api.schemas.meter_schemas import (
     ObservedPropertyTypeLU,
@@ -85,10 +86,17 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
         activity_meter.well_distance_ft = activity_form.current_installation.well_distance_ft
         activity_meter.notes = activity_form.current_installation.notes
 
+    # Use the date and times to assign correct timestamp datetimes
+    date = activity_form.activity_details.date.date()
+    starttime = activity_form.activity_details.start_time.time()
+    endtime = activity_form.activity_details.end_time.time()
+    start_datetime = datetime.combine(date, starttime)
+    end_datetime = datetime.combine(date, endtime)
+
     # Create the meter activity
     meter_activity = MeterActivities(
-            timestamp_start = activity_form.activity_details.start_time,
-            timestamp_end = activity_form.activity_details.end_time,
+            timestamp_start = start_datetime,
+            timestamp_end = end_datetime,
             notes = activity_form.maintenance_repair.description,
 
             submitting_user_id = activity_form.activity_details.user_id,
