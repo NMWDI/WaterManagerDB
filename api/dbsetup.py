@@ -44,6 +44,9 @@ if os.environ.get("SETUP_DB"):
     reports_run_scope = SecurityScopes(
         scope_string="reports:run", description="Run reports"
     )
+    ose_scope = SecurityScopes(
+        scope_string="ose", description="Scope given to the OSE"
+    )
     read_scope = SecurityScopes(scope_string="read", description="Read all data.")
 
     technician_role = UserRoles(
@@ -67,6 +70,13 @@ if os.environ.get("SETUP_DB"):
             admin_scope,
         ],
     )
+    ose_role = UserRoles(
+        name="OSE",
+        security_scopes=[
+            read_scope,
+            ose_scope
+        ],
+    )
 
     technician_user = Users(
         full_name="Technician User",
@@ -84,6 +94,14 @@ if os.environ.get("SETUP_DB"):
         user_role=admin_role,
     )
 
+    ose_user = Users(
+        full_name="OSE API User",
+        username="ose_api",
+        email="ose@ose.com",
+        hashed_password=get_password_hash("secret"),
+        user_role=ose_role,
+    )
+
     db.add_all(
         [
             admin_scope,
@@ -92,10 +110,13 @@ if os.environ.get("SETUP_DB"):
             well_measurements_write_scope,
             reports_run_scope,
             read_scope,
+            ose_scope,
             technician_role,
             admin_role,
+            ose_role,
             technician_user,
             admin_user,
+            ose_user
         ]
     )
 

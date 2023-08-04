@@ -8,29 +8,18 @@ from pydantic import BaseModel
 from fastapi import Depends, APIRouter
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session, joinedload
-from enum import Enum
 
-from api.schemas import ose_schemas
 from api.models.main_models import (
     Meters,
     MeterActivities,
     MeterObservations,
-    Wells
 )
 
 from api.security import scoped_user
 from api.session import get_db
-from typing import Optional, List
 
 ose_router = APIRouter()
-# ose_user = scoped_user(["read", "admin", "ose"])
-ose_user = scoped_user(["read", "admin"])
-
-class ORMBase(BaseModel):
-
-    class Config:
-        orm_mode = True
-
+ose_user = scoped_user(["ose"])
 
 class ActivityDTO(BaseModel):
     activity_type: str
@@ -47,7 +36,6 @@ class ObservationDTO(BaseModel):
     units: str
 
 class MeterHistoryDTO(BaseModel):
-
     name: str
     location: str
     ra_numbers: List[str]
@@ -59,7 +47,6 @@ class DateHistoryDTO(BaseModel):
     date: date
     meters: List[MeterHistoryDTO] = []
 
-# add reponse model?
 @ose_router.get(
         "/ose_well_history",
         response_model=List[DateHistoryDTO],
@@ -159,13 +146,14 @@ def get_ose_history(start_datetime: datetime, end_datetime: datetime,db: Session
                 )
                 meter_observation_list.append(observation)
 
-
+            # This is messy, but may be subject to change while we change relationships
             meter_well = meter_with_history.well
             meter_location = meter_well.location if meter_well != None else meter_with_history.location
             land_owner = meter_location.land_owner if meter_location != None else None
-
             ra_number = meter_well.ra_number if meter_well != None else "N/A (NO WELL)"
             owners = land_owner.organization if land_owner != None else "N/A (NO LAND OWNER)"
+
+            # Use the meter's info and it's history that occurred on this day to build its information object
             meter_history = MeterHistoryDTO(
                 name=meter_with_history.serial_number,
                 activities=meter_activity_list,
