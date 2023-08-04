@@ -128,9 +128,7 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
     meter_activity.notes = notes
 
     # Associate working status note
-    # NOTE: The details section of the NoteTypeLU is being used as a slug (for now), 'working', 'not-working', and 'not-checked' are sent from the form
-    # And are checked for below to determine the correct working status note to use
-    status_note_type = db.scalars(select(NoteTypeLU).where(NoteTypeLU.details == activity_form.notes.working_on_arrival)).first()
+    status_note_type = db.scalars(select(NoteTypeLU).where(NoteTypeLU.slug == activity_form.notes.working_on_arrival_slug)).first()
     meter_activity.notes.append(status_note_type)
 
     # Associate parts use

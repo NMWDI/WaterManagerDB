@@ -28,7 +28,7 @@ export interface ActivityForm {
     }
 
     notes?: {
-        working_on_arrival: string
+        working_on_arrival_slug: string
         selected_note_ids: number[]
     }
 
@@ -96,6 +96,7 @@ export interface NoteTypeLU {
     id: number
     note: string
     details?: string
+    slug?: string
 }
 
 export interface Well {

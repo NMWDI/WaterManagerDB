@@ -88,6 +88,7 @@ class NoteTypeLU(Base):
     '''
     note = Column(String)
     details = Column(String)
+    slug = Column(String)
 
 
 Notes = Table(
