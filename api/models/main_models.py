@@ -18,6 +18,7 @@ from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from sqlalchemy.ext.hybrid import hybrid_property, Comparator
+from api.schemas import security_schemas
 
 
 @as_declarative()
@@ -73,12 +74,13 @@ class ServiceTypeLU(Base):
     service_name = Column(String)
     description = Column(String)
 
-class ServicesPerformed(Base):
-    '''
-    Tracks services performed during an activity
-    '''
-    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    service_type_id = Column(Integer, ForeignKey("ServiceTypeLU.id"), nullable=False)
+
+ServicesPerformed = Table(
+    "ServicesPerformed",
+    Base.metadata,
+    Column("meter_activity_id", ForeignKey("MeterActivities.id"), nullable=False),
+    Column("service_type_id", ForeignKey("ServiceTypeLU.id"), nullable=False),
+)
 
 class NoteTypeLU(Base):
     '''
@@ -87,12 +89,13 @@ class NoteTypeLU(Base):
     note = Column(String)
     details = Column(String)
 
-class Notes(Base):
-    '''
-    Tracks notes associated with meter activities
-    '''
-    meter_activity_id = Column(Integer, ForeignKey("MeterActivities.id"), nullable=False)
-    note_type_id = Column(Integer, ForeignKey("NoteTypeLU.id"), nullable=False)
+
+Notes = Table(
+    "Notes",
+    Base.metadata,
+    Column("meter_activity_id", ForeignKey("MeterActivities.id"), nullable=False),
+    Column("note_type_id", ForeignKey("NoteTypeLU.id"), nullable=False),
+)
 
 # ---------  Meter Related Tables ---------
 
@@ -155,7 +158,7 @@ class MeterActivities(Base):
 
     timestamp_start = Column(DateTime, nullable=False)
     timestamp_end = Column(DateTime, nullable=False)
-    notes = Column(String)
+    description = Column(String)
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
@@ -166,7 +169,10 @@ class MeterActivities(Base):
     meter = relationship("Meters")
     activity_type = relationship("ActivityTypeLU")
     location = relationship("Locations")
+
     parts_used = relationship("Parts", secondary=PartsUsed)
+    services_performed = relationship("ServiceTypeLU", secondary=ServicesPerformed)
+    notes = relationship("NoteTypeLU", secondary=Notes)
 
 
 class ActivityTypeLU(Base):

@@ -150,7 +150,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
     useEffect(() => {
         setWellID(meterDetails?.well_id ?? undefined)
         setOseTag(meterDetails?.tag ?? '')
-        setNotes(meterDetails?.notes ?? '')
+        setNotes(meterDetails?.description ?? '')
         setContactName(meterDetails?.contact_name ?? '')
         setContactPhone(meterDetails?.contact_phone ?? '')
         setMeterStatus(meterDetails?.status?.status_name ?? '')

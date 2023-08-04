@@ -15,3 +15,6 @@ id,note,details
 14,Working on Arrival,Meter was working when technician arrived
 15,Not Working on Arrival,Meter was not working when technician arrived
 16,Pipe obstruction,Pipe is obstructed and water flow is either low or non-existent
+17,Not Working On Arrival,not-working
+18,Working On Arrival,working
+19,Working Status Not Checked,not-checked

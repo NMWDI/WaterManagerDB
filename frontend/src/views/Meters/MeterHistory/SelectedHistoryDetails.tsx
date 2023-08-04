@@ -68,7 +68,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                         </Grid>
 
                         <Grid container item xs={12} sx={{mt:2}}>
-                            <TextField label="Notes" variant="outlined" size="small" multiline rows={2} fullWidth value={emptyIfNull(selectedHistoryItem?.history_item.notes)} disabled sx={disabledInputStyle} />
+                            <TextField label="Description" variant="outlined" size="small" multiline rows={2} fullWidth value={emptyIfNull(selectedHistoryItem?.history_item.description)} disabled sx={disabledInputStyle} />
                         </Grid>
 
                         <Grid container item xs={12} sx={{mt:2}}>

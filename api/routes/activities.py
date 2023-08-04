@@ -49,7 +49,6 @@ write_user = scoped_user(["read", "activities:write"])
     tags=["Activities"],
 )
 async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_db)):
-
     activity_meter = db.scalars(select(Meters).where(activity_form.activity_details.meter_id == Meters.id)).first()
     activity_well = db.scalars(select(Wells).where(activity_form.current_installation.well_id == Wells.id)).first()
     activity_type = db.scalars(select(ActivityTypeLU).where(activity_form.activity_details.activity_type_id == ActivityTypeLU.id)).first()
@@ -87,17 +86,17 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
         activity_meter.notes = activity_form.current_installation.notes
 
     # Use the date and times to assign correct timestamp datetimes
-    date = activity_form.activity_details.date.date()
+    activity_date = activity_form.activity_details.date.date()
     starttime = activity_form.activity_details.start_time.time()
     endtime = activity_form.activity_details.end_time.time()
-    start_datetime = datetime.combine(date, starttime)
-    end_datetime = datetime.combine(date, endtime)
+    start_datetime = datetime.combine(activity_date, starttime)
+    end_datetime = datetime.combine(activity_date, endtime)
 
     # Create the meter activity
     meter_activity = MeterActivities(
             timestamp_start = start_datetime,
             timestamp_end = end_datetime,
-            notes = activity_form.maintenance_repair.description,
+            description = activity_form.maintenance_repair.description,
 
             submitting_user_id = activity_form.activity_details.user_id,
             meter_id = activity_form.activity_details.meter_id,
@@ -109,22 +108,12 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
     db.add(meter_activity)
     db.flush()
 
-    # Create the regular notes
-    for note_id in activity_form.notes.selected_note_ids:
-        note = Notes(meter_activity_id = meter_activity.id, note_type_id = note_id)
-        db.add(note)
-
-    # Create the working status note
-    # NOTE: The details section of the NoteTypeLU is being used as a slug (for now), 'working', 'not-working', and 'not-checked' are sent from the form
-    # And are checked for below to determine the correct working status note to use
-    status_note_type = db.scalars(select(NoteTypeLU).where(NoteTypeLU.details == activity_form.notes.working_on_arrival)).first()
-    note = Notes(meter_activity_id = meter_activity.id, note_type_id = status_note_type.id)
-    db.add(note)
-
     # Create the observations
     for observation_form in activity_form.observations:
+        observation_time = observation_form.time.time()
+        observation_datetime = datetime.combine(activity_date, observation_time)
         observation = MeterObservations(
-            timestamp = observation_form.time,
+            timestamp = observation_datetime,
             value = observation_form.reading,
             observed_property_type_id = observation_form.property_type_id,
             unit_id = observation_form.unit_id,
@@ -134,14 +123,23 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
         )
         db.add(observation)
 
-    # Create the part use
+    # Associate notes
+    notes = db.scalars(select(NoteTypeLU).where(NoteTypeLU.id.in_(activity_form.notes.selected_note_ids))).all()
+    meter_activity.notes = notes
+
+    # Associate working status note
+    # NOTE: The details section of the NoteTypeLU is being used as a slug (for now), 'working', 'not-working', and 'not-checked' are sent from the form
+    # And are checked for below to determine the correct working status note to use
+    status_note_type = db.scalars(select(NoteTypeLU).where(NoteTypeLU.details == activity_form.notes.working_on_arrival)).first()
+    meter_activity.notes.append(status_note_type)
+
+    # Associate parts use
     used_parts = db.scalars(select(Parts).where(Parts.id.in_(activity_form.part_used_ids))).all()
     meter_activity.parts_used = used_parts
 
-    # Create the services performed
-    for service_type_id in activity_form.maintenance_repair.service_type_ids:
-        service = ServicesPerformed(meter_activity_id = meter_activity.id, service_type_id = service_type_id)
-        db.add(service)
+    # Associate services performed
+    services = db.scalars(select(ServiceTypeLU).where(ServiceTypeLU.id.in_(activity_form.maintenance_repair.service_type_ids))).all()
+    meter_activity.services_performed = services
 
     db.commit()
 
@@ -215,52 +213,3 @@ async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
                 select(PartAssociation)
                     .where(PartAssociation.meter_type_id == meter_type_id)
                     .options(joinedload(PartAssociation.part).joinedload(Parts.part_type))).all()
-
-# Endpoint to receive meter maintenance form submission
-# @activity_router.post(
-#     "/meter_maintenance",
-#     dependencies=[Depends(write_user)],
-#     tags=["Activities"],
-# )
-# async def add_maintenance(maintenance: Maintenance, db: Session = Depends(get_db)):
-#     """
-#     Receive and parse all data associated with a meter maintenance event
-#     """
-#     print(maintenance.activity.dict())
-
-#     # Create new MeterActivities object
-#     activity = MeterActivities(
-#         meter_id=maintenance.meter_id, **maintenance.activity.dict()
-#     )
-#     db.add(activity)
-#     db.flush()  # Need to flush in order to get activity id for associated parts
-
-#     # Update installation
-#     # None indicates that field should be set null
-#     # Any fields not in body will not be changed in DB
-#     if maintenance.installation_update:
-#         # Get meter from database
-#         meter = db.scalars(
-#             select(Meters).where(Meters.id == maintenance.meter_id)
-#         ).one()
-
-#         for k, v in maintenance.installation_update.dict(exclude_unset=True).items():
-#             setattr(meter, k, v)
-
-#     # Add new observations
-#     if maintenance.observations:
-#         for obs in maintenance.observations:
-#             meter_obs = MeterObservations(meter_id=maintenance.meter_id, **obs.dict())
-#             db.add(meter_obs)
-
-#     # Add new parts_used
-#     # Also subtract count off of parts inventory for a part used
-#     if maintenance.parts:
-#         for part in maintenance.parts:
-#             part_used = db.scalars(select(Parts).where(Parts.id == part.part_id)).one()
-#             part_used.count = part_used.count - part.count
-#             db.add(PartsUsed(meter_activity_id=activity.id, **part.dict()))
-
-#     db.commit()
-
-#     return {"status": "success"}

@@ -22,7 +22,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import ValidationError
 from starlette import status
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, undefer
 
 from api.models import security_models
 from api.schemas import security_schemas
@@ -82,6 +82,8 @@ def get_user(username: str):
         db.query(security_models.Users)
         .filter(security_models.Users.username == username)
         .options(
+            undefer(security_models.Users.hashed_password),
+            undefer(security_models.Users.email),
             joinedload(security_models.Users.user_role).joinedload(
                 security_models.UserRoles.security_scopes
             )
