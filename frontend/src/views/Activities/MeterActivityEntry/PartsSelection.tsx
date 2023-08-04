@@ -79,7 +79,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                     sx={toggleStyle}
                     key={pa.id}
                 >
-                {`${pa.part?.part_type?.name} (${pa.part?.part_number})`}
+                {`${pa.part?.description} (${pa.part?.part_number})`}
                 </ToggleButton>
             </Grid>
         )
@@ -119,7 +119,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                                 {/*  Show list of parts that aren't already visible */}
                                 {partsList.map((pa: PartAssociation) => {
                                     if(!visiblePartIDs.some(x => x == pa.part_id)) {
-                                        return <MenuItem key={pa.part_id} value={pa.part_id}>{`${pa.part?.part_type?.name} (${pa.part?.part_number})`}</MenuItem>
+                                        return <MenuItem key={pa.part_id} value={pa.part_id}>{`${pa.part?.description} (${pa.part?.part_number})`}</MenuItem>
                                     }
                                 })}
                             </Select>
