@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, TextField, Grid } from '@mui/material'
 import { MeterHistoryType } from '../../../enums'
+import { NoteTypeLU } from '../../../interfaces'
 
 interface SelectedHistoryDetailsProps {
     selectedHistoryItem: any
@@ -38,7 +39,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
     }
 
     return (
-            <Box >
+            <Box>
                 <Grid container item xs={10} sx={{py: 1, px: 2, border: 'solid #E0E0E0 1px', borderRadius: '5px'}}>
                     <Grid item xs={12}>
                         <h4 style={{marginTop: 0, textDecoration: 'underline'}}>Selected History Details</h4>
@@ -65,6 +66,23 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                             <Grid item xs={4}>
                                 <TextField label="End Time" variant="outlined" size="small" value={emptyIfNull(formatTime(selectedHistoryItem?.history_item.timestamp_end))} disabled sx={disabledInputStyle} />
                             </Grid>
+                        </Grid>
+
+                        <Grid container item xs={12} sx={{mt:2}}>
+                            <TextField
+                                label="Notes"
+                                variant="outlined"
+                                size="small"
+                                multiline
+                                rows={2}
+                                fullWidth
+                                value={emptyIfNull(
+                                    selectedHistoryItem?.history_item.notes
+                                        .map((note: NoteTypeLU) => note.note)
+                                        .reduce((acc: string, curr: string) => acc + ', ' + curr))}
+                                disabled
+                                sx={disabledInputStyle}
+                                />
                         </Grid>
 
                         <Grid container item xs={12} sx={{mt:2}}>
