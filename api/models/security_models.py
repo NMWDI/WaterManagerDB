@@ -15,7 +15,7 @@
 # ===============================================================================
 from sqlalchemy import String, Column, Boolean, Integer, ForeignKey, Table
 from api.models.main_models import Base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, deferred
 
 ScopesRoles = Table(
     "ScopesRoles",
@@ -36,11 +36,12 @@ class UserRoles(Base):
     security_scopes = relationship("SecurityScopes", secondary=ScopesRoles)
 
 
+# Defer sensitive info so it's not sent when it's included as part of a relationship
 class Users(Base):
     username = Column(String, nullable=False)
     full_name = Column(String)
-    email = Column(String)
-    hashed_password = Column(String, nullable=False)
+    email = deferred(Column(String))
+    hashed_password = deferred(Column(String, nullable=False))
     disabled = Column(Boolean, default=False)
 
     user_role_id = Column(Integer, ForeignKey("UserRoles.id"), nullable=False)

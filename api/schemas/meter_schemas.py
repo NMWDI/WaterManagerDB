@@ -115,7 +115,7 @@ class ActivityForm(ORMBase):
         description: Optional[str]
 
     class Notes(ORMBase):
-        working_on_arrival: str
+        working_on_arrival_slug: str
         selected_note_ids: Optional[List[int]]
 
     activity_details: ActivityDetails

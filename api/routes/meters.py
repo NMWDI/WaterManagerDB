@@ -26,7 +26,6 @@ from api.session import get_db
 
 from enum import Enum
 
-
 # Find better location for these
 class MeterSortByField(Enum):
     SerialNumber = "serial_number"
@@ -233,6 +232,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
                 joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.notes)
             )
             .filter(MeterActivities.meter_id == meter_id)
         )

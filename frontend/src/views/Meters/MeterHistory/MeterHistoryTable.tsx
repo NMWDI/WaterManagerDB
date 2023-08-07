@@ -55,7 +55,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
 
 
     return (
-            <Box sx={{width: '100%', height: '100%'}}>
+            <Box sx={{width: '100%', height: '100%', pb: 4}}>
               <DataGrid
                 columns={columns}
                 rows={Array.isArray(selectedMeterHistory) ? selectedMeterHistory : []}

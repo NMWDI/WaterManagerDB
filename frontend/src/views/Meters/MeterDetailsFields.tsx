@@ -340,9 +340,9 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     {/* Fourth Row */}
                     <Grid item xs={12}>
                         <MeterDetailsField
-                            label="Notes"
-                            value={meterDetails?.notes}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.notes = event.target.value}))}}
+                            label="Description"
+                            value={meterDetails?.description}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.description = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                             rows={3}
                         />

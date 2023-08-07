@@ -18,6 +18,113 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # Note: create_all checks for existance of the table first. So it will only add a table if it doesn't exist.
 #       if the table is changed the database will need to be created new.
 
+if os.environ.get("SETUP_DB"):
+    print("Setting up the database")
+    api.models.main_models.Base.metadata.create_all(engine)
+
+    # Add users, roles, and scopes for testing
+    db = SessionLocal()
+
+    SecurityScopes = api.models.security_models.SecurityScopes
+    UserRoles = api.models.security_models.UserRoles
+    Users = api.models.security_models.Users
+
+    admin_scope = SecurityScopes(
+        scope_string="admin", description="Admin-specific scope."
+    )
+    meter_write_scope = SecurityScopes(
+        scope_string="meter:write", description="Write meters"
+    )
+    activities_write_scope = SecurityScopes(
+        scope_string="activities:write", description="Write activities"
+    )
+    well_measurements_write_scope = SecurityScopes(
+        scope_string="well_measurement:write",
+        description="Write well measurements, i.e. Water Levels and Chlorides",
+    )
+    reports_run_scope = SecurityScopes(
+        scope_string="reports:run", description="Run reports"
+    )
+    ose_scope = SecurityScopes(
+        scope_string="ose", description="Scope given to the OSE"
+    )
+    read_scope = SecurityScopes(scope_string="read", description="Read all data.")
+
+    technician_role = UserRoles(
+        name="Technician",
+        security_scopes=[
+            read_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+        ],
+    )
+    admin_role = UserRoles(
+        name="Admin",
+        security_scopes=[
+            read_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+            admin_scope,
+        ],
+    )
+    ose_role = UserRoles(
+        name="OSE",
+        security_scopes=[
+            read_scope,
+            ose_scope
+        ],
+    )
+
+    technician_user = Users(
+        full_name="Technician User",
+        username="test",
+        email="johndoe@example.com",
+        hashed_password=get_password_hash("secret"),
+        user_role=technician_role,
+    )
+
+    admin_user = Users(
+        full_name="Admin User",
+        username="admin",
+        email="admin@example.com",
+        hashed_password=get_password_hash("secret"),
+        user_role=admin_role,
+    )
+
+    ose_user = Users(
+        full_name="OSE API User",
+        username="ose_api",
+        email="ose@ose.com",
+        hashed_password=get_password_hash("secret"),
+        user_role=ose_role,
+    )
+
+    db.add_all(
+        [
+            admin_scope,
+            meter_write_scope,
+            activities_write_scope,
+            well_measurements_write_scope,
+            reports_run_scope,
+            read_scope,
+            ose_scope,
+            technician_role,
+            admin_role,
+            ose_role,
+            technician_user,
+            admin_user,
+            ose_user
+        ]
+    )
+
+    db.commit()
+    db.close()
+
+
 print("Setting up the database")
 api.models.main_models.Base.metadata.create_all(engine)
 
@@ -102,6 +209,7 @@ db.add_all(
 db.commit()
 db.close()
 
+
 # Load development data from CSV
 # Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
 # Get the psycopg2 connector - enables running of lower level functions
@@ -113,7 +221,7 @@ with open("api/data/devdata_metertypes.csv", "r") as f:
     cursor.copy_expert(qry, f)
 
 with open("api/data/devdata_NoteTypeLU.csv", "r") as f:
-    qry = 'COPY "NoteTypeLU"(id,note,details) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    qry = 'COPY "NoteTypeLU"(id,note,details,slug) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
 with open("api/data/devdata_ServiceTypeLU.csv", "r") as f:
