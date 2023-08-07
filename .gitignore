@@ -182,6 +182,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env_*
 .env310
 .local
 .venv
