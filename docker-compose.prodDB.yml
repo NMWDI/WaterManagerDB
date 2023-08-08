@@ -1,6 +1,5 @@
 # Production Docker Compose
-# Uses remote database - see configuration in api/.env_production
-
+# 2/7 - CC added dbsetup to API, also changed .env.production to .env
 version: "3.9"
 services:
   frontend:
@@ -23,11 +22,13 @@ services:
       # - "traefik.http.middlewares.force-secure.redirectscheme.scheme=https"
       # - "traefik.http.middlewares.force-secure.redirectscheme.permanent=true"
   
+
   api:
     build:
       context: ./api
       dockerfile: ./Dockerfile
     command: bash -c "
+        while !</dev/tcp/db/5432; do sleep 1; done;
         uvicorn api.main:app 
         --host 0.0.0.0 
         --proxy-headers --root-path /api/v1
@@ -37,9 +38,10 @@ services:
     volumes:
       - ./api:/api
     depends_on:
+      - db
       - traefik
     env_file:
-      - ./api/.env_production
+      - ./api/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`pvacd.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
@@ -55,6 +57,26 @@ services:
       # - "traefik.http.routers.api-insecure.middlewares=force-secure"
       # - "traefik.http.middlewares.force-secure.redirectscheme.scheme=https"
       # - "traefik.http.middlewares.force-secure.redirectscheme.permanent=true"
+
+
+  db:
+    image: postgis/postgis
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    env_file:
+      - ./api/.env
+    environment:
+      # If you need to create multiple database you can add coma separated databases eg gis,data
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      # Add extensions you need to be enabled by default in the DB. Default are the five specified below
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+      - TZ=America/Denver
+      - PGTZ=America/Denver
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    healthcheck:
+      test: "exit 0"
 
   traefik:
     image: "traefik:v2.9"
@@ -81,4 +103,34 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    user: postgres:postgres # Optional: see below
+    volumes:
+      - /var/opt/pgbackups:/backups
+    links:
+      - db
+    depends_on:
+      - db
+    env_file:
+      - ./api/.env
+    environment:
+      - POSTGRES_EXTRA_OPTS=-Z6 --schema=public --blobs
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=8080
+#  pgadmin:
+#    container_name: pgadmin4_container
+#    image: dpage/pgadmin4
+#    restart: always
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#      PGADMIN_DEFAULT_PASSWORD: root
+#    ports:
+#      - "5050:80"
+
+volumes:
+  postgis-data:
