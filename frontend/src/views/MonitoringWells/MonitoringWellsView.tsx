@@ -30,7 +30,7 @@ const monitoredWells: MonitoredWell[] = [
 export default function MonitoringWellsView(){
     const [wellID, setWellID] = useState<number>()
     const manualWaterLevelMeasurements = useGetWaterLevels({well_id: wellID})
-    const st2WaterLevelMeasurements = useGetST2WaterLevels({datastreamID: wellID ? monitoredWells[wellID].datastream_id : undefined, $filter: 'year(phenomenonTime) gt 2021', $orderby: 'phenomenonTime asc'})
+    const st2WaterLevelMeasurements = useGetST2WaterLevels(wellID ? monitoredWells[wellID - 1].datastream_id : undefined)
     const createWaterLevel = useCreateWaterLevel()
 
     const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
@@ -40,6 +40,7 @@ export default function MonitoringWellsView(){
     function handleSubmitNewMeasurement(measurementData: NewWaterLevelMeasurement) {
         if (wellID) measurementData.well_id = wellID
         createWaterLevel.mutate(measurementData)
+        handleCloseNewMeasurementModal()
     }
 
     return(
@@ -61,10 +62,11 @@ export default function MonitoringWellsView(){
                 <WellMeasurementsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
 
                 <WellObservationsPlot
+                    isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
                     manual_dates={manualWaterLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
                     manual_vals={manualWaterLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
-                    logger_dates={st2WaterLevelMeasurements.data?.value?.map(measurement => measurement.resultTime) ?? []}
-                    logger_vals={st2WaterLevelMeasurements.data?.value?.map(measurement => measurement.result) ?? []} />
+                    logger_dates={st2WaterLevelMeasurements.data?.map(measurement => measurement.resultTime) ?? []}
+                    logger_vals={st2WaterLevelMeasurements.data?.map(measurement => measurement.result) ?? []} />
 
             </Box>
 

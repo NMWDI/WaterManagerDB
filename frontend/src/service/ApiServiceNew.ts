@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { API_URL } from '../API_config.js'
 import { useAuthHeader } from 'react-auth-kit'
-import { MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, Page, ST2WaterLevelMeasurements, ST2WaterLevelQueryParams, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
+import { MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, Page, ST2WaterLevelMeasurement, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
 import { useSnackbar } from 'notistack';
 
 // Generate a query param string with empty and null fields removed
@@ -18,18 +18,43 @@ function formattedQueryParams(queryParams: any) {
     return queryParamString
 }
 
-// Generate a GET fetch function with auth headers given route + params
-async function GETFetch(route: string, params: any, authHeader: string, prefixAPIUrl: boolean = true) {
+async function GETFetch(route: string, params: any, authHeader: string) {
     const headers = {
         "Authorization": authHeader
     }
 
-    const fullUrl = (prefixAPIUrl ? API_URL + '/' : '') + route
-    return fetch(fullUrl  + formattedQueryParams(params), { headers: headers })
+    return fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
             .then(r => r.json())
 }
 
-// Generate a POST fetch function with auth headers given route + params
+interface ST2Response {
+    "@iot.nextLink": string
+    value: []
+}
+
+async function GETST2Fetch(route: string) {
+    const queryParams = formattedQueryParams({
+        $filter: 'year(phenomenonTime) gt 2021',
+        $orderby: 'phenomenonTime asc'
+    })
+
+    const url = 'https://st2.newmexicowaterdata.org/FROST-Server/v1.1/'
+
+    // The ST2 API returns data in chunks of 1000, get each chunk and return them all
+    let valueList: ST2WaterLevelMeasurement[] = []
+    let nextLink = url + route + queryParams
+    let count = 0 // Ensure that it doesn't get stuck in an infinite loop, if somehow iot.nextLink is always defined
+    do {
+        const results: ST2Response = await fetch(nextLink).then(r => r.json())
+        nextLink = results['@iot.nextLink']
+        valueList.push(...results.value)
+        count++
+    }
+    while (nextLink && count < 10)
+
+    return valueList
+}
+
 async function POSTFetch(route: string, object: any, authHeader: string) {
     const headers = {
         "Authorization": authHeader,
@@ -60,12 +85,11 @@ export function useGetWaterLevels(params: WaterLevelQueryParams) {
     )
 }
 
-export function useGetST2WaterLevels(params: ST2WaterLevelQueryParams | undefined) {
-    const route = `https://st2.newmexicowaterdata.org/FROST-Server/v1.1/Datastreams(${params?.datastreamID})/Observations`
-    const authHeader = useAuthHeader()
-    return useQuery<ST2WaterLevelMeasurements, Error>([route, params], () =>
-        GETFetch(route, {$filter: params?.$filter, $orderby: params?.$orderby}, authHeader(), false),
-        {enabled: !!params?.datastreamID}
+export function useGetST2WaterLevels(datastreamID: number | undefined) {
+    const route = `Datastreams(${datastreamID})/Observations`
+    return useQuery<ST2WaterLevelMeasurement[], Error>([route, datastreamID], () =>
+        GETST2Fetch(route),
+        {enabled: !!datastreamID}
     )
 }
 

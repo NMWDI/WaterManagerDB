@@ -306,12 +306,10 @@ export interface WellMeasurementDTO {
     submitting_user: {full_name: string}
 }
 
-// Response returned by the ST2 endpoint, value holds array of measurements
-export interface ST2WaterLevelMeasurements {
-    value: [{
-        result: number
-        resultTime: Date
-    }]
+// Single value from the ST2 endpoint, many other fields are returned, these are the only ones used
+export interface ST2WaterLevelMeasurement {
+    result: number
+    resultTime: Date
 }
 
 // The object that gets sent to the backend to add a new measurement
