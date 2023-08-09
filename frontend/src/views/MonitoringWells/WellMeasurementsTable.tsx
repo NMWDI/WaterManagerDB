@@ -1,10 +1,10 @@
 import { Box, Button } from "@mui/material";
 import { DataGrid, GridPagination } from '@mui/x-data-grid';
 import React from 'react'
-import { ManualWaterLevelMeasurement } from "../../interfaces";
+import { WellMeasurementDTO } from "../../interfaces";
 
 interface WellMeasurementsTableProps {
-    rows: ManualWaterLevelMeasurement[]
+    rows: WellMeasurementDTO[]
     onOpenModal: () => void
     isWellSelected: boolean
 }
@@ -27,9 +27,9 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
 
 export function WellMeasurementsTable({rows, onOpenModal, isWellSelected}: WellMeasurementsTableProps){
     const columns = [
-        { 
+        {
             field: 'timestamp',
-            headerName: 'Date/Time', 
+            headerName: 'Date/Time',
             width: 200,
             valueGetter: (params: any) => {
                 const date = new Date(params.value)
@@ -37,7 +37,14 @@ export function WellMeasurementsTable({rows, onOpenModal, isWellSelected}: WellM
             }
         },
         { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },
-        { field: 'technician', headerName: 'Technician', width: 100 }
+        {
+            field: 'submitting_user',
+            headerName: 'User',
+            width: 200 ,
+            valueGetter: (params: any) => {
+                return (params.value.full_name)
+            }
+        }
     ];
 
     return(

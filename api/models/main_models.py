@@ -428,6 +428,8 @@ class WellMeasurements(Base):
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
 
+    submitting_user = relationship("Users")
+
     #well = relationship("Wells", back_populates="waterlevels")
     #observed_property = relationship("ObservedPropertyTypeLU")
 
