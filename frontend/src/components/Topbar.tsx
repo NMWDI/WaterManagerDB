@@ -41,6 +41,7 @@ function Topbar() {
                             <Button
                                 variant="contained"
                                 onClick={handleOpenProfileMenu}
+                                sx={{mt: 2}}
                             >
                                 <Avatar sx={{width: 32, height: 32, marginRight: 1}}>{ authUser()?.username.substring(0, 1) }</Avatar>
                                 {authUser()?.username}

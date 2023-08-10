@@ -356,10 +356,10 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                             </Grid>
                         }
                         <Grid item >
-                            <Button type="submit" variant="contained" style={{}} onClick={navigateToNewActivity} >New Activity</Button>
+                            <Button type="submit" variant="contained" disabled={meterDetails?.status.status_name == 'Sold' || meterDetails?.status.status_name == 'Scrapped'} onClick={navigateToNewActivity} >New Activity</Button>
                         </Grid>
                         <Grid item >
-                            <Button type="submit" variant="contained" style={{}} onClick={() => {}} >New Work Order</Button>
+                            <Button type="submit" variant="contained" disabled={meterDetails?.status.status_name == 'Sold' || meterDetails?.status.status_name == 'Scrapped'} onClick={() => {}} >New Work Order</Button>
                         </Grid>
                     </Grid>
                 </Grid>

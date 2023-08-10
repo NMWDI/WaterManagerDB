@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { API_URL } from '../API_config.js'
 import { useAuthHeader } from 'react-auth-kit'
-import { MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, Page, ST2WaterLevelMeasurement, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
+import { MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, ObservedPropertyTypeLU, Page, ST2WaterLevelMeasurement, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
 import { useSnackbar } from 'notistack';
 
 // Generate a query param string with empty and null fields removed
 function formattedQueryParams(queryParams: any) {
+    if (!queryParams) return ''
+
     let queryParamString = '?';
     let params = {...queryParams}
 
@@ -27,12 +29,12 @@ async function GETFetch(route: string, params: any, authHeader: string) {
             .then(r => r.json())
 }
 
-interface ST2Response {
-    "@iot.nextLink": string
-    value: []
-}
-
 async function GETST2Fetch(route: string) {
+    interface ST2Response {
+        "@iot.nextLink": string
+        value: []
+    }
+
     const queryParams = formattedQueryParams({
         $filter: 'year(phenomenonTime) gt 2021',
         $orderby: 'phenomenonTime asc'
@@ -82,6 +84,14 @@ export function useGetWaterLevels(params: WaterLevelQueryParams) {
     const authHeader = useAuthHeader()
     return useQuery<WellMeasurementDTO[], Error>([route, params], () =>
         GETFetch(route, params, authHeader())
+    )
+}
+
+export function useGetPropertyTypes() {
+    const route = 'observed_property_types'
+    const authHeader = useAuthHeader()
+    return useQuery<ObservedPropertyTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader())
     )
 }
 

@@ -42,7 +42,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
             <Box>
                 <Grid container item xs={10} sx={{py: 1, px: 2, border: 'solid #E0E0E0 1px', borderRadius: '5px'}}>
                     <Grid item xs={12}>
-                        <h4 style={{marginTop: 0, textDecoration: 'underline'}}>Selected History Details</h4>
+                        <h4 style={{marginTop: 4}}>Selected History Details</h4>
                     </Grid>
 
                     {/* If Activity history item selected */}

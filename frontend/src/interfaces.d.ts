@@ -139,6 +139,8 @@ export interface ObservedPropertyTypeLU {
     name: string
     description: string
     context: string
+
+    units?: Unit[]
 }
 
 export interface Unit {

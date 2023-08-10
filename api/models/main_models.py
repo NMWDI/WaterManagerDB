@@ -219,6 +219,8 @@ class ObservedPropertyTypeLU(Base):
     description = Column(String)
     context = Column(String) # Specifies if property associated with meter or well
 
+    units = relationship("Units", secondary="PropertyUnits")
+
 
 class Units(Base):
     """
@@ -230,13 +232,12 @@ class Units(Base):
     description = Column(String)
 
 
-class PropertyUnits(Base):
-    """
-    Table linking Observed Properties to Units
-    Describes which units are associated with which properties
-    """
-    property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
-    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+PropertyUnits = Table(
+    "PropertyUnits",
+    Base.metadata,
+    Column("property_id", ForeignKey("ObservedPropertyTypeLU.id"), nullable=False),
+    Column("unit_id", ForeignKey("Units.id"), nullable=False),
+)
 
 # ---------- Other Tables ---------------
 
