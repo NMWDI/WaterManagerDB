@@ -5,7 +5,6 @@ import { Box, Button, Divider, TextField, MenuItem, Tabs, Tab } from "@mui/mater
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import { useAuthHeader } from 'react-auth-kit';
 import { API_URL } from "../API_config.js"
-import MeterActivitiesForm from "../components/activities_form.js"
 
 
 //----  Page components: Meter Maintenance, Work Orders

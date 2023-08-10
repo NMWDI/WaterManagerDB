@@ -323,8 +323,9 @@ export interface NewWaterLevelMeasurement {
 }
 
 export interface User {
-    username: string,
-    full_name: string,
+    id: number
+    username: string
+    full_name: string
     email: scope_string
     disabled: boolean
     user_role_id: number

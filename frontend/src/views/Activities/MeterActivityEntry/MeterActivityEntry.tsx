@@ -11,7 +11,7 @@ import { MeterInstallation } from './MeterInstallation'
 import { MaintenanceRepairSelection } from './MaintenanceRepairSelection'
 import { PartsSelection } from './PartsSelection'
 
-import { ActivityForm, MeterActivity } from '../../../interfaces.d'
+import { ActivityForm, ActivityTypeLU, MeterActivity, MeterListDTO } from '../../../interfaces.d'
 import { ActivityType } from '../../../enums'
 import { useApiPOST, useDidMountEffect } from '../../../service/ApiService'
 
@@ -22,9 +22,8 @@ interface FormSubmitRef {
 export default function MeterActivityEntry() {
     const { enqueueSnackbar } = useSnackbar()
     const activityForm = useRef<ActivityForm>({})
-    const [meterID, setMeterID] = useState<number|null>(null)
-    const [activityType, setActivityType] = useState<ActivityType|null>(null)
-    const [currentMeterStatus, setCurrentMeterStatus] = useState<string>()
+    const [meter, setMeter] = useState<MeterListDTO>()
+    const [activityType, setActivityType] = useState<ActivityType>()
     const [postRespData, postRespCode, postForm] = useApiPOST<MeterActivity | Error>('/activities')
 
     const navigate = useNavigate()
@@ -61,27 +60,26 @@ export default function MeterActivityEntry() {
         }
     }, [postRespData]) // effect on data, since code could remain the same across multiple requests
 
-    const meterActivityConflict = ((currentMeterStatus == 'Installed' && activityType == ActivityType.Install) ||
-                                    (currentMeterStatus != 'Installed' && currentMeterStatus != undefined && activityType == ActivityType.Uninstall))
+    const meterActivityConflict = ((meter?.status?.status_name == 'Installed' && activityType == ActivityType.Install) ||
+                                    (meter?.status?.status_name != 'Installed' && activityType != undefined && activityType == ActivityType.Uninstall))
 
-    const isMeterAndActivitySelected = (meterID != null && activityType != null)
+    const isMeterAndActivitySelected = (meter && activityType)
 
     return (
             <>
                 <MeterActivitySelection
                     activityForm={activityForm}
-                    setMeterID={setMeterID}
-                    activityType={activityType}
+                    setMeter={setMeter}
                     setActivityType={setActivityType}
-                    setCurrentMeterStatus={setCurrentMeterStatus}
                     ref={activitySelectionRef}
                 />
 
                 {(!meterActivityConflict && isMeterAndActivitySelected) ?
                     <>
+
                     <MeterInstallation
                         activityForm={activityForm}
-                        meterID={meterID}
+                        meterID={meter.id}
                         activityType={activityType}
                         ref={installationRef}
                     />
@@ -93,19 +91,19 @@ export default function MeterActivityEntry() {
 
                     <MaintenanceRepairSelection
                         activityForm={activityForm}
-                        meterID={meterID}
+                        meterID={meter.id}
                         ref={maintenanceRef}
                     />
 
                     <NotesSelection
                         activityForm={activityForm}
-                        meterID={meterID}
+                        meterID={meter.id}
                         ref={notesRef}
                     />
 
                     <PartsSelection
                         activityForm={activityForm}
-                        meterID={meterID}
+                        meterID={meter.id}
                         ref={partsRef}
                     />
 
