@@ -117,6 +117,16 @@ export interface WellDetailsQueryParams {
     well_id: number | undefined
 }
 
+export interface WaterLevelQueryParams {
+    well_id: number | undefined
+}
+
+export interface ST2WaterLevelQueryParams {
+    $filter: string
+    $orderby: string
+    datastreamID: number | undefined
+}
+
 export interface ActivityTypeLU {
     id: number
     name: string
@@ -129,6 +139,8 @@ export interface ObservedPropertyTypeLU {
     name: string
     description: string
     context: string
+
+    units?: Unit[]
 }
 
 export interface Unit {
@@ -289,28 +301,25 @@ export interface MeterListQuery {
 }
 
 // Single manual measurement from a certain well
-export interface ManualWaterLevelMeasurement {
+export interface WellMeasurementDTO {
     id: number
-    well_id: number
     timestamp: Date
     value: number
-    technician: string
+    submitting_user: {full_name: string}
 }
 
-// Single measurement from the ST2 endpoint
+// Single value from the ST2 endpoint, many other fields are returned, these are the only ones used
 export interface ST2WaterLevelMeasurement {
     result: number
     resultTime: Date
 }
 
 // The object that gets sent to the backend to add a new measurement
-export interface CreateManualWaterLevelMeasurement {
+export interface NewWaterLevelMeasurement {
     well_id: number
     timestamp: Date
     value: number
-    observed_property_id: number
     submitting_user_id: number
-    unit_id: number
 }
 
 export interface User {

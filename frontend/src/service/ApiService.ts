@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAuthHeader } from 'react-auth-kit'
-
 import { API_URL } from '../API_config.js'
 
 export function useDidMountEffect(func: Function, dependencies: any) {
@@ -28,7 +27,7 @@ function formattedQueryParams(queryParams: any) {
 
 // GET the specified resource of type T, updates the returned value when the passed queryParams are updated
 // SetStateAction is returned so the frontend may update the resource visually
-export function useApiGET<T>(route: string, initialValue: any, queryParams: any = undefined, dontFetchWithoutParams = false): [T, React.Dispatch<React.SetStateAction<T>>]{
+export function useApiGET<T>(route: string, initialValue: any, queryParams: any = undefined, dontFetchWithoutParams = false, dontAppendApiURL = false): [T, React.Dispatch<React.SetStateAction<T>>]{
     const [response, setResponse] = useState<T>(initialValue)
     const didMount = useRef(false)
     const authHeader = useAuthHeader()
@@ -41,12 +40,13 @@ export function useApiGET<T>(route: string, initialValue: any, queryParams: any 
     useEffect(() => {
         if (didMount.current) {
             if (queryParams == undefined && dontFetchWithoutParams) { return } // If an endpoint expects params, dont call it until they are defined
-            fetch(API_URL + route + formattedQueryParams(queryParams), { headers: auth_headers })
+            const fetchURL = dontAppendApiURL ? route : API_URL + route
+            fetch(fetchURL  + formattedQueryParams(queryParams), { headers: auth_headers })
                 .then(r => r.json())
                 .then(data => setResponse(data))
         }
         else didMount.current = true
-    }, [queryParams])
+    }, [queryParams, route])
 
     return [response, setResponse]
 }
@@ -66,6 +66,7 @@ export function useApiPOST<T>(route: string): [T | Error | undefined, number | u
     // Callback that the parent component will use to initiate the post
     function postCallback(object: any, params: any = null) {
         try {
+            setCode(undefined) // Updates to response code (undefined -> number) should trigger effects
             const result = fetch(API_URL + route + formattedQueryParams(params), {
                     method: 'POST',
                     headers: auth_headers,
@@ -112,7 +113,6 @@ export function useApiPATCH<T>(route: string): [T | Error | null, Function] {
         catch (err: any) {
             setResponse(err)
         }
-
     }
 
     return [response, patchCallback]

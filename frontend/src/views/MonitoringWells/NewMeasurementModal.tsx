@@ -6,44 +6,43 @@ import {
     MenuItem,
     Select,
     FormControl,
-    InputLabel
+    InputLabel,
+    Grid
 } from "@mui/material";
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
-import { API_URL } from "../../API_config.js"
 import React from 'react'
-import { CreateManualWaterLevelMeasurement, ActivityTypeLU, SecurityScope, User } from "../../interfaces.js";
+import { NewWaterLevelMeasurement, SecurityScope, User } from "../../interfaces.js";
 import { useApiGET } from '../../service/ApiService'
-
+import dayjs, { Dayjs } from "dayjs";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 
 interface NewMeasurementModalProps {
   isNewMeasurementModalOpen: boolean
   handleCloseNewMeasurementModal: () => void
-  handleSubmitNewMeasurement: (newMeasurement: CreateManualWaterLevelMeasurement) => void
+  handleSubmitNewMeasurement: (newMeasurement: NewWaterLevelMeasurement) => void
 }
 
 export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMeasurementModal, handleSubmitNewMeasurement}: NewMeasurementModalProps) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
-    const currentDate = new Date()
-    const currentMonthNumber = (currentDate.getMonth() + 1) > 10 ? currentDate.getMonth()+1 : ('0' + (currentDate.getMonth() + 1))
-
     const [userList, setUserList] = useApiGET<User[]>('/users', [])
-    const [value, setValue] = useState<number>()
+    const [value, setValue] = useState<number | null>(null)
     const [selectedUserID, setSelectedUserID] = useState<number | string>('')
-    const [date, setDate] = useState<string>(currentDate.getFullYear() + '-' +  (currentMonthNumber) + '-' + currentDate.getDate() )
-    const [time, setTime] = useState<string>(currentDate.getHours() + ':' + currentDate.getMinutes())
+    const [date, setDate] = useState<Dayjs | null>(dayjs())
+    const [time, setTime] = useState<Dayjs | null>(dayjs())
 
     // Sends user entered information to the parent through callback
     function onMeasurementSubmitted() {
+        const d = new Date(Date.parse(date?.format() ?? Date())).toLocaleDateString()
+        const t = new Date(Date.parse(time?.format() ?? Date())).toLocaleTimeString()
+
         handleSubmitNewMeasurement({
-            timestamp: new Date(Date.parse(date + ' ' + time)),
+            timestamp: new Date(Date.parse(d + ' ' + t)),
             value: value as number,
-            observed_property_id: 4, // Should likely be an enum at some point
             submitting_user_id: selectedUserID as number,
-            unit_id: 6, // Should likely be enum
-            well_id: 0 // Set by parent
+            well_id: -1 // Set by parent
         })
     }
 
@@ -51,7 +50,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
     function UserSelection() {
         if (hasAdminScope) {
             return (
-                <FormControl size="small" fullWidth>
+                <FormControl size="small" fullWidth required>
                     <InputLabel>User</InputLabel>
                     <Select
                         value={selectedUserID}
@@ -83,46 +82,45 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                 paddingRight: 20,
                 paddingBottom: 20,
                 boxShadow: '24',
+                borderRadius: 15,
                 paddingLeft: 25}}
             >
-
-                <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-
+                <Grid item xs={6}>
                     <h1>Record a New Measurement</h1>
-                    <UserSelection />
-
-                    <TextField
-                        required
-                        variant="outlined"
-                        margin="normal"
-                        sx={{width: '100%'}}
-                        type="date"
-                        value={ date }
-                        onChange= {(event) => setDate(event.target.value) }
-                    />
-
-                    <TextField
-                        required
-                        variant="outlined"
-                        margin="normal"
-                        sx={{width: '100%'}}
-                        type="time"
-                        value={ time }
-                        onChange= {(event) => setTime(event.target.value) }
-                    />
-
-                    <TextField
-                        required
-                        variant="outlined"
-                        sx={{width: '100%'}}
-                        type="number"
-                        margin="normal"
-                        value={ value }
-                        label="Value"
-                        onChange={(event) => setValue(event.target.value as unknown as number)}
-                    />
-                    <Button type="submit" variant="contained" style={{marginTop: 20}} onClick={onMeasurementSubmitted} >Submit</Button>
-                </Box>
+                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        <UserSelection />
+                    </Grid>
+                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        <DatePicker
+                            label="Date"
+                            value={date}
+                            onChange={setDate}
+                            slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
+                        />
+                    </Grid>
+                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        <TimePicker
+                            label="Time"
+                            slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
+                            value={time}
+                            onChange={setTime}
+                        />
+                    </Grid>
+                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        <TextField
+                            required
+                            fullWidth
+                            size={'small'}
+                            type="number"
+                            value={ value }
+                            label="Value"
+                            onChange={(event) => setValue(event.target.value as unknown as number)}
+                        />
+                    </Grid>
+                    <Grid container item xs={3} sx={{mr: 'auto', ml: 'auto'}}>
+                        <Button type="submit" variant="contained" onClick={onMeasurementSubmitted} >Submit</Button>
+                    </Grid>
+                </Grid>
             </Box>
         </Modal>
     )

@@ -1,7 +1,6 @@
 import React from 'react'
 import { useState, forwardRef } from 'react'
 import { produce } from 'immer'
-import { useSnackbar } from 'notistack'
 
 import {
     Box,
@@ -19,36 +18,39 @@ import IconButton from '@mui/material/IconButton'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs from 'dayjs'
 import { ActivityForm, ObservationForm, ObservedPropertyTypeLU, Unit } from '../../../interfaces'
-import { useApiGET } from '../../../service/ApiService'
+import { useGetPropertyTypes } from '../../../service/ApiServiceNew'
 
 interface ObservationRowProps {
     observation: ObservationForm
     setObservation: Function
     removeObservation: Function
     propertyTypes: ObservedPropertyTypeLU[]
-    units: Unit[]
+    isLoading: boolean
+    hasFormSubmitted: boolean
 }
 
-function ObservationRow({observation, setObservation, removeObservation, propertyTypes, units}: ObservationRowProps) {
+function ObservationRow({observation, setObservation, removeObservation, propertyTypes, isLoading, hasFormSubmitted}: ObservationRowProps) {
 
     return (
             <Grid container item xs={12} sx={{mb: 2}} key={observation.id}>
 
-            {/*  Dont load until units and property types are loaded */}
-            {(propertyTypes.length > 1 && units.length > 1) &&
+            {/*  Dont load until property types are loaded */}
+            {!isLoading &&
             <>
                 <Grid container item xs={10} xl={5} spacing={2}>
                     <Grid item xs={3}>
                         <TimePicker
                             label="Time"
                             defaultValue={dayjs()}
-                            slotProps={{textField: {size: "small"}}}
+                            slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !observation.time)}}}
                             value={observation.time}
                             onChange={(time: any) => {setObservation(produce(observation, newObservation => {newObservation.time = time}))}}
                         />
                     </Grid>
                     <Grid item xs={3}>
                         <TextField
+                            required
+                            error={hasFormSubmitted && !observation.reading}
                             label={"Reading"}
                             variant="outlined"
                             size="small"
@@ -59,26 +61,36 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        <FormControl size="small" fullWidth>
+                        <FormControl size="small" fullWidth required>
                             <InputLabel>Reading Type</InputLabel>
                             <Select
+                                error={hasFormSubmitted && !observation.property_type_id}
                                 value={observation.property_type_id}
                                 label="Reading Type"
-                                onChange={(event: any) => {setObservation(produce(observation, newObservation => {newObservation.property_type_id = event.target.value}))}}
+                                onChange={(event: any) => {
+                                    setObservation(produce(observation, newObservation => {
+                                        newObservation.property_type_id = event.target.value,
+                                        newObservation.unit_id = propertyTypes
+                                                                    .find((pt: ObservedPropertyTypeLU) => pt.id == event.target.value)
+                                                                    ?.units?.at(0)?.id ?? 0
+                                    }))}}
                             >
                                 {propertyTypes.map((type: ObservedPropertyTypeLU) => <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Grid>
                     <Grid item xs={3}>
-                        <FormControl size="small" fullWidth>
+                        <FormControl size="small" fullWidth required>
                             <InputLabel>Units</InputLabel>
                             <Select
+                                error={hasFormSubmitted && !observation.unit_id}
                                 value={observation.unit_id}
                                 label="Units"
                                 onChange={(event: any) => {setObservation(produce(observation, newObservation => {newObservation.unit_id = event.target.value}))}}
                             >
-                                {units.map((unit: Unit) => <MenuItem key={unit.id} value={unit.id}>{unit.name}</MenuItem>)}
+                                {propertyTypes
+                                    .find((pt: ObservedPropertyTypeLU) => pt.id == observation.property_type_id)?.units
+                                    ?.map((unit: Unit) => <MenuItem key={unit.id} value={unit.id}>{unit.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Grid>
@@ -99,16 +111,19 @@ interface ObservationSelectionProps {
 }
 
 export const ObservationSelection = forwardRef(({activityForm}: ObservationSelectionProps, submitRef) => {
+    const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
 
     // Exposed submit function to allow parent to request the form values
     React.useImperativeHandle(submitRef, () => {
         return {
             onSubmit() {
                 activityForm.current.observations = observations
+                setHasFormSubmitted(true)
             }
         }
     })
 
+    // Need to not use IDs here
     const defaultObservations: ObservationForm[] = [
         {
             id: 1,
@@ -136,9 +151,8 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
     const [observations, setObservations] = useState<ObservationForm[]>(defaultObservations)
     const [currentObservationID, setCurrentObservationID] = useState<number>(defaultObservations.length + 1) // Track IDs to keep them unique
     const [numberOfObservations, setNumberOfObservations] = useState<number>(defaultObservations.length) // Track number of observations for dynamic button verbiage
-    const [propertyTypes, setPropertyTypes] = useApiGET<ObservedPropertyTypeLU[]>('/observed_property_types', [])
-    const [units, setUnits] = useApiGET<Unit[]>('/units', [])
-    const { enqueueSnackbar } = useSnackbar()
+
+    const propertyTypes = useGetPropertyTypes()
 
     // Functions to manage local list of observations, should ideally be impl as useReducer
     function addObservation() {
@@ -186,8 +200,9 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
                                     observation={observation}
                                     setObservation={setObservation}
                                     removeObservation={removeObservation}
-                                    propertyTypes={propertyTypes}
-                                    units={units}
+                                    propertyTypes={propertyTypes.data ?? []}
+                                    isLoading={propertyTypes.isLoading}
+                                    hasFormSubmitted={hasFormSubmitted}
                                 />
                     })}
 

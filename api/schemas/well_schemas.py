@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, validator, constr
+from api.schemas.security_schemas import User
 
 
 class ORMBase(BaseModel):
@@ -66,6 +67,24 @@ class LocationTypeLU(ORMBase):
 
 class WellMeasurement(ORMBase):
     id: int
+    timestamp: datetime
+    value: float
+    observed_property_id: int
+    submitting_user_id: int
+    unit_id: int
+    well_id: int
+
+    submitting_user: Optional[User]
+
+
+class WellMeasurementDTO(ORMBase):
+    class UserDTO(ORMBase):
+        full_name: str
+
+    id: int
+    timestamp: datetime
+    value: float
+    submitting_user: UserDTO
 
 
 class WellCreate(ORMBase):
@@ -94,13 +113,11 @@ class WaterLevel(ORMBase):
     submitting_user_name: str
 
 
-class WaterLevelCreate(ORMBase):
+class NewWaterLevelMeasurement(ORMBase):
     well_id: int
     timestamp: datetime
     value: float
-    observed_property_id: int
     submitting_user_id: int
-    unit_id: int
 
 
 class WaterLevelPatch(ORMBase):

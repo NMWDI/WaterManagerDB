@@ -16,11 +16,11 @@
 from typing import List
 
 from fastapi import Depends, APIRouter
-from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select, and_
 
 from api.schemas import well_schemas
-from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU
+from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU, Units
 from api.models.security_models import Users
 from api.route_util import _add, _patch
 from api.security import scoped_user
@@ -29,38 +29,61 @@ from api.session import get_db
 well_measurement_router = APIRouter()
 write_user = scoped_user(["read", "well_measurement:write"])
 
-
-@well_measurement_router.patch(
-    "/waterlevel/{waterlevel_id}",
-    response_model=well_schemas.WaterLevel,
-    dependencies=[Depends(write_user)],
-    tags=["waterlevels"],
-)
-async def patch_waterlevel(
-    waterlevel_id: int, obj: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)
-):
-    return _patch(db, WellMeasurements, waterlevel_id, obj)
+# Not up to date
+# @well_measurement_router.patch(
+#     "/waterlevels/{waterlevel_id}",
+#     response_model=well_schemas.WaterLevel,
+#     dependencies=[Depends(write_user)],
+#     tags=["waterlevels"],
+# )
+# async def patch_waterlevel(
+#     waterlevel_id: int, obj: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)
+# ):
+#     return _patch(db, WellMeasurements, waterlevel_id, obj)
 
 
 @well_measurement_router.post(
-    "/waterlevel",
+    "/waterlevels",
     dependencies=[Depends(write_user)],
-    response_model=well_schemas.WaterLevelCreate,
+    response_model=well_schemas.WellMeasurement,
     tags=["waterlevels"],
 )
 async def add_waterlevel(
-    waterlevel: well_schemas.WaterLevelCreate, db: Session = Depends(get_db)
+    waterlevel: well_schemas.NewWaterLevelMeasurement, db: Session = Depends(get_db)
 ):
-    return _add(db, WellMeasurements, waterlevel)
+    # Create the well measurement from the form, qualify with units and property type
+    well_measurement = WellMeasurements(
+        timestamp = waterlevel.timestamp,
+        value = waterlevel.value,
+        observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Depth to water')).first(),
+        submitting_user_id = waterlevel.submitting_user_id,
+        unit_id = db.scalars(select(Units.id).where(Units.name == 'feet')).first(),
+        well_id = waterlevel.well_id
+    )
+
+    db.add(well_measurement)
+    db.commit()
+
+    return well_measurement
 
 
 @well_measurement_router.get(
-    # "/waterlevels", response_model=List[schemas.WaterLevel], tags=["waterlevels"]
     "/waterlevels",
+    response_model=List[well_schemas.WellMeasurementDTO],
     tags=["waterlevels"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return _read_well_measurement(db, "Depth to water", well_id)
+    return db.scalars(
+        select(WellMeasurements)
+            .options(joinedload(WellMeasurements.submitting_user))
+            .join(ObservedPropertyTypeLU)
+            .where(
+                and_(
+                    ObservedPropertyTypeLU.name == 'Depth to water',
+                    WellMeasurements.well_id == well_id
+                )
+            )
+    ).all()
 
 
 @well_measurement_router.get(

@@ -173,7 +173,10 @@ async def get_units(db: Session = Depends(get_db)):
     tags=["Activities"],
 )
 async def get_observed_property_types(db: Session = Depends(get_db)):
-    return db.scalars(select(ObservedPropertyTypeLU)).all()
+    return db.scalars(
+                select(ObservedPropertyTypeLU)
+                .options(joinedload(ObservedPropertyTypeLU.units))
+            ).unique().all()
 
 @activity_router.get(
     "/service_types",

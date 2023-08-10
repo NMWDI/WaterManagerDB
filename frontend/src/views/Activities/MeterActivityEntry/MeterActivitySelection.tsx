@@ -30,13 +30,14 @@ interface MeterActivitySelectionProps {
 }
 
 // If user has the admin scope, show them a user selection, if not set the user ID to the current user's
-function UserSelection({value, updateCallback, hasAdminScope, currentUserID}: any) {
+function UserSelection({value, updateCallback, hasAdminScope, currentUserID, hasFormSubmitted}: any) {
     if (hasAdminScope) {
         const [userList, setUserList] = useApiGET<ActivityTypeLU[]>('/users', [])
         return (
-            <FormControl size="small" fullWidth>
+            <FormControl size="small" fullWidth required>
                 <InputLabel>User</InputLabel>
                 <Select
+                    error={hasFormSubmitted && !value}
                     value={value}
                     onChange={(event: any) => updateCallback(event.target.value)}
                     label="User"
@@ -54,6 +55,7 @@ function UserSelection({value, updateCallback, hasAdminScope, currentUserID}: an
 
 // Child component as ref so that parent can call submit function
 export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, activityType, setActivityType, setCurrentMeterStatus}: MeterActivitySelectionProps, submitRef) => {
+    const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
 
     // Exposed submit function to allow parent to request updated form values
     React.useImperativeHandle(submitRef, () => {
@@ -61,12 +63,13 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
             onSubmit() {
                 activityForm.current.activity_details = {
                     activity_type_id: selectedActivityID as number,
-                    meter_id: selectedMeter.id,
+                    meter_id: selectedMeter?.id,
                     user_id: selectedUserID as number,
                     date: date,
                     start_time: startTime,
                     end_time: endTime
                 }
+                setHasFormSubmitted(true)
             }
         }
     })
@@ -127,7 +130,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
             {/* Start First Row */}
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
-                    <FormControl size="small" fullWidth>
+                    <FormControl size="small" fullWidth required>
                         <InputLabel>Activity Type</InputLabel>
                         <Select
                             label="Activity Type"
@@ -150,7 +153,16 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                         inputValue={meterSearchQuery}
                         onInputChange={(event: any, query: string) => {setMeterSearchQuery(query)}}
                         isOptionEqualToValue={(a, b) => {return a?.id == b?.id}}
-                        renderInput={(params: any) => <TextField {...params} size="small" label="Meter" placeholder="Begin typing to search" />}
+                        renderInput={(params: any) =>
+                            <TextField
+                                {...params}
+                                required
+                                error={hasFormSubmitted && !selectedMeter?.id}
+                                size="small"
+                                label="Meter"
+                                placeholder="Begin typing to search"
+                            />
+                        }
                     />
                 </Grid>
 
@@ -160,6 +172,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                         updateCallback={setSelectedUserID}
                         hasAdminScope={hasAdminScope}
                         currentUserID={authUser()?.id}
+                        hasFormSubmitted={hasFormSubmitted}
                     />
                 </Grid>
             </Grid>
@@ -172,7 +185,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                         label="Date"
                         value={date}
                         onChange={setDate}
-                        slotProps={{textField: {size: "small", fullWidth: true}}}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !date)}}}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -180,7 +193,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                         label="Start Time"
                         value={startTime}
                         onChange={setStartTime}
-                        slotProps={{textField: {size: "small", fullWidth: true}}}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !startTime)}}}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -188,7 +201,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeterID, act
                         label="End Time"
                         value={endTime}
                         onChange={setEndTime}
-                        slotProps={{textField: {size: "small", fullWidth: true}}}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !endTime)}}}
                     />
                 </Grid>
             </Grid>

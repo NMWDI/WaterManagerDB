@@ -1,132 +1,46 @@
-//Monitoring Wells Page
 import React from 'react'
-import { Box, FormControl, Select, MenuItem, InputLabel, SelectChangeEvent } from "@mui/material";
+import { Box, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
 import { useState } from "react";
-import { useAuthHeader } from 'react-auth-kit';
-import { API_URL } from "../../API_config.js"
 
 import { WellMeasurementsTable } from './WellMeasurementsTable'
 import { WellObservationsPlot } from './WellObservationsPlot'
 import { NewMeasurementModal } from './NewMeasurementModal'
-import { CreateManualWaterLevelMeasurement, ManualWaterLevelMeasurement, ST2WaterLevelMeasurement } from '../../interfaces.js';
+import { NewWaterLevelMeasurement } from '../../interfaces.js';
+import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels } from '../../service/ApiServiceNew';
+
+interface MonitoredWell {
+    id: number
+    name: string
+    datastream_id: number
+}
+
+const monitoredWells: MonitoredWell[] = [
+    {id: 1, name: 'Poe Corn', datastream_id: 14474},
+    {id: 2, name: 'Artesia', datastream_id: 14475},
+    {id: 3, name: 'TransWestern', datastream_id: 14469},
+    {id: 4, name: 'Cottonwood', datastream_id: 14470},
+    {id: 5, name: 'LFD', datastream_id: 14472},
+    {id: 6, name: 'Greenfield', datastream_id: 14477},
+    {id: 7, name: 'Berrendo-Smith', datastream_id: 14471},
+    {id: 8, name: 'Orchard Park', datastream_id: 14476},
+    {id: 9, name: 'Bartlett', datastream_id: 14473},
+    {id: 10, name: 'Zumwalt', datastream_id: 14468},
+]
 
 export default function MonitoringWellsView(){
-
-    const authHeader = useAuthHeader()
-
-    const [site_name, setSiteName] = useState<string>('')
     const [wellID, setWellID] = useState<number>()
-    const [manualWaterLevelMeasurements, setManualWaterLevelMeasurements] = useState<ManualWaterLevelMeasurement[]>([])
-    const [ST2WaterLevelMeasurements, setST2WaterLevelMeasurements] = useState<ST2WaterLevelMeasurement[]>([])
-    const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
+    const manualWaterLevelMeasurements = useGetWaterLevels({well_id: wellID})
+    const st2WaterLevelMeasurements = useGetST2WaterLevels(wellID ? monitoredWells[wellID - 1].datastream_id : undefined)
+    const createWaterLevel = useCreateWaterLevel()
 
+    const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
     const handleOpenNewMeasurementModal = () => setIsNewMeasurementModalOpen(true)
     const handleCloseNewMeasurementModal = () => setIsNewMeasurementModalOpen(false)
 
-    const handleSelect = (event: SelectChangeEvent<string>) => {
-        const siteName = event.target.value
-        console.log(siteName)
-        setSiteName(siteName)
-        getMeasurements(siteName)
-        getLoggerVals(siteName)
-    }
-
-    function getMeasurements(siteName: string) {
-        
-        // Site ID map, should probably come from an API at some point
-        let site_ids: any = {
-            'Poe Corn':1,
-            'TransWestern':2,
-            'Berrendo-Smith':3,
-            'LFD':4,
-            'Orchard Park':5,
-            'Greenfield':6,
-            'Bartlett':7,
-            'Cottonwood':8,
-            'Zumwalt':9,
-            'Artesia':10
-        }
-        setWellID(site_ids[siteName])
-
-        // Get well measurements for site and set
-        let auth_headers = new Headers()
-        auth_headers.set(
-            "Authorization", authHeader()
-        )
-        fetch(
-            `${API_URL}/waterlevels?well_id=${site_ids[siteName]}`,
-            { headers: auth_headers }
-        )
-            .then(r => r.json())
-            .then((data: ManualWaterLevelMeasurement[]) => setManualWaterLevelMeasurements(data))
-    }
-
-    function getLoggerVals(siteName: string){
-        //Get logger values from ST2 endpoint
-
-        //Map site ids to sensorthings datastreams
-        let datastreams: any = {
-            'Poe Corn':14474,
-            'Artesia':14475,
-            'TransWestern':14469,
-            'Cottonwood':14470,
-            'LFD':14472,
-            'Greenfield':14477,
-            'Berrendo-Smith':14471,
-            'Orchard Park':14476,
-            'Bartlett':14473,
-            'Zumwalt':14468,
-        }
-
-        let endpoint = `https://st2.newmexicowaterdata.org/FROST-Server/v1.1/Datastreams(${datastreams[siteName]})/Observations`
-        let query_str = '?$filter=year(phenomenonTime)%20gt%202021&$orderby=phenomenonTime%20asc'
-
-        //Get data
-        let auth_headers = new Headers()
-        auth_headers.set(
-            "Authorization", authHeader()
-        )
-
-        fetch(
-            endpoint+query_str,
-            { headers: auth_headers }
-        )
-            .then(r => r.json()).then(r => r.value)
-            .then((data: ST2WaterLevelMeasurement[]) => setST2WaterLevelMeasurements(data))
-    }
-
-    function handleSubmitNewMeasurement(measurementData: CreateManualWaterLevelMeasurement) {
-
-        // Set well_id based on current selection
-        measurementData.well_id = wellID as number
-
-        const headers = {'Authorization': authHeader(), 'Content-Type': 'application/json'}
-        fetch(
-            `${API_URL}/waterlevel`,
-            {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(measurementData)
-            }
-        )
-        .then(r => r.json()).then((rspjson: ManualWaterLevelMeasurement) => {
-
-            // Quick success check, should ideally have the backend return a success msg
-            if(rspjson.id != undefined){
-                handleCloseNewMeasurementModal()
-                const newWaterLevelEntry = {
-                    id: rspjson.id,
-                    well_id: rspjson.well_id,
-                    timestamp: rspjson.timestamp,
-                    value: rspjson.value,
-                    technician: "..." // This is not sent back in the server response
-                }
-                setManualWaterLevelMeasurements([...manualWaterLevelMeasurements, newWaterLevelEntry])
-
-            }else{
-                alert('There was an error adding this measurement, please try again.')
-            }
-        })
+    function handleSubmitNewMeasurement(measurementData: NewWaterLevelMeasurement) {
+        if (wellID) measurementData.well_id = wellID
+        createWaterLevel.mutate(measurementData)
+        handleCloseNewMeasurementModal()
     }
 
     return(
@@ -136,30 +50,23 @@ export default function MonitoringWellsView(){
                 <Select
                     labelId="plot-select-label"
                     id="plot-select"
-                    value={site_name}
-                    onChange={handleSelect}
+                    value={wellID}
+                    onChange={(event: any) => setWellID(event.target.value)}
                     label="Site"
                 >
-                    <MenuItem value={'Poe Corn'}>Poe Corn</MenuItem>
-                    <MenuItem value={'TransWestern'}>TransWestern</MenuItem>
-                    <MenuItem value={'Berrendo-Smith'}>Berredo-Smith</MenuItem>
-                    <MenuItem value={'LFD'}>LFD</MenuItem>
-                    <MenuItem value={'Orchard Park'}>Orchard Park</MenuItem>
-                    <MenuItem value={'Greenfield'}>Greenfield</MenuItem>
-                    <MenuItem value={'Bartlett'}>Bartlett</MenuItem>
-                    <MenuItem value={'Cottonwood'}>Cottonwood</MenuItem>
-                    <MenuItem value={'Zumwalt'}>Zumwalt</MenuItem>
-                    <MenuItem value={'Artesia'}>Artesia</MenuItem>
+                    <MenuItem value={0} disabled sx={{display: 'none'}}>Select a Well</MenuItem>
+                    {monitoredWells.map((well: MonitoredWell) => <MenuItem value={well.id} key={well.id}>{well.name}</MenuItem>)}
                 </Select>
             </FormControl>
             <Box sx={{ mt: '10px', display: 'flex' }}>
-                <WellMeasurementsTable rows={manualWaterLevelMeasurements} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
+                <WellMeasurementsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
 
                 <WellObservationsPlot
-                    manual_dates={manualWaterLevelMeasurements.map(measurement => measurement.timestamp)}
-                    manual_vals={manualWaterLevelMeasurements.map(measurement => measurement.value)}
-                    logger_dates={ST2WaterLevelMeasurements.map(measurement => measurement.resultTime)}
-                    logger_vals={ST2WaterLevelMeasurements.map(measurement => measurement.result)} />
+                    isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
+                    manual_dates={manualWaterLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
+                    manual_vals={manualWaterLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
+                    logger_dates={st2WaterLevelMeasurements.data?.map(measurement => measurement.resultTime) ?? []}
+                    logger_vals={st2WaterLevelMeasurements.data?.map(measurement => measurement.result) ?? []} />
 
             </Box>
 
@@ -169,5 +76,4 @@ export default function MonitoringWellsView(){
                 handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
         </Box>
     )
-
 }

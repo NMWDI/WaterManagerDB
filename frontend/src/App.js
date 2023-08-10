@@ -4,6 +4,7 @@ import './App.css';
 import Sidebar from "./sidebar";
 import { AuthProvider } from 'react-auth-kit'; //https://authkit.arkadip.dev/
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
@@ -20,9 +21,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { SnackbarProvider } from 'notistack'
 
-function App() {
+const queryClient = new QueryClient()
 
+function App() {
     return (
+        <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
         <SnackbarProvider anchorOrigin={{horizontal: 'right', vertical: 'bottom'}} maxSnack={10}>
         <AuthProvider
@@ -128,6 +131,7 @@ function App() {
         </AuthProvider>
         </SnackbarProvider>
         </LocalizationProvider>
+        </QueryClientProvider>
   );
 
 }
