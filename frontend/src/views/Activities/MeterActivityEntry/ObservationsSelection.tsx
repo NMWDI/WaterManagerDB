@@ -26,9 +26,10 @@ interface ObservationRowProps {
     removeObservation: Function
     propertyTypes: ObservedPropertyTypeLU[]
     isLoading: boolean
+    hasFormSubmitted: boolean
 }
 
-function ObservationRow({observation, setObservation, removeObservation, propertyTypes, isLoading}: ObservationRowProps) {
+function ObservationRow({observation, setObservation, removeObservation, propertyTypes, isLoading, hasFormSubmitted}: ObservationRowProps) {
 
     return (
             <Grid container item xs={12} sx={{mb: 2}} key={observation.id}>
@@ -41,13 +42,15 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                         <TimePicker
                             label="Time"
                             defaultValue={dayjs()}
-                            slotProps={{textField: {size: "small"}}}
+                            slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !observation.time)}}}
                             value={observation.time}
                             onChange={(time: any) => {setObservation(produce(observation, newObservation => {newObservation.time = time}))}}
                         />
                     </Grid>
                     <Grid item xs={3}>
                         <TextField
+                            required
+                            error={hasFormSubmitted && !observation.reading}
                             label={"Reading"}
                             variant="outlined"
                             size="small"
@@ -58,9 +61,10 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        <FormControl size="small" fullWidth>
+                        <FormControl size="small" fullWidth required>
                             <InputLabel>Reading Type</InputLabel>
                             <Select
+                                error={hasFormSubmitted && !observation.property_type_id}
                                 value={observation.property_type_id}
                                 label="Reading Type"
                                 onChange={(event: any) => {
@@ -76,9 +80,10 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                         </FormControl>
                     </Grid>
                     <Grid item xs={3}>
-                        <FormControl size="small" fullWidth>
+                        <FormControl size="small" fullWidth required>
                             <InputLabel>Units</InputLabel>
                             <Select
+                                error={hasFormSubmitted && !observation.unit_id}
                                 value={observation.unit_id}
                                 label="Units"
                                 onChange={(event: any) => {setObservation(produce(observation, newObservation => {newObservation.unit_id = event.target.value}))}}
@@ -106,12 +111,14 @@ interface ObservationSelectionProps {
 }
 
 export const ObservationSelection = forwardRef(({activityForm}: ObservationSelectionProps, submitRef) => {
+    const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
 
     // Exposed submit function to allow parent to request the form values
     React.useImperativeHandle(submitRef, () => {
         return {
             onSubmit() {
                 activityForm.current.observations = observations
+                setHasFormSubmitted(true)
             }
         }
     })
@@ -195,6 +202,7 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
                                     removeObservation={removeObservation}
                                     propertyTypes={propertyTypes.data ?? []}
                                     isLoading={propertyTypes.isLoading}
+                                    hasFormSubmitted={hasFormSubmitted}
                                 />
                     })}
 
