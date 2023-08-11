@@ -24,9 +24,7 @@ SecurityScopes = api.models.security_models.SecurityScopes
 UserRoles = api.models.security_models.UserRoles
 Users = api.models.security_models.Users
 
-admin_scope = SecurityScopes(
-    scope_string="admin", description="Admin-specific scope."
-)
+admin_scope = SecurityScopes(scope_string="admin", description="Admin-specific scope.")
 meter_write_scope = SecurityScopes(
     scope_string="meter:write", description="Write meters"
 )
@@ -41,9 +39,7 @@ reports_run_scope = SecurityScopes(
     scope_string="reports:run", description="Run reports"
 )
 read_scope = SecurityScopes(scope_string="read", description="Read all data.")
-ose_scope = SecurityScopes(
-        scope_string="ose", description="Scope given to the OSE"
-    )
+ose_scope = SecurityScopes(scope_string="ose", description="Scope given to the OSE")
 
 technician_role = UserRoles(
     name="Technician",
@@ -67,20 +63,17 @@ admin_role = UserRoles(
     ],
 )
 ose_role = UserRoles(
-        name="OSE",
-        security_scopes=[
-            read_scope,
-            ose_scope
-        ],
-    )
+    name="OSE",
+    security_scopes=[read_scope, ose_scope],
+)
 
 ose_user = Users(
-        full_name="OSE API User",
-        username="ose_api",
-        email="ose@ose.com",
-        hashed_password=get_password_hash("secret"),
-        user_role=ose_role,
-    )
+    full_name="OSE API User",
+    username="ose_api",
+    email="ose@ose.com",
+    hashed_password=get_password_hash("secret"),
+    user_role=ose_role,
+)
 
 technician_user = Users(
     full_name="Technician User",
@@ -99,22 +92,22 @@ admin_user = Users(
 )
 
 db.add_all(
-        [
-            admin_scope,
-            meter_write_scope,
-            activities_write_scope,
-            well_measurements_write_scope,
-            reports_run_scope,
-            read_scope,
-            ose_scope,
-            technician_role,
-            admin_role,
-            ose_role,
-            technician_user,
-            admin_user,
-            ose_user
-        ]
-    )
+    [
+        admin_scope,
+        meter_write_scope,
+        activities_write_scope,
+        well_measurements_write_scope,
+        reports_run_scope,
+        read_scope,
+        ose_scope,
+        technician_role,
+        admin_role,
+        ose_role,
+        technician_user,
+        admin_user,
+        ose_user,
+    ]
+)
 
 db.commit()
 db.close()
@@ -194,10 +187,9 @@ with open("api/data/devdata_partsassociated.csv", "r") as f:
     qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-#Only load the following for local testing
+# Only load the following for local testing
 testing = True
 if testing:
-
     with open("api/data/testdata_users.csv", "r") as f:
         qry = 'COPY "Users"(id, username, full_name, email, hashed_password, disabled, user_role_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         cursor.copy_expert(qry, f)
@@ -214,7 +206,7 @@ if testing:
         #     qry = 'COPY "PartsUsed"(meter_activity_id, part_id, count) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
         #     cursor.copy_expert(qry, f)
 
-#Create geometries from location lat longs
+# Create geometries from location lat longs
 cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
 
 conn.commit()

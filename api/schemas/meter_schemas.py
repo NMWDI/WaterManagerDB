@@ -11,17 +11,20 @@ from api.schemas.part_schemas import PartUsed
 from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
 
+
 class ORMBase(BaseModel):
     id: Optional[int] = None
 
     class Config:
         orm_mode = True
 
+
 class MeterMapDTO(ORMBase):
     class WellDTO(ORMBase):
         class MeterLocationDTO(ORMBase):
             longitude: Optional[float]
             latitude: Optional[float]
+
         location: Optional[MeterLocationDTO]
 
     id: int
@@ -39,7 +42,6 @@ class MeterTypeLU(ORMBase):
 
 # The minimal information used by the meters list
 class MeterListDTO(ORMBase):
-
     class WellDTO(ORMBase):
         class LocationDTO(ORMBase):
             class LandOwnerDTO(ORMBase):
@@ -83,6 +85,7 @@ class Meter(ORMBase):
     status: Optional[MeterStatusLU]
     well: Optional[Well]
     location: Optional[Location]
+
 
 class ActivityForm(ORMBase):
     """

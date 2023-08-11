@@ -53,12 +53,16 @@ async def add_waterlevel(
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp = waterlevel.timestamp,
-        value = waterlevel.value,
-        observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Depth to water')).first(),
-        submitting_user_id = waterlevel.submitting_user_id,
-        unit_id = db.scalars(select(Units.id).where(Units.name == 'feet')).first(),
-        well_id = waterlevel.well_id
+        timestamp=waterlevel.timestamp,
+        value=waterlevel.value,
+        observed_property_id=db.scalars(
+            select(ObservedPropertyTypeLU.id).where(
+                ObservedPropertyTypeLU.name == "Depth to water"
+            )
+        ).first(),
+        submitting_user_id=waterlevel.submitting_user_id,
+        unit_id=db.scalars(select(Units.id).where(Units.name == "feet")).first(),
+        well_id=waterlevel.well_id,
     )
 
     db.add(well_measurement)
@@ -75,14 +79,14 @@ async def add_waterlevel(
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
         select(WellMeasurements)
-            .options(joinedload(WellMeasurements.submitting_user))
-            .join(ObservedPropertyTypeLU)
-            .where(
-                and_(
-                    ObservedPropertyTypeLU.name == 'Depth to water',
-                    WellMeasurements.well_id == well_id
-                )
+        .options(joinedload(WellMeasurements.submitting_user))
+        .join(ObservedPropertyTypeLU)
+        .where(
+            and_(
+                ObservedPropertyTypeLU.name == "Depth to water",
+                WellMeasurements.well_id == well_id,
             )
+        )
     ).all()
 
 

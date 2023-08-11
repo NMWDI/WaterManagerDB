@@ -18,13 +18,14 @@ from api.models.main_models import (
     MeterObservations,
     Locations,
     MeterTypeLU,
-    Wells
+    Wells,
 )
 from api.route_util import _patch
 from api.security import scoped_user
 from api.session import get_db
 
 from enum import Enum
+
 
 # Find better location for these
 class MeterSortByField(Enum):
@@ -84,12 +85,8 @@ async def get_meters(
 
     if exclude_inactive:
         query_statement = query_statement.where(
-                and_(
-                    Meters.status_id != 3,
-                    Meters.status_id != 4,
-                    Meters.status_id != 5
-                )
-            )
+            and_(Meters.status_id != 3, Meters.status_id != 4, Meters.status_id != 5)
+        )
 
     if search_string:
         query_statement = query_statement.where(
@@ -116,6 +113,7 @@ async def get_meters(
 
 # Get list of all meters and their coordinates (if they have them)
 
+
 @meter_router.get(
     "/meters_locations", response_model=List[meter_schemas.MeterMapDTO], tags=["meters"]
 )
@@ -129,7 +127,7 @@ async def get_meters_locations(
             and_(
                 Locations.latitude.is_not(None),
                 Locations.longitude.is_not(None),
-                Meters.status_id == 1 # Need to improve this
+                Meters.status_id == 1,  # Need to improve this
             )
         )
         .join(Wells, isouter=True)
@@ -171,6 +169,7 @@ async def get_land_owners(
 ):
     return db.scalars(select(LandOwners)).all()
 
+
 @meter_router.get(
     "/wells", response_model=LimitOffsetPage[well_schemas.WellListDTO], tags=["meters"]
 )
@@ -186,13 +185,9 @@ async def get_wells(
 
     return paginate(db, queryStatement)
 
-@meter_router.get(
-    "/well", response_model=well_schemas.Well, tags=["meters"]
-)
-async def get_well(
-    well_id: int,
-    db: Session = Depends(get_db)
-):
+
+@meter_router.get("/well", response_model=well_schemas.Well, tags=["meters"])
+async def get_well(well_id: int, db: Session = Depends(get_db)):
     return db.scalars(
         select(Wells)
         .options(
@@ -200,6 +195,7 @@ async def get_well(
         )
         .filter(Wells.id == well_id)
     ).first()
+
 
 @meter_router.patch(
     "/meter",
@@ -211,7 +207,6 @@ async def patch_meter(
     updated_meter: meter_schemas.Meter,
     db: Session = Depends(get_db),
 ):
-
     return _patch(db, Meters, updated_meter.id, updated_meter)
 
 
@@ -232,7 +227,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
                 joinedload(MeterActivities.parts_used),
-                joinedload(MeterActivities.notes)
+                joinedload(MeterActivities.notes),
             )
             .filter(MeterActivities.meter_id == meter_id)
         )
@@ -256,7 +251,7 @@ async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     itemID = 0
 
     for activity in activities:
-        activity.location.geom = None # FastAPI errors when returning this
+        activity.location.geom = None  # FastAPI errors when returning this
         formattedHistoryItems.append(
             {
                 "id": itemID,

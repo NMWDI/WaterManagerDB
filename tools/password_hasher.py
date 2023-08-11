@@ -1,6 +1,6 @@
-'''
+"""
 Hashes a password so it can manually be entered into the database
-'''
+"""
 
 from passlib.context import CryptContext
 

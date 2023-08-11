@@ -36,11 +36,14 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__
 
+
 # ---------- Parts/Services/Notes ------------
+
 
 class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
+
 
 class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
@@ -52,12 +55,14 @@ class Parts(Base):
 
     part_type = relationship("PartTypeLU")
 
+
 class PartAssociation(Base):
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"),nullable=False)
-    part_id = Column(Integer,ForeignKey("Parts.id"),nullable=False)
+    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
+    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
     commonly_used = Column(Boolean)
 
     part = relationship("Parts")
+
 
 PartsUsed = Table(
     "PartsUsed",
@@ -67,10 +72,12 @@ PartsUsed = Table(
     Column("count", Integer),
 )
 
+
 class ServiceTypeLU(Base):
-    '''
+    """
     Describes the type of service performed during an activity
-    '''
+    """
+
     service_name = Column(String)
     description = Column(String)
 
@@ -82,10 +89,12 @@ ServicesPerformed = Table(
     Column("service_type_id", ForeignKey("ServiceTypeLU.id"), nullable=False),
 )
 
+
 class NoteTypeLU(Base):
-    '''
+    """
     Commonly used notes associated with meter activities
-    '''
+    """
+
     note = Column(String)
     details = Column(String)
     slug = Column(String)
@@ -99,6 +108,7 @@ Notes = Table(
 )
 
 # ---------  Meter Related Tables ---------
+
 
 class Meters(Base):
     """
@@ -120,7 +130,9 @@ class Meters(Base):
     well_id = Column(Integer, ForeignKey("Wells.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
 
-    meter_type = relationship("MeterTypeLU", lazy="noload") # Indicate that these relationships have to be manually loaded
+    meter_type = relationship(
+        "MeterTypeLU", lazy="noload"
+    )  # Indicate that these relationships have to be manually loaded
     status = relationship("MeterStatusLU", lazy="noload")
     well = relationship("Wells", lazy="noload")
     location = relationship("Locations", lazy="noload")
@@ -183,7 +195,7 @@ class ActivityTypeLU(Base):
 
     name = Column(String)
     description = Column(String)
-    permission = Column(String) #Specifies who can perform this activity
+    permission = Column(String)  # Specifies who can perform this activity
 
 
 class MeterObservations(Base):
@@ -217,7 +229,7 @@ class ObservedPropertyTypeLU(Base):
 
     name = Column(String)
     description = Column(String)
-    context = Column(String) # Specifies if property associated with meter or well
+    context = Column(String)  # Specifies if property associated with meter or well
 
     units = relationship("Units", secondary="PropertyUnits")
 
@@ -241,6 +253,7 @@ PropertyUnits = Table(
 
 # ---------- Other Tables ---------------
 
+
 class Locations(Base):
     """
     Table for tracking information about a meters location
@@ -260,7 +273,6 @@ class Locations(Base):
     land_owner_id = Column(Integer, ForeignKey("LandOwners.id"), nullable=False)
 
     land_owner = relationship("LandOwners")
-
 
     geom = Column(Geometry("POINT"))
 
@@ -285,18 +297,22 @@ class Locations(Base):
     land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
     land_owner = relationship("LandOwners")
 
+
 class LocationTypeLU(Base):
-    '''
+    """
     Defines the type of location, such as well
-    '''
+    """
+
     type_name = Column(String)
     description = Column(String)
+
 
 class LandOwners(Base):
     """
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
     """
+
     contact_name = Column(String)
     organization = Column(String)
     address = Column(String)
@@ -391,13 +407,13 @@ class Wells(Base):
     name = Column(String)
     location_id = Column(Integer, ForeignKey("Locations.id"))
     ra_number = Column(String)  # RA Number is an OSE well identifier
-    osepod = Column(String) #Another OSE identifier?
+    osepod = Column(String)  # Another OSE identifier?
     well_distance_ft: Column(Float)
 
     location = relationship("Locations")
 
-    #waterlevels = relationship("WellMeasurements", back_populates="well")
-    #construction = relationship("WellConstructions", uselist=False)
+    # waterlevels = relationship("WellMeasurements", back_populates="well")
+    # construction = relationship("WellConstructions", uselist=False)
 
 
 class WellConstructions(Base):
@@ -407,8 +423,8 @@ class WellConstructions(Base):
     well_depth = Column(Float, default=0)
     well_id = Column(Integer, ForeignKey("Wells.id"))
 
-    #screens = relationship("ScreenIntervals")
-    #well = relationship("Wells")
+    # screens = relationship("ScreenIntervals")
+    # well = relationship("Wells")
 
 
 class ScreenIntervals(Base):
@@ -431,8 +447,8 @@ class WellMeasurements(Base):
 
     submitting_user = relationship("Users")
 
-    #well = relationship("Wells", back_populates="waterlevels")
-    #observed_property = relationship("ObservedPropertyTypeLU")
+    # well = relationship("Wells", back_populates="waterlevels")
+    # observed_property = relationship("ObservedPropertyTypeLU")
 
 
 class QC(Base):

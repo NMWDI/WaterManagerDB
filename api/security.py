@@ -86,7 +86,7 @@ def get_user(username: str):
             undefer(security_models.Users.email),
             joinedload(security_models.Users.user_role).joinedload(
                 security_models.UserRoles.security_scopes
-            )
+            ),
         )
         .first()
     )
