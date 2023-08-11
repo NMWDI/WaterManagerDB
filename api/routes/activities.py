@@ -41,7 +41,7 @@ activity_router = APIRouter()
 write_user = scoped_user(["read", "activities:write"])
 
 # Process a submitted activity
-# Returns 442 when one or more required fields of ActivityForm are not present
+# Returns 422 when one or more required fields of ActivityForm are not present
 # Returns the new MeterActivity on success
 @activity_router.post(
     "/activities",

@@ -106,7 +106,7 @@ class ActivityForm(ORMBase):
 
     class ObservationForm(ORMBase):
         time: datetime
-        reading: int
+        reading: float
         property_type_id: int
         unit_id: int
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { API_URL } from '../API_config.js'
 import { useAuthHeader } from 'react-auth-kit'
-import { MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, ObservedPropertyTypeLU, Page, ST2WaterLevelMeasurement, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
+import { ActivityTypeLU, MeterListDTO, MeterListQueryParams, NewWaterLevelMeasurement, ObservedPropertyTypeLU, Page, ST2WaterLevelMeasurement, User, WaterLevelQueryParams, WellMeasurementDTO } from '../interfaces.js'
 import { useSnackbar } from 'notistack';
 
 // Generate a query param string with empty and null fields removed
@@ -79,6 +79,24 @@ export function useGetMeterList(params: MeterListQueryParams) {
     )
 }
 
+export function useGetUserList() {
+    const route = 'users'
+    const authHeader = useAuthHeader()
+    return useQuery<User[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+        {keepPreviousData: true}
+    )
+}
+
+export function useGetActivityTypeList() {
+    const route = 'activity_types'
+    const authHeader = useAuthHeader()
+    return useQuery<ActivityTypeLU[], Error>([route, null], () =>
+        GETFetch(route, null, authHeader()),
+        {keepPreviousData: true}
+    )
+}
+
 export function useGetWaterLevels(params: WaterLevelQueryParams) {
     const route = 'waterlevels'
     const authHeader = useAuthHeader()
@@ -125,7 +143,6 @@ export function useCreateWaterLevel() {
             }
             else {
                 enqueueSnackbar('Successfully Created New Measurement!', {variant: 'success'})
-                console.log("SUCCESSFUL POST")
 
                 const responseJson = await response.json()
 
