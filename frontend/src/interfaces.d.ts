@@ -210,7 +210,7 @@ export interface MeterDetails {
     ra_number?: string
     tag?: string
     well_distance_ft?: float
-    description?: string
+    notes?: string
     meter_type_id?: int
     well_id?: int
 

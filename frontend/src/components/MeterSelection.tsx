@@ -24,7 +24,7 @@ export default function MeterSelection({selectedMeter, onMeterChange, error = fa
         <Autocomplete
             disableClearable
             options={meterList.data?.items ?? []}
-            disabled={meterList.isLoading}
+            disabled={meterList.isLoading ?? !selectedMeter}
             getOptionLabel={(op: MeterListDTO) => `${op.serial_number}` + (op.status ? `(${op.status?.status_name})` : '')}
             onChange={(event: any, selectedMeter: MeterListDTO) => {onMeterChange(selectedMeter)}}
             value={selectedMeter}

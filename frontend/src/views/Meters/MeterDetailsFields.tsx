@@ -199,7 +199,8 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
             pathname: '/activities',
             search: createSearchParams({
                 meter_id: selectedMeterID?.toString() ?? '',
-                serial_number: meterDetails.serial_number ?? ''
+                serial_number: meterDetails.serial_number ?? '',
+                meter_status: meterDetails.status.status_name ?? ''
             }).toString()
         })
     }
@@ -340,9 +341,9 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     {/* Fourth Row */}
                     <Grid item xs={12}>
                         <MeterDetailsField
-                            label="Description"
-                            value={meterDetails?.description}
-                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.description = event.target.value}))}}
+                            label="Installation Notes"
+                            value={meterDetails?.notes}
+                            onChange={(event: any) => {setMeterDetails(produce(meterDetails, newDetails => {newDetails.notes = event.target.value}))}}
                             hasAdminScope={hasAdminScope}
                             rows={3}
                         />
