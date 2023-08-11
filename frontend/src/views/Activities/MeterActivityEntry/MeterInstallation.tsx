@@ -54,7 +54,7 @@ function InstallationTextField({label, value, updateCallback, disabled, rows}: I
     )
 }
 
-function WellSelection({selectedWellName, updateCallback, disabled}: any) {
+function WellSelection({selectedWellName, updateCallback, disabled, error = false}: any) {
 
     // If the field is disabled (when not installing), show the well name that came from the meter details in the parent
     if (disabled) {
@@ -94,13 +94,24 @@ function WellSelection({selectedWellName, updateCallback, disabled}: any) {
                 inputValue={wellSearchQuery}
                 onInputChange={(event: any, query: string) => {setWellSearchQuery(query)}}
                 isOptionEqualToValue={(a, b) => {return a.id == b.id}}
-                renderInput={(params: any) => <TextField {...params} size="small" label="Well" placeholder="Begin typing to search" />}
+                renderInput={(params: any) => {
+                    if (params.inputProps.disabled) params.inputProps.value = "Loading..."
+                    return (<TextField
+                        {...params}
+                        required
+                        error={error}
+                        size="small"
+                        label="Well"
+                        placeholder="Begin typing to search"
+                    />)
+                }}
             />
         )
     }
 }
 
 export const MeterInstallation = forwardRef(({activityForm, meterID, activityType}: MeterInstallationProps, submitRef) => {
+    const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
 
     // Exposed submit function to allow parent to request the form values
     React.useImperativeHandle(submitRef, () => {
@@ -113,6 +124,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
                     well_distance_ft: wellDistance,
                     notes: notes
                 }
+                setHasFormSubmitted(true)
             }
         }
     })
@@ -150,7 +162,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
     useEffect(() => {
         setWellID(meterDetails?.well_id ?? undefined)
         setOseTag(meterDetails?.tag ?? '')
-        setNotes(meterDetails?.description ?? '')
+        setNotes(meterDetails?.notes ?? '')
         setContactName(meterDetails?.contact_name ?? '')
         setContactPhone(meterDetails?.contact_phone ?? '')
         setMeterStatus(meterDetails?.status?.status_name ?? '')
@@ -193,6 +205,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
                         selectedWellName={meterDetails?.well?.name ?? ''}
                         updateCallback={setWellID}
                         disabled={isNotActivity([ActivityType.Install])}
+                        error={hasFormSubmitted && !wellID}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -263,7 +276,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
 
             <Grid item xs={12} sx={{mt: 2}}>
                 <InstallationTextField
-                    label="Notes"
+                    label="Installation Notes"
                     value={notes}
                     updateCallback={setNotes}
                     disabled={isActivity([ActivityType.Uninstall])}

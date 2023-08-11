@@ -56,8 +56,10 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
     useEffect(() => {
         const meter_id = searchParams.get('meter_id')
         const serial_number = searchParams.get('serial_number')
+        const meter_status = searchParams.get('meter_status')
         if (meter_id && serial_number) {
-            setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number} as MeterListDTO)
+            setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
+            setMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
         }
     }, [])
 
