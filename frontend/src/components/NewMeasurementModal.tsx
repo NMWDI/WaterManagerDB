@@ -12,15 +12,15 @@ import {
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
-import { NewWaterLevelMeasurement, SecurityScope, User } from "../../interfaces.js";
-import { useApiGET } from '../../service/ApiService'
+import { NewWellMeasurement, SecurityScope, User } from "../interfaces.js";
+import { useApiGET } from '../service/ApiService'
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 
 interface NewMeasurementModalProps {
   isNewMeasurementModalOpen: boolean
   handleCloseNewMeasurementModal: () => void
-  handleSubmitNewMeasurement: (newMeasurement: NewWaterLevelMeasurement) => void
+  handleSubmitNewMeasurement: (newMeasurement: NewWellMeasurement) => void
 }
 
 export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMeasurementModal, handleSubmitNewMeasurement}: NewMeasurementModalProps) {

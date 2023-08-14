@@ -2,15 +2,13 @@ import { Box } from "@mui/material";
 import Plot from 'react-plotly.js';
 import React from 'react'
 
-interface WellObservationsPlotProps {
+interface ChloridesPlotProps {
     manual_dates: Date[]
     manual_vals: number[]
-    logger_dates: Date[]
-    logger_vals: number[]
     isLoading: boolean
 }
 
-export function WellObservationsPlot({manual_dates, manual_vals, logger_dates, logger_vals, isLoading} : WellObservationsPlotProps){
+export function ChloridesPlot({manual_dates, manual_vals, isLoading} : ChloridesPlotProps){
     return(
         <Box sx={{ height: 600, width: 700 }}>
             {isLoading ?
@@ -24,19 +22,12 @@ export function WellObservationsPlot({manual_dates, manual_vals, logger_dates, l
                             mode: 'markers',
                             marker: {color: 'red'},
                             name: 'Manual'
-                        },
-                        {
-                            x: logger_dates,
-                            y: logger_vals,
-                            type: 'scatter',
-                            marker: {color: 'blue'},
-                            name: 'Continuous'
                         }
                     ]}
                     layout={{
                         width: 800,
                         height: 600,
-                        title: "Depth to Water Over Time",
+                        title: "Micrograms Per Liter (ug/L)",
                         titlefont: {size: 18},
                         legend: {
                             title: {
@@ -51,9 +42,8 @@ export function WellObservationsPlot({manual_dates, manual_vals, logger_dates, l
                             }
                         },
                         yaxis: {
-                            autorange: 'reversed',
                             title: {
-                                text: 'Depth to Water (ft)',
+                                text: 'Micrograms Per Liter (ug/L)',
                                 font: {size: 16}
                             }
                         }

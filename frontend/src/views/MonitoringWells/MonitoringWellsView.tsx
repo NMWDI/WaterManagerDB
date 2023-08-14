@@ -2,10 +2,10 @@ import React from 'react'
 import { Box, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
 import { useState } from "react";
 
-import { WellMeasurementsTable } from './WellMeasurementsTable'
-import { WellObservationsPlot } from './WellObservationsPlot'
-import { NewMeasurementModal } from './NewMeasurementModal'
-import { NewWaterLevelMeasurement } from '../../interfaces.js';
+import { MonitoringWellsTable } from './MonitoringWellsTable';
+import { MonitoringWellsPlot } from './MonitoringWellsPlot';
+import { NewMeasurementModal } from '../../components/NewMeasurementModal'
+import { NewWellMeasurement } from '../../interfaces.js';
 import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels } from '../../service/ApiServiceNew';
 
 interface MonitoredWell {
@@ -23,7 +23,7 @@ const monitoredWells: MonitoredWell[] = [
     {id: 6, name: 'Greenfield', datastream_id: 14477},
     {id: 7, name: 'Berrendo-Smith', datastream_id: 14471},
     {id: 8, name: 'Orchard Park', datastream_id: 14476},
-    {id: 9, name: 'Bartlett', datastream_id: 14473},
+    {id: 9, name: 'Bartlett', datastream_id: 24951},
     {id: 10, name: 'Zumwalt', datastream_id: 14468},
 ]
 
@@ -37,7 +37,7 @@ export default function MonitoringWellsView(){
     const handleOpenNewMeasurementModal = () => setIsNewMeasurementModalOpen(true)
     const handleCloseNewMeasurementModal = () => setIsNewMeasurementModalOpen(false)
 
-    function handleSubmitNewMeasurement(measurementData: NewWaterLevelMeasurement) {
+    function handleSubmitNewMeasurement(measurementData: NewWellMeasurement) {
         if (wellID) measurementData.well_id = wellID
         createWaterLevel.mutate(measurementData)
         handleCloseNewMeasurementModal()
@@ -59,9 +59,9 @@ export default function MonitoringWellsView(){
                 </Select>
             </FormControl>
             <Box sx={{ mt: '10px', display: 'flex' }}>
-                <WellMeasurementsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
+                <MonitoringWellsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
 
-                <WellObservationsPlot
+                <MonitoringWellsPlot
                     isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
                     manual_dates={manualWaterLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
                     manual_vals={manualWaterLevelMeasurements.data?.map(measurement => measurement.value) ?? []}

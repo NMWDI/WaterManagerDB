@@ -19,7 +19,7 @@ function Sidebar() {
         return (
             <div className="sidebar">
               <div className="sidebarWrapper">
-        
+
                 {/*Page Menu*/}
                 <div className="sidebarMenu">
                     <h3 className="sidebarTitle">Pages</h3>
@@ -74,7 +74,7 @@ function Sidebar() {
                     </Link>
                     </ul>
                 </div>
-        
+
               </div>
             </div>
           );
