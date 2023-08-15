@@ -14,6 +14,7 @@
 # limitations under the License.
 # ===============================================================================
 from typing import List
+from datetime import datetime
 
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload
@@ -21,7 +22,6 @@ from sqlalchemy import select, and_
 
 from api.schemas import well_schemas
 from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU, Units
-from api.models.security_models import Users
 from api.security import scoped_user
 from api.session import get_db
 
@@ -40,7 +40,7 @@ async def add_waterlevel(
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp = waterlevel.timestamp,
+        timestamp = datetime.combine(waterlevel.timestamp.date(), waterlevel.timestamp.time()), # Convert to UTC
         value = waterlevel.value,
         observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Depth to water')).first(),
         submitting_user_id = waterlevel.submitting_user_id,

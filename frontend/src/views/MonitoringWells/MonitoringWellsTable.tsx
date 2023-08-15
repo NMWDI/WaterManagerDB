@@ -2,6 +2,7 @@ import { Box, Button } from "@mui/material";
 import { DataGrid, GridPagination } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
+import { toGMT6String } from "../../service/ApiServiceNew";
 
 interface MonitoringWellsTableProps {
     rows: WellMeasurementDTO[]
@@ -33,7 +34,7 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
             width: 200,
             valueGetter: (params: any) => {
                 const date = new Date(params.value)
-                return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
+                return toGMT6String(date)
             }
         },
         { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },

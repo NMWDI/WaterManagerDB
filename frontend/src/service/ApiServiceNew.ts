@@ -18,6 +18,16 @@ import {
     WellMeasurementDTO
 } from '../interfaces.js'
 
+// Date display util
+export function toGMT6String(date: Date) {
+    const dateString = (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear() + ' ';
+
+    date.setHours(date.getHours() - 5)
+    const timeString = date.toLocaleTimeString('en-US', {timeZone: "America/Denver", hour: 'numeric', minute: 'numeric', hour12: true})
+
+    return dateString + timeString
+}
+
 // Generate a query param string with empty and null fields removed
 function formattedQueryParams(queryParams: any) {
     if (!queryParams) return ''

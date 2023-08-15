@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, TextField, Grid } from '@mui/material'
 import { MeterHistoryType } from '../../../enums'
 import { NoteTypeLU } from '../../../interfaces'
+import { toGMT6String } from '../../../service/ApiServiceNew'
 
 interface SelectedHistoryDetailsProps {
     selectedHistoryItem: any
@@ -25,7 +26,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
     function formatTime(dateIN: any) {
         if (dateIN == null) return dateIN
         const date = new Date(dateIN)
-        return date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
+        return toGMT6String(date)
     }
 
     function emptyIfNull(value: any) {
