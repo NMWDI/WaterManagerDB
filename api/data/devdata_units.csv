@@ -6,3 +6,4 @@ id,name,name_short,description
 5,Percent,%,Percentage
 6,feet,ft,feet
 7,meters,m,meters
+8,Micrograms per Liter,ug/L,Concentration of substance in a water sample.
