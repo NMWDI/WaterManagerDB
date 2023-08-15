@@ -308,14 +308,21 @@ export interface WellMeasurementDTO {
     submitting_user: {full_name: string}
 }
 
-// Single value from the ST2 endpoint, many other fields are returned, these are the only ones used
-export interface ST2WaterLevelMeasurement {
+// Single value from a NM ST2 endpoint, many other fields are returned, these are the only ones used at the moment
+export interface ST2Measurement {
     result: number
     resultTime: Date
+    phenomenonTime: Date
+}
+
+// Whole response returned from a NM ST2 endpoint
+export interface ST2Response {
+    "@iot.nextLink": string
+    value: []
 }
 
 // The object that gets sent to the backend to add a new measurement
-export interface NewWaterLevelMeasurement {
+export interface NewWellMeasurement {
     well_id: number
     timestamp: Date
     value: number

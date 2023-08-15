@@ -20,6 +20,7 @@ import { useApiGET, useApiPATCH, useDidMountEffect } from '../../service/ApiServ
 import { useAuthUser } from 'react-auth-kit'
 import { produce } from 'immer'
 import { useDebounce } from 'use-debounce'
+import { useGetMeterTypeList } from '../../service/ApiServiceNew'
 
 interface MeterDetailsProps {
     selectedMeterID: number | undefined
@@ -132,18 +133,20 @@ function WellSelection({value, onChange, hasAdminScope}: any) {
 function MeterTypeField({value, onChange, hasAdminScope}: any) {
 
     if (hasAdminScope && value) {
-        const [meterTypeList, setMeterTypeList] = useApiGET<MeterTypeLU[]>('/meter_types', undefined)
+        const meterTypeList = useGetMeterTypeList()
         return (
             <FormControl size="small" sx={{minWidth: '12vw'}} >
                 <InputLabel>Meter Type</InputLabel>
                 <Select
-                    value={value?.meter_type_id ?? ''}
+                    value={meterTypeList.isLoading ? 'loading' : (value?.meter_type_id ?? '')}
                     label="Meter Type"
                     onChange={onChange}
                 >
-                    {meterTypeList?.map((meterType: MeterTypeLU) => {
+                    {meterTypeList.data?.map((meterType: MeterTypeLU) => {
                         return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model_number}</MenuItem>
                     })}
+
+                    {meterTypeList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
                 </Select>
             </FormControl>
         )

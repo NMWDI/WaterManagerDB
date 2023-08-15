@@ -9,9 +9,10 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
 import MetersView from './views/Meters/MetersView'
+import ChloridesView from "./views/Chlorides/ChloridesView";
+
 import Home from "./Home";
 import Topbar from "./components/Topbar";
-import ChloridesView from "./ChloridesView";
 import PartsView from "./PartsView";
 import AlertsView from "./AlertsView";
 import Login from './login';

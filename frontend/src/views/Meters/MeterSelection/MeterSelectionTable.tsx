@@ -5,9 +5,10 @@ import { useDebounce } from 'use-debounce'
 import { Box } from '@mui/material'
 import { DataGrid, GridSortModel } from '@mui/x-data-grid'
 
-import { useApiGET, useDidMountEffect } from '../../../service/ApiService'
-import { Page, MeterListDTO, MeterListQueryParams } from '../../../interfaces'
+import { useDidMountEffect } from '../../../service/ApiService'
+import { MeterListQueryParams } from '../../../interfaces'
 import { SortDirection, MeterSortByField } from '../../../enums'
+import { useGetMeterList } from '../../../service/ApiServiceNew'
 
 interface MeterSelectionTableProps {
     onMeterSelection: Function
@@ -30,7 +31,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
     const [gridPageSize, setGridPageSize] = useState<number>(25)
     const [gridRowCount, setGridRowCount] = useState<number>(100)
 
-    const [meterList,  setMeterList]: [Page<MeterListDTO>, Function] = useApiGET<Page<MeterListDTO>>('/meters', {items: [], total: 0, limit: 50, offset: 0}, meterListQueryParams)
+    const meterList = useGetMeterList(meterListQueryParams)
 
     const meterTableColumns = [
         {
@@ -48,7 +49,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
             field: 'well2',
             headerName: 'Land Owner',
             valueGetter: ({ id }: any) => {
-                const item = meterList.items.find(item => item.id === id);
+                const item = meterList.data?.items.find(item => item.id === id);
                 return item?.well?.location?.land_owner?.organization;
             },
             width: 200
@@ -57,7 +58,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
             field: 'ra_number',
             headerName: 'RA Number',
             valueGetter: ({ id }: any) => {
-                const item = meterList.items.find(item => item.id === id);
+                const item = meterList.data?.items.find(item => item.id === id);
                 return item?.well?.ra_number;
             },
             width: 100
@@ -78,13 +79,14 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
     }, [meterSearchQueryDebounced, gridSortModel, gridPage, gridPageSize])
 
     useEffect(() => {
-        setGridRowCount(meterList.total) // Update the meter count when new list is recieved from API
+        setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API
     }, [meterList])
 
     return (
             <Box sx={{height: '100%'}}>
                 <DataGrid
-                    rows={meterList.items}
+                    rows={meterList.data?.items ?? []}
+                    loading={meterList.isPreviousData}
                     columns={meterTableColumns}
                     sortingMode='server'
                     onSortModelChange={setGridSortModel}
