@@ -63,6 +63,7 @@ admin_role = UserRoles(
         activities_write_scope,
         well_measurements_write_scope,
         reports_run_scope,
+        ose_scope,
         admin_scope,
     ],
 )

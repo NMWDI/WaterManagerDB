@@ -7,28 +7,19 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from datetime import datetime
 
-from api.schemas.meter_schemas import (
-    ObservedPropertyTypeLU,
-    MeterActivity,
-    ActivityForm
-)
+from api.schemas.meter_schemas import ( ActivityForm )
 from api.models.main_models import (
     Meters,
+    ObservedPropertyTypeLU,
     Parts,
     ActivityTypeLU,
-    ObservedPropertyTypeLU,
     Units,
-    PartsUsed,
-    LandOwners,
     MeterActivities,
     MeterObservations,
-    PropertyUnits,
     ServiceTypeLU,
     NoteTypeLU,
     PartAssociation,
     Wells,
-    Notes,
-    ServicesPerformed,
     Locations,
     MeterStatusLU
 )
@@ -38,14 +29,15 @@ from api.session import get_db
 
 activity_router = APIRouter()
 
-write_user = scoped_user(["read", "activities:write"])
+activity_write_user = scoped_user(["read", "activities:write"])
+read_user = scoped_user(["read"])
 
 # Process a submitted activity
 # Returns 422 when one or more required fields of ActivityForm are not present
 # Returns the new MeterActivity on success
 @activity_router.post(
     "/activities",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(activity_write_user)],
     tags=["Activities"],
 )
 async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_db)):
@@ -145,7 +137,7 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
 
 @activity_router.get(
     "/activity_types",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_activity_types(db: Session = Depends(get_db)):
@@ -153,7 +145,7 @@ async def get_activity_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/users",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_users(db: Session = Depends(get_db)):
@@ -161,7 +153,7 @@ async def get_users(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/units",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_units(db: Session = Depends(get_db)):
@@ -169,7 +161,7 @@ async def get_units(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/observed_property_types",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_observed_property_types(db: Session = Depends(get_db)):
@@ -180,7 +172,7 @@ async def get_observed_property_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/service_types",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_service_types(db: Session = Depends(get_db)):
@@ -188,7 +180,7 @@ async def get_service_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/note_types",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_note_types(db: Session = Depends(get_db)):
@@ -196,7 +188,7 @@ async def get_note_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/parts",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_parts(db: Session = Depends(get_db)):
@@ -204,7 +196,7 @@ async def get_parts(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/meter_parts",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(read_user)],
     tags=["Activities"],
 )
 async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
