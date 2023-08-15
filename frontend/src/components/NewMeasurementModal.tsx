@@ -12,22 +12,23 @@ import {
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
-import { NewWaterLevelMeasurement, SecurityScope, User } from "../../interfaces.js";
-import { useApiGET } from '../../service/ApiService'
+import { NewWellMeasurement, SecurityScope, User } from "../interfaces.js";
+import { useApiGET } from '../service/ApiService'
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { useGetUserList } from "../service/ApiServiceNew";
 
 interface NewMeasurementModalProps {
   isNewMeasurementModalOpen: boolean
   handleCloseNewMeasurementModal: () => void
-  handleSubmitNewMeasurement: (newMeasurement: NewWaterLevelMeasurement) => void
+  handleSubmitNewMeasurement: (newMeasurement: NewWellMeasurement) => void
 }
 
 export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMeasurementModal, handleSubmitNewMeasurement}: NewMeasurementModalProps) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
-    const [userList, setUserList] = useApiGET<User[]>('/users', [])
+    const userList = useGetUserList()
     const [value, setValue] = useState<number | null>(null)
     const [selectedUserID, setSelectedUserID] = useState<number | string>('')
     const [date, setDate] = useState<Dayjs | null>(dayjs())
@@ -53,11 +54,12 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                 <FormControl size="small" fullWidth required>
                     <InputLabel>User</InputLabel>
                     <Select
-                        value={selectedUserID}
+                        value={userList.isLoading ? 'loading' : selectedUserID}
                         onChange={(event: any) => setSelectedUserID(event.target.value)}
                         label="User"
                     >
-                        {userList.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.full_name}</MenuItem>)}
+                        {userList.data?.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.full_name}</MenuItem>)}
+                        {userList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
                     </Select>
                 </FormControl>
             )

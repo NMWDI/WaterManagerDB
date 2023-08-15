@@ -4,7 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
-V0 - Initial minimum viable product
+V0.0 - Initial minimum viable product
 
 ## Purpose
 This web app facilitates reporting of water management operations to other organizations. The initial goal is to help water conservation districts communicate with local and state governments. However, the interface may eventually be developed to be more general.

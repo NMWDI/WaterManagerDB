@@ -3,7 +3,7 @@ import { DataGrid, GridPagination } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
 
-interface WellMeasurementsTableProps {
+interface ChloridesTableProps {
     rows: WellMeasurementDTO[]
     onOpenModal: () => void
     isWellSelected: boolean
@@ -25,7 +25,7 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
     )
 }
 
-export function WellMeasurementsTable({rows, onOpenModal, isWellSelected}: WellMeasurementsTableProps){
+export function ChloridesTable({rows, onOpenModal, isWellSelected}: ChloridesTableProps){
     const columns = [
         {
             field: 'timestamp',
@@ -36,7 +36,7 @@ export function WellMeasurementsTable({rows, onOpenModal, isWellSelected}: WellM
                 return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
             }
         },
-        { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },
+        { field: 'value', headerName: 'mg Per Liter (mg/L)', width: 175 },
         {
             field: 'submitting_user',
             headerName: 'User',

@@ -88,7 +88,6 @@ export default function Login() {
                 </div>
                 <Button type="submit" variant="contained">Login</Button>
             </Box>
-            <a>Forgot Password?</a>
         </Box>
     );
 }

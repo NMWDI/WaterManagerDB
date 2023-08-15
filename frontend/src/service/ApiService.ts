@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAuthHeader } from 'react-auth-kit'
 import { API_URL } from '../API_config.js'
+import { convertToObject } from 'typescript'
 
 export function useDidMountEffect(func: Function, dependencies: any) {
     const didMount = useRef(false)
@@ -13,6 +14,7 @@ export function useDidMountEffect(func: Function, dependencies: any) {
 
 // Return a query param string with empty and null fields removed
 function formattedQueryParams(queryParams: any) {
+    if (!queryParams) return ''
     let queryParamString = '?';
     let params = {...queryParams}
 
@@ -31,6 +33,11 @@ export function useApiGET<T>(route: string, initialValue: any, queryParams: any 
     const [response, setResponse] = useState<T>(initialValue)
     const didMount = useRef(false)
     const authHeader = useAuthHeader()
+
+    console.log('In UseApiGET')
+    console.log('Route: ' + route)
+    console.log('Query Params: ' + queryParams)
+    console.log(dontFetchWithoutParams)
 
     const auth_headers = {
         "Authorization": authHeader()

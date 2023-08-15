@@ -17,7 +17,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
 import { ActivityForm, NoteTypeLU } from '../../../interfaces'
 import { WorkingOnArrivalValue } from '../../../enums'
-import { useApiGET } from '../../../service/ApiService'
+import { useGetNoteTypes } from '../../../service/ApiServiceNew'
 
 interface NotesSelectionProps {
     activityForm: React.MutableRefObject<ActivityForm>
@@ -42,7 +42,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
     const [selectedNoteIDs, setSelectedNoteIDs] = useState<number[]>([]) // Notes toggled by the user
     const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([1, 2, 3]) // The default notes, and user-added ones from select dropdown
 
-    const [notesList, setNotesList] = useApiGET<NoteTypeLU[]>('/note_types', [])
+    const notesList = useGetNoteTypes()
 
     function isSelected(ID: number) {
         return selectedNoteIDs.some(x => x == ID)
@@ -103,7 +103,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
                         {/*  Show all default and user-added notes as toggle buttons */}
-                        {notesList.map((note: any) => {
+                        {notesList.data?.map((note: any) => {
                             if(visibleNoteIDs.some(x => x == note.id)) {
                                 return <NoteToggleButton note={note} />
                             }
@@ -126,7 +126,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
                             >
 
                                 {/*  List of notes not already visible, quick fix to exclude notes shown in the tri-state selection */}
-                                {notesList.map((nt: NoteTypeLU) => {
+                                {notesList.data?.map((nt: NoteTypeLU) => {
                                     if(
                                         !visibleNoteIDs.some(x => x == nt.id) &&
                                         ![WorkingOnArrivalValue.Working, WorkingOnArrivalValue.NotWorking, WorkingOnArrivalValue.NotChecked]
