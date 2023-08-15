@@ -6,7 +6,9 @@ import {
     ActivityTypeLU,
     MeterListDTO,
     MeterListQueryParams,
+    MeterTypeLU,
     NewWellMeasurement,
+    NoteTypeLU,
     ObservedPropertyTypeLU,
     Page,
     ST2Measurement,
@@ -105,12 +107,28 @@ async function POSTFetch(route: string, object: any, authHeader: string) {
     })
 }
 
-export function useGetMeterList(params: MeterListQueryParams) {
+export function useGetMeterList(params: MeterListQueryParams | undefined) {
     const route = 'meters'
     const authHeader = useAuthHeader()
     return useQuery<Page<MeterListDTO>, Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
         {keepPreviousData: true}
+    )
+}
+
+export function useGetMeterTypeList() {
+    const route = 'meter_types'
+    const authHeader = useAuthHeader()
+    return useQuery<MeterTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
+export function useGetNoteTypes() {
+    const route = 'note_types'
+    const authHeader = useAuthHeader()
+    return useQuery<NoteTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
     )
 }
 
