@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
-import { Box, Button, Grid } from '@mui/material'
+import { useState, useRef } from 'react'
+import { Button, Grid } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
 import { MeterActivitySelection } from './MeterActivitySelection'
@@ -11,20 +11,25 @@ import { MeterInstallation } from './MeterInstallation'
 import { MaintenanceRepairSelection } from './MaintenanceRepairSelection'
 import { PartsSelection } from './PartsSelection'
 
-import { ActivityForm, ActivityTypeLU, MeterActivity, MeterListDTO } from '../../../interfaces.d'
+import { ActivityForm, MeterListDTO } from '../../../interfaces.d'
 import { ActivityType } from '../../../enums'
-import { useApiPOST, useDidMountEffect } from '../../../service/ApiService'
+import { useCreateActivity } from '../../../service/ApiServiceNew'
 
 interface FormSubmitRef {
     onSubmit: Function
 }
 
 export default function MeterActivityEntry() {
+    function onSuccessfulSubmit() {
+        enqueueSnackbar('Successfully Submitted Activity!', {variant: 'success'})
+        navigate('/meters')
+    }
+
     const { enqueueSnackbar } = useSnackbar()
     const activityForm = useRef<ActivityForm>({})
     const [meter, setMeter] = useState<MeterListDTO>()
     const [activityType, setActivityType] = useState<ActivityType>()
-    const [postRespData, postRespCode, postForm] = useApiPOST<MeterActivity | Error>('/activities')
+    const createActivity = useCreateActivity(onSuccessfulSubmit)
 
     const navigate = useNavigate()
     const activitySelectionRef = useRef<FormSubmitRef>()
@@ -43,22 +48,8 @@ export default function MeterActivityEntry() {
         notesRef.current?.onSubmit()
         partsRef.current?.onSubmit()
 
-        postForm(activityForm.current)
+        createActivity.mutate(activityForm.current)
     }
-
-    useDidMountEffect(() => {
-        if (!postRespCode) return
-        if(postRespCode == 200) {
-            enqueueSnackbar('Successfully Submitted Activity!', {variant: 'success'})
-            navigate('/meters')
-        }
-        else if (postRespCode == 422) {
-            enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
-        }
-        else {
-            enqueueSnackbar('Error Submitting Activity!', {variant: 'error'})
-        }
-    }, [postRespData]) // effect on data, since code could remain the same across multiple requests
 
     const meterActivityConflict = ((meter?.status?.status_name == 'Installed' && activityType == ActivityType.Install) ||
                                     (meter?.status?.status_name != 'Installed' && activityType != undefined && activityType == ActivityType.Uninstall))
@@ -94,7 +85,6 @@ export default function MeterActivityEntry() {
                         meterID={meter.id}
                         ref={maintenanceRef}
                     />
-
                     <NotesSelection
                         activityForm={activityForm}
                         meterID={meter.id}

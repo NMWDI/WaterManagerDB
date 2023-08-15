@@ -1,15 +1,17 @@
 import React from 'react'
 
-import {MapContainer, Marker, Popup, TileLayer, useMap} from 'react-leaflet';
-import { useApiGET } from '../../../service/ApiService';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useGetMeterLocations } from '../../../service/ApiServiceNew';
 
+// The leaflet map needs this for some reason
 const icon = require('leaflet/dist/images/marker-icon.png');
 const iconShadow = require('leaflet/dist/images/marker-shadow.png');
 const DefaultIcon = L.icon({iconUrl: icon, shadowUrl: iconShadow})
+
 L.Marker.prototype.options.icon = DefaultIcon
 
 interface MeterSelectionMapProps {
@@ -17,14 +19,14 @@ interface MeterSelectionMapProps {
 }
 
 export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
-    const [meters, setMeters] = useApiGET<MeterMapDTO[]>('/meters_locations', [])
+    const meters = useGetMeterLocations()
 
     const mapStyle = {
         height: '100%',
         width: '100%'
     }
 
-    const meterMarkers = meters.map((meter: any) => {
+    const meterMarkers = meters.data?.map((meter: MeterMapDTO) => {
             return (
                 <Marker
                     key={meter.id}

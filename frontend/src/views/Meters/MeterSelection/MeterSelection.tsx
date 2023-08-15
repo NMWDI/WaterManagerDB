@@ -5,7 +5,7 @@ import MeterSelectionTable from './MeterSelectionTable'
 import MeterSelectionMap from './MeterSelectionMap'
 import TabPanel from '../../../components/TabPanel'
 
-import { Box, Tabs, Tab, TextField, Grid, Autocomplete } from '@mui/material'
+import { Box, Tabs, Tab, TextField, Grid } from '@mui/material'
 
 interface MeterSelectionProps {
   onMeterSelection: Function

@@ -11,7 +11,7 @@ import { toGMT6String } from '../../../service/ApiServiceNew'
 
 interface MeterHistoryTableProps {
     onHistoryItemSelection: Function
-    selectedMeterHistory: MeterHistoryDTO[]
+    selectedMeterHistory: MeterHistoryDTO[] | undefined
 }
 
 export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {

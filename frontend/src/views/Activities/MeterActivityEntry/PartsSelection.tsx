@@ -13,15 +13,11 @@ import ToggleButton from '@mui/material/ToggleButton'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
 import { ActivityForm, PartAssociation } from '../../../interfaces'
-import { useApiGET } from '../../../service/ApiService'
+import { useGetPartsList } from '../../../service/ApiServiceNew'
 
 interface PartsSelectionProps {
     activityForm: React.MutableRefObject<ActivityForm>
     meterID: number | null
-}
-
-interface MeterPartParams {
-    meter_id: number
 }
 
 export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectionProps, submitRef) => {
@@ -35,25 +31,19 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
         }
     })
 
-    const [meterPartParams, setMeterPartParams] = useState<MeterPartParams>()
-    const [partsList, setPartsList] = useApiGET<PartAssociation[]>('/meter_parts', [], meterPartParams, true)
+    const partsList = useGetPartsList({meter_id: meterID ?? undefined})
     const [selectedPartIDs, setSelectedPartIDs] = useState<number[]>([]) // Parts toggled by the user
     const [visiblePartIDs, setVisiblePartIDs] = useState<number[]>([]) // The default parts, and user-added ones from select dropdown
-
-    // Get updated parts list on meter change
-    useEffect(() => {
-        if (meterID != null) setMeterPartParams({meter_id: meterID})
-    }, [meterID])
 
     // Set commonly used parts visible by default
     useEffect(() => {
         setVisiblePartIDs(
-            partsList
-                .filter((pa: PartAssociation) => pa.commonly_used == true)
-                .map((pa: PartAssociation) => pa.part_id)
+            partsList.data?.
+                filter((pa: PartAssociation) => pa.commonly_used == true)
+                .map((pa: PartAssociation) => pa.part_id) ?? []
         )
         setSelectedPartIDs([])
-    }, [partsList])
+    }, [partsList.data])
 
     function isSelected(ID: number) {
         return selectedPartIDs.some(x => x == ID)
@@ -95,7 +85,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
                         {/*  Show all default and user-added parts as toggle buttons */}
-                        {partsList.map((pa: PartAssociation) => {
+                        {partsList.data?.map((pa: PartAssociation) => {
                             if(visiblePartIDs.some(x => x == pa.part_id)) {
                                 return <PartToggleButton pa={pa} />
                             }
@@ -117,7 +107,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                                 }}
                             >
                                 {/*  Show list of parts that aren't already visible */}
-                                {partsList.map((pa: PartAssociation) => {
+                                {partsList.data?.map((pa: PartAssociation) => {
                                     if(!visiblePartIDs.some(x => x == pa.part_id)) {
                                         return <MenuItem key={pa.part_id} value={pa.part_id}>{`${pa.part?.description} (${pa.part?.part_number})`}</MenuItem>
                                     }
