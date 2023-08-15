@@ -14,6 +14,7 @@
 # limitations under the License.
 # ===============================================================================
 from typing import List
+from datetime import datetime
 
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload
@@ -21,30 +22,16 @@ from sqlalchemy import select, and_
 
 from api.schemas import well_schemas
 from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU, Units
-from api.models.security_models import Users
-from api.route_util import _add, _patch
 from api.security import scoped_user
 from api.session import get_db
 
 well_measurement_router = APIRouter()
-write_user = scoped_user(["read", "well_measurement:write"])
-
-# Not up to date
-# @well_measurement_router.patch(
-#     "/waterlevels/{waterlevel_id}",
-#     response_model=well_schemas.WaterLevel,
-#     dependencies=[Depends(write_user)],
-#     tags=["waterlevels"],
-# )
-# async def patch_waterlevel(
-#     waterlevel_id: int, obj: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)
-# ):
-#     return _patch(db, WellMeasurements, waterlevel_id, obj)
-
+measurement_write_user = scoped_user(["well_measurement:write"])
+read_user = scoped_user(["read"])
 
 @well_measurement_router.post(
     "/waterlevels",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(measurement_write_user)],
     response_model=well_schemas.WellMeasurement,
     tags=["waterlevels"],
 )
@@ -53,7 +40,7 @@ async def add_waterlevel(
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp = waterlevel.timestamp,
+        timestamp = datetime.combine(waterlevel.timestamp.date(), waterlevel.timestamp.time()), # Convert to UTC
         value = waterlevel.value,
         observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Depth to water')).first(),
         submitting_user_id = waterlevel.submitting_user_id,
@@ -69,7 +56,7 @@ async def add_waterlevel(
 
 @well_measurement_router.post(
     "/chlorides",
-    dependencies=[Depends(write_user)],
+    dependencies=[Depends(measurement_write_user)],
     response_model=well_schemas.WellMeasurement,
     tags=["waterlevels"],
 )
@@ -93,8 +80,9 @@ async def add_chloride_measurement(
 
 @well_measurement_router.get(
     "/waterlevels",
+    dependencies=[Depends(read_user)],
     response_model=List[well_schemas.WellMeasurementDTO],
-    tags=["waterlevels"],
+    tags=["chlorides"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
@@ -111,7 +99,10 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 
 
 @well_measurement_router.get(
-    "/chlorides", response_model=List[well_schemas.WellMeasurementDTO], tags=["chlorides"]
+    "/chlorides",
+    dependencies=[Depends(read_user)],
+    response_model=List[well_schemas.WellMeasurementDTO],
+    tags=["chlorides"]
 )
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
@@ -125,25 +116,6 @@ async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
                 )
             )
     ).all()
-
-
-def _read_well_measurement(db, obsprop, well_id):
-    stmt = (
-        select(
-            WellMeasurements.id,
-            WellMeasurements.well_id,
-            WellMeasurements.timestamp,
-            WellMeasurements.value,
-            Users.full_name.label("technician"),
-        )
-        .join(Users)
-        .join(ObservedPropertyTypeLU)
-        .where(ObservedPropertyTypeLU.name == obsprop)
-        .where(WellMeasurements.well_id == well_id)
-    )
-    # print(stmt)
-    results = db.execute(stmt)
-    return results.all()
 
 
 # ============= EOF =============================================

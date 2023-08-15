@@ -49,6 +49,7 @@ class DateHistoryDTO(BaseModel):
 
 @ose_router.get(
         "/ose_well_history",
+        dependencies=[Depends(ose_user)],
         response_model=List[DateHistoryDTO],
         tags=["OSE"]
     )
