@@ -12,8 +12,7 @@ import {
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
-import { NewWellMeasurement, SecurityScope, User } from "../interfaces.js";
-import { useApiGET } from '../service/ApiService'
+import { NewWellMeasurement, SecurityScope } from "../interfaces.js";
 import dayjs, { Dayjs } from "dayjs";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { useGetUserList } from "../service/ApiServiceNew";

@@ -3,18 +3,14 @@ import { useState, useEffect, forwardRef } from 'react'
 import {
     TextField,
     Grid,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Autocomplete
 } from '@mui/material'
 
 import { gridBreakpoints } from '../ActivitiesView'
-import { WellSearchQueryParams, ActivityForm, MeterDetails, MeterDetailsQueryParams, WellDetailsQueryParams, Well, Page } from '../../../interfaces'
+import { ActivityForm, Well } from '../../../interfaces'
 import { ActivityType } from '../../../enums'
-import { useApiGET } from '../../../service/ApiService'
 import { useDebounce } from 'use-debounce'
+import { useGetMeter, useGetWell, useGetWells } from '../../../service/ApiServiceNew'
 
 interface MeterInstallationProps {
     activityForm: React.MutableRefObject<ActivityForm>,
@@ -74,20 +70,16 @@ function WellSelection({selectedWellName, updateCallback, disabled, error = fals
 
     // If the user should be allowed to select a well (when installing), manage it all here and tell the parent which well ID is selected
     else {
-        const [wellSearchQueryParams, setWellSearchQueryParams] = useState<WellSearchQueryParams>()
         const [wellSearchQuery, setWellSearchQuery] = useState<string>('')
         const [wellSearchQueryDebounced] = useDebounce(wellSearchQuery, 250)
-        const [wellList, setWellList] = useApiGET<Page<Well>>('/wells', [], wellSearchQueryParams, true)
+        const wellList = useGetWells({search_string: wellSearchQueryDebounced})
         const [selectedWell, setSelectedWell] = useState<Well>()
-
-        useEffect(() => {
-            setWellSearchQueryParams({search_string: wellSearchQueryDebounced})
-        }, [wellSearchQueryDebounced])
 
         return (
             <Autocomplete
                 disableClearable
-                options={wellList.items}
+                options={wellList.data?.items ?? []}
+                disabled={wellList.isLoading}
                 getOptionLabel={(well: Well) => {return well.name ?? ''}}
                 onChange={(event: any, selectedWell: Well) => {updateCallback(selectedWell.id)}}
                 value={selectedWell}
@@ -132,8 +124,6 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
     const [contactName, setContactName] = useState<string>('')
     const [contactPhone, setContactPhone] = useState<string>('')
     const [wellID, setWellID] = useState<number | undefined | string>()
-    const [latitude, setLatitude] = useState<number | undefined>()
-    const [longitude, setLongitude] = useState<number | undefined>()
     const [trss, setTrss] = useState<string>('')
     const [raNumber, setRaNumber] = useState<string>('')
     const [oseTag, setOseTag] = useState<string>('')
@@ -142,11 +132,8 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
     const [locationName, setLocationName] = useState<string>('')
     const [meterStatus, setMeterStatus] = useState<string>('')
 
-    const [meterDetailsQueryParams, setMeterDetailsQueryParams] = useState<MeterDetailsQueryParams>()
-    const [meterDetails, setMeterDetails] = useApiGET<MeterDetails>('/meter', undefined, meterDetailsQueryParams, true)
-
-    const [wellDetailsQueryParams, setWellDetailsQueryParams] = useState<WellDetailsQueryParams>()
-    const [wellDetails, setWellDetails] = useApiGET<Well>('/well', undefined, wellDetailsQueryParams, true)
+    const meterDetails = useGetMeter({meter_id: meterID ?? undefined})
+    const wellDetails = useGetWell({well_id: wellID as number})
 
     // Clear well and location related fields if install is selected
     useEffect(() => {
@@ -158,24 +145,20 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
     }, [activityType])
 
     // Update meter related fields on new meter selection
-    useEffect(() => {if (meterID != undefined) setMeterDetailsQueryParams({meter_id: meterID})}, [meterID])
     useEffect(() => {
-        setWellID(meterDetails?.well_id ?? undefined)
-        setOseTag(meterDetails?.tag ?? '')
-        setNotes(meterDetails?.notes ?? '')
-        setContactName(meterDetails?.contact_name ?? '')
-        setContactPhone(meterDetails?.contact_phone ?? '')
-        setMeterStatus(meterDetails?.status?.status_name ?? '')
+        setWellID(meterDetails.data?.well_id ?? undefined)
+        setOseTag(meterDetails.data?.tag ?? '')
+        setNotes(meterDetails.data?.notes ?? '')
+        setContactName(meterDetails.data?.contact_name ?? '')
+        setContactPhone(meterDetails.data?.contact_phone ?? '')
+        setMeterStatus(meterDetails.data?.status?.status_name ?? '')
     }, [meterDetails])
 
     // Update well related fields on new well selection
-    useEffect(() => { if (wellID != undefined) {setWellDetailsQueryParams({well_id: wellID as number})}}, [wellID])
     useEffect(() => {
-        setLongitude(wellDetails?.location?.longitude ?? '')
-        setLatitude(wellDetails?.location?.latitude ?? '')
-        setTrss(wellDetails?.location?.trss ?? '')
-        setRaNumber(wellDetails?.ra_number ?? '')
-        setLocationName(wellDetails?.location?.name ?? '')
+        setTrss(wellDetails.data?.location?.trss ?? '')
+        setRaNumber(wellDetails.data?.ra_number ?? '')
+        setLocationName(wellDetails.data?.location?.name ?? '')
     }, [wellDetails, meterDetails])
 
     function isNotActivity(activitiesList: ActivityType[]) {
@@ -202,7 +185,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
                 </Grid>
                 <Grid item xs={4}>
                     <WellSelection
-                        selectedWellName={meterDetails?.well?.name ?? ''}
+                        selectedWellName={meterDetails.data?.well?.name ?? ''}
                         updateCallback={setWellID}
                         disabled={isNotActivity([ActivityType.Install])}
                         error={hasFormSubmitted && !wellID}

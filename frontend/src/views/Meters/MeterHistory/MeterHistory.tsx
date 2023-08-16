@@ -1,26 +1,18 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Box, Grid } from '@mui/material'
 
 import MeterHistoryTable from './MeterHistoryTable'
 import SelectedHistoryDetails from './SelectedHistoryDetails'
-import { useApiGET } from '../../../service/ApiService'
-import { MeterHistoryDTO } from '../../../interfaces'
+import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 
 interface MeterHistoryProps {
     selectedMeterID: number | undefined
 }
 
 export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
-    const [meterHistoryQueryParams, setMeterHistoryQueryParams] = useState<any>()
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
-
-    const [meterHistory, setMeterHistory] = useApiGET<MeterHistoryDTO[]>('/meter_history', [], meterHistoryQueryParams, true)
-
-    useEffect(() => {
-        if (selectedMeterID == null) return
-        setMeterHistoryQueryParams({meter_id: selectedMeterID})
-    }, [selectedMeterID])
+    const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
 
     return (
             <Box sx={{width: '100%'}}>
@@ -28,7 +20,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
                 <Grid container spacing={6} sx={{height: '40vh', minHeight: '300px'}}>
                     <Grid item xs={5}>
-                        <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory}/>
+                        <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                     </Grid>
                     <Grid item xs={7}>
                         <SelectedHistoryDetails selectedHistoryItem={selectedHistoryItem} />

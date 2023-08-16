@@ -113,6 +113,10 @@ export interface MeterDetailsQueryParams {
     meter_id: number | undefined
 }
 
+export interface MeterPartParams {
+    meter_id: number | undefined
+}
+
 export interface WellDetailsQueryParams {
     well_id: number | undefined
 }
