@@ -211,7 +211,7 @@ if testing:
             qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,submitting_user_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
             cursor.copy_expert(qry, f)
 
-#Create geometries from location lat longs
+# Create geometries from location lat longs
 cursor.execute('update "Locations" set geom = ST_MakePoint(longitude,latitude)')
 
 conn.commit()

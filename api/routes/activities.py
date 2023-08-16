@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from datetime import datetime
 
-from api.schemas.meter_schemas import ( ActivityForm )
+from api.schemas.meter_schemas import ActivityForm
 from api.models.main_models import (
     Meters,
     ObservedPropertyTypeLU,

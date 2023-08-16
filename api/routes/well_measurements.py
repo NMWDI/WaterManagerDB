@@ -29,6 +29,7 @@ well_measurement_router = APIRouter()
 measurement_write_user = scoped_user(["well_measurement:write"])
 read_user = scoped_user(["read"])
 
+
 @well_measurement_router.post(
     "/waterlevels",
     dependencies=[Depends(measurement_write_user)],
@@ -40,12 +41,18 @@ async def add_waterlevel(
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp = datetime.combine(waterlevel.timestamp.date(), waterlevel.timestamp.time()), # Convert to UTC
-        value = waterlevel.value,
-        observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Depth to water')).first(),
-        submitting_user_id = waterlevel.submitting_user_id,
-        unit_id = db.scalars(select(Units.id).where(Units.name == 'feet')).first(),
-        well_id = waterlevel.well_id
+        timestamp=datetime.combine(
+            waterlevel.timestamp.date(), waterlevel.timestamp.time()
+        ),  # Convert to UTC
+        value=waterlevel.value,
+        observed_property_id=db.scalars(
+            select(ObservedPropertyTypeLU.id).where(
+                ObservedPropertyTypeLU.name == "Depth to water"
+            )
+        ).first(),
+        submitting_user_id=waterlevel.submitting_user_id,
+        unit_id=db.scalars(select(Units.id).where(Units.name == "feet")).first(),
+        well_id=waterlevel.well_id,
     )
 
     db.add(well_measurement)

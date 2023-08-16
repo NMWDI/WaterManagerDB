@@ -120,7 +120,7 @@ async def get_meters(
     "/meters_locations",
     dependencies=[Depends(read_user)],
     response_model=List[meter_schemas.MeterMapDTO],
-    tags=["meters"]
+    tags=["meters"],
 )
 async def get_meters_locations(
     db: Session = Depends(get_db),
@@ -145,7 +145,7 @@ async def get_meters_locations(
     "/meter",
     dependencies=[Depends(read_user)],
     response_model=meter_schemas.Meter,
-    tags=["meters"]
+    tags=["meters"],
 )
 async def get_meter(
     meter_id: int,
@@ -166,7 +166,7 @@ async def get_meter(
     "/meter_types",
     dependencies=[Depends(read_user)],
     response_model=List[meter_schemas.MeterTypeLU],
-    tags=["meters"]
+    tags=["meters"],
 )
 async def get_meter_types(
     db: Session = Depends(get_db),
@@ -178,7 +178,7 @@ async def get_meter_types(
     "/land_owners",
     dependencies=[Depends(read_user)],
     response_model=List[well_schemas.LandOwner],
-    tags=["meters"]
+    tags=["meters"],
 )
 async def get_land_owners(
     db: Session = Depends(get_db),
@@ -190,7 +190,7 @@ async def get_land_owners(
     "/wells",
     dependencies=[Depends(read_user)],
     response_model=LimitOffsetPage[well_schemas.WellListDTO],
-    tags=["meters"]
+    tags=["meters"],
 )
 async def get_wells(
     # offset: int, limit: int - From fastapi_pagination
@@ -204,16 +204,14 @@ async def get_wells(
 
     return paginate(db, queryStatement)
 
+
 @meter_router.get(
     "/well",
     dependencies=[Depends(read_user)],
     response_model=well_schemas.Well,
-    tags=["meters"]
+    tags=["meters"],
 )
-async def get_well(
-    well_id: int,
-    db: Session = Depends(get_db)
-):
+async def get_well(well_id: int, db: Session = Depends(get_db)):
     return db.scalars(
         select(Wells)
         .options(
@@ -238,11 +236,7 @@ async def patch_meter(
 
 # Build a list of a meter's history (activities and observations)
 # There's no real defined structure/schema to this on the front or backend
-@meter_router.get(
-    "/meter_history",
-    dependencies=[Depends(read_user)],
-    tags=["meters"]
-)
+@meter_router.get("/meter_history", dependencies=[Depends(read_user)], tags=["meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     class HistoryType(Enum):
         Activity = "Activity"
