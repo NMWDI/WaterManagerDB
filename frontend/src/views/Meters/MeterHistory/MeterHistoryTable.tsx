@@ -7,9 +7,11 @@ import { DataGrid } from '@mui/x-data-grid'
 import { MeterHistoryType } from '../../../enums'
 import { MeterHistoryDTO } from '../../../interfaces'
 
+import { toGMT6String } from '../../../service/ApiServiceNew'
+
 interface MeterHistoryTableProps {
     onHistoryItemSelection: Function
-    selectedMeterHistory: MeterHistoryDTO[]
+    selectedMeterHistory: MeterHistoryDTO[] | undefined
 }
 
 export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
@@ -28,7 +30,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             headerName: 'Date',
             valueGetter: (params: any) => {
                 const date = new Date(params.value)
-                return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
+                return toGMT6String(date)
             },
             width: 200
         },

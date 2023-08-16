@@ -51,11 +51,13 @@ class DateHistoryDTO(BaseModel):
     date: date
     meters: List[MeterHistoryDTO] = []
 
-
-@ose_router.get("/ose_well_history", response_model=List[DateHistoryDTO], tags=["OSE"])
-def get_ose_history(
-    start_datetime: datetime, end_datetime: datetime, db: Session = Depends(get_db)
-):
+@ose_router.get(
+        "/ose_well_history",
+        dependencies=[Depends(ose_user)],
+        response_model=List[DateHistoryDTO],
+        tags=["OSE"]
+    )
+def get_ose_history(start_datetime: datetime, end_datetime: datetime,db: Session = Depends(get_db)):
     """
     Returns activities and meter readings for each OSE well over input date range
     """

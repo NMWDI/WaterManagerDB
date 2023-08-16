@@ -3,6 +3,7 @@ import { API_URL } from '../API_config.js'
 import { useAuthHeader } from 'react-auth-kit'
 import { useSnackbar } from 'notistack';
 import {
+    ActivityForm,
     ActivityTypeLU,
     MeterListDTO,
     MeterListQueryParams,
@@ -13,10 +14,30 @@ import {
     Page,
     ST2Measurement,
     ST2Response,
+    ServiceTypeLU,
     User,
     WaterLevelQueryParams,
-    WellMeasurementDTO
+    WellMeasurementDTO,
+    Well,
+    WellSearchQueryParams,
+    WellDetailsQueryParams,
+    MeterDetailsQueryParams,
+    MeterDetails,
+    MeterPartParams,
+    PartAssociation,
+    MeterMapDTO,
+    MeterHistoryDTO
 } from '../interfaces.js'
+
+// Date display util
+export function toGMT6String(date: Date) {
+    const dateString = (date.getMonth() + 1) + '/' + (date.getDate() + 1) + '/' + date.getFullYear() + ' ';
+
+    date.setHours(date.getHours() - 5)
+    const timeString = date.toLocaleTimeString('en-US', {timeZone: "America/Denver", hour: 'numeric', minute: 'numeric', hour12: true})
+
+    return dateString + timeString
+}
 
 // Generate a query param string with empty and null fields removed
 function formattedQueryParams(queryParams: any) {
@@ -116,6 +137,14 @@ export function useGetMeterList(params: MeterListQueryParams | undefined) {
     )
 }
 
+export function useGetMeterLocations() {
+    const route = 'meters_locations'
+    const authHeader = useAuthHeader()
+    return useQuery<MeterMapDTO[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
 export function useGetMeterTypeList() {
     const route = 'meter_types'
     const authHeader = useAuthHeader()
@@ -132,12 +161,19 @@ export function useGetNoteTypes() {
     )
 }
 
+export function useGetMeterHistory(params: MeterDetailsQueryParams) {
+    const route = 'meter_history'
+    const authHeader = useAuthHeader()
+    return useQuery<MeterHistoryDTO[], Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+    )
+}
+
 export function useGetUserList() {
     const route = 'users'
     const authHeader = useAuthHeader()
     return useQuery<User[], Error>([route], () =>
         GETFetch(route, null, authHeader()),
-        {keepPreviousData: true}
     )
 }
 
@@ -146,7 +182,14 @@ export function useGetActivityTypeList() {
     const authHeader = useAuthHeader()
     return useQuery<ActivityTypeLU[], Error>([route, null], () =>
         GETFetch(route, null, authHeader()),
-        {keepPreviousData: true}
+    )
+}
+
+export function useGetServiceTypes() {
+    const route = 'service_types'
+    const authHeader = useAuthHeader()
+    return useQuery<ServiceTypeLU[], Error>([route, null], () =>
+        GETFetch(route, null, authHeader()),
     )
 }
 
@@ -174,12 +217,76 @@ export function useGetPropertyTypes() {
     )
 }
 
+export function useGetWells(params: WellSearchQueryParams | undefined) {
+    const route = 'wells'
+    const authHeader = useAuthHeader()
+    return useQuery<Page<Well>, Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+        {keepPreviousData: true}
+    )
+}
+
+export function useGetWell(params: WellDetailsQueryParams | undefined) {
+    const route = 'well'
+    const authHeader = useAuthHeader()
+    return useQuery<Well, Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+    )
+}
+
+export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
+    const route = 'meter'
+    const authHeader = useAuthHeader()
+    return useQuery<MeterDetails, Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+    )
+}
+
+export function useGetPartsList(params: MeterPartParams | undefined) {
+    const route = 'meter_parts'
+    const authHeader = useAuthHeader()
+    return useQuery<PartAssociation[], Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+    )
+}
+
 export function useGetST2WaterLevels(datastreamID: number | undefined) {
     const route = `Datastreams(${datastreamID})/Observations`
     return useQuery<ST2Measurement[], Error>([route, datastreamID], () =>
         GETST2Fetch(route),
         {enabled: !!datastreamID}
     )
+}
+
+export function useCreateActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activityForm: ActivityForm) => {
+            const response = await POSTFetch(route, activityForm, authHeader())
+
+            // This responsibility will eventually move to callsite when special error codes arent relied on
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
 }
 
 export function useCreateChlorideMeasurement() {

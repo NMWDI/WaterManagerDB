@@ -9,8 +9,8 @@ import {
 import ToggleButton from '@mui/material/ToggleButton'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { ActivityForm, ServiceTypeLU } from '../../../interfaces'
-import { useApiGET } from '../../../service/ApiService'
+import { ActivityForm } from '../../../interfaces'
+import { useGetServiceTypes } from '../../../service/ApiServiceNew'
 
 interface MaintenanceRepairSelectionProps {
     activityForm: React.MutableRefObject<ActivityForm>
@@ -31,7 +31,7 @@ export const MaintenanceRepairSelection = forwardRef(({activityForm, meterID}: M
         }
     })
 
-    const [serviceTypes, setServiceTypes] = useApiGET<ServiceTypeLU[]>('/service_types', [])
+    const serviceTypes = useGetServiceTypes()
     const [description, setDescription] = useState<string>('')
     const [selectedIDs, setSelectedIDs] = useState<number[]>([])
 
@@ -69,14 +69,19 @@ export const MaintenanceRepairSelection = forwardRef(({activityForm, meterID}: M
             <h4>Maintanence/Repair</h4>
             <Grid container>
 
-                <Grid container item xs={12}>
-                    <Grid container item {...gridBreakpoints} spacing={2}>
+                {serviceTypes.isLoading ?
+                    <Grid container item xs={12}>
+                        Loading items...
+                    </Grid> :
+                    <Grid container item xs={12}>
+                        <Grid container item {...gridBreakpoints} spacing={2}>
 
-                        {serviceTypes.map((item: any) => {
-                                return <MaintanenceToggleButton item={item} />
-                        })}
+                            {serviceTypes.data?.map((item: any) => {
+                                    return <MaintanenceToggleButton item={item} />
+                            })}
+                        </Grid>
                     </Grid>
-                </Grid>
+                }
 
                 <Grid container item {...gridBreakpoints} sx={{mt: 2}}>
                     <TextField
