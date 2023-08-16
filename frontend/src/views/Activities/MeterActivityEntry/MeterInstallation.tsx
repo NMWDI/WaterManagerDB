@@ -152,7 +152,7 @@ export const MeterInstallation = forwardRef(({activityForm, meterID, activityTyp
         setContactName(meterDetails.data?.contact_name ?? '')
         setContactPhone(meterDetails.data?.contact_phone ?? '')
         setMeterStatus(meterDetails.data?.status?.status_name ?? '')
-    }, [meterDetails])
+    }, [meterDetails.data])
 
     // Update well related fields on new well selection
     useEffect(() => {
