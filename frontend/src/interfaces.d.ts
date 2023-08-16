@@ -163,6 +163,7 @@ export interface MeterHistoryDTO {
 }
 
 export interface MeterType {
+    id?: int
     brand?: string
     series?: string
     model_number?: string
@@ -241,10 +242,6 @@ export interface MeterMapDTO {
             latitude: number
         }
     }
-}
-
-export interface MeterType {
-    brand: string
 }
 
 export interface Organization {

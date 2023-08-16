@@ -128,6 +128,19 @@ async function POSTFetch(route: string, object: any, authHeader: string) {
     })
 }
 
+async function PATCHFetch(route: string, object: any, authHeader: string) {
+    const headers = {
+        "Authorization": authHeader,
+        "Content-type": 'application/json'
+    }
+
+    return fetch(API_URL + `/${route}`, {
+        method: 'PATCH',
+        headers: headers,
+        body: JSON.stringify(object)
+    })
+}
+
 export function useGetMeterList(params: MeterListQueryParams | undefined) {
     const route = 'meters'
     const authHeader = useAuthHeader()
@@ -231,6 +244,7 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
     const authHeader = useAuthHeader()
     return useQuery<Well, Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
+        {keepPreviousData: true}
     )
 }
 
@@ -239,6 +253,7 @@ export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
     const authHeader = useAuthHeader()
     return useQuery<MeterDetails, Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
+        {keepPreviousData: true}
     )
 }
 
@@ -268,6 +283,36 @@ export function useCreateActivity(onSuccess: Function) {
             const response = await POSTFetch(route, activityForm, authHeader())
 
             // This responsibility will eventually move to callsite when special error codes arent relied on
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateMeter(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'meter'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (meterDetails: Partial<MeterDetails>) => {
+            const response = await PATCHFetch(route, meterDetails, authHeader())
+
             if (!response.ok) {
                 if(response.status == 422) {
                     enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
