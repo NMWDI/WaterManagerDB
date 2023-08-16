@@ -61,22 +61,30 @@ async def add_waterlevel(
     tags=["waterlevels"],
 )
 async def add_chloride_measurement(
-    chloride_measurement: well_schemas.NewWaterLevelMeasurement, db: Session = Depends(get_db)
+    chloride_measurement: well_schemas.NewWaterLevelMeasurement,
+    db: Session = Depends(get_db),
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp = chloride_measurement.timestamp,
-        value = chloride_measurement.value,
-        observed_property_id = db.scalars(select(ObservedPropertyTypeLU.id).where(ObservedPropertyTypeLU.name == 'Chloride Concentration')).first(),
-        submitting_user_id = chloride_measurement.submitting_user_id,
-        unit_id = db.scalars(select(Units.id).where(Units.name == 'Micrograms per Liter')).first(),
-        well_id = chloride_measurement.well_id
+        timestamp=chloride_measurement.timestamp,
+        value=chloride_measurement.value,
+        observed_property_id=db.scalars(
+            select(ObservedPropertyTypeLU.id).where(
+                ObservedPropertyTypeLU.name == "Chloride Concentration"
+            )
+        ).first(),
+        submitting_user_id=chloride_measurement.submitting_user_id,
+        unit_id=db.scalars(
+            select(Units.id).where(Units.name == "Micrograms per Liter")
+        ).first(),
+        well_id=chloride_measurement.well_id,
     )
 
     db.add(well_measurement)
     db.commit()
 
     return well_measurement
+
 
 @well_measurement_router.get(
     "/waterlevels",
@@ -100,21 +108,20 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 
 @well_measurement_router.get(
     "/chlorides",
-    dependencies=[Depends(read_user)],
     response_model=List[well_schemas.WellMeasurementDTO],
-    tags=["chlorides"]
+    tags=["chlorides"],
 )
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
         select(WellMeasurements)
-            .options(joinedload(WellMeasurements.submitting_user))
-            .join(ObservedPropertyTypeLU)
-            .where(
-                and_(
-                    ObservedPropertyTypeLU.name == 'Chloride Concentration',
-                    WellMeasurements.well_id == well_id
-                )
+        .options(joinedload(WellMeasurements.submitting_user))
+        .join(ObservedPropertyTypeLU)
+        .where(
+            and_(
+                ObservedPropertyTypeLU.name == "Chloride Concentration",
+                WellMeasurements.well_id == well_id,
             )
+        )
     ).all()
 
 
