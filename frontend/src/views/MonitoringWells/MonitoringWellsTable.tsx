@@ -2,7 +2,11 @@ import { Box, Button } from "@mui/material";
 import { DataGrid, GridPagination } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
-import { toGMT6String } from "../../service/ApiServiceNew";
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 interface MonitoringWellsTableProps {
     rows: WellMeasurementDTO[]
@@ -33,8 +37,10 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
             headerName: 'Date/Time',
             width: 200,
             valueGetter: (params: any) => {
-                const date = new Date(params.value)
-                return toGMT6String(date)
+                return dayjs
+                        .utc(params?.value)
+                        .tz('America/Denver')
+                        .format('MM/DD/YYYY hh:mm A')
             }
         },
         { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },

@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, TextField, Grid } from '@mui/material'
 import { MeterHistoryType } from '../../../enums'
 import { NoteTypeLU } from '../../../interfaces'
-import { toGMT6String } from '../../../service/ApiServiceNew'
+import dayjs from 'dayjs'
 
 interface SelectedHistoryDetailsProps {
     selectedHistoryItem: any
@@ -18,15 +18,17 @@ const disabledInputStyle = {
 export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHistoryDetailsProps) {
 
     function formatDate(dateIN: any) {
-        if (dateIN == null) return dateIN
-        const date = new Date(dateIN)
-        return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear()
+        return dayjs
+                .utc(dateIN)
+                .tz('America/Denver')
+                .format('MM/DD/YYYY hh:mm A')
     }
 
     function formatTime(dateIN: any) {
-        if (dateIN == null) return dateIN
-        const date = new Date(dateIN)
-        return toGMT6String(date)
+        return dayjs
+                .utc(dateIN)
+                .tz('America/Denver')
+                .format('MM/DD/YYYY hh:mm A')
     }
 
     function emptyIfNull(value: any) {

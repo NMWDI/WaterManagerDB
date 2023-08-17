@@ -14,6 +14,10 @@ import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
 import { NewWellMeasurement, SecurityScope } from "../interfaces.js";
 import dayjs, { Dayjs } from "dayjs";
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { useGetUserList } from "../service/ApiServiceNew";
 
@@ -30,8 +34,8 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
     const userList = useGetUserList()
     const [value, setValue] = useState<number | null>(null)
     const [selectedUserID, setSelectedUserID] = useState<number | string>('')
-    const [date, setDate] = useState<Dayjs | null>(dayjs())
-    const [time, setTime] = useState<Dayjs | null>(dayjs())
+    const [date, setDate] = useState<Dayjs | null>(dayjs.utc())
+    const [time, setTime] = useState<Dayjs | null>(dayjs.utc())
 
     // Sends user entered information to the parent through callback
     function onMeasurementSubmitted() {
@@ -102,6 +106,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                     <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <TimePicker
                             label="Time"
+                            timezone="America/Denver"
                             slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
                             value={time}
                             onChange={setTime}

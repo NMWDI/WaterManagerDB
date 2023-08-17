@@ -45,8 +45,8 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
     const [selectedActivity, setSelectedActivity] = useState<ActivityTypeLU>()
     const [selectedUser, setSelectedUser] = useState<User>()
     const [date, setDate] = useState<Dayjs | null>(dayjs())
-    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs())
-    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs())
+    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs.utc())
+    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs.utc())
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -110,6 +110,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
                 <Grid item xs={4}>
                     <TimePicker
                         label="Start Time"
+                        timezone="America/Denver"
                         value={startTime}
                         onChange={setStartTime}
                         slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !startTime)}}}
@@ -118,6 +119,7 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
                 <Grid item xs={4}>
                     <TimePicker
                         label="End Time"
+                        timezone="America/Denver"
                         value={endTime}
                         onChange={setEndTime}
                         slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !endTime)}}}
