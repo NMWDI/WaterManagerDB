@@ -3,11 +3,14 @@ import { useEffect } from 'react'
 
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 import { MeterHistoryType } from '../../../enums'
 import { MeterHistoryDTO } from '../../../interfaces'
-
-import { toGMT6String } from '../../../service/ApiServiceNew'
 
 interface MeterHistoryTableProps {
     onHistoryItemSelection: Function
@@ -29,8 +32,10 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             field: 'date',
             headerName: 'Date',
             valueGetter: (params: any) => {
-                const date = new Date(params.value)
-                return toGMT6String(date)
+                return dayjs
+                        .utc(params?.value)
+                        .tz('America/Denver')
+                        .format('MM/DD/YYYY hh:mm A')
             },
             width: 200
         },

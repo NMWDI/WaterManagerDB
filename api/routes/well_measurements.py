@@ -73,7 +73,9 @@ async def add_chloride_measurement(
 ):
     # Create the well measurement from the form, qualify with units and property type
     well_measurement = WellMeasurements(
-        timestamp=chloride_measurement.timestamp,
+        timestamp=datetime.combine(
+            chloride_measurement.timestamp.date(), chloride_measurement.timestamp.time()
+        ),  # Convert to UTC
         value=chloride_measurement.value,
         observed_property_id=db.scalars(
             select(ObservedPropertyTypeLU.id).where(

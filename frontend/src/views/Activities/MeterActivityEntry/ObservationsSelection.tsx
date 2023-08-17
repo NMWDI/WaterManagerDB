@@ -41,7 +41,8 @@ function ObservationRow({observation, setObservation, removeObservation, propert
                     <Grid item xs={3}>
                         <TimePicker
                             label="Time"
-                            defaultValue={dayjs()}
+                            timezone="America/Denver"
+                            defaultValue={dayjs.utc()}
                             slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !observation.time)}}}
                             value={observation.time}
                             onChange={(time: any) => {setObservation(produce(observation, newObservation => {newObservation.time = time}))}}
@@ -127,21 +128,21 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
     const defaultObservations: ObservationForm[] = [
         {
             id: 1,
-            time: dayjs(),
+            time: dayjs.utc(),
             reading: '',
             property_type_id: 2,
             unit_id: 3
         },
         {
             id: 2,
-            time: dayjs(),
+            time: dayjs.utc(),
             reading: '',
             property_type_id: 1,
             unit_id: 1
         },
         {
             id: 3,
-            time: dayjs(),
+            time: dayjs.utc(),
             reading: '',
             property_type_id: 1,
             unit_id: 1
@@ -158,7 +159,7 @@ export const ObservationSelection = forwardRef(({activityForm}: ObservationSelec
     function addObservation() {
         setObservations([...observations, {
             id: currentObservationID,
-            time: dayjs(),
+            time: dayjs().utc(),
             reading: '',
             property_type_id: '',
             unit_id: ''
