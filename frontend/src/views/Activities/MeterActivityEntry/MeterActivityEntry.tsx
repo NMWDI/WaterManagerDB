@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack'
 import { useForm, SubmitHandler, Controller, FieldError, FieldErrors, Resolver, SubmitErrorHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as Yup from "yup"
+import Dayjs from 'dayjs'
 
 import { MeterActivitySelection } from './MeterActivitySelection'
 import { ObservationSelection } from './ObservationsSelection'
@@ -18,17 +19,6 @@ import { ActivityForm, ActivityFormControl, MeterDetails, MeterListDTO } from '.
 import { ActivityType } from '../../../enums'
 import { useCreateActivity } from '../../../service/ApiServiceNew'
 
-import { Autocomplete } from '@mui/material'
-import { useGetMeterList } from '../../../service/ApiServiceNew'
-import { useDebounce } from 'use-debounce'
-import { isOptionalChain } from 'typescript'
-import ControlledMeterSelection from '../../../components/RHControlled/ControlledMeterSelection'
-import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'
-
-interface FormSubmitRef {
-    onSubmit: Function
-}
-
 export default function MeterActivityEntry() {
     function onSuccessfulSubmit() {
         enqueueSnackbar('Successfully Submitted Activity!', {variant: 'success'})
@@ -40,7 +30,7 @@ export default function MeterActivityEntry() {
 
     const navigate = useNavigate()
 
-    // Validation
+    // Validation (move?)
     const activitySchema: Yup.ObjectSchema<ActivityFormControl> = Yup.object().shape({
 
         activity_details: Yup.object().shape({
@@ -54,17 +44,37 @@ export default function MeterActivityEntry() {
                 name: Yup.string(),
                 permission: Yup.string(),
                 description: Yup.string()
-            }).required(),
+            }).required("Please Select An Activity"),
 
             user: Yup.object().shape({
                 id: Yup.number().required("Please Select A User"),
                 full_name: Yup.string()
-            }).required()
+            }).required(),
+
+            date: Yup.date().required('Please Select a Date'),
+            start_time: Yup.date().required('Please Select a Start Time'),
+            end_time: Yup.date().required('Please Select an End Time')
+
         }).required(),
 
     }).required()
 
-    const { handleSubmit, control, watch, formState: { errors }} = useForm<ActivityFormControl>({ resolver: yupResolver(activitySchema) })
+    // Set meter from route params here?
+    const defaultForm: ActivityFormControl = {
+        activity_details: {
+            meter: null,
+            activity_type: null,
+            user: null,
+            date: Dayjs(),
+            start_time: Dayjs(),
+            end_time: Dayjs()
+        },
+    }
+
+    const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
+        resolver: yupResolver(activitySchema),
+        defaultValues: defaultForm
+    })
 
     // TESTING
     const onSubmit: SubmitHandler<ActivityFormControl> = data => console.log("SUBMITTED: ", data)
@@ -82,11 +92,14 @@ export default function MeterActivityEntry() {
                 <div>MeterID: {watch("activity_details.meter")?.id}</div>
                 <div>ActivityName: {watch("activity_details.activity_type")?.name}</div>
                 <div>UserName: {watch("activity_details.user")?.full_name}</div>
+                <div>StartTime: {watch("activity_details")?.start_time?.toLocaleString()}</div>
+                <div>Date: {watch("activity_details")?.date?.toLocaleString()}</div>
 
                 <MeterActivitySelection
                     control={control}
                     errors={errors}
                     watch={watch}
+                    setValue={setValue}
                 />
 
                     {/*

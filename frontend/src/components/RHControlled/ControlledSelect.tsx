@@ -32,6 +32,7 @@ export function ControlledSelect({
 
     // Errors relating to the given name
     const selfErrors = getErrorsByName(errors, name)
+    console.log(selfErrors)
 
     return (
         <Controller
@@ -53,7 +54,12 @@ export function ControlledSelect({
                     >
                     {options.map((option: any) => <MenuItem value={option.id} key={option.id}>{getOptionLabel(option)}</MenuItem>)}
                     </Select>
-                    {selfErrors && Object.keys(selfErrors).map((errKey: any) => <FormHelperText>{selfErrors[errKey].message}</FormHelperText>)}
+                    {selfErrors?.message && (
+                        <FormHelperText>{selfErrors.message}</FormHelperText>
+                    )}
+                    {selfErrors && (
+                        Object.keys(selfErrors).map((errKey: any) => <FormHelperText>{selfErrors[errKey].message}</FormHelperText>)
+                    )}
                 </FormControl>
             )}
         />

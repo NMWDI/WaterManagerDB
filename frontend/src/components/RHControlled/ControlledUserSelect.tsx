@@ -1,22 +1,15 @@
-import React from 'react'
-import { useGetActivityTypeList } from '../../service/ApiServiceNew'
-import { ActivityTypeLU } from '../../interfaces'
+import React, { useState } from 'react'
 import { ControlledSelect } from './ControlledSelect'
 import { User } from '../../interfaces'
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { useGetUserList } from '../../service/ApiServiceNew'
 import { useAuthUser } from 'react-auth-kit'
 
-export default function ControlledUserSelect({name, control, errors, hideAndSelectCurrentUser}: any) {
+export default function ControlledUserSelect({name, control, errors, hideAndSelectCurrentUser = false, setValue = null}: any) {
+    const [isCurrentUserSet, setIsCurrentUserSet] = useState<boolean>(false)
 
     {/*  If user should be able to select users, show them the list and let them select from it, if not, set the current user as selected */}
     if (!hideAndSelectCurrentUser) {
         const userList = useGetUserList()
-
-        // function handleChangeUser(userID: number) {
-        //     const selectedUser = userList.data?.find((user: User) => user.id == userID)
-        //     onUserChange(selectedUser)
-        // }
 
         return (
             <ControlledSelect
@@ -29,9 +22,13 @@ export default function ControlledUserSelect({name, control, errors, hideAndSele
             />
         )
     }
+
     else {
-        // const currentUser = useAuthUser()
-        // onUserChange(currentUser)
+        if (!isCurrentUserSet) {
+            const currentUser = useAuthUser()
+            setValue(name, currentUser())
+            setIsCurrentUserSet(true)
+        }
         return (null)
     }
 }

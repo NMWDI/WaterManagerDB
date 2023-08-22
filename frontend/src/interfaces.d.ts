@@ -42,19 +42,23 @@ export interface ActivityFormControl {
         meter: {
             id: number,
             serial_number: string
-        }
+        } | null
 
         activity_type: {
             id: number,
             name?: string,
             permission?: string,
             description?: string
-        }
+        } | null
 
         user: {
             id: number,
             full_name?: string
-        }
+        } | null
+
+        date: Dayjs
+        start_time: Dayjs
+        end_time: Dayjs
     },
 
 }

@@ -1,40 +1,26 @@
 import React from 'react'
-import { useState, useEffect, forwardRef } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Grid } from '@mui/material'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { TimePicker } from '@mui/x-date-pickers/TimePicker'
-import dayjs, { Dayjs } from 'dayjs'
 
 import { gridBreakpoints } from '../ActivitiesView'
-import { MeterListDTO, ActivityTypeLU, ActivityForm, SecurityScope, User, ActivityFormControl } from '../../../interfaces'
+import { SecurityScope, ActivityFormControl } from '../../../interfaces'
 import { useSearchParams } from 'react-router-dom'
-import MeterSelection from '../../../components/MeterSelection'
-import ActivityTypeSelection from '../../../components/ActivityTypeSelection'
-import UserSelection from '../../../components/UserSelection'
-import { Control, FieldErrors, FieldValues, UseFormWatch } from 'react-hook-form'
+import { FieldErrors, FieldValues, UseFormWatch } from 'react-hook-form'
 import ControlledMeterSelection from '../../../components/RHControlled/ControlledMeterSelection'
 import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'
 import ControlledUserSelect from '../../../components/RHControlled/ControlledUserSelect'
+import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
+import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
 
 interface MeterActivitySelectionProps {
     control: FieldValues
     errors: FieldErrors
-    watch: UseFormWatch<ActivityFormControl> //?? and changed it in parent
+    watch: UseFormWatch<ActivityFormControl>
+    setValue: Function
 }
 
 // Child component as ref so that parent can call submit function
-export function MeterActivitySelection({control, errors, watch}: MeterActivitySelectionProps) {
-    const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
-
-    // Local, controlled state used for UI
-    const [selectedMeter, setSelectedMeter] = useState<MeterListDTO | any>(null)
-    const [selectedActivity, setSelectedActivity] = useState<ActivityTypeLU>()
-    const [selectedUser, setSelectedUser] = useState<User>()
-    const [date, setDate] = useState<Dayjs | null>(dayjs())
-    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs.utc())
-    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs.utc())
-
+export function MeterActivitySelection({control, errors, watch, setValue}: MeterActivitySelectionProps) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
     const [searchParams] = useSearchParams()
@@ -78,6 +64,8 @@ export function MeterActivitySelection({control, errors, watch}: MeterActivitySe
                         name="activity_details.user"
                         control={control}
                         errors={errors}
+                        hideAndSelectCurrentUser={!hasAdminScope}
+                        setValue={setValue}
                     />
                 </Grid>
             </Grid>
@@ -86,29 +74,27 @@ export function MeterActivitySelection({control, errors, watch}: MeterActivitySe
             {/* Start Second Row */}
             <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
                 <Grid item xs={4}>
-                    <DatePicker
+                    <ControlledDatepicker
                         label="Date"
-                        value={date}
-                        onChange={setDate}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !date)}}}
+                        name="activity_details.date"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
                 <Grid item xs={4}>
-                    <TimePicker
+                    <ControlledTimepicker
                         label="Start Time"
-                        timezone="America/Denver"
-                        value={startTime}
-                        onChange={setStartTime}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !startTime)}}}
+                        name="activity_details.start_time"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
                 <Grid item xs={4}>
-                    <TimePicker
+                    <ControlledTimepicker
                         label="End Time"
-                        timezone="America/Denver"
-                        value={endTime}
-                        onChange={setEndTime}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !endTime)}}}
+                        name="activity_details.end_time"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
             </Grid>
@@ -116,70 +102,4 @@ export function MeterActivitySelection({control, errors, watch}: MeterActivitySe
 
         </Grid>
     )
- {/*
-
-    return (
-        <Grid container item {...gridBreakpoints}>
-            <h4>Activity Details</h4>
-
-            <Grid container item xs={12} spacing={2}>
-                <Grid item xs={4}>
-                    <MeterSelection
-                        selectedMeter={selectedMeter}
-                        onMeterChange={(meter: MeterListDTO) => {setSelectedMeter(meter); setMeter(meter)}}
-                        error={hasFormSubmitted && !selectedMeter.id}
-                    />
-                </Grid>
-
-                <Grid item xs={4}>
-                    <ActivityTypeSelection
-                        selectedActivity={selectedActivity}
-                        onActivityChange={(activity: ActivityTypeLU) => {setSelectedActivity(activity); setActivityType(activity.name)}}
-                        isAdmin={hasAdminScope}
-                        error={hasFormSubmitted && !selectedActivity?.id}
-                    />
-                </Grid>
-
-                <Grid item xs={4}>
-                    <UserSelection
-                        selectedUser={selectedUser}
-                        onUserChange={setSelectedUser}
-                        hideAndSelectCurrentUser={!hasAdminScope}
-                        error={hasFormSubmitted && !selectedUser?.id}
-                    />
-                </Grid>
-            </Grid>
-
-            <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
-                <Grid item xs={4}>
-                    <DatePicker
-                        label="Date"
-                        value={date}
-                        onChange={setDate}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !date)}}}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <TimePicker
-                        label="Start Time"
-                        timezone="America/Denver"
-                        value={startTime}
-                        onChange={setStartTime}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !startTime)}}}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <TimePicker
-                        label="End Time"
-                        timezone="America/Denver"
-                        value={endTime}
-                        onChange={setEndTime}
-                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !endTime)}}}
-                    />
-                </Grid>
-            </Grid>
-
-        </Grid>
-    )
-     */}
 }
