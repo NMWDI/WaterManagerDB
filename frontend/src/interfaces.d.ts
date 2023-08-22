@@ -1,5 +1,6 @@
 import { SortDirection, MeterSortByField } from 'enums'
 import internal from 'stream'
+import { ActivityType } from './enums'
 
 export interface ActivityForm {
 
@@ -33,6 +34,29 @@ export interface ActivityForm {
     }
 
     part_used_ids?: number[]
+}
+
+// This might could be the full things that are selected, but for now its only the things that are submitted/validated
+export interface ActivityFormControl {
+    activity_details: {
+        meter: {
+            id: number,
+            serial_number: string
+        }
+
+        activity_type: {
+            id: number,
+            name?: string,
+            permission?: string,
+            description?: string
+        }
+
+        user: {
+            id: number,
+            full_name?: string
+        }
+    },
+
 }
 
 export interface MeterActivity {

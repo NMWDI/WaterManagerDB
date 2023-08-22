@@ -7,38 +7,25 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import dayjs, { Dayjs } from 'dayjs'
 
 import { gridBreakpoints } from '../ActivitiesView'
-import { MeterListDTO, ActivityTypeLU, ActivityForm, SecurityScope, User } from '../../../interfaces'
+import { MeterListDTO, ActivityTypeLU, ActivityForm, SecurityScope, User, ActivityFormControl } from '../../../interfaces'
 import { useSearchParams } from 'react-router-dom'
 import MeterSelection from '../../../components/MeterSelection'
 import ActivityTypeSelection from '../../../components/ActivityTypeSelection'
 import UserSelection from '../../../components/UserSelection'
+import { Control, FieldErrors, FieldValues, UseFormWatch } from 'react-hook-form'
+import ControlledMeterSelection from '../../../components/RHControlled/ControlledMeterSelection'
+import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'
+import ControlledUserSelect from '../../../components/RHControlled/ControlledUserSelect'
 
 interface MeterActivitySelectionProps {
-    activityForm: React.MutableRefObject<ActivityForm>
-    setMeter: Function
-    setActivityType: Function
+    control: FieldValues
+    errors: FieldErrors
+    watch: UseFormWatch<ActivityFormControl> //?? and changed it in parent
 }
 
 // Child component as ref so that parent can call submit function
-export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setActivityType}: MeterActivitySelectionProps, submitRef) => {
+export function MeterActivitySelection({control, errors, watch}: MeterActivitySelectionProps) {
     const [hasFormSubmitted, setHasFormSubmitted] = useState<boolean>(false)
-
-    // Exposed submit function to allow parent to request updated form values
-    React.useImperativeHandle(submitRef, () => {
-        return {
-            onSubmit() {
-                activityForm.current.activity_details = {
-                    activity_type_id: selectedActivity?.id as number,
-                    meter_id: selectedMeter?.id,
-                    user_id: selectedUser?.id as number,
-                    date: date,
-                    start_time: startTime,
-                    end_time: endTime
-                }
-                setHasFormSubmitted(true)
-            }
-        }
-    })
 
     // Local, controlled state used for UI
     const [selectedMeter, setSelectedMeter] = useState<MeterListDTO | any>(null)
@@ -53,15 +40,16 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
     const [searchParams] = useSearchParams()
 
     // If search params are defined, use them to select the meter
-    useEffect(() => {
-        const meter_id = searchParams.get('meter_id')
-        const serial_number = searchParams.get('serial_number')
-        const meter_status = searchParams.get('meter_status')
-        if (meter_id && serial_number) {
-            setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
-            setMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
-        }
-    }, [])
+    // MOVE TO PARENT
+    // useEffect(() => {
+    //     const meter_id = searchParams.get('meter_id')
+    //     const serial_number = searchParams.get('serial_number')
+    //     const meter_status = searchParams.get('meter_status')
+    //     if (meter_id && serial_number) {
+    //         setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
+    //         setMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
+    //     }
+    // }, [])
 
     return (
         <Grid container item {...gridBreakpoints}>
@@ -70,28 +58,26 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
             {/* Start First Row */}
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
-                    <MeterSelection
-                        selectedMeter={selectedMeter}
-                        onMeterChange={(meter: MeterListDTO) => {setSelectedMeter(meter); setMeter(meter)}}
-                        error={hasFormSubmitted && !selectedMeter.id}
+                    <ControlledMeterSelection
+                        name="activity_details.meter"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
 
                 <Grid item xs={4}>
-                    <ActivityTypeSelection
-                        selectedActivity={selectedActivity}
-                        onActivityChange={(activity: ActivityTypeLU) => {setSelectedActivity(activity); setActivityType(activity.name)}}
-                        isAdmin={hasAdminScope}
-                        error={hasFormSubmitted && !selectedActivity?.id}
+                    <ControlledActivitySelect
+                        name="activity_details.activity_type"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
 
                 <Grid item xs={4}>
-                    <UserSelection
-                        selectedUser={selectedUser}
-                        onUserChange={setSelectedUser}
-                        hideAndSelectCurrentUser={!hasAdminScope}
-                        error={hasFormSubmitted && !selectedUser?.id}
+                    <ControlledUserSelect
+                        name="activity_details.user"
+                        control={control}
+                        errors={errors}
                     />
                 </Grid>
             </Grid>
@@ -130,4 +116,70 @@ export const MeterActivitySelection = forwardRef(({activityForm, setMeter, setAc
 
         </Grid>
     )
-})
+ {/*
+
+    return (
+        <Grid container item {...gridBreakpoints}>
+            <h4>Activity Details</h4>
+
+            <Grid container item xs={12} spacing={2}>
+                <Grid item xs={4}>
+                    <MeterSelection
+                        selectedMeter={selectedMeter}
+                        onMeterChange={(meter: MeterListDTO) => {setSelectedMeter(meter); setMeter(meter)}}
+                        error={hasFormSubmitted && !selectedMeter.id}
+                    />
+                </Grid>
+
+                <Grid item xs={4}>
+                    <ActivityTypeSelection
+                        selectedActivity={selectedActivity}
+                        onActivityChange={(activity: ActivityTypeLU) => {setSelectedActivity(activity); setActivityType(activity.name)}}
+                        isAdmin={hasAdminScope}
+                        error={hasFormSubmitted && !selectedActivity?.id}
+                    />
+                </Grid>
+
+                <Grid item xs={4}>
+                    <UserSelection
+                        selectedUser={selectedUser}
+                        onUserChange={setSelectedUser}
+                        hideAndSelectCurrentUser={!hasAdminScope}
+                        error={hasFormSubmitted && !selectedUser?.id}
+                    />
+                </Grid>
+            </Grid>
+
+            <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
+                <Grid item xs={4}>
+                    <DatePicker
+                        label="Date"
+                        value={date}
+                        onChange={setDate}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !date)}}}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <TimePicker
+                        label="Start Time"
+                        timezone="America/Denver"
+                        value={startTime}
+                        onChange={setStartTime}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !startTime)}}}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <TimePicker
+                        label="End Time"
+                        timezone="America/Denver"
+                        value={endTime}
+                        onChange={setEndTime}
+                        slotProps={{textField: {size: "small", required: true, error: (hasFormSubmitted && !endTime)}}}
+                    />
+                </Grid>
+            </Grid>
+
+        </Grid>
+    )
+     */}
+}
