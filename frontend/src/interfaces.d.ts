@@ -37,11 +37,13 @@ export interface ActivityForm {
 }
 
 // This might could be the full things that are selected, but for now its only the things that are submitted/validated
+// These need to be the actual interfaces eventually, meter -> MeterListDTO
 export interface ActivityFormControl {
     activity_details: {
         meter: {
             id: number,
-            serial_number: string
+            serial_number: string,
+            status?: {status_name?: string}
         } | null
 
         activity_type: {

@@ -4,7 +4,6 @@ import { Grid } from '@mui/material'
 
 import { gridBreakpoints } from '../ActivitiesView'
 import { SecurityScope, ActivityFormControl } from '../../../interfaces'
-import { useSearchParams } from 'react-router-dom'
 import { FieldErrors, FieldValues, UseFormWatch } from 'react-hook-form'
 import ControlledMeterSelection from '../../../components/RHControlled/ControlledMeterSelection'
 import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'
@@ -23,19 +22,6 @@ interface MeterActivitySelectionProps {
 export function MeterActivitySelection({control, errors, watch, setValue}: MeterActivitySelectionProps) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
-    const [searchParams] = useSearchParams()
-
-    // If search params are defined, use them to select the meter
-    // MOVE TO PARENT
-    // useEffect(() => {
-    //     const meter_id = searchParams.get('meter_id')
-    //     const serial_number = searchParams.get('serial_number')
-    //     const meter_status = searchParams.get('meter_status')
-    //     if (meter_id && serial_number) {
-    //         setSelectedMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
-    //         setMeter({id: parseInt(meter_id), serial_number: serial_number, status: {status_name: meter_status}} as MeterListDTO)
-    //     }
-    // }, [])
 
     return (
         <Grid container item {...gridBreakpoints}>

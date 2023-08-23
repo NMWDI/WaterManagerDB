@@ -1,5 +1,5 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useState, useRef } from 'react'
 import { Button, Grid, TextField } from '@mui/material'
 import { useSnackbar } from 'notistack'
@@ -15,9 +15,9 @@ import { MeterInstallation } from './MeterInstallation'
 import { MaintenanceRepairSelection } from './MaintenanceRepairSelection'
 import { PartsSelection } from './PartsSelection'
 
-import { ActivityForm, ActivityFormControl, MeterDetails, MeterListDTO } from '../../../interfaces.d'
+import { ActivityForm, ActivityFormControl, MeterDetails, MeterListDTO, Well } from '../../../interfaces.d'
 import { ActivityType } from '../../../enums'
-import { useCreateActivity } from '../../../service/ApiServiceNew'
+import { useCreateActivity, useGetMeter } from '../../../service/ApiServiceNew'
 
 export default function MeterActivityEntry() {
     function onSuccessfulSubmit() {
@@ -25,12 +25,27 @@ export default function MeterActivityEntry() {
         navigate('/meters')
     }
 
-    const { enqueueSnackbar } = useSnackbar()
     const createActivity = useCreateActivity(onSuccessfulSubmit)
-
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const { enqueueSnackbar } = useSnackbar()
 
-    // Validation (move?)
+    // Set the initial meter used in the form if queryparams are defined
+    let initialMeter: MeterListDTO | null = null
+    const qpMeterID = searchParams.get('meter_id')
+    const qpSerialNumber = searchParams.get('serial_number')
+    const qpStatus = searchParams.get('meter_status')
+
+    if (qpMeterID && qpSerialNumber && qpStatus) {
+        initialMeter = {
+            id: qpMeterID as unknown as number,
+            serial_number: qpSerialNumber,
+            status: {status_name: qpStatus},
+            well: null as any
+        }
+    }
+
+    // Validation (move to ActivityFormConfig with the defaultValues thing?)
     const activitySchema: Yup.ObjectSchema<ActivityFormControl> = Yup.object().shape({
 
         activity_details: Yup.object().shape({
@@ -49,7 +64,7 @@ export default function MeterActivityEntry() {
             user: Yup.object().shape({
                 id: Yup.number().required("Please Select A User"),
                 full_name: Yup.string()
-            }).required(),
+            }).required("Please Select a User"),
 
             date: Yup.date().required('Please Select a Date'),
             start_time: Yup.date().required('Please Select a Start Time'),
@@ -59,10 +74,9 @@ export default function MeterActivityEntry() {
 
     }).required()
 
-    // Set meter from route params here?
     const defaultForm: ActivityFormControl = {
         activity_details: {
-            meter: null,
+            meter: initialMeter,
             activity_type: null,
             user: null,
             date: Dayjs(),
@@ -80,10 +94,13 @@ export default function MeterActivityEntry() {
     const onSubmit: SubmitHandler<ActivityFormControl> = data => console.log("SUBMITTED: ", data)
     const onError: SubmitErrorHandler<ActivityFormControl> = err => {console.log("ERR: ", err); console.log("CONTROL: ", control)}
 
-    // const meterActivityConflict = ((meter?.status?.status_name == 'Installed' && activityType == ActivityType.Install) ||
-    //                                 (meter?.status?.status_name != 'Installed' && activityType != undefined && activityType == ActivityType.Uninstall))
+    const meterActivityConflict = ((watch("activity_details.meter")?.status?.status_name == 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
+                                    (watch("activity_details.meter")?.status?.status_name != 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
 
-    // const isMeterAndActivitySelected = (meter && activityType)
+    const isMeterAndActivitySelected = (watch("activity_details.meter") != null && watch("activity_details.activity_type") != null)
+
+    console.log(meterActivityConflict)
+    console.log(isMeterAndActivitySelected)
 
     return (
             <>
@@ -102,9 +119,11 @@ export default function MeterActivityEntry() {
                     setValue={setValue}
                 />
 
-                    {/*
                 {(!meterActivityConflict && isMeterAndActivitySelected) ?
                     <>
+
+                    <div>Things;..</div>
+                    {/*
                     <MeterInstallation
                         activityForm={activityForm}
                         meterID={meter.id}
@@ -133,15 +152,14 @@ export default function MeterActivityEntry() {
                         meterID={meter.id}
                         ref={partsRef}
                     />
-
                     <Button variant="contained" onClick={submitActivity} sx={{mt: 4}}>Submit</Button>
+
+                 */}
                 </>
                 :
                 <Grid container sx={{mt: 4}}>
 
-                        */}
                     {/*  Show the user why they can't see the full form */}
-                    {/*
                     <Grid item xs={5}>
                         {meterActivityConflict ?
                             <h4>You cannot install a meter that is already installed, or uninstall a meter that is not currently installed. Please choose a different activity or meter.</h4>
@@ -151,7 +169,6 @@ export default function MeterActivityEntry() {
                     </Grid>
                 </Grid>
                 }
-                        */}
             </>
         )
 }

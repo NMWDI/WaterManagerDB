@@ -32,7 +32,6 @@ export function ControlledSelect({
 
     // Errors relating to the given name
     const selfErrors = getErrorsByName(errors, name)
-    console.log(selfErrors)
 
     return (
         <Controller

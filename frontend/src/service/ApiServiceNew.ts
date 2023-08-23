@@ -55,7 +55,8 @@ function formattedQueryParams(queryParams: any) {
     return queryParamString
 }
 
-async function GETFetch(route: string, params: any, authHeader: string) {
+async function GETFetch(route: string, params: any, authHeader: string, requireParams = false) {
+    if (!params && requireParams) return
     const headers = {
         "Authorization": authHeader
     }
