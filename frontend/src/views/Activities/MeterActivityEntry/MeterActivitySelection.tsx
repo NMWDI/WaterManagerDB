@@ -18,7 +18,6 @@ interface MeterActivitySelectionProps {
     setValue: Function
 }
 
-// Child component as ref so that parent can call submit function
 export function MeterActivitySelection({control, errors, watch, setValue}: MeterActivitySelectionProps) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -31,7 +30,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: Meter
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
                     <ControlledMeterSelection
-                        name="activity_details.meter"
+                        name="activity_details.selected_meter"
                         control={control}
                         errors={errors}
                     />

@@ -22,12 +22,10 @@ function getErrorsByName(errors: any, name: string) {
 // Uses the name field to get the ID that keeps the state of this box
 // But, will fully populate the selected object in the form
 export function ControlledSelect({
-    options = [],
-    getOptionLabel,
-    label,
     control,
     errors,
     name,
+    ...childProps
 }: any) {
 
     // Errors relating to the given name
@@ -43,15 +41,15 @@ export function ControlledSelect({
                     fullWidth
                     error={selfErrors != undefined}
                 >
-                    <InputLabel>{label}</InputLabel>
+                    <InputLabel>{childProps.label}</InputLabel>
                     <Select
                         {...field}
                         value={field.value?.id ?? ''}
-                        onChange={(event: any) => {field.onChange(options.find((x: any) => x?.id == event.target.value))}}
+                        onChange={(event: any) => {field.onChange(childProps.options.find((x: any) => x?.id == event.target.value))}}
                         defaultValue={''}
-                        label={label}
+                        label={childProps.label}
                     >
-                    {options.map((option: any) => <MenuItem value={option.id} key={option.id}>{getOptionLabel(option)}</MenuItem>)}
+                    {childProps.options.map((option: any) => <MenuItem value={option.id} key={option.id}>{childProps.getOptionLabel(option)}</MenuItem>)}
                     </Select>
                     {selfErrors?.message && (
                         <FormHelperText>{selfErrors.message}</FormHelperText>

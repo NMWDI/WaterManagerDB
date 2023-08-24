@@ -40,29 +40,17 @@ export interface ActivityForm {
 // These need to be the actual interfaces eventually, meter -> MeterListDTO
 export interface ActivityFormControl {
     activity_details: {
-        meter: {
-            id: number,
-            serial_number: string,
-            status?: {status_name?: string}
-        } | null
-
-        activity_type: {
-            id: number,
-            name?: string,
-            permission?: string,
-            description?: string
-        } | null
-
-        user: {
-            id: number,
-            full_name?: string
-        } | null
-
+        selected_meter: Partial<MeterListDTO> | null
+        activity_type: Partial<ActivityTypeLU> | null
+        user: Partial<User> | null
         date: Dayjs
         start_time: Dayjs
         end_time: Dayjs
     },
-
+    current_installation: {
+        meter: Partial<MeterDetails> | null
+        well: Partial<Well> | null
+    }
 }
 
 export interface MeterActivity {
@@ -313,7 +301,7 @@ export interface MeterListDTO {
 }
 
 interface WellSearchQueryParams {
-    search_string: string
+    search_string: string | undefined
 }
 
 export interface Page<T> {

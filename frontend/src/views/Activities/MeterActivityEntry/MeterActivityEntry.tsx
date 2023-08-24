@@ -11,13 +11,14 @@ import Dayjs from 'dayjs'
 import { MeterActivitySelection } from './MeterActivitySelection'
 import { ObservationSelection } from './ObservationsSelection'
 import { NotesSelection } from './NotesSelection'
-import { MeterInstallation } from './MeterInstallation'
+import MeterInstallation from './MeterInstallation'
 import { MaintenanceRepairSelection } from './MaintenanceRepairSelection'
 import { PartsSelection } from './PartsSelection'
 
 import { ActivityForm, ActivityFormControl, MeterDetails, MeterListDTO, Well } from '../../../interfaces.d'
 import { ActivityType } from '../../../enums'
-import { useCreateActivity, useGetMeter } from '../../../service/ApiServiceNew'
+import { useCreateActivity, useGetMeter, useGetWell } from '../../../service/ApiServiceNew'
+import { ActivityResolverSchema, getDefaultForm } from './ActivityFormConfig'
 
 export default function MeterActivityEntry() {
     function onSuccessfulSubmit() {
@@ -31,7 +32,7 @@ export default function MeterActivityEntry() {
     const { enqueueSnackbar } = useSnackbar()
 
     // Set the initial meter used in the form if queryparams are defined
-    let initialMeter: MeterListDTO | null = null
+    let initialMeter: Partial<MeterListDTO> | null = null
     const qpMeterID = searchParams.get('meter_id')
     const qpSerialNumber = searchParams.get('serial_number')
     const qpStatus = searchParams.get('meter_status')
@@ -41,76 +42,66 @@ export default function MeterActivityEntry() {
             id: qpMeterID as unknown as number,
             serial_number: qpSerialNumber,
             status: {status_name: qpStatus},
-            well: null as any
         }
     }
 
-    // Validation (move to ActivityFormConfig with the defaultValues thing?)
-    const activitySchema: Yup.ObjectSchema<ActivityFormControl> = Yup.object().shape({
-
-        activity_details: Yup.object().shape({
-            meter: Yup.object().shape({
-                id: Yup.number().required(),
-                serial_number: Yup.string().required()
-            }).required("Please Select A Meter"),
-
-            activity_type: Yup.object().shape({
-                id: Yup.number().required("Please Select An Activity"),
-                name: Yup.string(),
-                permission: Yup.string(),
-                description: Yup.string()
-            }).required("Please Select An Activity"),
-
-            user: Yup.object().shape({
-                id: Yup.number().required("Please Select A User"),
-                full_name: Yup.string()
-            }).required("Please Select a User"),
-
-            date: Yup.date().required('Please Select a Date'),
-            start_time: Yup.date().required('Please Select a Start Time'),
-            end_time: Yup.date().required('Please Select an End Time')
-
-        }).required(),
-
-    }).required()
-
-    const defaultForm: ActivityFormControl = {
-        activity_details: {
-            meter: initialMeter,
-            activity_type: null,
-            user: null,
-            date: Dayjs(),
-            start_time: Dayjs(),
-            end_time: Dayjs()
-        },
-    }
-
+    // React hook form
     const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
-        resolver: yupResolver(activitySchema),
-        defaultValues: defaultForm
+        resolver: yupResolver(ActivityResolverSchema),
+        defaultValues: getDefaultForm(initialMeter)
     })
+
+    // Keep all form values updated based on current values
+    const [meterID, setMeterID] = useState<number>()
+    const [wellID, setWellID] = useState<number>()
+    const meterDetails = useGetMeter(meterID ? {meter_id: meterID} : undefined)
+    const wellDetails = useGetWell(wellID ? {well_id: wellID} : undefined)
+
+    useEffect(() => {
+        setMeterID(watch("activity_details.selected_meter.id"))
+    }, [watch("activity_details.selected_meter")?.id]) // Updates the qualified meter object based on selected meter
+
+    useEffect(() => {
+        setWellID(watch("current_installation.meter.well.id"))
+    }, [watch("current_installation.meter")?.well?.id]) // Updates the qualified well based on selected meter
+
+    useEffect(() => {
+        setWellID(watch("current_installation.well.id"))
+    }, [watch("current_installation.well")?.id]) // Qualifies the well if selected from the dropdown
+
+    // Abstract this?
+    useEffect(() => {
+            setValue("current_installation.meter", meterDetails.data ?? null)
+    }, [meterDetails.data])
+
+    useEffect(() => {
+            setValue("current_installation.well", wellDetails.data ?? null)
+            console.log("WD: ", wellDetails.data)
+    }, [wellDetails.data])
+
 
     // TESTING
     const onSubmit: SubmitHandler<ActivityFormControl> = data => console.log("SUBMITTED: ", data)
     const onError: SubmitErrorHandler<ActivityFormControl> = err => {console.log("ERR: ", err); console.log("CONTROL: ", control)}
 
-    const meterActivityConflict = ((watch("activity_details.meter")?.status?.status_name == 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
-                                    (watch("activity_details.meter")?.status?.status_name != 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
+    const meterActivityConflict = ((watch("activity_details.selected_meter")?.status?.status_name == 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
+                                    (watch("activity_details.selected_meter")?.status?.status_name != 'Installed' && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
 
-    const isMeterAndActivitySelected = (watch("activity_details.meter") != null && watch("activity_details.activity_type") != null)
-
-    console.log(meterActivityConflict)
-    console.log(isMeterAndActivitySelected)
+    const isMeterAndActivitySelected = (watch("activity_details.selected_meter") != null && watch("activity_details.activity_type") != null)
 
     return (
             <>
                 <Button variant="contained" type="submit" onClick={handleSubmit(onSubmit, onError)} sx={{mt: 4}}>Submit</Button>
 
-                <div>MeterID: {watch("activity_details.meter")?.id}</div>
-                <div>ActivityName: {watch("activity_details.activity_type")?.name}</div>
-                <div>UserName: {watch("activity_details.user")?.full_name}</div>
-                <div>StartTime: {watch("activity_details")?.start_time?.toLocaleString()}</div>
-                <div>Date: {watch("activity_details")?.date?.toLocaleString()}</div>
+                <div>MeterID: {watch("activity_details.selected_meter.id")}</div>
+                <div>ActivityName: {watch("activity_details.activity_type.name")}</div>
+                <div>UserName: {watch("activity_details.user.full_name")}</div>
+                <div>UserID: {watch("activity_details.user")?.id}</div>
+                <div>StartTime: {watch("activity_details.start_time")?.toLocaleString()}</div>
+                <div>Date: {watch("activity_details.date")?.toLocaleString()}</div>
+                <div>WellName: {watch("current_installation.well.name")}</div>
+                <div>WellID: {watch("current_installation.well")?.id}</div>
+                <div>LocationName: {watch("current_installation.well")?.location?.name}</div>
 
                 <MeterActivitySelection
                     control={control}
@@ -122,14 +113,14 @@ export default function MeterActivityEntry() {
                 {(!meterActivityConflict && isMeterAndActivitySelected) ?
                     <>
 
-                    <div>Things;..</div>
-                    {/*
                     <MeterInstallation
-                        activityForm={activityForm}
-                        meterID={meter.id}
-                        activityType={activityType}
-                        ref={installationRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
+                    {/*
+
 
                     <ObservationSelection
                         activityForm={activityForm}

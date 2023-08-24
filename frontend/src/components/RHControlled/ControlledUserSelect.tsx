@@ -13,12 +13,12 @@ export default function ControlledUserSelect({name, control, errors, hideAndSele
 
         return (
             <ControlledSelect
-                options={userList.data ?? []}
-                getOptionLabel={(user: User) => user.full_name}
-                label="User"
                 control={control}
                 errors={errors}
                 name={name}
+                options={userList.data ?? []}
+                getOptionLabel={(user: User) => user.full_name}
+                label="User"
             />
         )
     }

@@ -8,12 +8,12 @@ export default function ControlledActivitySelect({name, control, errors}: any) {
 
     return (
         <ControlledSelect
-            options={activityTypeList.data ?? []}
-            getOptionLabel={(option: ActivityTypeLU) => option.name}
-            label="Activity Type"
             errors={errors}
             control={control}
             name={name}
+            options={activityTypeList.data ?? []}
+            getOptionLabel={(option: ActivityTypeLU) => option.name}
+            label="Activity Type"
         />
     )
 }
