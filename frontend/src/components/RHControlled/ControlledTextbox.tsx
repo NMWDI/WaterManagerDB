@@ -9,7 +9,7 @@ const disabledInputStyle = {
     cursor: 'default'
 }
 
-export default function ControlledTextbox({name, control, errors, ...childProps}: any) {
+export default function ControlledTextbox({name, control, ...childProps}: any) {
     return (
         <Controller
             name={name}
@@ -25,7 +25,7 @@ export default function ControlledTextbox({name, control, errors, ...childProps}
                     value={field.value ?? ''}
 
                     {...childProps}
-                    label={childProps.label}  // Textfield starts in the wrong state if label isnt like this
+                    // label={childProps.label}  // Textfield starts in the wrong state if label isnt like this
                 />
             )}
         />

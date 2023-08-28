@@ -7,29 +7,7 @@ import { useGetMeterList } from '../../service/ApiServiceNew'
 import { MeterListDTO } from '../../interfaces'
 import ControlledAutocomplete from './ControlledAutocomplete'
 
-interface MeterSelectionProps {
-    name: string
-    control: any
-    errors: any
-}
-
-function getErrorsByName(errors: any, name: string) {
-    const pathArray = name.split('.')
-    let result = errors
-    for (const prop of pathArray) {
-        if (result && result.hasOwnProperty(prop)) {
-            result = result[prop]
-        }
-        else {
-            result = undefined
-            break
-        }
-    }
-    return result
-}
-
-// props could be in interface? ControlledInputProps
-export default function ControlledMeterSelection({name, control, errors}: MeterSelectionProps) {
+export default function ControlledMeterSelection({name, control, ...childProps}: any) {
     const [meterSearchQuery, setMeterSearchQuery] = useState<string>('')
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
 
@@ -37,8 +15,6 @@ export default function ControlledMeterSelection({name, control, errors}: MeterS
         search_string: meterSearchQueryDebounced != '' ? meterSearchQueryDebounced : undefined,
         exclude_inactive: true
     })
-
-    const selfErrors = getErrorsByName(errors, name)
 
     return (
         <ControlledAutocomplete
@@ -56,8 +32,8 @@ export default function ControlledMeterSelection({name, control, errors}: MeterS
                     label="Meter"
                     size="small"
                     placeholder="Begin typing to search"
-                    error={selfErrors != undefined}
-                    helperText={selfErrors?.message}
+                    disabled={meterList.isLoading}
+                    {...childProps}
                 />
             )}}
         />

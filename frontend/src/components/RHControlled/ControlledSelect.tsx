@@ -2,34 +2,14 @@ import React from 'react'
 import { FormControl, Select, InputLabel, MenuItem, FormHelperText } from '@mui/material'
 import { Controller } from "react-hook-form";
 
-// move to util?
-function getErrorsByName(errors: any, name: string) {
-    const pathArray = name.split('.')
-    let result = errors
-    for (const prop of pathArray) {
-        if (result && result.hasOwnProperty(prop)) {
-            result = result[prop]
-        }
-        else {
-            result = undefined
-            break
-        }
-    }
-    return result
-}
-
 // React-Hook-Form controlled version of the select component
 // Uses the name field to get the ID that keeps the state of this box
 // But, will fully populate the selected object in the form
 export function ControlledSelect({
     control,
-    errors,
     name,
     ...childProps
 }: any) {
-
-    // Errors relating to the given name
-    const selfErrors = getErrorsByName(errors, name)
 
     return (
         <Controller
@@ -39,23 +19,21 @@ export function ControlledSelect({
                 <FormControl
                     size="small"
                     fullWidth
-                    error={selfErrors != undefined}
+                    error={childProps.error != undefined}
                 >
                     <InputLabel>{childProps.label}</InputLabel>
                     <Select
                         {...field}
-                        value={field.value?.id ?? ''}
+                        {...childProps}
+                        value={childProps.value ? childProps.value : field.value?.id ?? ''}
                         onChange={(event: any) => {field.onChange(childProps.options.find((x: any) => x?.id == event.target.value))}}
                         defaultValue={''}
-                        label={childProps.label}
                     >
                     {childProps.options.map((option: any) => <MenuItem value={option.id} key={option.id}>{childProps.getOptionLabel(option)}</MenuItem>)}
+                    {childProps.value == 'Loading...' && <MenuItem value='Loading...'>Loading...</MenuItem>}
                     </Select>
-                    {selfErrors?.message && (
-                        <FormHelperText>{selfErrors.message}</FormHelperText>
-                    )}
-                    {selfErrors && (
-                        Object.keys(selfErrors).map((errKey: any) => <FormHelperText>{selfErrors[errKey].message}</FormHelperText>)
+                    {childProps.error && (
+                        <FormHelperText key={childProps.error}>{childProps.error}</FormHelperText>
                     )}
                 </FormControl>
             )}

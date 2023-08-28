@@ -50,7 +50,22 @@ export interface ActivityFormControl {
     current_installation: {
         meter: Partial<MeterDetails> | null
         well: Partial<Well> | null
-    }
+    },
+    observations: Array<{
+        time: Dayjs
+        reading: '' | number
+        property_type: Partial<ObservedPropertyTypeLU> | null
+        unit: Partial<Units> | null
+    }>,
+    maintenance_repair?: {
+        service_type_ids: number[] | null,
+        description: string
+    },
+    notes: {
+        working_on_arrival_slug: string,
+        selected_note_ids: number[] | null
+    },
+    part_used_ids?: []
 }
 
 export interface MeterActivity {
@@ -71,7 +86,7 @@ export interface MeterActivity {
 }
 
 export interface ObservationForm {
-    id: number // Just used for tracking them in the UI
+    // id: number // Just used for tracking them in the UI
     time: Dayjs
     reading: '' | number
     property_type_id: '' | number
@@ -119,12 +134,12 @@ export interface NoteTypeLU {
 
 export interface Well {
     id: int
-    name?: string
-    location_id?: number
-    ra_number?: string
-    osepod?: string
-    well_distance_ft?: number
-    location: Location
+    name?: string | null
+    location_id?: number | null
+    ra_number?: string | null
+    osepod?: string | null
+    well_distance_ft?: number | null
+    location: Location | null
 }
 
 export interface MeterDetailsQueryParams {
@@ -224,22 +239,22 @@ export interface MeterTypeLU {
 }
 
 export interface MeterDetails {
-    id?: number
-    serial_number?: string
-    contact_name?: string
-    contact_phone?: string
-    old_contact_name?: string
-    old_contact_phone?: string
-    ra_number?: string
-    tag?: string
-    well_distance_ft?: float
-    notes?: string
-    meter_type_id?: int
-    well_id?: int
+    id?: number | null
+    serial_number?: string | null
+    contact_name?: string | null
+    contact_phone?: string | null
+    old_contact_name?: string | null
+    old_contact_phone?: string | null
+    ra_number?: string | null
+    tag?: string | null
+    well_distance_ft?: float | null
+    notes?: string | null
+    meter_type_id?: int | null
+    well_id?: int | null
 
     meter_type: MeterType
     status: MeterStatus
-    well: Well
+    well: Well | null
     // Also has parts_associated?: List[Part]
 }
 

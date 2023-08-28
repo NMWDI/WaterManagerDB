@@ -4,20 +4,12 @@ import {
 } from '@mui/material'
 
 import { gridBreakpoints } from '../ActivitiesView'
-import { ActivityForm, ActivityFormControl, Well } from '../../../interfaces'
 import { ActivityType } from '../../../enums'
-import { FieldErrors, FieldValues, UseFormWatch } from 'react-hook-form'
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox'
 import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
 
-interface MeterInstallationProps {
-    control: FieldValues
-    errors: FieldErrors
-    watch: UseFormWatch<ActivityFormControl>
-    setValue: Function
-}
-
-export default function MeterInstallation({control, errors, watch, setValue}: MeterInstallationProps) {
+{/* Controls fields of the current meter and well, also allows changing the current well if applicable */}
+export default function MeterInstallation({control, errors, watch, setValue}: any) {
     function isActivity(activitiesList: ActivityType[]) {
         return activitiesList.some((type: ActivityType) => type == watch("activity_details.activity_type")?.name)
     }
@@ -30,27 +22,26 @@ export default function MeterInstallation({control, errors, watch, setValue}: Me
                     <ControlledTextbox
                         name="current_installation.meter.status.status_name"
                         control={control}
-                        erorrs={errors}
                         label={"Current Meter Status"}
                         disabled={true}
+                        error={errors?.current_installation?.meter?.status?.status_name?.message}
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <ControlledWellSelection
                         name="current_installation.well"
                         control={control}
-                        errors={errors}
                         disabled={!isActivity([ActivityType.Install])}
+                        error={errors?.current_installation?.well.message}
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <ControlledTextbox
                         name="current_installation.well.location.name"
                         control={control}
-                        erorrs={errors}
                         label={"Location Name"}
-                        value={watch("current_installation.well")?.location?.name ?? ''}
-                        disabled={true}
+                        value={watch("current_installation.well")?.location?.name ?? ''} // Watch the highest level of the form that can change this value
+                        disabled
                     />
                 </Grid>
             </Grid>
@@ -60,72 +51,67 @@ export default function MeterInstallation({control, errors, watch, setValue}: Me
                     <ControlledTextbox
                         name="current_installation.well.ra_number"
                         control={control}
-                        erorrs={errors}
                         label={"RA Number"}
                         value={watch("current_installation.well")?.ra_number ?? ''}
-                        disabled={true}
+                        disabled
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <ControlledTextbox
                         name="current_installation.well.osepod"
                         control={control}
-                        erorrs={errors}
                         label={"OSE Tag"}
                         value={watch("current_installation.well")?.osepod ?? ''}
-                        disabled={true}
+                        disabled
                     />
                 </Grid>
                 <Grid item xs={4}>
                     <ControlledTextbox
                         name="current_installation.well.location.trss"
                         control={control}
-                        erorrs={errors}
                         label={"TRSS"}
                         value={watch("current_installation.well")?.location?.trss ?? ''}
-                        disabled={true}
+                        disabled
                     />
                 </Grid>
             </Grid>
 
- {/*
             <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
                 <Grid item xs={4}>
-                    <InstallationTextField
-                        label="Contact Name"
-                        value={contactName}
-                        updateCallback={setContactName}
-                        disabled={isActivity([ActivityType.Uninstall])}
+                    <ControlledTextbox
+                        name="current_installation.meter.contact_name"
+                        control={control}
+                        label={"Contact Name"}
+                        value={watch("current_installation.meter")?.contact_name ?? ''}
                     />
                 </Grid>
                 <Grid item xs={4}>
-                    <InstallationTextField
-                        label="Contact Phone"
-                        value={contactPhone}
-                        updateCallback={setContactPhone}
-                        disabled={isActivity([ActivityType.Uninstall])}
+                    <ControlledTextbox
+                        name="current_installation.meter.contact_phone"
+                        control={control}
+                        label={"Contact Phone"}
+                        value={watch("current_installation.meter")?.contact_phone ?? ''}
                     />
                 </Grid>
                 <Grid item xs={4}>
-                    <InstallationTextField
-                        label="Well Distance"
-                        value={wellDistance ?? ''}
-                        updateCallback={setWellDistance}
-                        disabled={isActivity([ActivityType.Uninstall])}
+                    <ControlledTextbox
+                        name="current_installation.meter.well_distance_ft"
+                        control={control}
+                        label={"Well Distance"}
+                        value={watch("current_installation.meter")?.well_distance_ft ?? ''}
                     />
                 </Grid>
             </Grid>
-
             <Grid item xs={12} sx={{mt: 2}}>
-                <InstallationTextField
-                    label="Installation Notes"
-                    value={notes}
-                    updateCallback={setNotes}
-                    disabled={isActivity([ActivityType.Uninstall])}
+                <ControlledTextbox
+                    name="current_installation.meter.notes"
+                    control={control}
+                    label={"Meter Notes"}
+                    value={watch("current_installation.meter")?.notes ?? ''}
                     rows={3}
+                    multiline
                 />
             </Grid>
-     */}
         </Grid>
     )
 }

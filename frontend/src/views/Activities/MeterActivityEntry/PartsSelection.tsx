@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, forwardRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { produce } from 'immer'
 import {
     Box,
@@ -10,29 +10,15 @@ import {
     MenuItem
 } from '@mui/material'
 import ToggleButton from '@mui/material/ToggleButton'
+import { useFieldArray } from 'react-hook-form'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { ActivityForm, PartAssociation } from '../../../interfaces'
+import { PartAssociation } from '../../../interfaces'
 import { useGetPartsList } from '../../../service/ApiServiceNew'
 
-interface PartsSelectionProps {
-    activityForm: React.MutableRefObject<ActivityForm>
-    meterID: number | null
-}
-
-export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectionProps, submitRef) => {
-
-    // Exposed submit function to allow parent to request the form values
-    React.useImperativeHandle(submitRef, () => {
-        return {
-            onSubmit() {
-                activityForm.current.part_used_ids = selectedPartIDs
-            }
-        }
-    })
-
-    const partsList = useGetPartsList({meter_id: meterID ?? undefined})
-    const [selectedPartIDs, setSelectedPartIDs] = useState<number[]>([]) // Parts toggled by the user
+{/*  Controls which part IDs are selected, only shows parts associated with the selected meter */}
+export default function PartsSelection({control, errors, watch, setValue}: any) {
+    const partsList = useGetPartsList({meter_id: watch("activity_details.selected_meter.id") ?? undefined})
     const [visiblePartIDs, setVisiblePartIDs] = useState<number[]>([]) // The default parts, and user-added ones from select dropdown
 
     // Set commonly used parts visible by default
@@ -42,19 +28,25 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                 filter((pa: PartAssociation) => pa.commonly_used == true)
                 .map((pa: PartAssociation) => pa.part_id) ?? []
         )
-        setSelectedPartIDs([])
+        setValue("part_used_ids", [])
     }, [partsList.data])
 
+    // React hook formarray
+    const { append, remove } = useFieldArray({
+        control, name: "part_used_ids"
+    })
+
     function isSelected(ID: number) {
-        return selectedPartIDs.some(x => x == ID)
+        return watch("part_used_ids")?.some((x: any) => x == ID)
     }
 
     function unselectPart(ID: number) {
-        setSelectedPartIDs(produce(selectedPartIDs, newParts => {return newParts.filter(x => x != ID)}))
+        const index = watch("part_used_ids")?.findIndex((x: any) => x == ID)
+        remove(index)
     }
 
     function selectPart(ID: number) {
-        setSelectedPartIDs(produce(selectedPartIDs, newParts => {newParts.push(ID)}))
+        append(ID)
     }
 
     function PartToggleButton({pa}: {pa: PartAssociation}) {
@@ -116,9 +108,7 @@ export const PartsSelection = forwardRef(({activityForm, meterID}: PartsSelectio
                         </FormControl>
                     </Grid>
                 </Grid>
-
             </Grid>
-
         </Box>
     )
-})
+}

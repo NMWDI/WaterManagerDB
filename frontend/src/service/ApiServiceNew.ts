@@ -255,12 +255,11 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
     return useQuery<Well, Error>([route, params], async() =>
         {
             const response = await GETFetch2(route, params, authHeader(), true)
-            if (!response?.ok) {console.log("BAD RESPO"); return null }
+            if (!response?.ok) {return null }
             return response?.json() ?? null
         },
         {keepPreviousData: true, retry: 0}
     )
-
 }
 
 export function useGetMeter(params: MeterDetailsQueryParams | undefined) {

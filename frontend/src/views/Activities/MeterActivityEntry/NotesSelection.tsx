@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, forwardRef } from 'react'
+import { useState } from 'react'
 import { produce } from 'immer'
 
 import {
@@ -15,45 +15,33 @@ import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { ActivityForm, NoteTypeLU } from '../../../interfaces'
+import { NoteTypeLU } from '../../../interfaces'
 import { WorkingOnArrivalValue } from '../../../enums'
 import { useGetNoteTypes } from '../../../service/ApiServiceNew'
+import { Controller, useFieldArray } from 'react-hook-form'
 
-interface NotesSelectionProps {
-    activityForm: React.MutableRefObject<ActivityForm>
-    meterID: number | null
-}
-
-export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectionProps, submitRef) => {
-
-    // Exposed submit function to allow parent to request the form values
-    React.useImperativeHandle(submitRef, () => {
-        return {
-            onSubmit() {
-                activityForm.current.notes = {
-                    working_on_arrival_slug: workingOnArrival,
-                    selected_note_ids: selectedNoteIDs
-                }
-            }
-        }
-    })
-
-    const [workingOnArrival, setWorkingOnArrival] = useState<string>(WorkingOnArrivalValue.NotChecked)
-    const [selectedNoteIDs, setSelectedNoteIDs] = useState<number[]>([]) // Notes toggled by the user
+{/* Controls which notes are selected */}
+export default function NotesSelection({control, errors, watch, setValue}: any) {
     const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([1, 2, 3]) // The default notes, and user-added ones from select dropdown
 
     const notesList = useGetNoteTypes()
 
+    // React hook formarray
+    const { append, remove } = useFieldArray({
+        control, name: "notes.selected_note_ids"
+    })
+
     function isSelected(ID: number) {
-        return selectedNoteIDs.some(x => x == ID)
+        return watch("notes.selected_note_ids")?.some((x: any) => x == ID)
     }
 
     function unselectNote(ID: number) {
-        setSelectedNoteIDs(produce(selectedNoteIDs, newNotes => {return newNotes.filter(x => x != ID)}))
+        const index = watch("notes.selected_note_ids")?.findIndex((x: any) => x == ID)
+        remove(index)
     }
 
     function selectNote(ID: number) {
-        setSelectedNoteIDs(produce(selectedNoteIDs, newNotes => {newNotes.push(ID)}))
+        append(ID)
     }
 
     function NoteToggleButton({note}: any) {
@@ -77,25 +65,30 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
         <Box sx={{mt: 6}}>
             <h4>Notes</h4>
             <Grid container>
+
+                {/*  Working Status Selection */}
                 <Grid container item {...gridBreakpoints} xs={12}>
+                    <Controller
+                        name="notes.working_on_arrival_slug"
+                        control={control}
+                        render={({ field }) => (
+                            <ToggleButtonGroup
+                                {...field}
+                                color="primary"
+                                exclusive>
 
-                    {/* Is working on arrival boolean selection */}
-                    <ToggleButtonGroup
-                        value={workingOnArrival}
-                        onChange={(_, value) => {value != null ? setWorkingOnArrival(value) : null}}
-                        color="primary"
-                        exclusive>
-
-                        <ToggleButton value={WorkingOnArrivalValue.NotChecked} sx={toggleStyle}>
-                            Working Status Not Checked
-                        </ToggleButton>
-                        <ToggleButton value={WorkingOnArrivalValue.Working} sx={toggleStyle}>
-                            Meter Working On Arrival
-                        </ToggleButton>
-                        <ToggleButton value={WorkingOnArrivalValue.NotWorking} sx={toggleStyle}>
-                            Meter Not Working On Arrival
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+                                <ToggleButton value={WorkingOnArrivalValue.NotChecked} sx={toggleStyle}>
+                                    Working Status Not Checked
+                                </ToggleButton>
+                                <ToggleButton value={WorkingOnArrivalValue.Working} sx={toggleStyle}>
+                                    Meter Working On Arrival
+                                </ToggleButton>
+                                <ToggleButton value={WorkingOnArrivalValue.NotWorking} sx={toggleStyle}>
+                                    Meter Not Working On Arrival
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        )}
+                    />
                 </Grid>
 
                 {/*  Visible note toggles */}
@@ -138,9 +131,7 @@ export const NotesSelection = forwardRef(({activityForm, meterID}: NotesSelectio
                         </FormControl>
                     </Grid>
                 </Grid>
-
             </Grid>
-
         </Box>
     )
-})
+}
