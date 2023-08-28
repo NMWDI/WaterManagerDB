@@ -20,11 +20,13 @@ export function ControlledSelect({
                     size="small"
                     fullWidth
                     error={childProps.error != undefined}
+                    sx={childProps.sx}
                 >
                     <InputLabel>{childProps.label}</InputLabel>
                     <Select
                         {...field}
                         {...childProps}
+                        sx={undefined}
                         value={childProps.value ? childProps.value : field.value?.id ?? ''}
                         onChange={(event: any) => {field.onChange(childProps.options.find((x: any) => x?.id == event.target.value))}}
                         defaultValue={''}

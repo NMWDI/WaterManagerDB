@@ -22,6 +22,7 @@ from api.models.main_models import (
     Wells,
     Locations,
     MeterStatusLU,
+    PartTypeLU
 )
 from api.models.security_models import Users
 from api.security import scoped_user
@@ -238,7 +239,32 @@ async def get_note_types(db: Session = Depends(get_db)):
     tags=["Activities"],
 )
 async def get_parts(db: Session = Depends(get_db)):
-    return db.scalars(select(Parts)).all()
+    return db.scalars(
+        select(Parts)
+        .options(joinedload(Parts.part_type))
+    ).all()
+
+
+@activity_router.get(
+    "/part_types",
+    dependencies=[Depends(read_user)],
+    tags=["Activities"],
+)
+async def get_part_types(db: Session = Depends(get_db)):
+    return db.scalars(select(PartTypeLU)).all()
+
+
+@activity_router.get(
+    "/part",
+    dependencies=[Depends(read_user)],
+    tags=["Activities"],
+)
+async def get_part(part_id: int, db: Session = Depends(get_db)):
+    return db.scalars(
+        select(Parts)
+        .where(Parts.id == part_id)
+        .options(joinedload(Parts.part_type))
+    ).first()
 
 
 @activity_router.get(

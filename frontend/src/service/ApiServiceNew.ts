@@ -26,7 +26,8 @@ import {
     MeterPartParams,
     PartAssociation,
     MeterMapDTO,
-    MeterHistoryDTO
+    MeterHistoryDTO,
+    Part
 } from '../interfaces.js'
 
 // Date display util
@@ -258,7 +259,11 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
             if (!response?.ok) {return null }
             return response?.json() ?? null
         },
-        {keepPreviousData: true, retry: 0}
+        {
+            keepPreviousData: true,
+            retry: 0,
+            enabled: params?.well_id != undefined
+        }
     )
 }
 
@@ -267,11 +272,48 @@ export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
     const authHeader = useAuthHeader()
     return useQuery<MeterDetails, Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
-        {keepPreviousData: true}
+        {
+            keepPreviousData: true,
+            enabled: params?.meter_id != undefined
+        }
     )
 }
 
-export function useGetPartsList(params: MeterPartParams | undefined) {
+export function useGetPartTypeList() {
+    const route = 'part_types'
+    const authHeader = useAuthHeader()
+    return useQuery<Part, Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+        {
+            keepPreviousData: true,
+        }
+    )
+}
+
+export function useGetParts() {
+    const route = 'parts'
+    const authHeader = useAuthHeader()
+    return useQuery<Part[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+        {
+            keepPreviousData: true,
+        }
+    )
+}
+
+export function useGetPart(params: {part_id: number} | undefined) {
+    const route = 'part'
+    const authHeader = useAuthHeader()
+    return useQuery<Part, Error>([route, params], () =>
+        GETFetch(route, params, authHeader()),
+        {
+            keepPreviousData: true,
+            enabled: params?.part_id != undefined
+        }
+    )
+}
+
+export function useGetMeterPartsList(params: MeterPartParams | undefined) {
     const route = 'meter_parts'
     const authHeader = useAuthHeader()
     return useQuery<PartAssociation[], Error>([route, params], () =>

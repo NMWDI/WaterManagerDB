@@ -14,11 +14,11 @@ import { useFieldArray } from 'react-hook-form'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
 import { PartAssociation } from '../../../interfaces'
-import { useGetPartsList } from '../../../service/ApiServiceNew'
+import { useGetMeterPartsList } from '../../../service/ApiServiceNew'
 
 {/*  Controls which part IDs are selected, only shows parts associated with the selected meter */}
 export default function PartsSelection({control, errors, watch, setValue}: any) {
-    const partsList = useGetPartsList({meter_id: watch("activity_details.selected_meter.id") ?? undefined})
+    const partsList = useGetMeterPartsList({meter_id: watch("activity_details.selected_meter.id") ?? undefined})
     const [visiblePartIDs, setVisiblePartIDs] = useState<number[]>([]) // The default parts, and user-added ones from select dropdown
 
     // Set commonly used parts visible by default
