@@ -1,50 +1,34 @@
 import React from 'react'
-import { useState, forwardRef } from 'react'
-import { produce } from 'immer'
 import {
     Box,
-    TextField,
     Grid,
 } from '@mui/material'
 import ToggleButton from '@mui/material/ToggleButton'
-
+import { useFieldArray } from 'react-hook-form'
+import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox'
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { ActivityForm } from '../../../interfaces'
 import { useGetServiceTypes } from '../../../service/ApiServiceNew'
 
-interface MaintenanceRepairSelectionProps {
-    activityForm: React.MutableRefObject<ActivityForm>
-    meterID: number | null
-}
+{/* Controls working status and any selected service types  */}
+export default function MaintenanceRepairSelection ({control, errors, watch, setValue}: any) {
+    const serviceTypes = useGetServiceTypes()
 
-export const MaintenanceRepairSelection = forwardRef(({activityForm, meterID}: MaintenanceRepairSelectionProps, submitRef) => {
-
-    // Exposed submit function to allow parent to request the form values
-    React.useImperativeHandle(submitRef, () => {
-        return {
-            onSubmit() {
-                activityForm.current.maintenance_repair = {
-                    service_type_ids: selectedIDs,
-                    description: description
-                }
-            }
-        }
+    // React hook formarray
+    const { append, remove } = useFieldArray({
+        control, name: "maintenance_repair.service_type_ids"
     })
 
-    const serviceTypes = useGetServiceTypes()
-    const [description, setDescription] = useState<string>('')
-    const [selectedIDs, setSelectedIDs] = useState<number[]>([])
-
     function isSelected(ID: number) {
-        return selectedIDs.some(x => x == ID)
+        return watch("maintenance_repair.service_type_ids")?.some((x: any) => x == ID)
     }
 
     function unselectItem(ID: number) {
-        setSelectedIDs(produce(selectedIDs, newIDs => {return newIDs.filter(x => x != ID)}))
+        const index = watch("maintenance_repair.service_type_ids")?.findIndex((x: any) => x == ID)
+        remove(index)
     }
 
     function selectItem(ID: number) {
-        setSelectedIDs(produce(selectedIDs, newIDs => {newIDs.push(ID)}))
+        append(ID)
     }
 
     function MaintanenceToggleButton({item}: any) {
@@ -77,24 +61,26 @@ export const MaintenanceRepairSelection = forwardRef(({activityForm, meterID}: M
                         <Grid container item {...gridBreakpoints} spacing={2}>
 
                             {serviceTypes.data?.map((item: any) => {
-                                    return <MaintanenceToggleButton item={item} />
+                                return <MaintanenceToggleButton
+                                            key={item.id}
+                                            item={item}
+                                        />
                             })}
                         </Grid>
                     </Grid>
                 }
 
                 <Grid container item {...gridBreakpoints} sx={{mt: 2}}>
-                    <TextField
+                    <ControlledTextbox
+                        name="maintenance_repair.description"
+                        control={control}
+                        error={errors?.maintenance_repair?.description?.message}
                         label={'Description'}
-                        value={description}
-                        onChange={(event: any) => {setDescription(event.target.value)}}
-                        multiline
-                        fullWidth
                         rows={3}
+                        multiline
                     />
                 </Grid>
-
             </Grid>
         </Box>
     )
-})
+}

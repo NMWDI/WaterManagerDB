@@ -1,110 +1,168 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useState, useRef } from 'react'
-import { Button, Grid } from '@mui/material'
+import React, { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Alert, Button, Grid } from '@mui/material'
 import { useSnackbar } from 'notistack'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 import { MeterActivitySelection } from './MeterActivitySelection'
-import { ObservationSelection } from './ObservationsSelection'
-import { NotesSelection } from './NotesSelection'
-import { MeterInstallation } from './MeterInstallation'
-import { MaintenanceRepairSelection } from './MaintenanceRepairSelection'
-import { PartsSelection } from './PartsSelection'
+import ObservationSelection from './ObservationsSelection'
+import NotesSelection from './NotesSelection'
+import MeterInstallation from './MeterInstallation'
+import MaintenanceRepairSelection from './MaintenanceRepairSelection'
+import PartsSelection from './PartsSelection'
 
-import { ActivityForm, MeterListDTO } from '../../../interfaces.d'
+import { ActivityFormControl, MeterListDTO } from '../../../interfaces.d'
 import { ActivityType } from '../../../enums'
-import { useCreateActivity } from '../../../service/ApiServiceNew'
+import { useCreateActivity, useGetMeter, useGetWell } from '../../../service/ApiServiceNew'
+import { ActivityResolverSchema, getDefaultForm, toSubmissionForm } from './ActivityFormConfig'
 
-interface FormSubmitRef {
-    onSubmit: Function
-}
-
+{/* Parent-level component responsible for handling the activity form */}
 export default function MeterActivityEntry() {
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const { enqueueSnackbar } = useSnackbar()
+    const [meterID, setMeterID] = useState<number>()
+    const [wellID, setWellID] = useState<number>()
+    const meterDetails = useGetMeter(meterID ? {meter_id: meterID} : undefined)
+    const wellDetails = useGetWell(wellID ? {well_id: wellID} : undefined)
+    const [hasMeterActivityConflict, setHasMeterActivityConflict] = useState<boolean>(false)
+    const [isMeterAndActivitySelected, setIsMeterAndActivitySelected] = useState<boolean>(false)
+
     function onSuccessfulSubmit() {
         enqueueSnackbar('Successfully Submitted Activity!', {variant: 'success'})
         navigate('/meters')
     }
 
-    const { enqueueSnackbar } = useSnackbar()
-    const activityForm = useRef<ActivityForm>({})
-    const [meter, setMeter] = useState<MeterListDTO>()
-    const [activityType, setActivityType] = useState<ActivityType>()
     const createActivity = useCreateActivity(onSuccessfulSubmit)
 
-    const navigate = useNavigate()
-    const activitySelectionRef = useRef<FormSubmitRef>()
-    const installationRef = useRef<FormSubmitRef>()
-    const observationRef = useRef<FormSubmitRef>()
-    const maintenanceRef = useRef<FormSubmitRef>()
-    const notesRef = useRef<FormSubmitRef>()
-    const partsRef = useRef<FormSubmitRef>()
+    // Set the initial meter used in the form if queryparams are defined
+    let initialMeter: Partial<MeterListDTO> | null = null
+    const qpMeterID = searchParams.get('meter_id')
+    const qpSerialNumber = searchParams.get('serial_number')
+    const qpStatus = searchParams.get('meter_status')
 
-    // On submit, ask child components to populate their section of the form
-    function submitActivity() {
-        activitySelectionRef.current?.onSubmit()
-        installationRef.current?.onSubmit()
-        observationRef.current?.onSubmit()
-        maintenanceRef.current?.onSubmit()
-        notesRef.current?.onSubmit()
-        partsRef.current?.onSubmit()
-
-        createActivity.mutate(activityForm.current)
+    if (qpMeterID && qpSerialNumber && qpStatus) {
+        initialMeter = {
+            id: qpMeterID as unknown as number,
+            serial_number: qpSerialNumber,
+            status: {status_name: qpStatus},
+        }
     }
 
-    const meterActivityConflict = ((meter?.status?.status_name == 'Installed' && activityType == ActivityType.Install) ||
-                                    (meter?.status?.status_name != 'Installed' && activityType != undefined && activityType == ActivityType.Uninstall))
+    // React hook form
+    const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
+        resolver: yupResolver(ActivityResolverSchema),
+        defaultValues: getDefaultForm(initialMeter)
+    })
 
-    const isMeterAndActivitySelected = (meter && activityType)
+    const onSubmit: SubmitHandler<ActivityFormControl> = data => createActivity.mutate(toSubmissionForm(data))
+
+    useEffect(() => {
+        setHasMeterActivityConflict(
+            ((watch("activity_details.selected_meter")?.status?.status_name == 'Installed'
+                && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
+            (watch("activity_details.selected_meter")?.status?.status_name != 'Installed'
+                && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
+        )
+    }, [watch("activity_details.selected_meter")?.status?.status_name, watch("activity_details.activity_type")?.name])
+
+    useEffect(() => {
+        setIsMeterAndActivitySelected(
+            watch("activity_details.selected_meter") != null && watch("activity_details.activity_type") != null
+        )
+    }, [watch("activity_details.selected_meter"), watch("activity_details.activity_type")])
+
+    useEffect(() => {
+        setMeterID(watch("activity_details.selected_meter.id"))
+    }, [watch("activity_details.selected_meter")?.id]) // Update the ID used by meterDetails if a new meter is selected
+
+    useEffect(() => {
+        setWellID(watch("current_installation.meter.well.id"))
+    }, [watch("current_installation.meter")?.well?.id]) // Update the ID used by wellDetails if a new meter is selected
+
+    useEffect(() => {
+        setWellID(watch("current_installation.well.id"))
+    }, [watch("current_installation.well")?.id]) // Update the ID used by wellDetails if new well selected from dropdown
+
+    useEffect(() => {
+            setValue("current_installation.meter", meterDetails.data ?? null)
+    }, [meterDetails.data]) // Set the form's current meter details based on API response
+
+    useEffect(() => {
+            setValue("current_installation.well", wellDetails.data ?? null)
+    }, [wellDetails.data]) // Set the form's current well details based on API response
+
+    // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
+    function hasErrors(errors: any) {
+        return Object.keys(errors).length > 0
+    }
 
     return (
             <>
                 <MeterActivitySelection
-                    activityForm={activityForm}
-                    setMeter={setMeter}
-                    setActivityType={setActivityType}
-                    ref={activitySelectionRef}
+                    control={control}
+                    errors={errors}
+                    watch={watch}
+                    setValue={setValue}
                 />
 
-                {(!meterActivityConflict && isMeterAndActivitySelected) ?
+                {(!hasMeterActivityConflict && isMeterAndActivitySelected) ?
                     <>
 
                     <MeterInstallation
-                        activityForm={activityForm}
-                        meterID={meter.id}
-                        activityType={activityType}
-                        ref={installationRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
 
                     <ObservationSelection
-                        activityForm={activityForm}
-                        ref={observationRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
 
                     <MaintenanceRepairSelection
-                        activityForm={activityForm}
-                        meterID={meter.id}
-                        ref={maintenanceRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
+
                     <NotesSelection
-                        activityForm={activityForm}
-                        meterID={meter.id}
-                        ref={notesRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
 
                     <PartsSelection
-                        activityForm={activityForm}
-                        meterID={meter.id}
-                        ref={partsRef}
+                        control={control}
+                        errors={errors}
+                        watch={watch}
+                        setValue={setValue}
                     />
 
-                    <Button variant="contained" onClick={submitActivity} sx={{mt: 4}}>Submit</Button>
+                    {/* Show submit button if no errors found */}
+                    <Grid item sx={{mt: 4}}>
+                        {hasErrors(errors) ?
+                        <Alert severity="error" sx={{width: '20%'}}>Please correct any errors before submission.</Alert> :
+                        <Button
+                            variant="contained"
+                            type="submit"
+                            onClick={handleSubmit(onSubmit)}
+                        >Submit</Button> }
+                    </Grid>
                 </>
                 :
                 <Grid container sx={{mt: 4}}>
 
                     {/*  Show the user why they can't see the full form */}
                     <Grid item xs={5}>
-                        {meterActivityConflict ?
+                        {hasMeterActivityConflict ?
                             <h4>You cannot install a meter that is already installed, or uninstall a meter that is not currently installed. Please choose a different activity or meter.</h4>
                             :
                             <h4>Please select a meter and activity to begin.</h4>

@@ -55,13 +55,23 @@ function formattedQueryParams(queryParams: any) {
     return queryParamString
 }
 
-async function GETFetch(route: string, params: any, authHeader: string) {
+async function GETFetch(route: string, params: any, authHeader: string, requireParams = false) {
+    if (!params && requireParams) return
     const headers = {
         "Authorization": authHeader
     }
 
     return fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
             .then(r => r.json())
+}
+
+async function GETFetch2(route: string, params: any, authHeader: string, requireParams = false) {
+    if (!params && requireParams) return
+    const headers = {
+        "Authorization": authHeader
+    }
+
+    return fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
 }
 
 // Fetches from the NM API's ST2 subdomain (data that relates to water levels)
@@ -242,9 +252,13 @@ export function useGetWells(params: WellSearchQueryParams | undefined) {
 export function useGetWell(params: WellDetailsQueryParams | undefined) {
     const route = 'well'
     const authHeader = useAuthHeader()
-    return useQuery<Well, Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
-        {keepPreviousData: true}
+    return useQuery<Well, Error>([route, params], async() =>
+        {
+            const response = await GETFetch2(route, params, authHeader(), true)
+            if (!response?.ok) {return null }
+            return response?.json() ?? null
+        },
+        {keepPreviousData: true, retry: 0}
     )
 }
 

@@ -23,7 +23,7 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
     return (
         <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
             <Box sx={{my: 'auto'}}>
-                {isWellSelected ? <Button variant="text" onClick={onOpenModal}>+ Add Measurement</Button> : null}
+                {isWellSelected ? <Button variant="text" onClick={onOpenModal}>+ Add Part</Button> : null}
             </Box>
             <GridPagination />
         </Box>
