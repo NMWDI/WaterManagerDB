@@ -5,6 +5,8 @@ import { Controller } from "react-hook-form";
 // React-Hook-Form controlled version of the select component
 // Uses the name field to get the ID that keeps the state of this box
 // But, will fully populate the selected object in the form
+// Handles errors, expects childprops to pass error as the error message string
+
 export function ControlledSelect({
     control,
     name,

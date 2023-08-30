@@ -32,6 +32,7 @@ from api.routes.meters import meter_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.activities import activity_router
 from api.routes.OSE import ose_router
+from api.routes.parts import part_router
 from api.schemas import meter_schemas
 
 from api.security import (
@@ -125,6 +126,7 @@ authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
 authenticated_router.include_router(ose_router)
+authenticated_router.include_router(part_router)
 add_pagination(app)
 
 app.include_router(authenticated_router)

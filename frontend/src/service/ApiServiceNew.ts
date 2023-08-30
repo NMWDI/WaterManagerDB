@@ -360,6 +360,52 @@ export function useCreateActivity(onSuccess: Function) {
     })
 }
 
+export function useUpdatePart(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'part'
+    const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (part: Partial<Part>) => {
+            const response = await PATCHFetch(route, part, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+
+                // Update the part on the parts list
+                queryClient.setQueryData(['parts'], (old: Part[] | undefined) => {
+                    if (old != undefined) {
+                        let newPartsList = [...old]
+                        const partIndex = old?.findIndex(part => part.id === responseJson["id"])
+
+                        if (partIndex != undefined && partIndex != -1) {
+                            newPartsList[partIndex] = responseJson
+                        }
+
+                        return newPartsList
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useUpdateMeter(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const route = 'meter'

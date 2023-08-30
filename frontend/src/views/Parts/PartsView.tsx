@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import PartsTable from './PartsTable'
 import { Box, Chip, Grid, TextField } from '@mui/material'
 import PartDetailsCard from './PartDetailsCard'
+import SearchIcon from '@mui/icons-material/Search';
 
 function TristateToggle({ label, onToggle }: any) {
     const [toggleState, setToggleState] = useState<boolean>()
@@ -50,6 +51,7 @@ function TristateToggle({ label, onToggle }: any) {
 export default function PartsView() {
     const [selectedPartID, setSelectedPartID] = useState<number>()
     const [partAddMode, setPartAddMode] = useState<boolean>(false)
+    const [partSearchQuery, setPartSearchQuery] = useState<string>()
 
     useEffect(() => {setPartAddMode(false)}, [selectedPartID]) // Exit add mode when part is selected from table
 
@@ -61,11 +63,14 @@ export default function PartsView() {
                 <Grid container item xs={6} sx={{mb: 1}} spacing={2}>
                     <Grid item xs={5}>
                         <TextField
-                            label="Search Part"
+                            label={<div style={{display: 'inline-flex', alignItems: 'center'}}><SearchIcon sx={{fontSize: '1.2rem'}}/> <span style={{marginTop: 1}}>&nbsp;Search Parts</span></div>}
                             variant="outlined"
                             size="small"
+                            value={partSearchQuery}
+                            onChange={(event: any) => setPartSearchQuery(event.target.value)}
                         />
                     </Grid>
+ {/*
                     <Grid item xs={7}>
                         <div style={{float: 'right'}}>
                             <TristateToggle
@@ -78,19 +83,20 @@ export default function PartsView() {
                             />
                         </div>
                     </Grid>
+     */}
                 </Grid>
             </Grid>
 
             {/*  Have this height match card height */}
             <Grid container sx={{height: '40%'}} spacing={2}>
-                <Grid item xs={6}>
+                <Grid item xs={7}>
                     <PartsTable
-                        selectedPartID={selectedPartID}
                         setSelectedPartID={setSelectedPartID}
                         setPartAddMode={setPartAddMode}
+                        partSearchQuery={partSearchQuery}
                     />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                     <PartDetailsCard
                         selectedPartID={selectedPartID}
                         partAddMode={partAddMode}
