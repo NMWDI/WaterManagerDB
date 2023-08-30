@@ -1,9 +1,0 @@
-id,name,description,permission
-1,Install,Install meter at a location,technician
-2,Uninstall,Remove meter from a location,technician
-3,General Maintenance,Perform general maintenance,technician
-4,Preventative Maintenance,Annual preventative maintenance,technician
-5,Repair,Repair meter,technician
-6,Rate Meter,Test meter with known flow rate,technician
-7,Sell,Sell meter,admin
-8,Scrap,Scrap meter,admin

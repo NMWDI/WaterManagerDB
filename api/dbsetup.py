@@ -17,7 +17,7 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 print("Setting up the database")
 api.models.main_models.Base.metadata.create_all(engine)
 
-# Add users, roles, and scopes for testing
+# Add initial users, roles, and scopes
 db = SessionLocal()
 
 SecurityScopes = api.models.security_models.SecurityScopes
@@ -68,28 +68,12 @@ ose_role = UserRoles(
     security_scopes=[read_scope, ose_scope],
 )
 
-ose_user = Users(
-    full_name="OSE API User",
-    username="ose_api",
-    email="ose@ose.com",
-    hashed_password=get_password_hash("secret"),
-    user_role=ose_role,
-)
-
-technician_user = Users(
-    full_name="Technician User",
-    username="test",
-    email="johndoe@example.com",
-    hashed_password=get_password_hash("secret"),
-    user_role=technician_role,
-)
-
 admin_user = Users(
-    full_name="Admin User",
-    username="admin",
-    email="admin@example.com",
-    hashed_password=get_password_hash("secret"),
-    user_role=admin_role,
+    full_name="NMWDI Admin",
+    username="nmwdi_admin",
+    email="johndoe@example.com",
+    hashed_password=get_password_hash("testthisapp"),
+    user_role=technician_role,
 )
 
 db.add_all(
@@ -104,9 +88,7 @@ db.add_all(
         technician_role,
         admin_role,
         ose_role,
-        technician_user,
         admin_user,
-        ose_user,
     ]
 )
 
@@ -114,82 +96,86 @@ db.commit()
 db.close()
 
 
-# Load development data from CSV
+# Load seed data from CSV
 # Follows - https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-csv-file-into-a-database
 # Get the psycopg2 connector - enables running of lower level functions
 conn = engine.raw_connection()
 cursor = conn.cursor()
 
-with open("api/data/devdata_metertypes.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/metertypes.csv", "r") as f:
     qry = 'COPY "MeterTypeLU"(id,brand,series,model_number,size,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_NoteTypeLU.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/NoteTypeLU.csv", "r") as f:
     qry = 'COPY "NoteTypeLU"(id,note,details,slug) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_ServiceTypeLU.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/ServiceTypeLU.csv", "r") as f:
     qry = 'COPY "ServiceTypeLU"(id,service_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/landowners.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/landowners.csv", "r") as f:
     qry = 'COPY "LandOwners"(organization,address,city,state,zip,phone,mobile,note,id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_meterstatus.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/meterstatus.csv", "r") as f:
     qry = 'COPY "MeterStatusLU"(id,status_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_observedproperties.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/observedproperties.csv", "r") as f:
     qry = 'COPY "ObservedPropertyTypeLU"(id,name,description,context) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_units.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/units.csv", "r") as f:
     qry = 'COPY "Units"(id,name,name_short,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_propertyunits.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/propertyunits.csv", "r") as f:
     qry = 'COPY "PropertyUnits"(property_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_locationtypeLU.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/locationtypeLU.csv", "r") as f:
     qry = 'COPY "LocationTypeLU"(id,type_name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/locations.csv", "r") as f:
-    qry = 'COPY "Locations"(id,name,type_id,trss,latitude,longitude,land_owner_id,township,range,section,quarter) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+with open("../PVACDdb_migration/csv_data/tables/locations.csv", "r") as f:
+    qry = 'COPY "Locations"(id,name,type_id,latitude,longitude,trss) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/wells.csv", "r") as f:
-    qry = 'COPY "Wells"(id,name,ra_number,location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+with open("../PVACDdb_migration/csv_data/tables/welluseLU.csv", "r") as f:
+    qry = 'COPY "WellUseLU"(id,use_type,code,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/meters.csv", "r") as f:
-    qry = 'COPY "Meters"(id,serial_number,old_contact_name,tag,meter_type_id,status_id,location_id,well_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+with open("../PVACDdb_migration/csv_data/tables/wells.csv", "r") as f:
+    qry = 'COPY "Wells"(id,name,use_type_id,location_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_activities.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/meters.csv", "r") as f:
+    qry = 'COPY "Meters"(serial_number,meter_type_id,status_id,location_id,well_id,id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
+    cursor.copy_expert(qry, f)
+
+with open("../PVACDdb_migration/csv_data/tables/activities.csv", "r") as f:
     qry = 'COPY "ActivityTypeLU"(id,name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_wellMeasurement.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/testing/devdata_wellMeasurement.csv", "r") as f:
     qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,submitting_user_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_parttypeLU.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/parttypeLU.csv", "r") as f:
     qry = 'COPY "PartTypeLU"(id,name,description) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_parts.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/parts.csv", "r") as f:
     qry = 'COPY "Parts"(id,part_number,part_type_id,description,count,note) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("api/data/devdata_partsassociated.csv", "r") as f:
+with open("../PVACDdb_migration/csv_data/tables/partsassociated.csv", "r") as f:
     qry = 'COPY "PartAssociation"(meter_type_id,part_id,commonly_used) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
 # Only load the following for local testing
-testing = True
+testing = False
 if testing:
     with open("api/data/testdata_users.csv", "r") as f:
         qry = 'COPY "Users"(id, username, full_name, email, hashed_password, disabled, user_role_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'

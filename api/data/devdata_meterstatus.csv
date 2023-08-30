@@ -1,7 +1,0 @@
-id,status_name,description
-1,Installed,Meter is installed and is active
-2,Warehouse,Meter is in storage in warehouse
-3,Scrapped,Meter has been dismantled
-4,Returned,Meter returned to manufacturer
-5,Sold,Meter has been sold
-6,Unknown,Status unknown

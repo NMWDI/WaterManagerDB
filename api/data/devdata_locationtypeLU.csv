@@ -1,4 +1,0 @@
-id,type,description
-1,storage,A storage location for equipment
-2,well,A well location. Can be any well type.
-3,weather,A weather monitoring site

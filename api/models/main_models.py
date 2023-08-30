@@ -118,9 +118,6 @@ class Meters(Base):
     serial_number = Column(String, nullable=False)
     contact_name = Column(String)  # Contact information specific to particular meter
     contact_phone = Column(String)
-    old_contact_name = Column(String)
-    old_contact_phone = Column(String)
-    tag = Column(String)  # OSE tag of some sort?
 
     well_distance_ft = Column(Float)  # Distance of meter install from well
     notes = Column(String)
@@ -259,18 +256,18 @@ class Locations(Base):
     Table for tracking information about a meters location
     """
 
-    name = Column(String, nullable=False)
+    name = Column(String)
     type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
     trss = Column(String)
-    latitude = Column(Float)
-    longitude = Column(Float)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
     township = Column(Integer)
     range = Column(Integer)
     section = Column(Integer)
     quarter = Column(Integer)
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
-    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"), nullable=False)
+    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
 
     land_owner = relationship("LandOwners")
 
@@ -400,11 +397,19 @@ class Alerts(Base):
 
 
 # ------------ Wells --------------
-
+WellUseLU = Table(
+    "WellUseLU",
+    Base.metadata,
+    Column("id", Integer, primary_key=True, index=True, autoincrement=True),
+    Column("use_type", String, nullable=False),
+    Column("code", String),
+    Column("description", String)
+)
 
 class Wells(Base):
     # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    use_type_id = Column(Integer, ForeignKey("WellUseLU.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
     ra_number = Column(String)  # RA Number is an OSE well identifier
     osepod = Column(String)  # Another OSE identifier?
