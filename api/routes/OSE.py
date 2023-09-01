@@ -1,7 +1,7 @@
 """
 Routes related to OSE reporting and work requests
 """
-from typing import List
+from typing import List, Union
 from datetime import datetime, date
 
 from pydantic import BaseModel
@@ -41,8 +41,8 @@ class ObservationDTO(BaseModel):
 class MeterHistoryDTO(BaseModel):
     name: str
     location: str
-    ra_numbers: List[str]
-    owners: List[str]
+    #ra_numbers: Union(List[str],None)
+    #owners: Union(List[str],None)
     activities: List[ActivityDTO]
     observations: List[ObservationDTO]
 
@@ -208,11 +208,11 @@ def get_ose_history(
                 if meter_well != None
                 else meter_with_history.location
             )
-            land_owner = meter_location.land_owner if meter_location != None else None
-            ra_number = meter_well.ra_number if meter_well != None else "N/A (NO WELL)"
-            owners = (
-                land_owner.organization if land_owner != None else "N/A (NO LAND OWNER)"
-            )
+            # land_owner = meter_location.land_owner if meter_location != None else None
+            # ra_number = meter_well.ra_number if meter_well != None else "N/A (NO WELL)"
+            # owners = (
+            #     land_owner.organization if land_owner != None else "N/A (NO LAND OWNER)"
+            # )
 
             # Use the meter's info and it's history that occurred on this day to build its information object
             meter_history = MeterHistoryDTO(
@@ -222,8 +222,8 @@ def get_ose_history(
                 location=meter_location.name
                 if meter_location != None
                 else "N/A (NO LOCATION)",
-                ra_numbers=[ra_number],
-                owners=[owners],
+                #ra_numbers=[ra_number],
+                #owners=[owners],
             )
             meter_history_list.append(meter_history)
 
