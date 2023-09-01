@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, Grid, InputLabel } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, Select, makeStyles } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -9,13 +9,14 @@ import HelpIcon from '@mui/icons-material/Help';
 import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
+import { useFieldArray } from 'react-hook-form'
 
-import { useGetPart, useUpdatePart } from '../../service/ApiServiceNew'
+import { useCreatePart, useGetMeterTypeList, useGetPart, useUpdatePart } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import ControlledPartTypeSelect from '../../components/RHControlled/ControlledPartTypeSelect'
 import { MeterTypeLU, Part } from '../../interfaces'
 
-const PartResolverSchema = Yup.object().shape({
+const PartResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     part_number: Yup.string().required('Please enter a part number.'),
     count: Yup.number().typeError('Please enter a number.').required('Please enter a count.'),
     part_type: Yup.mixed().required('Please select a part type.')
@@ -32,27 +33,55 @@ const emptyDetails = {
     part_type: null
 }
 
+
 export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     function onSuccessfulUpdate() {
         enqueueSnackbar('Successfully Updated Part!', {variant: 'success'})
     }
+    function onSuccessfulCreate() {
+        enqueueSnackbar('Successfully Created Part!', {variant: 'success'})
+    }
 
-    const { handleSubmit, control, setValue, reset, formState: { errors }} = useForm({
+    // Part details RHF
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<Part>({
         resolver: yupResolver(PartResolverSchema)
     })
 
-    const partDetails = useGetPart({part_id: selectedPartID})
-    const updatePart = useUpdatePart(onSuccessfulUpdate)
+    // Associated meter types RHF
+    const { fields, append, remove } = useFieldArray({
+        control, name: "meter_types"
+    })
 
-    const onSaveChanges: SubmitHandler<any> = data => updatePart.mutate(correctForm(data))
-    const onAddPart: SubmitHandler<any> = data => console.log("ADD: ", data)
+    const partDetails = useGetPart({part_id: selectedPartID})
+    const meterTypeList = useGetMeterTypeList()
+    const updatePart = useUpdatePart(onSuccessfulUpdate)
+    const createPart = useCreatePart(onSuccessfulCreate)
+
+    const onSaveChanges: SubmitHandler<any> = data => updatePart.mutate(data)
+    const onAddPart: SubmitHandler<any> = data => createPart.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
 
-    function correctForm(data: Part) {
-        if (data.part_type) {
-            data.part_type_id = data.part_type.id
+    // Convert the form to the structure expected on the backend (PartForm)
+    // function correctForm(data: Part) {
+    //     if (data.part_type) {
+    //         data.part_type_id = data.part_type.id
+    //     }
+    //     if(data.meter_types) {
+
+    //     }
+    //     return data
+    // }
+
+    function removeMeterType(meterTypeIndex: number) {
+        remove(meterTypeIndex)
+    }
+
+    function addMeterType(meterTypeID: number) {
+        const newType = meterTypeList.data?.find(x => x.id === meterTypeID)
+
+        if (newType) {
+            append(newType)
         }
-        return data
     }
 
     // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
@@ -141,44 +170,47 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} sx={{mt: 2}}>
- {/*
-                            {partDetails.data?.meter_type_associations?.map((association: any) => <div>{association?.associated_meter_type?.brand} - {association?.commonly_used.toString()}</div>)}
-     */}
                             <Box border={1} padding={1} style={{borderColor: '#C4C4C4', position: 'relative'}} borderRadius={4}>
                                 <InputLabel shrink={true} style={{ position: 'absolute', left: 10, top: true ? -8 : 8, backgroundColor: 'white', padding: '0 5px' }}>
                                     Associated Meter Types
                                 </InputLabel>
+
+                                {/* Start meter type selectbox  */}
                                 <Chip
-                                    sx={{mr: 1, mt: 1}}
-                                    icon={<AddIcon/>}
-                                    label="Add Meter Type"
+                                    sx={{mr: 1, mt: 1, p: 0}}
+                                    label={
+                                        <>
+                                        <FormControl size="small" variant="standard" sx={{width: '150px', marginBottom: '13px'}}>
+                                        <InputLabel>Add Meter Type</InputLabel>
+                                            <Select
+                                                disableUnderline
+                                                onChange={(event: any) => addMeterType(event.target.value)}
+                                                value={''}
+                                            >
+                                                <MenuItem value="" hidden disabled></MenuItem>
+
+                                                {/* Meter type list (with selected meter types filtered out)  */}
+                                                {meterTypeList.data?.
+                                                    filter(x => !watch("meter_types")?.map(type => type.id).includes(x.id))
+                                                        .map((type: MeterTypeLU) => <MenuItem value={type.id}>{`${type.brand} - ${type.model_number}`}</MenuItem>)}
+                                            </Select>
+                                        </FormControl>
+                                        </>
+                                    }
                                     variant="outlined"
                                     onClick={() => {}}
                                 />
-                                <Chip
-                                    sx={{mr: 1, mt: 1}}
-                                    label="McCrometer - M0304"
-                                    onDelete={() => {}}
-                                    onClick={() => {}}
-                                />
-                                <Chip
-                                    sx={{mr: 1, mt: 1}}
-                                    label="McCrometer - M0306 (Commonly Used)"
-                                    onDelete={() => {}}
-                                    onClick={() => {}}
-                                />
-                                <Chip
-                                    sx={{mr: 1, mt: 1}}
-                                    label="McCrometer - M0308"
-                                    onDelete={() => {}}
-                                    onClick={() => {}}
-                                />
-                                <Chip
-                                    sx={{mr: 1, mt: 1}}
-                                    label="McCrometer - M0308"
-                                    onDelete={() => {}}
-                                    onClick={() => {}}
-                                />
+                                {/* End meter type select box  */}
+
+                                {/* Show all current meter types as chips */}
+                                {watch("meter_types")?.map((type: MeterTypeLU, index: number) =>
+                                    <Chip
+                                        key={type.id}
+                                        sx={{mr: 1, mt: 1}}
+                                        label={ `${type.brand} - ${type.model_number}` }
+                                        onDelete={() => {removeMeterType(index)}}
+                                    />
+                                )}
                             </Box>
                         </Grid>
                     </Grid>

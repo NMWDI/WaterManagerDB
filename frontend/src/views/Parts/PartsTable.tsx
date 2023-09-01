@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { DataGrid, GridColDef, GridPagination } from '@mui/x-data-grid'
-import { Box, Button } from '@mui/material'
+import { Box, Button, Card, CardContent, TextField } from '@mui/material'
 import { useGetParts } from '../../service/ApiServiceNew'
 import AddIcon from '@mui/icons-material/Add'
+import SearchIcon from '@mui/icons-material/Search';
+import { Part } from '../../interfaces'
 
 function CustomPartsFooter({onAddPart}: any) {
     return (
@@ -15,8 +17,10 @@ function CustomPartsFooter({onAddPart}: any) {
     )
 }
 
-export default function PartsTable({setSelectedPartID, setPartAddMode, partSearchQuery}: any) {
+export default function PartsTable({setSelectedPartID, setPartAddMode}: any) {
     const partsList = useGetParts()
+    const [partSearchQuery, setPartSearchQuery] = useState<string>('')
+    const [filteredRows, setFilteredRows] = useState<Part[]>()
 
     const cols: GridColDef[] = [
         {field: 'part_number', headerName: 'Part Number', width: 250},
@@ -25,37 +29,40 @@ export default function PartsTable({setSelectedPartID, setPartAddMode, partSearc
         {field: 'count', headerName: 'Count'},
     ]
 
+    // Filter rows based on search. Cant use multiple filters w/o pro datagrid
+    useEffect(() => {
+        const psq = partSearchQuery.toLowerCase()
+        const filtered = (partsList.data ?? []).filter(row =>
+            row.part_number.toLowerCase().includes(psq) ||
+            row.description?.toLowerCase().includes(psq) ||
+            row.part_type?.name.toLowerCase().includes(psq)
+        )
+        setFilteredRows(filtered)
+    }, [partSearchQuery, partsList.data])
+
     return (
-        <>
-            <DataGrid
-                rows={partsList.data ?? []}
-                loading={partsList.isLoading}
-                columns={cols}
-                disableColumnMenu
-                onRowClick={(selectedRow) => {setSelectedPartID(selectedRow.row.id)}}
-                components={{Footer: CustomPartsFooter}}
-                componentsProps={{footer: { onAddPart: () => setPartAddMode(true) }}}
-                disableColumnFilter
-                filterModel={{
-                    items: [
-                        {
-                            columnField: 'part_number',
-                            operatorValue: 'contains',
-                            value: partSearchQuery
-                        },
-                        {
-                            columnField: 'description',
-                            operatorValue: 'contains',
-                            value: partSearchQuery
-                        },
-                        {
-                            columnField: 'part_type',
-                            operatorValue: 'contains',
-                            value: partSearchQuery
-                        }
-                    ]
-                }}
-            />
-        </>
+        <Card sx={{height: '100%'}}>
+            <CardContent sx={{height: '100%'}}>
+                <TextField
+                    label={<div style={{display: 'inline-flex', alignItems: 'center'}}><SearchIcon sx={{fontSize: '1.2rem'}}/> <span style={{marginTop: 1}}>&nbsp;Search Parts</span></div>}
+                    variant="outlined"
+                    size="small"
+                    value={partSearchQuery}
+                    onChange={(event: any) => setPartSearchQuery(event.target.value)}
+                    sx={{marginBottom: '10px'}}
+                />
+                <DataGrid
+                    sx={{height: '85%'}}
+                    rows={filteredRows ?? []}
+                    loading={partsList.isLoading}
+                    columns={cols}
+                    disableColumnMenu
+                    onRowClick={(selectedRow) => {setSelectedPartID(selectedRow.row.id)}}
+                    components={{Footer: CustomPartsFooter}}
+                    componentsProps={{footer: { onAddPart: () => setPartAddMode(true) }}}
+                    disableColumnFilter
+                />
+            </CardContent>
+        </Card>
     )
 }

@@ -2,7 +2,7 @@
 FastAPI input and response schemas related to PVACD parts
 """
 
-from typing import List, Optional
+from typing import List, Optional, Any
 from pydantic import BaseModel
 
 
@@ -24,6 +24,19 @@ class Part(ORMBase):
     vendor: Optional[str]
     count: Optional[int]
     note: Optional[str]
+
+class PartForm(ORMBase):
+    """
+    Part fields submitted to create or update a part
+    """
+
+    part_number: str
+    part_type_id: int
+    description: Optional[str]
+    vendor: Optional[str]
+    count: Optional[int]
+    note: Optional[str]
+    associated_meter_types: Optional[List[Any]]
 
 
 class PartUsed(ORMBase):

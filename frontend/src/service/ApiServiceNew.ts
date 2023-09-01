@@ -436,6 +436,43 @@ export function useUpdateMeter(onSuccess: Function) {
     })
 }
 
+export function useCreatePart(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'parts'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (part: Part) => {
+            const response = await POSTFetch(route, part, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                queryClient.setQueryData(['parts'], (old: Part[] | undefined) => {
+                    if (old != undefined) {
+                        return [...old, responseJson]
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useCreateChlorideMeasurement() {
     const { enqueueSnackbar } = useSnackbar()
     const queryClient = useQueryClient()

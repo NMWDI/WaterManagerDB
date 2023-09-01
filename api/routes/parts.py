@@ -8,7 +8,7 @@ from api.models.main_models import (
     PartTypeLU,
     Meters
 )
-from api.schemas.part_schemas import Part
+from api.schemas.part_schemas import PartForm, Part
 from api.security import scoped_user
 from api.session import get_db
 from api.route_util import _patch
@@ -17,6 +17,7 @@ part_router = APIRouter()
 
 activity_write_user = scoped_user(["read", "activities:write"])
 read_user = scoped_user(["read"])
+admin_user = scoped_user(["admin"])
 
 
 @part_router.get(
@@ -51,7 +52,7 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
         .where(Parts.id == part_id)
         .options(
             joinedload(Parts.part_type),
-            joinedload(Parts.meter_type_associations).joinedload(PartAssociation.associated_meter_type),
+            joinedload(Parts.meter_types),
         )
     ).first()
 
@@ -63,11 +64,36 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
 )
 async def update_part(updated_part: Part, db: Session = Depends(get_db)):
     _patch(db, Parts, updated_part.id, updated_part)
+
+
+    # HANDLE ASSOCIATED METER TYPES
     return db.scalars(
         select(Parts)
         .where(Parts.id == updated_part.id)
         .options(joinedload(Parts.part_type))
     ).first()
+
+@part_router.post(
+    "/parts",
+    dependencies=[Depends(admin_user)],
+    tags=["Parts"],
+)
+async def create_part(new_part: PartForm, db: Session = Depends(get_db)):
+    new_part_model = Parts(
+        part_number = new_part.part_number,
+        part_type_id = new_part.part_type_id,
+        description = new_part.description,
+        vendor = new_part.vendor,
+        count = new_part.count,
+        note = new_part.note
+    )
+
+    # HANDLE ASSOCIATED METERS
+
+    db.add(new_part_model)
+    db.commit()
+
+    return new_part_model
 
 
 @part_router.get(
