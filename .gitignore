@@ -220,3 +220,6 @@ cython_debug/
 
 *.env.production
 /db/.env.production
+
+# Local database setup
+/api/backupdb/*.sql
