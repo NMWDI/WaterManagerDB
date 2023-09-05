@@ -49,9 +49,9 @@ function TristateToggle({ label, onToggle }: any) {
 
 export default function PartsView() {
     const [selectedPartID, setSelectedPartID] = useState<number>()
-    const [partAddMode, setPartAddMode] = useState<boolean>(false)
+    const [partAddMode, setPartAddMode] = useState<boolean>(true)
 
-    useEffect(() => {setPartAddMode(false)}, [selectedPartID]) // Exit add mode when part is selected from table
+    useEffect(() => {if(selectedPartID) setPartAddMode(false)}, [selectedPartID]) // Exit add mode when part is selected from table
 
     return (
         <Box sx={{m: 2, mt: 0, width: '100%'}}>

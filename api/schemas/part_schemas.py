@@ -19,24 +19,13 @@ class Part(ORMBase):
     """
 
     part_number: str
-    part_type_id: int
+    part_type_id: Optional[int]
     description: Optional[str]
     vendor: Optional[str]
     count: Optional[int]
     note: Optional[str]
-
-class PartForm(ORMBase):
-    """
-    Part fields submitted to create or update a part
-    """
-
-    part_number: str
-    part_type_id: int
-    description: Optional[str]
-    vendor: Optional[str]
-    count: Optional[int]
-    note: Optional[str]
-    associated_meter_types: Optional[List[Any]]
+    part_type: Optional[Any]
+    meter_types: Optional[List[Any]]
 
 
 class PartUsed(ORMBase):

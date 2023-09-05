@@ -43,22 +43,15 @@ class Base:
 class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
+    retired = Column(Boolean, nullable=False, default=False)
 
 
-# See SQLAlchemy 1.4 Documentation: Association Object
-class PartAssociation(Base):
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
-    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
-    commonly_used = Column(Boolean)
-
-    # The actual object in these tables, technically a 'proxy' that makes '2 hops' from this association table to the target object/attribute
-    part = relationship("Parts", backref="parts")
-    meter_type = relationship("MeterTypeLU", backref="meter_types")
-
-    # The association object
-    associated_part = relationship("Parts", back_populates="meter_type_associations")
-    associated_meter_type = relationship("MeterTypeLU", back_populates="part_associations")
-
+PartAssociation = Table(
+    "PartAssociation",
+    Base.metadata,
+    Column("part_id", ForeignKey("Parts.id"), nullable=False),
+    Column("meter_type_id", ForeignKey("MeterTypeLU.id"), nullable=False),
+)
 
 class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
@@ -67,14 +60,10 @@ class Parts(Base):
     vendor = Column(String)
     count = Column(Integer, default=0)
     note = Column(String)
+    in_use = Column(Boolean, nullable=False, default=True)
 
     part_type = relationship("PartTypeLU")
-
-    # The list of associated meter type objects, through the 'proxy', the docs mention the values that come from this relationship wont remain up-to-date after fetching, a session refresh is required to update
     meter_types = relationship("MeterTypeLU", secondary="PartAssociation")
-
-    # The list of meter type associations (rows on the PartAssociation table)
-    meter_type_associations = relationship("PartAssociation", back_populates="associated_part")
 
 
 PartsUsed = Table(
@@ -164,9 +153,7 @@ class MeterTypeLU(Base):
     size = Column(Float)
     description = Column(String)
 
-    # Explained on the Parts model
     parts = relationship("Parts", secondary="PartAssociation")
-    part_associations = relationship("PartAssociation", back_populates="associated_meter_type")
 
 
 class MeterStatusLU(Base):

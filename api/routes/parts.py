@@ -6,9 +6,10 @@ from api.models.main_models import (
     Parts,
     PartAssociation,
     PartTypeLU,
-    Meters
+    Meters,
+    MeterTypeLU
 )
-from api.schemas.part_schemas import PartForm, Part
+from api.schemas.part_schemas import Part
 from api.security import scoped_user
 from api.session import get_db
 from api.route_util import _patch
@@ -65,33 +66,63 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
 async def update_part(updated_part: Part, db: Session = Depends(get_db)):
     _patch(db, Parts, updated_part.id, updated_part)
 
-
-    # HANDLE ASSOCIATED METER TYPES
-    return db.scalars(
+    part = db.scalars(
         select(Parts)
         .where(Parts.id == updated_part.id)
         .options(joinedload(Parts.part_type))
     ).first()
+
+    # Update associations, _patch only handles direct attributes
+    if (updated_part.part_type):
+        part.part_type = db.scalars(
+            select(PartTypeLU)
+            .where(PartTypeLU.id == updated_part.part_type["id"])
+        ).first()
+
+    if (updated_part.meter_types):
+        part.meter_types = db.scalars(
+            select(MeterTypeLU)
+            .where(MeterTypeLU.id
+                .in_(map(lambda type: type["id"], updated_part.meter_types)
+            ))
+        ).all()
+
+    db.commit()
+    db.refresh(part)
+
+    return part
+
+    # HANDLE ASSOCIATED METER TYPES
 
 @part_router.post(
     "/parts",
     dependencies=[Depends(admin_user)],
     tags=["Parts"],
 )
-async def create_part(new_part: PartForm, db: Session = Depends(get_db)):
+async def create_part(new_part: Part, db: Session = Depends(get_db)):
+    print(new_part.__dict__)
     new_part_model = Parts(
         part_number = new_part.part_number,
-        part_type_id = new_part.part_type_id,
+        part_type_id = db.scalars(
+            select(PartTypeLU)
+            .where(PartTypeLU.id == new_part.part_type["id"])
+        ).first().id,
         description = new_part.description,
         vendor = new_part.vendor,
         count = new_part.count,
         note = new_part.note
     )
 
-    # HANDLE ASSOCIATED METERS
-
     db.add(new_part_model)
     db.commit()
+
+    if (new_part.meter_types):
+        new_part_model.meter_types = db.scalars(
+            select(MeterTypeLU)
+            .where(MeterTypeLU.id
+                .in_(map(lambda type: type["id"], new_part.meter_types)
+            ))
+        ).all()
 
     return new_part_model
 
