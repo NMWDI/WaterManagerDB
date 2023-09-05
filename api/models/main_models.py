@@ -43,7 +43,6 @@ class Base:
 class PartTypeLU(Base):
     name = Column(String)
     description = Column(String)
-    retired = Column(Boolean, nullable=False, default=False)
 
 
 PartAssociation = Table(
@@ -61,6 +60,7 @@ class Parts(Base):
     count = Column(Integer, default=0)
     note = Column(String)
     in_use = Column(Boolean, nullable=False, default=True)
+    commonly_used = Column(Boolean, nullable=False, default=False)
 
     part_type = relationship("PartTypeLU")
     meter_types = relationship("MeterTypeLU", secondary="PartAssociation")
@@ -152,6 +152,7 @@ class MeterTypeLU(Base):
     model_number = Column(String)
     size = Column(Float)
     description = Column(String)
+    in_use = Column(Boolean)
 
     parts = relationship("Parts", secondary="PartAssociation")
 

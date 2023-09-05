@@ -24,6 +24,8 @@ class Part(ORMBase):
     vendor: Optional[str]
     count: Optional[int]
     note: Optional[str]
+    in_use: bool
+    commonly_used: bool
     part_type: Optional[Any]
     meter_types: Optional[List[Any]]
 

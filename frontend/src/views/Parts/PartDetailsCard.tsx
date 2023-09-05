@@ -1,11 +1,10 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, Select, makeStyles } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import HelpIcon from '@mui/icons-material/Help';
 import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
@@ -15,24 +14,15 @@ import { useCreatePart, useGetMeterTypeList, useGetPart, useUpdatePart } from '.
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import ControlledPartTypeSelect from '../../components/RHControlled/ControlledPartTypeSelect'
 import { MeterTypeLU, Part } from '../../interfaces'
+import { ControlledSelectNonObject } from '../../components/RHControlled/ControlledSelect';
 
 const PartResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     part_number: Yup.string().required('Please enter a part number.'),
     count: Yup.number().typeError('Please enter a number.').required('Please enter a count.'),
-    part_type: Yup.mixed().required('Please select a part type.')
+    part_type: Yup.mixed().required('Please select a part type.'),
+    in_use: Yup.boolean().typeError('Please indicate if part is in use.').required('Please indicate if part is in use.'),
+    commonly_used: Yup.boolean().typeError('Please indicate if part is commonly used.').required('Please indicate if part is commonly_used.')
 })
-
-const emptyDetails = {
-    id: 0,
-    part_number: '',
-    part_type_id: null,
-    vendor: '',
-    note: '',
-    description: '',
-    count: '',
-    part_type: null
-}
-
 
 export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     function onSuccessfulUpdate() {
@@ -48,7 +38,7 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     })
 
     // Associated meter types RHF
-    const { fields, append, remove } = useFieldArray({
+    const { append, remove } = useFieldArray({
         control, name: "meter_types"
     })
 
@@ -60,17 +50,6 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     const onSaveChanges: SubmitHandler<any> = data => updatePart.mutate(data)
     const onAddPart: SubmitHandler<any> = data => createPart.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
-
-    // Convert the form to the structure expected on the backend (PartForm)
-    // function correctForm(data: Part) {
-    //     if (data.part_type) {
-    //         data.part_type_id = data.part_type.id
-    //     }
-    //     if(data.meter_types) {
-
-    //     }
-    //     return data
-    // }
 
     function removeMeterType(meterTypeIndex: number) {
         remove(meterTypeIndex)
@@ -102,14 +81,12 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     // Empty the form if entering part add mode
     useEffect(() => {
         if (partAddMode) {
-            Object.entries(emptyDetails).forEach(([field, value]) => {
-                setValue(field as any, value)
-            })
+            reset()
         }
     }, [partAddMode])
 
     return (
-        <Card sx={{height: '100%'}}>
+        <Card>
             <CardContent>
                 <CardHeader
                     title={partAddMode ? <><AddIcon style={{fontSize: '1rem'}}/> Create Part</> : <><EditIcon style={{fontSize: '1rem'}}/> Edit Part</>}
@@ -117,8 +94,8 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                 />
 
                 <Grid container>
-                    <Grid container item xs={12}>
-                        <Grid item xs={12} xl={6} sx={{mt: 2}}>
+                    <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
+                        <Grid item xs={12} xl={6}>
                             <ControlledTextbox
                                 name="part_number"
                                 control={control}
@@ -127,18 +104,34 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                                 helperText={errors?.part_number?.message}
                             />
                         </Grid>
-                    </Grid>
-                    <Grid container item xs={12}>
-                        <Grid item xs={12} xl={6} sx={{mt: 2}}>
+                        <Grid item xs={12} xl={6} >
                             <ControlledPartTypeSelect
                                 name="part_type"
                                 control={control}
                                 error={errors?.part_type?.message}
                             />
                         </Grid>
-                    </Grid>
-                    <Grid container item xs={12}>
-                        <Grid item xs={12} xl={6} sx={{mt: 2}}>
+                        <Grid item xs={12} xl={6} >
+                            <ControlledSelectNonObject
+                                name="in_use"
+                                control={control}
+                                label="In Use"
+                                options={[true, false]}
+                                getOptionLabel={(label: boolean) => label ? "True" : "False"}
+                                error={errors?.in_use?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={12} xl={6} >
+                            <ControlledSelectNonObject
+                                name="commonly_used"
+                                control={control}
+                                label="Commonly Used"
+                                options={[true, false]}
+                                getOptionLabel={(label: boolean) => label ? "True" : "False"}
+                                error={errors?.commonly_used?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={12} xl={6} >
                             <ControlledTextbox
                                 name="count"
                                 control={control}
@@ -148,25 +141,21 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12}>
-                        <Grid item xs={12} sx={{mt: 2}}>
-                            <ControlledTextbox
-                                name="description"
-                                control={control}
-                                label="Description"
-                            />
-                        </Grid>
+                    <Grid container xs={12} sx={{mt: 2}}>
+                        <ControlledTextbox
+                            name="description"
+                            control={control}
+                            label="Description"
+                        />
                     </Grid>
-                    <Grid container item xs={12}>
-                        <Grid item xs={12} sx={{mt: 2}}>
-                            <ControlledTextbox
-                                name="note"
-                                control={control}
-                                label="Notes"
-                                rows={3}
-                                multiline
-                            />
-                        </Grid>
+                    <Grid container xs={12} sx={{mt: 2}}>
+                        <ControlledTextbox
+                            name="note"
+                            control={control}
+                            label="Notes"
+                            rows={3}
+                            multiline
+                        />
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} sx={{mt: 2}}>
@@ -214,15 +203,14 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                             </Box>
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} sx={{mt: 2}}>
-                        {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
-                            partAddMode ?
-                            <Button color="success" variant="contained" onClick={handleSubmit(onAddPart, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Part</Button> :
-                            <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
-                        }
-                    </Grid>
                 </Grid>
-
+                <Grid container item xs={12} sx={{mt: 2}}>
+                    {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
+                        partAddMode ?
+                        <Button color="success" variant="contained" onClick={handleSubmit(onAddPart, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Part</Button> :
+                        <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
+                    }
+                </Grid>
             </CardContent>
         </Card>
     )

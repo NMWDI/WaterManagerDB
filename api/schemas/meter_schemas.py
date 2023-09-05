@@ -32,12 +32,13 @@ class MeterMapDTO(ORMBase):
 
 
 class MeterTypeLU(ORMBase):
-    id: int
+    id: Optional[int]
     brand: Optional[str]
     series: Optional[str]
     model_number: str
     size: Optional[float]
     description: Optional[str]
+    in_use: bool
 
 
 # The minimal information used by the meters list

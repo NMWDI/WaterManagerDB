@@ -27,7 +27,8 @@ import {
     PartAssociation,
     MeterMapDTO,
     MeterHistoryDTO,
-    Part
+    Part,
+    PartTypeLU
 } from '../interfaces.js'
 
 // Date display util
@@ -282,7 +283,7 @@ export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
 export function useGetPartTypeList() {
     const route = 'part_types'
     const authHeader = useAuthHeader()
-    return useQuery<Part, Error>([route], () =>
+    return useQuery<PartTypeLU[], Error>([route], () =>
         GETFetch(route, null, authHeader()),
         {
             keepPreviousData: true,
@@ -353,6 +354,89 @@ export function useCreateActivity(onSuccess: Function) {
                 onSuccess()
 
                 const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateMeterType(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'meter_types'
+    const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (meterType: Partial<MeterTypeLU>) => {
+            const response = await PATCHFetch(route, meterType, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+
+                // Update the part on the parts list
+                queryClient.setQueryData(['meter_types'], (old: MeterTypeLU[] | undefined) => {
+                    if (old != undefined) {
+                        let newMeterTypesList = [...old]
+                        const typeIndex = old?.findIndex(type => type.id === responseJson["id"])
+
+                        if (typeIndex != undefined && typeIndex != -1) {
+                            newMeterTypesList[typeIndex] = responseJson
+                        }
+
+                        return newMeterTypesList
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useCreateMeterType(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'meter_types'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (meter_type: MeterTypeLU) => {
+            const response = await POSTFetch(route, meter_type, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                queryClient.setQueryData(['meter_types'], (old: MeterTypeLU[] | undefined) => {
+                    if (old != undefined) {
+                        return [...old, responseJson]
+                    }
+                    return []
+                })
                 return responseJson
             }
         },

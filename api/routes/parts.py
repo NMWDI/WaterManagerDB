@@ -92,7 +92,6 @@ async def update_part(updated_part: Part, db: Session = Depends(get_db)):
 
     return part
 
-    # HANDLE ASSOCIATED METER TYPES
 
 @part_router.post(
     "/parts",
@@ -100,7 +99,6 @@ async def update_part(updated_part: Part, db: Session = Depends(get_db)):
     tags=["Parts"],
 )
 async def create_part(new_part: Part, db: Session = Depends(get_db)):
-    print(new_part.__dict__)
     new_part_model = Parts(
         part_number = new_part.part_number,
         part_type_id = db.scalars(
@@ -110,11 +108,14 @@ async def create_part(new_part: Part, db: Session = Depends(get_db)):
         description = new_part.description,
         vendor = new_part.vendor,
         count = new_part.count,
-        note = new_part.note
+        note = new_part.note,
+        in_use = new_part.in_use,
+        commonly_used = new_part.commonly_used
     )
 
     db.add(new_part_model)
     db.commit()
+    db.refresh(new_part_model)
 
     if (new_part.meter_types):
         new_part_model.meter_types = db.scalars(
@@ -123,6 +124,12 @@ async def create_part(new_part: Part, db: Session = Depends(get_db)):
                 .in_(map(lambda type: type["id"], new_part.meter_types)
             ))
         ).all()
+
+    db.commit()
+    db.refresh(new_part_model)
+
+    # Load part_type relationship
+    new_part_model.part_type
 
     return new_part_model
 

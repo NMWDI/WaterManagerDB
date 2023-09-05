@@ -1,57 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import PartsTable from './PartsTable'
-import { Box, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import PartDetailsCard from './PartDetailsCard'
+import MeterTypesTable from './MeterTypesTable'
+import MeterTypeDetailsCard from './MeterTypeDetailsCard'
+import { MeterTypeLU } from '../../interfaces'
 
-function TristateToggle({ label, onToggle }: any) {
-    const [toggleState, setToggleState] = useState<boolean>()
-
-    useEffect(() => {
-        onToggle(toggleState)
-    }, [toggleState])
-
-    function getColor() {
-        switch (toggleState) {
-            case true:
-                return "success"
-            case false:
-                return "error"
-            default:
-                return undefined
-        }
-    }
-
-    function getLabel() {
-        switch (toggleState) {
-            case true:
-                return "Is " + label
-            case false:
-                return "Is Not " + label
-            default:
-                return label
-        }
-    }
-
-    return (
-        <Chip
-            sx={{ml: 2}}
-            label={getLabel()}
-            color={getColor()}
-            onDelete={toggleState != undefined ? () => setToggleState(undefined) : undefined}
-            onClick={() => setToggleState(!toggleState)}
-        />
-    )
-}
-
-// need to handle part/meter_type associations
-// need to have part type management
-// need to connect search box to filterModel of table
 
 export default function PartsView() {
     const [selectedPartID, setSelectedPartID] = useState<number>()
     const [partAddMode, setPartAddMode] = useState<boolean>(true)
+    const [selectedMeterType, setSelectedMeterType] = useState<MeterTypeLU>()
+    const [meterTypeAddMode, setMeterTypeAddMode] = useState<boolean>(true)
 
-    useEffect(() => {if(selectedPartID) setPartAddMode(false)}, [selectedPartID]) // Exit add mode when part is selected from table
+    // Exit add mode when part is selected from table
+    useEffect(() => {
+        if(selectedPartID) setPartAddMode(false)
+    }, [selectedPartID])
+
+    useEffect(() => {
+        if(selectedMeterType) setMeterTypeAddMode(false)
+    }, [selectedMeterType])
 
     return (
         <Box sx={{m: 2, mt: 0, width: '100%'}}>
@@ -61,40 +30,39 @@ export default function PartsView() {
                 <Grid container item xs={6} sx={{mb: 1}} spacing={2}>
                     <Grid item xs={5}>
                     </Grid>
- {/*
-                    <Grid item xs={7}>
-                        <div style={{float: 'right'}}>
-                            <TristateToggle
-                                label="Retired"
-                                onToggle={(state: boolean | undefined) => {console.log("STATE: ", state)}}
-                            />
-                            <TristateToggle
-                                label="Commonly Used"
-                                onToggle={(state: boolean | undefined) => {console.log("STATE: ", state)}}
-                            />
-                        </div>
-                    </Grid>
-     */}
                 </Grid>
             </Grid>
 
-            {/*  Fix this height?? */}
             <Grid container spacing={2}>
-                <Grid item xs={7}>
-                    <PartsTable
-                        setSelectedPartID={setSelectedPartID}
-                        setPartAddMode={setPartAddMode}
-                    />
+                <Grid container item spacing={2}>
+                    <Grid item xs={7}>
+                        <PartsTable
+                            setSelectedPartID={setSelectedPartID}
+                            setPartAddMode={setPartAddMode}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <PartDetailsCard
+                            selectedPartID={selectedPartID}
+                            partAddMode={partAddMode}
+                        />
+                    </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                    <PartDetailsCard
-                        selectedPartID={selectedPartID}
-                        partAddMode={partAddMode}
-                    />
+                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '60vh'}}}>
+                    <Grid item xs={7}>
+                        <MeterTypesTable
+                            setSelectedMeterType={setSelectedMeterType}
+                            setMeterTypeAddMode={setMeterTypeAddMode}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <MeterTypeDetailsCard
+                            selectedMeterType={selectedMeterType}
+                            meterTypeAddMode={meterTypeAddMode}
+                        />
+                    </Grid>
                 </Grid>
             </Grid>
-
-            {/*  Add part type table here? */}
         </Box>
     )
 }

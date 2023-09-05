@@ -107,6 +107,8 @@ export interface Part {
     note?: string
     description?: string
     count?: number
+    in_use: boolean
+    commonly_used: boolean
 
     part_type?: PartTypeLU
     meter_types?: MeterTypeLU[]
@@ -244,6 +246,7 @@ export interface MeterTypeLU {
     model_number: string
     size: number
     description: string
+    in_use: boolean
 }
 
 export interface MeterDetails {
