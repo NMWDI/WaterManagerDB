@@ -25,7 +25,7 @@ import { SnackbarProvider } from 'notistack'
 const queryClient = new QueryClient()
 
 function App() {
-    console.log('Meter App Version 0.0.3')
+    console.log('Meter App Version 0.1.1')
     return (
         <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
