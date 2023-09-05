@@ -22,7 +22,7 @@ from api.models.main_models import (
     Wells,
     Locations,
     MeterStatusLU,
-    PartTypeLU
+    PartTypeLU,
 )
 from api.models.security_models import Users
 from api.security import scoped_user

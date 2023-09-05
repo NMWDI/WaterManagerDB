@@ -207,7 +207,9 @@ class MeterObservations(Base):
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    observed_property_type_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    observed_property_type_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
@@ -348,8 +350,9 @@ WellUseLU = Table(
     Column("id", Integer, primary_key=True, index=True, autoincrement=True),
     Column("use_type", String, nullable=False),
     Column("code", String),
-    Column("description", String)
+    Column("description", String),
 )
+
 
 class Wells(Base):
     name = Column(String)
