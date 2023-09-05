@@ -41,8 +41,8 @@ class ObservationDTO(BaseModel):
 class MeterHistoryDTO(BaseModel):
     name: str
     location: str
-    #ra_numbers: Union(List[str],None)
-    #owners: Union(List[str],None)
+    # ra_numbers: Union(List[str],None)
+    # owners: Union(List[str],None)
     activities: List[ActivityDTO]
     observations: List[ObservationDTO]
 
@@ -222,8 +222,8 @@ def get_ose_history(
                 location=meter_location.name
                 if meter_location != None
                 else "N/A (NO LOCATION)",
-                #ra_numbers=[ra_number],
-                #owners=[owners],
+                # ra_numbers=[ra_number],
+                # owners=[owners],
             )
             meter_history_list.append(meter_history)
 
