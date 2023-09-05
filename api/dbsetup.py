@@ -158,7 +158,9 @@ with open("../PVACDdb_migration/csv_data/tables/activities.csv", "r") as f:
     qry = 'COPY "ActivityTypeLU"(id,name,description,permission) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 
-with open("../PVACDdb_migration/csv_data/testing/devdata_wellMeasurement.csv", "r") as f:
+with open(
+    "../PVACDdb_migration/csv_data/testing/devdata_wellMeasurement.csv", "r"
+) as f:
     qry = 'COPY "WellMeasurements"(timestamp,value,well_id,observed_property_id,submitting_user_id,unit_id) FROM STDIN WITH (FORMAT CSV, HEADER TRUE)'
     cursor.copy_expert(qry, f)
 

@@ -403,8 +403,9 @@ WellUseLU = Table(
     Column("id", Integer, primary_key=True, index=True, autoincrement=True),
     Column("use_type", String, nullable=False),
     Column("code", String),
-    Column("description", String)
+    Column("description", String),
 )
+
 
 class Wells(Base):
     # id = Column(Integer, primary_key=True, index=True)
