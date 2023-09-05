@@ -102,7 +102,7 @@ function App() {
                         }
                     />
                     <Route path="/parts" element={
-                            <RequireScopes requiredScopes={[]}>
+                            <RequireScopes requiredScopes={["admin"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><PartsView/>
@@ -111,7 +111,7 @@ function App() {
                         }
                     />
                     <Route path="/alerts" element={
-                            <RequireScopes requiredScopes={[]}>
+                            <RequireScopes requiredScopes={["admin"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><AlertsView/>

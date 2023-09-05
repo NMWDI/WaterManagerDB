@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridColDef, GridPagination } from '@mui/x-data-grid'
-import { Box, Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
 import { useGetParts } from '../../service/ApiServiceNew'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search';
 import { Part } from '../../interfaces'
 import TristateToggle from '../../components/TristateToggle'
+import GridFooterWithButton from '../../components/GridFooterWithButton'
 
-function CustomPartsFooter({onAddPart}: any) {
-    return (
-        <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <Box sx={{my: 'auto'}}>
-                <Button onClick={() => onAddPart()}><AddIcon style={{fontSize: '1rem'}}/>Add a New Part</Button>
-            </Box>
-            <GridPagination />
-        </Box>
-    )
+interface PartsTableProps {
+    setSelectedPartID: Function,
+    setPartAddMode: Function
 }
 
-export default function PartsTable({setSelectedPartID, setPartAddMode}: any) {
+export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTableProps) {
     const partsList = useGetParts()
     const [partSearchQuery, setPartSearchQuery] = useState<string>('')
     const [filteredRows, setFilteredRows] = useState<Part[]>()
@@ -89,8 +84,13 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: any) {
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedPartID(selectedRow.row.id)}}
-                    components={{Footer: CustomPartsFooter}}
-                    componentsProps={{footer: { onAddPart: () => setPartAddMode(true) }}}
+                    components={{Footer: GridFooterWithButton}}
+                    componentsProps={{footer: {
+                        button:
+                            <Button onClick={() => setPartAddMode(true)}>
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part Type
+                            </Button>
+                    }}}
                     disableColumnFilter
                 />
             </CardContent>

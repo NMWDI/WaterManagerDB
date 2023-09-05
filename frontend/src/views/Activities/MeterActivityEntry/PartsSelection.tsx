@@ -13,7 +13,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import { useFieldArray } from 'react-hook-form'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { PartAssociation } from '../../../interfaces'
+import { Part, PartAssociation } from '../../../interfaces'
 import { useGetMeterPartsList } from '../../../service/ApiServiceNew'
 
 {/*  Controls which part IDs are selected, only shows parts associated with the selected meter */}
@@ -25,8 +25,8 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
     useEffect(() => {
         setVisiblePartIDs(
             partsList.data?.
-                filter((pa: PartAssociation) => pa.commonly_used == true)
-                .map((pa: PartAssociation) => pa.part_id) ?? []
+                filter((p: Part) => p.commonly_used == true)
+                .map((p: Part) => p.id) ?? []
         )
         setValue("part_used_ids", [])
     }, [partsList.data])
@@ -49,19 +49,19 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
         append(ID)
     }
 
-    function PartToggleButton({pa}: {pa: PartAssociation}) {
+    function PartToggleButton({part}: {part: Part}) {
         return (
-            <Grid item xs={4} key={pa.id}>
+            <Grid item xs={4} key={part.id}>
                 <ToggleButton
                     value="check"
                     color="primary"
-                    selected={isSelected(pa.part_id)}
+                    selected={isSelected(part.id)}
                     fullWidth
-                    onChange={() => {isSelected(pa.part_id) ? unselectPart(pa.part_id) : selectPart(pa.part_id)}}
+                    onChange={() => {isSelected(part.id) ? unselectPart(part.id) : selectPart(part.id)}}
                     sx={toggleStyle}
-                    key={pa.id}
+                    key={part.id}
                 >
-                {`${pa.part?.description} (${pa.part?.part_number})`}
+                {`${part.description} (${part.part_number})`}
                 </ToggleButton>
             </Grid>
         )
@@ -77,9 +77,9 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
                         {/*  Show all default and user-added parts as toggle buttons */}
-                        {partsList.data?.map((pa: PartAssociation) => {
-                            if(visiblePartIDs.some(x => x == pa.part_id)) {
-                                return <PartToggleButton pa={pa} />
+                        {partsList.data?.map((p: Part) => {
+                            if(visiblePartIDs.some(x => x == p.id)) {
+                                return <PartToggleButton part={p} />
                             }
                         })}
                     </Grid>
@@ -99,9 +99,9 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
                                 }}
                             >
                                 {/*  Show list of parts that aren't already visible */}
-                                {partsList.data?.map((pa: PartAssociation) => {
-                                    if(!visiblePartIDs.some(x => x == pa.part_id)) {
-                                        return <MenuItem key={pa.part_id} value={pa.part_id}>{`${pa.part?.description} (${pa.part?.part_number})`}</MenuItem>
+                                {partsList.data?.map((p: Part) => {
+                                    if(!visiblePartIDs.some(x => x == p.id)) {
+                                        return <MenuItem key={p.id} value={p.id}>{`${p.description} (${p.part_number})`}</MenuItem>
                                     }
                                 })}
                             </Select>

@@ -144,8 +144,13 @@ async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
         select(Meters.meter_type_id).where(Meters.id == meter_id)
     ).first()
 
+    part_id_list = db.scalars(
+        select(PartAssociation.c.part_id)
+        .where(PartAssociation.c.meter_type_id == meter_type_id)
+    ).all()
+
     return db.scalars(
-        select(PartAssociation)
-        .where(PartAssociation.meter_type_id == meter_type_id)
-        .options(joinedload(PartAssociation.part).joinedload(Parts.part_type))
+        select(Parts)
+        .where(Parts.id.in_(part_id_list))
+        .options(joinedload(Parts.part_type))
     ).all()

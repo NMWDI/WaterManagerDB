@@ -191,6 +191,7 @@ export function useGetMeterHistory(params: MeterDetailsQueryParams) {
     const authHeader = useAuthHeader()
     return useQuery<MeterHistoryDTO[], Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
+        {enabled: params?.meter_id != undefined}
     )
 }
 
@@ -317,8 +318,11 @@ export function useGetPart(params: {part_id: number} | undefined) {
 export function useGetMeterPartsList(params: MeterPartParams | undefined) {
     const route = 'meter_parts'
     const authHeader = useAuthHeader()
-    return useQuery<PartAssociation[], Error>([route, params], () =>
+    return useQuery<Part[], Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
+        {
+            enabled: params?.meter_id != undefined
+        }
     )
 }
 

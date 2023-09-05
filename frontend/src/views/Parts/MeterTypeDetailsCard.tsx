@@ -21,30 +21,24 @@ const MeterTypeResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     in_use: Yup.boolean().typeError('Please indicate if part is in use.').required('Please indicate if part is in use.')
 })
 
-export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMode}: any) {
-    function onSuccessfulUpdate() {
-        enqueueSnackbar('Successfully Updated Meter Type!', {variant: 'success'})
-    }
-    function onSuccessfulCreate() {
-        enqueueSnackbar('Successfully Created Meter Type!', {variant: 'success'})
-    }
+interface MeterTypeDetailsCard {
+    selectedMeterType: MeterTypeLU | undefined,
+    meterTypeAddMode: boolean
+}
 
-    // Part details form
+export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMode}: MeterTypeDetailsCard) {
     const { handleSubmit, control, setValue, reset, formState: { errors }} = useForm<MeterTypeLU>({
         resolver: yupResolver(MeterTypeResolverSchema)
     })
 
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Meter Type!', {variant: 'success'}) }
+    function onSuccessfulCreate() { enqueueSnackbar('Successfully Created Meter Type!', {variant: 'success'}) }
     const updateMeterType = useUpdateMeterType(onSuccessfulUpdate)
     const createMeterType = useCreateMeterType(onSuccessfulCreate)
 
     const onSaveChanges: SubmitHandler<any> = data => updateMeterType.mutate(data)
     const onAddPart: SubmitHandler<any> = data => createMeterType.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
-
-    // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
-    function hasErrors() {
-        return Object.keys(errors).length > 0
-    }
 
     // Populate the form with the selected meter type's details
     useEffect(() => {
@@ -60,6 +54,11 @@ export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMod
     useEffect(() => {
         if (meterTypeAddMode) reset()
     }, [meterTypeAddMode])
+
+    // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
+    function hasErrors() {
+        return Object.keys(errors).length > 0
+    }
 
     return (
         <Card>
@@ -124,7 +123,6 @@ export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMod
                         }
                     </Grid>
                 </Grid>
-
             </CardContent>
         </Card>
     )

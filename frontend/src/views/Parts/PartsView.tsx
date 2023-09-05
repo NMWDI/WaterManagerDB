@@ -6,7 +6,6 @@ import MeterTypesTable from './MeterTypesTable'
 import MeterTypeDetailsCard from './MeterTypeDetailsCard'
 import { MeterTypeLU } from '../../interfaces'
 
-
 export default function PartsView() {
     const [selectedPartID, setSelectedPartID] = useState<number>()
     const [partAddMode, setPartAddMode] = useState<boolean>(true)

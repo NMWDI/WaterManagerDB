@@ -24,26 +24,23 @@ const PartResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     commonly_used: Yup.boolean().typeError('Please indicate if part is commonly used.').required('Please indicate if part is commonly_used.')
 })
 
-export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
-    function onSuccessfulUpdate() {
-        enqueueSnackbar('Successfully Updated Part!', {variant: 'success'})
-    }
-    function onSuccessfulCreate() {
-        enqueueSnackbar('Successfully Created Part!', {variant: 'success'})
-    }
+interface PartDetailsCard {
+    selectedPartID: number | undefined
+    partAddMode: boolean
+}
 
-    // Part details RHF
+export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetailsCard) {
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<Part>({
         resolver: yupResolver(PartResolverSchema)
     })
 
-    // Associated meter types RHF
+    // Associated meter types as an array
     const { append, remove } = useFieldArray({
         control, name: "meter_types"
     })
 
-    const partDetails = useGetPart({part_id: selectedPartID})
-    const meterTypeList = useGetMeterTypeList()
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Part!', {variant: 'success'}) }
+    function onSuccessfulCreate() { enqueueSnackbar('Successfully Created Part!', {variant: 'success'}) }
     const updatePart = useUpdatePart(onSuccessfulUpdate)
     const createPart = useCreatePart(onSuccessfulCreate)
 
@@ -51,22 +48,8 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
     const onAddPart: SubmitHandler<any> = data => createPart.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
 
-    function removeMeterType(meterTypeIndex: number) {
-        remove(meterTypeIndex)
-    }
-
-    function addMeterType(meterTypeID: number) {
-        const newType = meterTypeList.data?.find(x => x.id === meterTypeID)
-
-        if (newType) {
-            append(newType)
-        }
-    }
-
-    // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
-    function hasErrors() {
-        return Object.keys(errors).length > 0
-    }
+    const partDetails = useGetPart(selectedPartID ? {part_id: selectedPartID} : undefined)
+    const meterTypeList = useGetMeterTypeList()
 
     // Populate the form with the selected part's details
     useEffect(() => {
@@ -84,6 +67,20 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
             reset()
         }
     }, [partAddMode])
+
+    function removeMeterType(meterTypeIndex: number) {
+        remove(meterTypeIndex)
+    }
+
+    function addMeterType(meterTypeID: number) {
+        const newType = meterTypeList.data?.find(x => x.id === meterTypeID)
+        if (newType) append(newType)
+    }
+
+    // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
+    function hasErrors() {
+        return Object.keys(errors).length > 0
+    }
 
     return (
         <Card>
@@ -159,12 +156,12 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} sx={{mt: 2}}>
+
+                            {/* Custom chip-based meter type association selection */}
                             <Box border={1} padding={1} style={{borderColor: '#C4C4C4', position: 'relative'}} borderRadius={4}>
                                 <InputLabel shrink={true} style={{ position: 'absolute', left: 10, top: true ? -8 : 8, backgroundColor: 'white', padding: '0 5px' }}>
                                     Associated Meter Types
                                 </InputLabel>
-
-                                {/* Start meter type selectbox  */}
                                 <Chip
                                     sx={{mr: 1, mt: 1, p: 0}}
                                     label={
@@ -189,7 +186,6 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                                     variant="outlined"
                                     onClick={() => {}}
                                 />
-                                {/* End meter type select box  */}
 
                                 {/* Show all current meter types as chips */}
                                 {watch("meter_types")?.map((type: MeterTypeLU, index: number) =>
@@ -201,6 +197,8 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: any) {
                                     />
                                 )}
                             </Box>
+                            {/* End meter type association selection */}
+
                         </Grid>
                     </Grid>
                 </Grid>

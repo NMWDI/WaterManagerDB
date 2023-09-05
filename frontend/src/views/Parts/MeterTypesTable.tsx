@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridColDef, GridPagination } from '@mui/x-data-grid'
-import { Box, Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
 import { useGetMeterTypeList } from '../../service/ApiServiceNew'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search';
 import { MeterTypeLU } from '../../interfaces'
 import TristateToggle from '../../components/TristateToggle'
+import GridFooterWithButton from '../../components/GridFooterWithButton'
 
-function CustomMeterTypeFooter({onAddMode}: any) {
-    return (
-        <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <Box sx={{my: 'auto'}}>
-                <Button onClick={() => onAddMode()}><AddIcon style={{fontSize: '1rem'}}/>Add a New Meter Type</Button>
-            </Box>
-            <GridPagination />
-        </Box>
-    )
+interface MeterTypesTable {
+    setSelectedMeterType: Function,
+    setMeterTypeAddMode: Function
 }
 
-export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMode}: any) {
+export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMode}: MeterTypesTable) {
     const meterTypes = useGetMeterTypeList()
     const [meterTypeSearchQuery, setMeterTypeSearchQuery] = useState<string>('')
     const [filteredRows, setFilteredRows] = useState<MeterTypeLU[]>()
@@ -82,8 +77,13 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedMeterType(selectedRow.row)}}
-                    components={{Footer: CustomMeterTypeFooter}}
-                    componentsProps={{footer: { onAddMode: () => setMeterTypeAddMode(true) }}}
+                    components={{Footer: GridFooterWithButton}}
+                    componentsProps={{footer: {
+                        button:
+                            <Button onClick={() => setMeterTypeAddMode(true)}>
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter Type
+                            </Button>
+                    }}}
                     disableColumnFilter
                 />
             </CardContent>

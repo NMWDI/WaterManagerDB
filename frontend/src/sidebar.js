@@ -4,9 +4,12 @@ import { LineStyle } from "@mui/icons-material";
 import TableViewIcon from '@mui/icons-material/TableView';
 
 import {Link, useLocation} from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
 
 function Sidebar() {
     let location = useLocation()
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope) => scope.scope_string).includes('admin')
 
     if(location.pathname == '/'){
         //Blank sidebar for login
@@ -54,24 +57,28 @@ function Sidebar() {
                         Chlorides
                         </li>
                     </Link>
-                    <Link to="/parts" className="link">
-                        <li className={ location.pathname == '/parts' ? "sidebarListItem active" : "sidebarListItem"}>
-                        <TableViewIcon className="sidebarIcon" />
-                        Parts
-                        </li>
-                    </Link>
-                    <Link to="/alerts" className="link">
-                        <li className={ location.pathname == '/alerts' ? "sidebarListItem active" : "sidebarListItem"}>
-                        <TableViewIcon className="sidebarIcon" />
-                        Alerts
-                        </li>
-                    </Link>
-                    <Link to="/admin" className="link">
-                        <li className={ location.pathname == '/admin' ? "sidebarListItem active" : "sidebarListItem"}>
-                        <TableViewIcon className="sidebarIcon" />
-                        Admin
-                        </li>
-                    </Link>
+                        {hasAdminScope &&
+                            <>
+                            <Link to="/parts" className="link">
+                                <li className={ location.pathname == '/parts' ? "sidebarListItem active" : "sidebarListItem"}>
+                                <TableViewIcon className="sidebarIcon" />
+                                Parts
+                                </li>
+                            </Link>
+                            <Link to="/alerts" className="link">
+                                <li className={ location.pathname == '/alerts' ? "sidebarListItem active" : "sidebarListItem"}>
+                                <TableViewIcon className="sidebarIcon" />
+                                Alerts
+                                </li>
+                            </Link>
+                            <Link to="/admin" className="link">
+                                <li className={ location.pathname == '/admin' ? "sidebarListItem active" : "sidebarListItem"}>
+                                <TableViewIcon className="sidebarIcon" />
+                                Admin
+                                </li>
+                            </Link>
+                            </>
+                        }
                     </ul>
                 </div>
 
