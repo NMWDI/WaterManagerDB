@@ -22,6 +22,7 @@ from api.models.main_models import (
     Wells,
     Locations,
     MeterStatusLU,
+    PartTypeLU,
 )
 from api.models.security_models import Users
 from api.security import scoped_user
@@ -230,29 +231,3 @@ async def get_service_types(db: Session = Depends(get_db)):
 )
 async def get_note_types(db: Session = Depends(get_db)):
     return db.scalars(select(NoteTypeLU)).all()
-
-
-@activity_router.get(
-    "/parts",
-    dependencies=[Depends(read_user)],
-    tags=["Activities"],
-)
-async def get_parts(db: Session = Depends(get_db)):
-    return db.scalars(select(Parts)).all()
-
-
-@activity_router.get(
-    "/meter_parts",
-    dependencies=[Depends(read_user)],
-    tags=["Activities"],
-)
-async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
-    meter_type_id = db.scalars(
-        select(Meters.meter_type_id).where(Meters.id == meter_id)
-    ).first()
-    # return db.scalars(select(PartAssociation.part_id, PartAssociation.commonly_used).where(PartAssociation.meter_type_id == meter_type_id)).all()
-    return db.scalars(
-        select(PartAssociation)
-        .where(PartAssociation.meter_type_id == meter_type_id)
-        .options(joinedload(PartAssociation.part).joinedload(Parts.part_type))
-    ).all()

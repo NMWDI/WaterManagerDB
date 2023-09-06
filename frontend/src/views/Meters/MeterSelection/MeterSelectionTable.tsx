@@ -86,7 +86,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
             <Box sx={{height: '100%'}}>
                 <DataGrid
                     rows={meterList.data?.items ?? []}
-                    loading={meterList.isPreviousData}
+                    loading={meterList.isPreviousData || meterList.isLoading}
                     columns={meterTableColumns}
                     sortingMode='server'
                     onSortModelChange={setGridSortModel}

@@ -10,10 +10,10 @@ import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
 import MetersView from './views/Meters/MetersView'
 import ChloridesView from "./views/Chlorides/ChloridesView";
+import PartsView from "./views/Parts/PartsView";
 
 import Home from "./Home";
 import Topbar from "./components/Topbar";
-import PartsView from "./PartsView";
 import AlertsView from "./AlertsView";
 import Login from './login';
 import ActivityView from './views/Activities';
@@ -102,7 +102,7 @@ function App() {
                         }
                     />
                     <Route path="/parts" element={
-                            <RequireScopes requiredScopes={[]}>
+                            <RequireScopes requiredScopes={["admin"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><PartsView/>
@@ -111,7 +111,7 @@ function App() {
                         }
                     />
                     <Route path="/alerts" element={
-                            <RequireScopes requiredScopes={[]}>
+                            <RequireScopes requiredScopes={["admin"]}>
                                 <Topbar />
                                 <div className="container">
                                     <Sidebar /><AlertsView/>

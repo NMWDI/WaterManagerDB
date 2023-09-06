@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
     Float,
     DateTime,
-    LargeBinary,
     func,
     Boolean,
     Table,
@@ -17,8 +16,6 @@ from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
-from sqlalchemy.ext.hybrid import hybrid_property, Comparator
-from api.schemas import security_schemas
 
 
 @as_declarative()
@@ -45,6 +42,14 @@ class PartTypeLU(Base):
     description = Column(String)
 
 
+PartAssociation = Table(
+    "PartAssociation",
+    Base.metadata,
+    Column("part_id", ForeignKey("Parts.id"), nullable=False),
+    Column("meter_type_id", ForeignKey("MeterTypeLU.id"), nullable=False),
+)
+
+
 class Parts(Base):
     part_number = Column(String, unique=True, nullable=False)
     part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
@@ -52,16 +57,11 @@ class Parts(Base):
     vendor = Column(String)
     count = Column(Integer, default=0)
     note = Column(String)
+    in_use = Column(Boolean, nullable=False, default=True)
+    commonly_used = Column(Boolean, nullable=False, default=False)
 
     part_type = relationship("PartTypeLU")
-
-
-class PartAssociation(Base):
-    meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
-    part_id = Column(Integer, ForeignKey("Parts.id"), nullable=False)
-    commonly_used = Column(Boolean)
-
-    part = relationship("Parts")
+    meter_types = relationship("MeterTypeLU", secondary="PartAssociation")
 
 
 PartsUsed = Table(
@@ -127,9 +127,7 @@ class Meters(Base):
     well_id = Column(Integer, ForeignKey("Wells.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
 
-    meter_type = relationship(
-        "MeterTypeLU", lazy="noload"
-    )  # Indicate that these relationships have to be manually loaded
+    meter_type = relationship("MeterTypeLU", lazy="noload")
     status = relationship("MeterStatusLU", lazy="noload")
     well = relationship("Wells", lazy="noload")
     location = relationship("Locations", lazy="noload")
@@ -150,6 +148,9 @@ class MeterTypeLU(Base):
     model_number = Column(String)
     size = Column(Float)
     description = Column(String)
+    in_use = Column(Boolean)
+
+    parts = relationship("Parts", secondary="PartAssociation")
 
 
 class MeterStatusLU(Base):
@@ -341,62 +342,8 @@ class Alerts(Base):
         return not bool(self.closed_timestamp)
 
 
-# class RepairPartAssociation(Base):
-#     repair_id = Column(Integer, ForeignKey("Repairs.id"))
-#     part_id = Column(Integer, ForeignKey("Parts.id"))
-
-# Not used? Now represented by a MeterActivity
-# class Repairs(Base):
-#     # id = Column(Integer, primary_key=True, index=True)
-#     # meter_id = Column(Integer, ForeignKey('metertbl.id'))
-
-#     timestamp = Column(DateTime, default=func.now())
-#     h2o_read = Column(Float)
-#     e_read = Column(String)
-#     new_read = Column(String)
-#     repair_description = Column(LargeBinary)
-#     note = Column(LargeBinary)
-#     preventative_maintenance = Column(String)
-#     public_release = Column(Boolean)
-
-#     well_id = Column(Integer, ForeignKey("Wells.id"))
-#     meter_status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))  # pok, np, piro
-#     qc_id = Column(Integer, ForeignKey("QC.id"))
-#     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
-#     location_id = Column(Integer, ForeignKey("Locations.id"))
-
-#     well = relationship("Wells", uselist=False)
-#     submitting_user = relationship("Users", uselist=False)
-#     meter_status = relationship("MeterStatusLU", uselist=False)
-#     qc = relationship("QC", uselist=False)
-#     location = relationship("Locations", uselist=False)
-
-#     @property
-#     def well_name(self):
-#         return self.well.name
-
-#     @property
-#     def well_location(self):
-#         return self.well.location
-
-#     @property
-#     def meter_serial_number(self):
-#         return self.well.meter_history.meter.serial_number
-
-#     @property
-#     def meter_status_name(self):
-#         return self.meter_status.name
-
-#     @property
-#     def worker(self):
-#         return self.repair_by.name
-
-#     @worker.setter
-#     def worker(self, v):
-#         self.repair_by.id
-
-
 # ------------ Wells --------------
+
 WellUseLU = Table(
     "WellUseLU",
     Base.metadata,
@@ -408,7 +355,6 @@ WellUseLU = Table(
 
 
 class Wells(Base):
-    # id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     use_type_id = Column(Integer, ForeignKey("WellUseLU.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
@@ -418,19 +364,12 @@ class Wells(Base):
 
     location = relationship("Locations")
 
-    # waterlevels = relationship("WellMeasurements", back_populates="well")
-    # construction = relationship("WellConstructions", uselist=False)
-
 
 class WellConstructions(Base):
-    # id = Column(Integer, primary_key=True, index=True)
     casing_diameter = Column(Float, default=0)
     hole_depth = Column(Float, default=0)
     well_depth = Column(Float, default=0)
     well_id = Column(Integer, ForeignKey("Wells.id"))
-
-    # screens = relationship("ScreenIntervals")
-    # well = relationship("Wells")
 
 
 class ScreenIntervals(Base):
@@ -453,11 +392,7 @@ class WellMeasurements(Base):
 
     submitting_user = relationship("Users")
 
-    # well = relationship("Wells", back_populates="waterlevels")
-    # observed_property = relationship("ObservedPropertyTypeLU")
-
 
 class QC(Base):
-    # user_id = Column(Integer, ForeignKey("User.id"))
     timestamp = Column(DateTime, default=func.now())
     status = Column(Boolean)

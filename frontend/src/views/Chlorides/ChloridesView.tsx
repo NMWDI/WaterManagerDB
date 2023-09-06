@@ -49,7 +49,7 @@ export default function ChloridesView(){
                 <Select
                     labelId="plot-select-label"
                     id="plot-select"
-                    value={wellID}
+                    value={wellID ?? ''}
                     onChange={(event: any) => setWellID(event.target.value)}
                     label="Site"
                 >

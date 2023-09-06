@@ -165,13 +165,53 @@ async def get_meter(
 @meter_router.get(
     "/meter_types",
     dependencies=[Depends(read_user)],
-    response_model=List[meter_schemas.MeterTypeLU],
     tags=["meters"],
 )
 async def get_meter_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(MeterTypeLU)).all()
+
+
+@meter_router.patch(
+    "/meter_types",
+    dependencies=[Depends(read_user)],
+    tags=["meters"],
+)
+async def update_meter_type(
+    updated_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
+):
+    _patch(db, MeterTypeLU, updated_meter_type.id, updated_meter_type)
+
+    meter_type = db.scalars(
+        select(MeterTypeLU).where(MeterTypeLU.id == updated_meter_type.id)
+    ).first()
+
+    return meter_type
+
+
+@meter_router.post(
+    "/meter_types",
+    dependencies=[Depends(read_user)],
+    tags=["meters"],
+)
+async def create_meter_type(
+    new_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
+):
+    new_type_model = MeterTypeLU(
+        brand=new_meter_type.brand,
+        series=new_meter_type.series,
+        model_number=new_meter_type.model_number,
+        size=new_meter_type.size,
+        description=new_meter_type.description,
+        in_use=new_meter_type.in_use,
+    )
+
+    db.add(new_type_model)
+    db.commit()
+    db.refresh(new_type_model)
+
+    return new_type_model
 
 
 @meter_router.get(

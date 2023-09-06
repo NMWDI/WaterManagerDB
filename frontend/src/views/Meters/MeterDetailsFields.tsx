@@ -378,7 +378,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     <Grid container item xs={12} spacing={2}>
                         {hasAdminScope &&
                             <Grid item >
-                                <Button type="submit" variant="contained" color="success" style={{}} onClick={onSaveMeterChanges} >Save Changes</Button>
+                                <Button type="submit" variant="contained" color="success" style={{}} onClick={onSaveMeterChanges}>Save Changes</Button>
                             </Grid>
                         }
                         <Grid item >
