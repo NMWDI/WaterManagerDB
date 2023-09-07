@@ -152,11 +152,14 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
     ).first()
     meter_activity.notes.append(status_note_type)
 
-    # Associate parts use
+    # Associate and handle parts use
     used_parts = db.scalars(
         select(Parts).where(Parts.id.in_(activity_form.part_used_ids))
     ).all()
     meter_activity.parts_used = used_parts
+
+    for used_part in used_parts:
+        used_part.count -= 1
 
     # Associate services performed
     services = db.scalars(

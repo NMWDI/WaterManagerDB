@@ -40,7 +40,11 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
     })
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Part!', {variant: 'success'}) }
-    function onSuccessfulCreate() { enqueueSnackbar('Successfully Created Part!', {variant: 'success'}) }
+    function onSuccessfulCreate() {
+        enqueueSnackbar('Successfully Created Part!', {variant: 'success'})
+        reset()
+    }
+
     const updatePart = useUpdatePart(onSuccessfulUpdate)
     const createPart = useCreatePart(onSuccessfulCreate)
 
@@ -188,7 +192,7 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
                                 />
 
                                 {/* Show all current meter types as chips */}
-                                {watch("meter_types")?.map((type: MeterTypeLU, index: number) =>
+                                {watch("meter_types")?.filter((type: MeterTypeLU) => type.in_use).map((type: MeterTypeLU, index: number) =>
                                     <Chip
                                         key={type.id}
                                         sx={{mr: 1, mt: 1}}
