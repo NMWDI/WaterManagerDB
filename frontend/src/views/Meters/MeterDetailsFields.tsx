@@ -17,6 +17,15 @@ import {
     Autocomplete
 } from '@mui/material'
 
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
+} from '@mui/material'
+
 import { MeterDetails, SecurityScope, MeterTypeLU, Well, MeterType } from '../../interfaces'
 import { useGetMeter, useGetMeterTypeList, useGetWell, useGetWells, useUpdateMeter } from '../../service/ApiServiceNew'
 
@@ -180,8 +189,6 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     const [meterType, setMeterType] = useState<MeterType | undefined>()
     const [contactName, setContactName] = useState<string>('')
     const [contactPhone, setContactPhone] = useState<string>('')
-    const [oldContactName, setOldContactName] = useState<string>('')
-    const [oldContactPhone, setOldContactPhone] = useState<string>('')
     const [installationNotes, setInstallationNotes] = useState<string>('')
 
     const meterDetails = useGetMeter({meter_id: selectedMeterID})
@@ -198,8 +205,6 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
         setSelectedWell(meterDetails.data?.well ?? null)
         setContactName(meterDetails.data?.contact_name ?? '')
         setContactPhone(meterDetails.data?.contact_phone ?? '')
-        setOldContactName(meterDetails.data?.old_contact_name ?? '')
-        setOldContactPhone(meterDetails.data?.old_contact_phone ?? '')
         setInstallationNotes(meterDetails.data?.notes ?? '')
     }, [meterDetails.data])
 
@@ -210,8 +215,6 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
             serial_number: serialNumber,
             contact_name: contactName,
             contact_phone: contactPhone,
-            old_contact_name: oldContactName,
-            old_contact_phone: oldContactPhone,
             notes: installationNotes,
             well_id: selectedWell?.id,
             meter_type_id: meterType?.id
@@ -251,7 +254,28 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 />
 
                 <br/>
-                <h4>Status: {meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name}</h4>
+                {/*<h4>Status: {meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name}</h4>*/}
+
+                <Grid item xs={12}>
+                <TableContainer sx={{ mb:2, mt:5 }}>
+                    <Table sx={{ minWidth: 500, maxWidth: 600, fontSize: 25 }}>
+                        <TableHead sx={{ fontWeight: 'bold'}}>
+                            <TableRow>
+                                <TableCell>Status</TableCell>
+                                <TableCell>TRSS</TableCell>
+                                <TableCell>Lat/Long</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
+                                <TableCell>{ selectedWell?.location?.trss }</TableCell>
+                                <TableCell>{ selectedWell?.location?.latitude?.toFixed(6) }, { selectedWell?.location?.longitude?.toFixed(6) }</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                </Grid>
 
                 <Grid container item xs={10} spacing={2}>
 
@@ -273,84 +297,10 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="Old Contact Name"
-                            value={oldContactName}
-                            onChange={(event: any) => {setOldContactName(event.target.value)}}
-                            hasAdminScope={hasAdminScope}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="Old Contact Phone"
-                            value={oldContactPhone}
-                            onChange={(event: any) => {setOldContactPhone(event.target.value)}}
-                            hasAdminScope={hasAdminScope}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
                         <WellSelection
                             value={selectedWell}
                             onChange={setSelectedWell}
                             hasAdminScope={hasAdminScope}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="Land Owner"
-                            value={selectedWell?.location?.land_owner?.organization}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
-                        />
-                    </Grid>
-
-                    {/* Second Row */}
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="Latitude"
-                            value={selectedWell?.location?.latitude?.toFixed(6)}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="Longitude"
-                            value={selectedWell?.location?.longitude?.toFixed(6)}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
-                        />
-                    </Grid>
-
-                    {/* Third Row */}
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="TRSS"
-                            value={selectedWell?.location?.trss}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="RA Number"
-                            value={selectedWell?.ra_number}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
-                        <MeterDetailsField
-                            label="OSE Tag"
-                            value={meterDetails.data?.tag}
-                            onChange={() => {}}
-                            hasAdminScope={hasAdminScope}
-                            disabled
                         />
                     </Grid>
                     <Grid item xs={3}>
