@@ -25,8 +25,8 @@ function Sidebar() {
 
                 {/*Page Menu*/}
                 <div className="sidebarMenu">
-                    <h3 className="sidebarTitle">Pages</h3>
                     <ul className="sidebarList">
+                    <h5 style={{marginTop: '0', marginBottom: '5px'}}>Pages</h5>
                     <Link to="/home" className="link">
                       <li className={ location.pathname == '/home' ? "sidebarListItem active" : "sidebarListItem"}>
                         <LineStyle className="sidebarIcon" />
