@@ -28,7 +28,8 @@ import {
     MeterMapDTO,
     MeterHistoryDTO,
     Part,
-    PartTypeLU
+    PartTypeLU,
+    UserRole
 } from '../interfaces.js'
 
 // Date display util
@@ -192,6 +193,22 @@ export function useGetMeterHistory(params: MeterDetailsQueryParams) {
     return useQuery<MeterHistoryDTO[], Error>([route, params], () =>
         GETFetch(route, params, authHeader()),
         {enabled: params?.meter_id != undefined}
+    )
+}
+
+export function useGetRoles() {
+    const route = 'roles'
+    const authHeader = useAuthHeader()
+    return useQuery<UserRole[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
+export function useGetUserAdminList() {
+    const route = 'usersadmin'
+    const authHeader = useAuthHeader()
+    return useQuery<User[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
     )
 }
 

@@ -78,7 +78,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '85%'}}
+                    sx={{height: '87%', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={partsList.isLoading}
                     columns={cols}
@@ -87,8 +87,8 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     components={{Footer: GridFooterWithButton}}
                     componentsProps={{footer: {
                         button:
-                            <Button onClick={() => setPartAddMode(true)}>
-                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part
+                            <Button variant="contained" size="small" onClick={() => setPartAddMode(true)}>
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part Type
                             </Button>
                     }}}
                     disableColumnFilter

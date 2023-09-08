@@ -376,12 +376,14 @@ export interface NewWellMeasurement {
 
 export interface User {
     id: number
-    username: string
+    username?: string
     full_name: string
-    email: scope_string
+    email?: scope_string
     disabled: boolean
-    user_role_id: number
-    user_role: UserRole
+    user_role_id?: number
+    user_role?: UserRole
+
+    new_password?: string // used when setting new user pw
 }
 
 export interface UserRole {

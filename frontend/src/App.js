@@ -21,6 +21,7 @@ import RequireScopes from './components/RequireScopes'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { SnackbarProvider } from 'notistack'
+import UserManagementView from './views/UserManagement/UserManagementView';
 
 const queryClient = new QueryClient()
 
@@ -119,11 +120,11 @@ function App() {
                             </RequireScopes>
                         }
                     />
-                    <Route path="/admin" element={
+                    <Route path="/usermanagement" element={
                             <RequireScopes requiredScopes={["admin"]}>
                                 <Topbar />
                                 <div className="container">
-                                    <Sidebar /><div>Admin Page</div>
+                                <Sidebar /><UserManagementView/>
                                 </div>
                             </RequireScopes>
                         }

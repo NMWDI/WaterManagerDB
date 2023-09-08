@@ -71,7 +71,7 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '85%'}}
+                    sx={{height: '87%', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={meterTypes.isLoading}
                     columns={cols}
@@ -80,7 +80,7 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     components={{Footer: GridFooterWithButton}}
                     componentsProps={{footer: {
                         button:
-                            <Button onClick={() => setMeterTypeAddMode(true)}>
+                            <Button variant="contained" size="small" onClick={() => setMeterTypeAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter Type
                             </Button>
                     }}}

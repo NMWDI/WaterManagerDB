@@ -26,13 +26,6 @@ export default function PartsView() {
             <h2>Parts</h2>
 
             <Grid container spacing={2}>
-                <Grid container item xs={6} sx={{mb: 1}} spacing={2}>
-                    <Grid item xs={5}>
-                    </Grid>
-                </Grid>
-            </Grid>
-
-            <Grid container spacing={2}>
                 <Grid container item spacing={2}>
                     <Grid item xs={7}>
                         <PartsTable

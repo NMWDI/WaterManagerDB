@@ -59,24 +59,19 @@ function Sidebar() {
                     </Link>
                         {hasAdminScope &&
                             <>
-                            <Link to="/parts" className="link">
-                                <li className={ location.pathname == '/parts' ? "sidebarListItem active" : "sidebarListItem"}>
-                                <TableViewIcon className="sidebarIcon" />
-                                Parts
-                                </li>
-                            </Link>
-                            <Link to="/alerts" className="link">
-                                <li className={ location.pathname == '/alerts' ? "sidebarListItem active" : "sidebarListItem"}>
-                                <TableViewIcon className="sidebarIcon" />
-                                Alerts
-                                </li>
-                            </Link>
-                            <Link to="/admin" className="link">
-                                <li className={ location.pathname == '/admin' ? "sidebarListItem active" : "sidebarListItem"}>
-                                <TableViewIcon className="sidebarIcon" />
-                                Admin
-                                </li>
-                            </Link>
+                                <h5 style={{marginTop: '10px', marginBottom: '5px'}}>Admin Management</h5>
+                                <Link to="/parts" className="link">
+                                    <li className={ location.pathname == '/parts' ? "sidebarListItem active" : "sidebarListItem"}>
+                                    <TableViewIcon className="sidebarIcon" />
+                                    Parts
+                                    </li>
+                                </Link>
+                                <Link to="/usermanagement" className="link">
+                                    <li className={ location.pathname == '/usermanagement' ? "sidebarListItem active" : "sidebarListItem"}>
+                                    <TableViewIcon className="sidebarIcon" />
+                                    Users
+                                    </li>
+                                </Link>
                             </>
                         }
                     </ul>
