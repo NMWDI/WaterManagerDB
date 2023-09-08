@@ -97,7 +97,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                     <ControlledTextbox
                         name="current_installation.meter.well_distance_ft"
                         control={control}
-                        label={"Well Distance"}
+                        label={"Well Distance (in)"}
                         value={watch("current_installation.meter")?.well_distance_ft ?? ''}
                     />
                 </Grid>

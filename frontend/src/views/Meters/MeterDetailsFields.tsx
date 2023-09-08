@@ -199,6 +199,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
+
     useEffect(() => {
         setSerialNumber(meterDetails.data?.serial_number ?? '')
         setMeterType(meterDetails.data?.meter_type)
@@ -259,18 +260,20 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 <Grid item xs={12}>
                 <TableContainer sx={{ mb:2, mt:5 }}>
                     <Table sx={{ minWidth: 500, maxWidth: 600, fontSize: 25 }}>
-                        <TableHead sx={{ fontWeight: 'bold'}}>
+                        <TableHead>
                             <TableRow>
-                                <TableCell>Status</TableCell>
-                                <TableCell>TRSS</TableCell>
-                                <TableCell>Lat/Long</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>TRSS</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Lat/Long</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             <TableRow>
-                                <TableCell>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
-                                <TableCell>{ selectedWell?.location?.trss }</TableCell>
-                                <TableCell>{ selectedWell?.location?.latitude?.toFixed(6) }, { selectedWell?.location?.longitude?.toFixed(6) }</TableCell>
+                                <TableCell sx={{ fontSize: 16 }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
+                                <TableCell sx={{ fontSize: 16 }}>{ selectedWell?.location?.trss == null ? '--' : selectedWell?.location?.trss}</TableCell>
+                                <TableCell sx={{ fontSize: 16 }}>
+                                    { selectedWell?.location?.latitude == null ? '--' : selectedWell?.location?.latitude?.toFixed(6)+', '+selectedWell?.location?.longitude?.toFixed(6) }
+                                </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -305,7 +308,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                     </Grid>
                     <Grid item xs={3}>
                         <MeterDetailsField
-                            label="Well Distance"
+                            label="Well Distance (in)"
                             value={selectedWell?.well_distance_ft}
                             onChange={() => {}}
                             hasAdminScope={hasAdminScope}
