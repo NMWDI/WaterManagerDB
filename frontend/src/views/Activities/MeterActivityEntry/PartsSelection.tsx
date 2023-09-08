@@ -77,7 +77,7 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
                     <Grid container item {...gridBreakpoints} spacing={2}>
 
                         {/*  Show all default and user-added parts as toggle buttons */}
-                        {partsList.data?.map((p: Part) => {
+                        {partsList.data?.filter((p: Part) => p.in_use).map((p: Part) => {
                             if(visiblePartIDs.some(x => x == p.id)) {
                                 return <PartToggleButton part={p} />
                             }
@@ -99,7 +99,7 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
                                 }}
                             >
                                 {/*  Show list of parts that aren't already visible */}
-                                {partsList.data?.map((p: Part) => {
+                                {partsList.data?.filter((p: Part) => p.in_use).map((p: Part) => {
                                     if(!visiblePartIDs.some(x => x == p.id)) {
                                         return <MenuItem key={p.id} value={p.id}>{`${p.description} (${p.part_number})`}</MenuItem>
                                     }
