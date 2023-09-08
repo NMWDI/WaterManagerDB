@@ -62,7 +62,9 @@ def get_ose_history(
     start_datetime: datetime, end_datetime: datetime, db: Session = Depends(get_db)
 ):
     """
-    Returns activities and meter readings for each OSE well over input date range
+    Returns activities and meter readings for each OSE well over input date range.
+    
+    Datetime Format ISO8601: YYYY-MM-DDTHH:MM:SS+HH:MM, example 2023-09-12T00:00:00+00:00
     """
 
     # Get all activities in the date range
