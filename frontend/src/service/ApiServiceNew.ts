@@ -532,29 +532,35 @@ export function useCreatePart(onSuccess: Function) {
 
     return useMutation({
         mutationFn: async (part: Part) => {
-            const response = await POSTFetch(route, part, authHeader())
+            try {
+                const response = await POSTFetch(route, part, authHeader())
 
-            if (!response.ok) {
-                if(response.status == 422) {
-                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
-                    throw Error("Incomplete form, check network logs for details")
+                if (!response.ok) {
+                    if(response.status == 422) {
+                        enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                        throw Error("Incomplete form, check network logs for details")
+                    }
+                    else {
+                        enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                        throw Error("Unknown Error: " + response.status)
+                    }
                 }
                 else {
-                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
-                    throw Error("Unknown Error: " + response.status)
+                    onSuccess()
+
+                    const responseJson = await response.json()
+                    queryClient.setQueryData(['parts'], (old: Part[] | undefined) => {
+                        if (old != undefined) {
+                            return [...old, responseJson]
+                        }
+                        return []
+                    })
+                    return responseJson
                 }
             }
-            else {
-                onSuccess()
-
-                const responseJson = await response.json()
-                queryClient.setQueryData(['parts'], (old: Part[] | undefined) => {
-                    if (old != undefined) {
-                        return [...old, responseJson]
-                    }
-                    return []
-                })
-                return responseJson
+            catch {
+                enqueueSnackbar('An Error Occurred, Please Ensure the Part Number is Unique', {variant: 'error'})
+                throw Error("Server side error while creating a part, likely due to a non-unique part number.")
             }
         },
         retry: 0

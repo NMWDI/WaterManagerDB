@@ -88,7 +88,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     componentsProps={{footer: {
                         button:
                             <Button onClick={() => setPartAddMode(true)}>
-                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part Type
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part
                             </Button>
                     }}}
                     disableColumnFilter
