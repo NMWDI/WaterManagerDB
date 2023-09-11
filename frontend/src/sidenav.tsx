@@ -1,4 +1,5 @@
 import React from 'react'
+import './sidenav.css'
 import { LineStyle } from "@mui/icons-material";
 import TableViewIcon from '@mui/icons-material/TableView';
 
@@ -19,7 +20,7 @@ export default function Sidenav() {
     function NavLink({route, label}: NavLinkProps) {
         return (
             <Grid item>
-                <Link to={route} style={{backgroundColor: (location.pathname == route) ? '#F0F0FF' : 'inherit', padding: '5px', borderRadius: '10px', marginLeft: '5px', textDecoration: 'none', color: '#555555', display: 'flex', alignItems: 'center'}}>
+                <Link to={route} className={`navbar-link ${location.pathname == route ? "navbar-link-active" : ''}`}>
                     <TableViewIcon sx={{fontSize: '20px', marginRight: '5px'}}/><div style={{fontSize: '16px'}}>{label}</div>
                 </Link>
             </Grid>
@@ -34,14 +35,19 @@ export default function Sidenav() {
             </div>
         )
     }
+
     else {
+        //make bg color on nav white, make container bg offwhite
+        //then rewrite topnav
+        //handle pages that shouldnt have offwhite bg
+
         return (
             <Grid container direction="column" sx={{
-                backgroundColor: '#fafafa',
-                height: '100vh',
-                position: 'sticky',
+                backgroundColor: 'white',
+                height: '103%',
+                minHeight: '110vh',
                 px: '1rem',
-                boxShadow: '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)'
+                boxShadow: '3px 5px 2px -2px rgba(0,0,0,0.2)',
             }}>
                 <Grid item sx={{mt: 3, mb: 1}}>
                     <h5 style={{margin: 0}}>Pages</h5>
@@ -52,7 +58,14 @@ export default function Sidenav() {
                 <NavLink route="/activities" label="Activities" />
                 <NavLink route="/wells" label="Monitoring Wells" />
                 <NavLink route="/chlorides" label="Chlorides" />
-                <NavLink route="/usermanagement" label="Users" />
+
+                {hasAdminScope && <>
+                    <Grid item sx={{mt: 3, mb: 1}}>
+                        <h5 style={{margin: 0}}>Admin Management</h5>
+                    </Grid>
+                    <NavLink route="/parts" label="Parts" />
+                    <NavLink route="/usermanagement" label="Users" />
+                </>}
 
             </Grid>
         )

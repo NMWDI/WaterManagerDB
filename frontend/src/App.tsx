@@ -36,49 +36,54 @@ export default function App() {
             cookieSecure={window.location.protocol === "https:"}
         >
         <Router>
-            <Grid container spacing={2}>
-                <Grid item width='12%'>
-                    <Sidenav />
+            <Grid container>
+                <Grid item xs={12}>
+                    <Topbar/>
                 </Grid>
-                <Grid item width='88%'>
-                        <Routes>
-                            <Route path="/" element={<Login/>}/>
-                            <Route path="/home" element={
-                                <RequireScopes requiredScopes={["read"]}>
-                                    <Home/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/meters" element={
-                                <RequireScopes requiredScopes={["meter:write"]}>
-                                    <MetersView/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/activities" element={
-                                <RequireScopes requiredScopes={["activities:write"]}>
-                                    <ActivitiesView/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/wells" element={
-                                <RequireScopes requiredScopes={["well_measurement:write"]}>
-                                    <MonitoringWellsView/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/chlorides" element={
-                                <RequireScopes requiredScopes={["well_measurement:write"]}>
-                                    <ChloridesView/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/parts" element={
-                                <RequireScopes requiredScopes={["admin"]}>
-                                    <ChloridesView/>
-                                </RequireScopes>
-                            }/>
-                            <Route path="/usermanagement" element={
-                                <RequireScopes requiredScopes={["admin"]}>
-                                    <UserManagementView/>
-                                </RequireScopes>
-                            }/>
-                        </Routes>
+                <Grid container item xs={12} spacing={4}>
+                <Grid container item width='15%'>
+                        <Sidenav />
+                    </Grid>
+                    <Grid item width='85%' sx={{mt: 2}}>
+                            <Routes>
+                                <Route path="/" element={<Login/>}/>
+                                <Route path="/home" element={
+                                    <RequireScopes requiredScopes={["read"]}>
+                                        <Home/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/meters" element={
+                                    <RequireScopes requiredScopes={["meter:write"]}>
+                                        <MetersView/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/activities" element={
+                                    <RequireScopes requiredScopes={["activities:write"]}>
+                                        <ActivitiesView/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/wells" element={
+                                    <RequireScopes requiredScopes={["well_measurement:write"]}>
+                                        <MonitoringWellsView/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/chlorides" element={
+                                    <RequireScopes requiredScopes={["well_measurement:write"]}>
+                                        <ChloridesView/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/parts" element={
+                                    <RequireScopes requiredScopes={["admin"]}>
+                                        <PartsView/>
+                                    </RequireScopes>
+                                }/>
+                                <Route path="/usermanagement" element={
+                                    <RequireScopes requiredScopes={["admin"]}>
+                                        <UserManagementView/>
+                                    </RequireScopes>
+                                }/>
+                            </Routes>
+                    </Grid>
                 </Grid>
             </Grid>
         </Router>

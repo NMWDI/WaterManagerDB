@@ -23,9 +23,9 @@ export default function PartsView() {
 
     return (
         <Box sx={{m: 2, mt: 0, width: '100%'}}>
-            <h2>Parts</h2>
+        <h2 style={{color: "#2F4F4F"}}>Parts Management</h2>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={4}>
                 <Grid container item spacing={2}>
                     <Grid item xs={7}>
                         <PartsTable
