@@ -271,20 +271,20 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 {/*<h4>Status: {meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name}</h4>*/}
 
                 <Grid item xs={12}>
-                <TableContainer sx={{ mb:2, mt:5 }}>
-                    <Table sx={{ minWidth: 500, maxWidth: 600, fontSize: 25 }}>
+                <TableContainer sx={{ mb:3, mt: 2}}>
+                    <Table size="small">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Status</TableCell>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>TRSS</TableCell>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Lat/Long</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '50%' }}>Lat/Long</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             <TableRow>
-                                <TableCell sx={{ fontSize: 16 }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
-                                <TableCell sx={{ fontSize: 16 }}>{ selectedWell?.location?.trss == null ? '--' : selectedWell?.location?.trss}</TableCell>
-                                <TableCell sx={{ fontSize: 16 }}>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ selectedWell?.location?.trss == null ? '--' : selectedWell?.location?.trss}</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>
                                     { selectedWell?.location?.latitude == null ? '--' : selectedWell?.location?.latitude?.toFixed(6)+', '+selectedWell?.location?.longitude?.toFixed(6) }
                                 </TableCell>
                             </TableRow>
