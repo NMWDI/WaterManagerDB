@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import { Box, FormControl, Select, MenuItem, InputLabel, Card, CardContent, CardHeader } from "@mui/material";
 import { useState } from "react";
 
 import { ChloridesPlot } from './ChloridesPlot'
@@ -44,34 +44,39 @@ export default function ChloridesView(){
 
     return(
         <Box>
-            <FormControl sx={{minWidth: '100px'}}>
-                <InputLabel id="plot-select-label">Site</InputLabel>
-                <Select
-                    labelId="plot-select-label"
-                    id="plot-select"
-                    value={wellID ?? ''}
-                    onChange={(event: any) => setWellID(event.target.value)}
-                    label="Site"
-                >
-                    <MenuItem value={0} disabled sx={{display: 'none'}}>Select a Well</MenuItem>
-                    {monitoredWells.map((well: MonitoredWell) => <MenuItem value={well.id} key={well.id}>{well.name}</MenuItem>)}
-                </Select>
-            </FormControl>
-            <Box sx={{ mt: '10px', display: 'flex' }}>
-                <ChloridesTable rows={manualChlorideLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
+        <h2 style={{color: "#292929", fontWeight: '500'}}>Chlorides</h2>
+        <Card sx={{width: '95%', height: '75%'}}>
+            <CardContent>
+                <FormControl sx={{minWidth: '100px'}}>
+                    <InputLabel id="plot-select-label">Site</InputLabel>
+                    <Select
+                        labelId="plot-select-label"
+                        id="plot-select"
+                        value={wellID ?? ''}
+                        onChange={(event: any) => setWellID(event.target.value)}
+                        label="Site"
+                    >
+                        <MenuItem value={0} disabled sx={{display: 'none'}}>Select a Well</MenuItem>
+                        {monitoredWells.map((well: MonitoredWell) => <MenuItem value={well.id} key={well.id}>{well.name}</MenuItem>)}
+                    </Select>
+                </FormControl>
+                <Box sx={{ mt: '10px', display: 'flex' }}>
+                    <ChloridesTable rows={manualChlorideLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
 
-                <ChloridesPlot
-                    isLoading={manualChlorideLevelMeasurements.isLoading}
-                    manual_dates={manualChlorideLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
-                    manual_vals={manualChlorideLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
-                />
+                    <ChloridesPlot
+                        isLoading={manualChlorideLevelMeasurements.isLoading}
+                        manual_dates={manualChlorideLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
+                        manual_vals={manualChlorideLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
+                    />
 
-            </Box>
+                </Box>
 
-            <NewMeasurementModal
-                isNewMeasurementModalOpen={isNewMeasurementModalOpen}
-                handleCloseNewMeasurementModal={handleCloseNewMeasurementModal}
-                handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
+                <NewMeasurementModal
+                    isNewMeasurementModalOpen={isNewMeasurementModalOpen}
+                    handleCloseNewMeasurementModal={handleCloseNewMeasurementModal}
+                    handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
+                </CardContent>
+            </Card>
         </Box>
     )
 }

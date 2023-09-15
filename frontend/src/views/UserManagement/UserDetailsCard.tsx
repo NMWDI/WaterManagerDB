@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Accordion, AccordionDetails, AccordionSummary, Alert, Button, Card, CardContent, CardHeader, Grid, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,14 +11,27 @@ import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 
-import { useCreateMeterType, useGetRoles, useUpdateMeterType } from '../../service/ApiServiceNew'
+import { useCreateUser, useUpdateUser, useGetRoles, useUpdateUserPassword } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { MeterTypeLU, User, UserRole } from '../../interfaces'
+import { UpdatedUserPassword, User, UserRole } from '../../interfaces'
 import { ControlledSelect, ControlledSelectNonObject } from '../../components/RHControlled/ControlledSelect';
 
 const UserResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
-    brand: Yup.string().required('Please enter a name.'),
+    username: Yup.string().required('Please enter a username.'),
+    full_name: Yup.string().required('Please enter a full name.'),
+    email: Yup.string().required('Please enter an email.'),
+    disabled: Yup.boolean().required('Please indicate if user is active.'),
+    user_role: Yup.object().required('Please indicate the users role.'),
+    password: Yup.string()
 })
+
+// Format the submission as the backend schema specifies
+function formatSubmission(user: User) {
+    let formattedUser = user
+    formattedUser.user_role_id = user.user_role?.id
+    delete formattedUser.user_role
+    return formattedUser
+}
 
 function SetNewPasswordAccordion({control, errorMessage, handleSubmit}: any) {
     return (
@@ -34,7 +47,7 @@ function SetNewPasswordAccordion({control, errorMessage, handleSubmit}: any) {
                         <Grid container spacing={2}>
                             <Grid item xs={6}>
                                 <ControlledTextbox
-                                    name="new_password"
+                                    name="password"
                                     control={control}
                                     label="New Password"
                                     error={errorMessage != undefined}
@@ -56,21 +69,52 @@ interface UserDetailsCardProps {
     userAddMode: boolean
 }
 
+// Handles adding, updating and changing the password of a user
+// If updating a user password, a special endpoint is called
+// When updating or creating a user, the values are validated, then the submit handler is called
+// Any validation not in the validation schema must be checked in the submit handler
 export default function UserDetailsCard({selectedUser, userAddMode}: UserDetailsCardProps) {
-    const { handleSubmit, control, setValue, reset, formState: { errors }} = useForm<User>({
+    const rolesList = useGetRoles()
+
+    // React hook form for user field values
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<User>({
         resolver: yupResolver(UserResolverSchema)
     })
 
-    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Meter Type!', {variant: 'success'}) }
-    function onSuccessfulCreate() { enqueueSnackbar('Successfully Created Meter Type!', {variant: 'success'}) }
-    const updateMeterType = useUpdateMeterType(onSuccessfulUpdate)
-    const createMeterType = useCreateMeterType(onSuccessfulCreate)
-
-    const rolesList = useGetRoles()
-
-    const onSaveChanges: SubmitHandler<any> = data => updateMeterType.mutate(data)
-    const onAddPart: SubmitHandler<any> = data => createMeterType.mutate(data)
+    // Submission callbacks
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated User!', {variant: 'success'}) }
+    function onSuccessfulPasswordUpdate() { enqueueSnackbar('Successfully Updated User\'s Password!', {variant: 'success'}) }
+    function onSuccessfulCreate() { enqueueSnackbar('Successfully Created New User!', {variant: 'success'}); reset() }
     const onErr = (data: any) => console.log("ERR: ", data)
+
+    const updateUser = useUpdateUser(onSuccessfulUpdate)
+    const createUser = useCreateUser(onSuccessfulCreate)
+    const updateUserPassword = useUpdateUserPassword(onSuccessfulPasswordUpdate)
+
+    // Submit handlers
+    function onSaveChanges(user: User) {
+        updateUser.mutate(formatSubmission(user))
+    }
+
+    function onCreateUser(user: User) {
+        if (!user.password || user.password.length < 1) {
+            enqueueSnackbar("Please provide a password.", {variant: 'error'})
+            return
+        }
+        createUser.mutate(formatSubmission(user))
+    }
+
+    function onUpdateUserPassword(userId: number, newPassword: string | undefined) {
+        if (!newPassword || newPassword.length < 1) {
+            enqueueSnackbar("Please provide a new password.", {variant: 'error'})
+            return
+        }
+        const updatedUserPassword: UpdatedUserPassword = {
+            user_id: userId,
+            new_password: newPassword
+        }
+        updateUserPassword.mutate(updatedUserPassword)
+    }
 
     // Populate the form with the selected user's details
     useEffect(() => {
@@ -94,14 +138,17 @@ export default function UserDetailsCard({selectedUser, userAddMode}: UserDetails
 
     return (
         <Card>
+            <CardHeader
+                title={
+                    userAddMode ?
+                        <div className="custom-card-header"><span>Create User</span><AddIcon style={{fontSize: '1rem'}}/> </div> :
+                        <div className="custom-card-header"><span>Edit User</span><EditIcon style={{fontSize: '1rem'}}/> </div>
+                }
+                sx={{mb: 0, pb: 0}}
+            />
             <CardContent>
-                <CardHeader
-                    title={userAddMode ? <><AddIcon style={{fontSize: '1rem'}}/> Create User</> : <><EditIcon style={{fontSize: '1rem'}}/> Edit User</>}
-                    sx={{m: 0, p: 0, color: '#A0A0A0'}}
-                />
-
                 <Grid container>
-                    <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
+                    <Grid container item xs={12} spacing={2}>
                         <Grid container item>
                             <Grid item xs={6}>
                                 <ControlledTextbox
@@ -156,16 +203,16 @@ export default function UserDetailsCard({selectedUser, userAddMode}: UserDetails
                             <Grid item xs={12} sx={{mt: 2, mb: 1}}>
                             {userAddMode ?
                                 <ControlledTextbox
-                                    name="new_password"
+                                    name="password"
                                     control={control}
                                     label="Password"
-                                    error={errors?.new_password?.message != undefined}
-                                    helperText={errors?.new_password?.message}
+                                    error={errors?.password?.message != undefined}
+                                    helperText={errors?.password?.message}
                                 /> :
                                 <SetNewPasswordAccordion
                                     control={control}
-                                    errorMessage={errors?.new_password?.message}
-                                    handleSubmit={handleSubmit(onAddPart, onErr)}
+                                    errorMessage={errors?.password?.message}
+                                    handleSubmit={() => onUpdateUserPassword(watch("id"), watch("password"))}
                                 />
                             }
                         </Grid>
@@ -173,7 +220,7 @@ export default function UserDetailsCard({selectedUser, userAddMode}: UserDetails
                     <Grid container item xs={12} sx={{mt: 2}}>
                         {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
                             userAddMode ?
-                            <Button color="success" variant="contained" onClick={handleSubmit(onAddPart, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New User</Button> :
+                            <Button color="success" variant="contained" onClick={handleSubmit(onCreateUser, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New User</Button> :
                             <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
                         }
                     </Grid>

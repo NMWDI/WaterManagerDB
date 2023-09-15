@@ -374,6 +374,20 @@ export interface NewWellMeasurement {
     submitting_user_id: number
 }
 
+export interface CreateUser {
+    username: string
+    full_name: string
+    email: scope_string
+    disabled: boolean
+    user_role: {id: number}
+    password: string
+}
+
+export interface UpdatedUserPassword {
+    user_id: number
+    new_password: string
+}
+
 export interface User {
     id: number
     username?: string
@@ -383,7 +397,17 @@ export interface User {
     user_role_id?: number
     user_role?: UserRole
 
-    new_password?: string // used when setting new user pw
+    password?: string
+}
+
+export interface NewUser {
+    id: number
+    username: string
+    full_name: string
+    email: scope_string
+    disabled: boolean
+    user_role_id: number
+    password: string
 }
 
 export interface UserRole {

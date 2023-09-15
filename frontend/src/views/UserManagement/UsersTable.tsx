@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
+import { Button, Card, CardHeader, CardContent, Chip, Grid, TextField } from '@mui/material'
 import { useGetUserAdminList } from '../../service/ApiServiceNew'
 import AddIcon from '@mui/icons-material/Add'
+import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import { User } from '../../interfaces'
 import TristateToggle from '../../components/TristateToggle'
@@ -62,6 +63,15 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
 
     return (
         <Card sx={{height: '100%'}}>
+            <CardHeader
+                title={
+                    <div className="custom-card-header">
+                        <span>All Users</span>
+                        <FormatListBulletedOutlinedIcon/>
+                    </div>
+                }
+                sx={{mb: 0, pb: 0}}
+            />
             <CardContent sx={{height: '100%'}}>
                 <Grid container xs={12}>
                     <Grid item xs={5}>
@@ -89,7 +99,7 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '87%', border: 'none'}}
+                    sx={{height: '76%', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={usersList.isLoading}
                     columns={cols}

@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react'
 import Sidenav from './sidenav'
-import { AuthProvider } from 'react-auth-kit'; //https://authkit.arkadip.dev/
+import { AuthProvider, useAuthUser } from 'react-auth-kit'; //https://authkit.arkadip.dev/
 import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from 'react-query'
 
@@ -23,8 +23,26 @@ import { Grid } from '@mui/material';
 
 const queryClient = new QueryClient()
 
-export default function App() {
+function AppLayout({pageComponent}: any) {
+    return (
+        <Grid container>
+            <Grid item xs={12}>
+                <Topbar/>
+            </Grid>
+            <Grid container item xs={12} spacing={4}>
+                <Grid container item width='15%'>
+                    <Sidenav />
+                </Grid>
+                <Grid item width='85%' sx={{mt: 1}}>
+                    {pageComponent}
+                </Grid>
+            </Grid>
+        </Grid>
+    )
+}
 
+
+export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -36,56 +54,60 @@ export default function App() {
             cookieSecure={window.location.protocol === "https:"}
         >
         <Router>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Topbar/>
-                </Grid>
-                <Grid container item xs={12} spacing={4}>
-                <Grid container item width='15%'>
-                        <Sidenav />
-                    </Grid>
-                    <Grid item width='85%' sx={{mt: 2}}>
-                            <Routes>
-                                <Route path="/" element={<Login/>}/>
-                                <Route path="/home" element={
-                                    <RequireScopes requiredScopes={["read"]}>
-                                        <Home/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/meters" element={
-                                    <RequireScopes requiredScopes={["meter:write"]}>
-                                        <MetersView/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/activities" element={
-                                    <RequireScopes requiredScopes={["activities:write"]}>
-                                        <ActivitiesView/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/wells" element={
-                                    <RequireScopes requiredScopes={["well_measurement:write"]}>
-                                        <MonitoringWellsView/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/chlorides" element={
-                                    <RequireScopes requiredScopes={["well_measurement:write"]}>
-                                        <ChloridesView/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/parts" element={
-                                    <RequireScopes requiredScopes={["admin"]}>
-                                        <PartsView/>
-                                    </RequireScopes>
-                                }/>
-                                <Route path="/usermanagement" element={
-                                    <RequireScopes requiredScopes={["admin"]}>
-                                        <UserManagementView/>
-                                    </RequireScopes>
-                                }/>
-                            </Routes>
-                    </Grid>
-                </Grid>
-            </Grid>
+        <Routes>
+            <Route path="/" element={
+                <Login/>
+            }/>
+            <Route path="/home" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["read"]}>
+                        <Home/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/meters" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["meter:write"]}>
+                        <MetersView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/activities" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["activities:write"]}>
+                        <ActivitiesView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/wells" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["well_measurement:write"]}>
+                        <MonitoringWellsView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/chlorides" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["well_measurement:write"]}>
+                        <ChloridesView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/parts" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["admin"]}>
+                        <PartsView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/usermanagement" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["admin"]}>
+                        <UserManagementView/>
+                    </RequireScopes>
+                }/>
+            }/>
+        </Routes>
         </Router>
         </AuthProvider>
         </SnackbarProvider>

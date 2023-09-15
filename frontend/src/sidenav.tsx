@@ -50,7 +50,7 @@ export default function Sidenav() {
                 boxShadow: '3px 5px 2px -2px rgba(0,0,0,0.2)',
             }}>
                 <Grid item sx={{mt: 3, mb: 1}}>
-                    <h5 style={{margin: 0}}>Pages</h5>
+                    <h5 style={{margin: 0, color: '#555555'}}>Pages</h5>
                 </Grid>
 
                 <NavLink route="/home" label="Home" />
@@ -61,7 +61,7 @@ export default function Sidenav() {
 
                 {hasAdminScope && <>
                     <Grid item sx={{mt: 3, mb: 1}}>
-                        <h5 style={{margin: 0}}>Admin Management</h5>
+                        <h5 style={{margin: 0, color: '#555555'}}>Admin Management</h5>
                     </Grid>
                     <NavLink route="/parts" label="Parts" />
                     <NavLink route="/usermanagement" label="Users" />

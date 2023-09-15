@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useAuthUser } from 'react-auth-kit'
 import { useDebounce } from 'use-debounce'
 import { createSearchParams, useNavigate } from 'react-router-dom'
+import GradingIcon from '@mui/icons-material/Grading'
 
 import {
     Box,
@@ -14,7 +15,10 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Autocomplete
+    Autocomplete,
+    Card,
+    CardContent,
+    CardHeader
 } from '@mui/material'
 
 import {
@@ -235,8 +239,17 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     }
 
     return (
-            <Box>
-                <h3 style={{marginTop: 0}}>Selected Meter Details</h3>
+            <Card>
+                <CardHeader
+                    title={
+                        <div className="custom-card-header">
+                            <span>Selected Meter Details</span>
+                            <GradingIcon/>
+                        </div>
+                    }
+                    sx={{mb: 0, pb: 0}}
+                />
+                <CardContent>
 
                 <MeterDetailsField
                     label="Serial Number"
@@ -280,7 +293,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 </TableContainer>
                 </Grid>
 
-                <Grid container item xs={10} spacing={2}>
+                <Grid container item xs={12} spacing={2}>
 
                     {/* First Row */}
                     <Grid item xs={3}>
@@ -352,6 +365,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                         </Grid>
                     </Grid>
                 </Grid>
-            </Box>
+                </CardContent>
+            </Card>
         )
 }

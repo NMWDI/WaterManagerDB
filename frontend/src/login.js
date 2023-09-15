@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useSignIn } from 'react-auth-kit'
-import {Box, TextField, Button} from "@mui/material";
+import {Box, TextField, Button, Card, CardContent, CardHeader} from "@mui/material";
 import { API_URL } from "./API_config.js"
 
 export default function Login() {
@@ -20,7 +20,7 @@ export default function Login() {
     function handlePassChange(e) {
         setPassVal(e.target.value)
     }
-    
+
     function handleSubmit(e){
         //Submit user/pass to authorization endpoint
         e.preventDefault();
@@ -33,7 +33,7 @@ export default function Login() {
     }
 
     function handleLogin(r) {
-        
+
         if(r.status === 200){
             //Successful authorization
             r.json().then(
@@ -57,37 +57,49 @@ export default function Login() {
             setErrorMsg('User and/or Password not recognized')
         }
     }
-    
+
     return (
-        <Box sx={{ height: 800, width: '100%' }}>
-            <h1>Welcome to the PVACD Meter Manager</h1>
-            <p id="error_txt" style={{color: "red"}}>{errormsg}</p> {/*Return error if problem with login*/}
-            <Box component="form" autoComplete="off" onSubmit={handleSubmit} id="myform">
-                <div>
-                    <TextField
-                        value={userval}
-                        required
-                        id="login-user-input"
-                        label="Username"
-                        margin="normal"
-                        name="username"
-                        onChange= {handleUserChange}
-                    />
-                </div>
-                <div>
-                <TextField
-                    value={passval}
-                    required
-                    id="login-pw-input"
-                    label="Password"
-                    type="password"
-                    margin="normal"
-                    name="password"
-                    onChange={handlePassChange}
+        <Box sx={{height: '100%', m: 2, mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+            <h2 style={{color: "#212121", fontWeight: 500}}>PVACD Meter Manager Home</h2>
+            <Card sx={{width: '25%'}}>
+                <CardHeader
+                    title={
+                        <div className="custom-card-header">
+                            <span>Login</span>
+                        </div>
+                    }
+                    sx={{mb: 0, pb: 0}}
                 />
-                </div>
-                <Button type="submit" variant="contained">Login</Button>
+            <CardContent sx={{pt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                <p id="error_txt" style={{color: "red"}}>{errormsg}</p> {/*Return error if problem with login*/}
+                <Box component="form" autoComplete="off" onSubmit={handleSubmit} id="myform">
+                    <div>
+                        <TextField
+                            value={userval}
+                            required
+                            id="login-user-input"
+                            label="Username"
+                            margin="normal"
+                            name="username"
+                            onChange= {handleUserChange}
+                        />
+                    </div>
+                    <div>
+                    <TextField
+                        value={passval}
+                        required
+                        id="login-pw-input"
+                        label="Password"
+                        type="password"
+                        margin="normal"
+                        name="password"
+                        onChange={handlePassChange}
+                    />
+                    </div>
+                    <Button type="submit" sx={{mt: 2}} variant="contained">Login</Button>
+                </Box>
+                </CardContent>
+            </Card>
             </Box>
-        </Box>
     );
 }

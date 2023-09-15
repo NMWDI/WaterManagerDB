@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
+import CancelIcon from '@mui/icons-material/Cancel'
 import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
@@ -44,7 +45,6 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
         enqueueSnackbar('Successfully Created Part!', {variant: 'success'})
         reset()
     }
-
     const updatePart = useUpdatePart(onSuccessfulUpdate)
     const createPart = useCreatePart(onSuccessfulCreate)
 
@@ -88,14 +88,17 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
 
     return (
         <Card>
+            <CardHeader
+                title={
+                    partAddMode ?
+                        <div className="custom-card-header"><span>Create Part</span><AddIcon style={{fontSize: '1rem'}}/> </div> :
+                        <div className="custom-card-header"><span>Edit Part</span><EditIcon style={{fontSize: '1rem'}}/> </div>
+                    }
+                sx={{mb: 0, pb: 0}}
+            />
             <CardContent>
-                <CardHeader
-                    title={partAddMode ? <><AddIcon style={{fontSize: '1rem'}}/> Create Part</> : <><EditIcon style={{fontSize: '1rem'}}/> Edit Part</>}
-                    sx={{m: 0, p: 0, color: '#A0A0A0'}}
-                />
-
                 <Grid container>
-                    <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
+                    <Grid container item xs={12} spacing={2}>
                         <Grid item xs={12} xl={6}>
                             <ControlledTextbox
                                 name="part_number"
@@ -160,49 +163,40 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} sx={{mt: 2}}>
-
-                            {/* Custom chip-based meter type association selection */}
-                            <Box border={1} padding={1} style={{borderColor: '#C4C4C4', position: 'relative'}} borderRadius={4}>
-                                <InputLabel shrink={true} style={{ position: 'absolute', left: 10, top: true ? -8 : 8, backgroundColor: 'white', padding: '0 5px' }}>
-                                    Associated Meter Types
-                                </InputLabel>
-                                <Chip
-                                    sx={{mr: 1, mt: 1, p: 0}}
-                                    label={
-                                        <>
-                                        <FormControl size="small" variant="standard" sx={{width: '150px', marginBottom: '13px'}}>
-                                        <InputLabel>Add Meter Type</InputLabel>
-                                            <Select
-                                                disableUnderline
-                                                onChange={(event: any) => addMeterType(event.target.value)}
-                                                value={''}
-                                            >
-                                                <MenuItem value="" hidden disabled></MenuItem>
-
-                                                {/* Meter type list (with selected meter types filtered out)  */}
-                                                {meterTypeList.data?.
-                                                    filter(x => !watch("meter_types")?.map(type => type.id).includes(x.id))
-                                                        .map((type: MeterTypeLU) => <MenuItem value={type.id}>{`${type.brand} - ${type.model_number}`}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
-                                        </>
-                                    }
-                                    variant="outlined"
-                                    onClick={() => {}}
-                                />
-
-                                {/* Show all current meter types as chips */}
-                                {watch("meter_types")?.filter((type: MeterTypeLU) => type.in_use).map((type: MeterTypeLU, index: number) =>
-                                    <Chip
-                                        key={type.id}
-                                        sx={{mr: 1, mt: 1}}
-                                        label={ `${type.brand} - ${type.model_number}` }
-                                        onDelete={() => {removeMeterType(index)}}
-                                    />
+                            <FormControl fullWidth>
+                            <InputLabel>Associated Meter Types</InputLabel>
+                            <Select
+                                multiple
+                                value={watch("meter_types") ?? []}
+                                onChange={(event: any) => addMeterType(event.target.value[event.target.value.length - 1])}
+                                input={<OutlinedInput label="Associated Meter Types" />}
+                                renderValue={(selected) => (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {selected.map((value, index) => (
+                                           <Chip
+                                                key={value.id}
+                                                label={`${value.brand} - ${value.model_number}`}
+                                                clickable
+                                                deleteIcon={
+                                                    <CancelIcon
+                                                        onMouseDown={(event: any) => event.stopPropagation()}
+                                                    />
+                                                }
+                                                onDelete={() => removeMeterType(index)}
+                                            />
+                                        ))}
+                                    </Box>
                                 )}
-                            </Box>
-                            {/* End meter type association selection */}
+                            >
 
+                            {/* Scope list (with selected scopes filtered out)  */}
+                            {meterTypeList.data?.
+                                filter(x => !watch("meter_types")?.map(scope => scope.id).includes(x.id))
+                                .map((type: MeterTypeLU) =>
+                                     <MenuItem value={type.id}>{`${type.brand} - ${type.model_number}`}</MenuItem>
+                            )}
+                            </Select>
+                            </FormControl>
                         </Grid>
                     </Grid>
                 </Grid>
