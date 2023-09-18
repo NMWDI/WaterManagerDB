@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from typing import Union, List
+from typing import Union, List, Optional
 
 from pydantic import BaseModel
 
@@ -28,12 +28,35 @@ class SecurityScope(BaseModel):
 
 
 class UserRole(BaseModel):
-    id: int
+    id: Optional[int]
     name: str
     security_scopes: Union[List[SecurityScope], None] = None  # Can be optionally joined
 
     class Config:
         orm_mode = True
+
+
+class UpdatedUserPassword(BaseModel):
+    user_id: int
+    new_password: str
+
+
+class UpdatedUser(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: str
+    disabled: bool
+    user_role_id: int
+
+
+class NewUser(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    disabled: bool
+    user_role_id: int
+    password: str
 
 
 class User(BaseModel):

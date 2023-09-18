@@ -16,9 +16,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
     return (
             <Box sx={{width: '100%'}}>
-                <h3 style={{marginTop: 2, marginBottom: 6}}>Selected Meter History</h3>
-
-                <Grid container spacing={6} sx={{height: '40vh', minHeight: '300px'}}>
+                <Grid container spacing={2} sx={{height: '50vh', minHeight: '300px'}}>
                     <Grid item xs={5}>
                         <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                     </Grid>

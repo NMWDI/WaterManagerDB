@@ -63,8 +63,8 @@ export default function NotesSelection({control, errors, watch, setValue}: any) 
 
     return (
         <Box sx={{mt: 6}}>
-            <h4>Notes</h4>
-            <Grid container>
+            <h4 className="custom-card-header-small">Notes</h4>
+            <Grid container sx={{mt: 3}}>
 
                 {/*  Working Status Selection */}
                 <Grid container item {...gridBreakpoints} xs={12}>

@@ -60,6 +60,8 @@ def get_user(username: str):
         .filter(security_models.Users.username == username)
         .options(
             undefer(security_models.Users.hashed_password),
+            undefer(security_models.Users.username),
+            undefer(security_models.Users.user_role_id),
             undefer(security_models.Users.email),
             joinedload(security_models.Users.user_role).joinedload(
                 security_models.UserRoles.security_scopes

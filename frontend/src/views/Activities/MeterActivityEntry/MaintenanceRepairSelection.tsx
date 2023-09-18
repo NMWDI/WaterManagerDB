@@ -50,8 +50,8 @@ export default function MaintenanceRepairSelection ({control, errors, watch, set
 
     return (
         <Box sx={{mt: 6}}>
-            <h4>Maintanence/Repair</h4>
-            <Grid container>
+            <h4 className="custom-card-header-small">Maintanence/Repair</h4>
+            <Grid container sx={{mt: 3}}>
 
                 {serviceTypes.isLoading ?
                     <Grid container item xs={12}>

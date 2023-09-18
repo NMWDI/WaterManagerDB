@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { Button, Card, CardContent, Chip, Grid, TextField } from '@mui/material'
+import { Button, Card, CardContent, CardHeader, Chip, Grid, TextField } from '@mui/material'
+import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 import { useGetParts } from '../../service/ApiServiceNew'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search';
@@ -51,6 +52,15 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
 
     return (
         <Card sx={{height: '100%'}}>
+            <CardHeader
+                title={
+                    <div className="custom-card-header">
+                        <span>All Parts</span>
+                        <FormatListBulletedOutlinedIcon/>
+                    </div>
+                }
+                sx={{mb: 0, pb: 0}}
+            />
             <CardContent sx={{height: '100%'}}>
                 <Grid container xs={12}>
                     <Grid item xs={5}>
@@ -78,7 +88,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '85%'}}
+                    sx={{height: '78%', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={partsList.isLoading}
                     columns={cols}
@@ -87,8 +97,8 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     components={{Footer: GridFooterWithButton}}
                     componentsProps={{footer: {
                         button:
-                            <Button onClick={() => setPartAddMode(true)}>
-                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part
+                            <Button variant="contained" size="small" onClick={() => setPartAddMode(true)}>
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part Type
                             </Button>
                     }}}
                     disableColumnFilter

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, TextField, Grid } from '@mui/material'
+import { Box, TextField, Grid, Card, CardContent, CardHeader } from '@mui/material'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { MeterHistoryType } from '../../../enums'
 import { NoteTypeLU } from '../../../interfaces'
 import dayjs from 'dayjs'
@@ -18,6 +19,7 @@ const disabledInputStyle = {
 export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHistoryDetailsProps) {
 
     function formatDate(dateIN: any) {
+        if (!dateIN) return null
         return dayjs
                 .utc(dateIN)
                 .tz('America/Denver')
@@ -25,6 +27,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
     }
 
     function formatTime(dateIN: any) {
+        if (!dateIN) return null
         return dayjs
                 .utc(dateIN)
                 .tz('America/Denver')
@@ -42,11 +45,18 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
     }
 
     return (
-            <Box>
-                <Grid container item xs={10} sx={{py: 1, px: 2, border: 'solid #E0E0E0 1px', borderRadius: '5px'}}>
-                    <Grid item xs={12}>
-                        <h4 style={{marginTop: 4}}>Selected History Details</h4>
-                    </Grid>
+            <Card>
+            <CardHeader
+                title={
+                    <div className="custom-card-header">
+                        <span>Selected History Details</span>
+                        <InfoOutlinedIcon/>
+                    </div>
+                }
+                sx={{mb: 0, pb: 0}}
+            />
+            <CardContent>
+                <Grid container item xs={10}>
 
                     {/* If Activity history item selected */}
                     {(selectedHistoryItem?.history_type == MeterHistoryType.Activity || selectedHistoryItem == undefined) &&  <>
@@ -127,7 +137,8 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
                         </Grid>
                     </>}
                 </Grid>
-            </Box>
+            </CardContent>
+            </Card>
         )
 }
 

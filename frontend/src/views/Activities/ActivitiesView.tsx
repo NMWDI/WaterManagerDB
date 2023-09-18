@@ -1,11 +1,11 @@
 import React from 'react'
 import { useState } from 'react'
-import { Box, Tabs, Tab, Grid } from '@mui/material'
+import { Box, Tabs, Tab, Grid, CardContent, Card } from '@mui/material'
 import TabPanel from '../../components/TabPanel'
 
 import MeterActivityEntry from './MeterActivityEntry/MeterActivityEntry'
 
-export const gridBreakpoints = {xs: 12, md: 10, xl:5}
+export const gridBreakpoints = {xs: 12}
 export const toggleStyle = { '&.Mui-selected':{'borderColor':'blue','border': 1}}
 
 export default function ActivitiesView() {
@@ -14,31 +14,24 @@ export default function ActivitiesView() {
 
     return (
         <Box sx={{height: '100%', width: '100%', m: 2, mt: 0}}>
-            <h2>PVACD Activities</h2>
+            <h2 style={{color: "#292929", fontWeight: '500'}}>Submit an Activity</h2>
+            <Grid container>
+                <Grid item xs={11} sm={11} lg={8} xl={7}>
+                    <Card>
+                    <CardContent>
+                        {/*  Activities Form */}
+                        <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
+                            <MeterActivityEntry />
+                        </TabPanel>
 
-            <Box>
-                <Grid container>
-                    <Grid item xs={9}>
-                    <Tabs value={currentTabIndex} onChange={handleTabChange} >
-                        <Tab label="Meter Activities" />
-                        <Tab label="Work Order" />
-                    </Tabs>
-                    </Grid>
+                        {/*  Work Order Form */}
+                        <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
+                            <div>Not Yet Implemented</div>
+                        </TabPanel>
+                    </CardContent>
+                    </Card>
                 </Grid>
-            </Box>
-
-            <Box sx={{height: '89%'}}>
-
-                {/*  Activities Form */}
-                <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
-                    <MeterActivityEntry />
-                </TabPanel>
-
-                {/*  Work Order Form */}
-                <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
-                    <div>Not Yet Implemented</div>
-                </TabPanel>
-            </Box>
+            </Grid>
         </Box>
     )
 }

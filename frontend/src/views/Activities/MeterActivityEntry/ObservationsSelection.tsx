@@ -25,7 +25,7 @@ function ObservationRow({control, watch, errors, fieldID, index, propertyTypes, 
             <Grid container item xs={12} sx={{mb: 2}} key={fieldID}>
             {!propertyTypes.isLoading &&
             <>
-                <Grid container item xs={10} xl={5} spacing={2}>
+                <Grid container item xs={10} spacing={2}>
                     <Grid item xs={3}>
                         <ControlledTimepicker
                             label="Time"
@@ -93,8 +93,8 @@ export default function ObservationSelection({control, errors, watch, setValue}:
 
     return (
             <Box sx={{mt: 6}}>
-                <h4>Observations</h4>
-                <Grid container item xs={12} sx={{mt: 1}}>
+            <h4 className="custom-card-header-small">Observations</h4>
+                <Grid container item xs={12} sx={{mt: 3}}>
 
                     {fields.map((field, index) => {
                         return <ObservationRow

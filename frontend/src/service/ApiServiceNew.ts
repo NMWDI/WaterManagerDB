@@ -28,7 +28,10 @@ import {
     MeterMapDTO,
     MeterHistoryDTO,
     Part,
-    PartTypeLU
+    PartTypeLU,
+    UserRole,
+    SecurityScope,
+    UpdatedUserPassword
 } from '../interfaces.js'
 
 // Date display util
@@ -195,6 +198,30 @@ export function useGetMeterHistory(params: MeterDetailsQueryParams) {
     )
 }
 
+export function useGetSecurityScopes() {
+    const route = 'security_scopes'
+    const authHeader = useAuthHeader()
+    return useQuery<SecurityScope[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
+export function useGetRoles() {
+    const route = 'roles'
+    const authHeader = useAuthHeader()
+    return useQuery<UserRole[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
+export function useGetUserAdminList() {
+    const route = 'usersadmin'
+    const authHeader = useAuthHeader()
+    return useQuery<User[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+    )
+}
+
 export function useGetUserList() {
     const route = 'users'
     const authHeader = useAuthHeader()
@@ -332,6 +359,200 @@ export function useGetST2WaterLevels(datastreamID: number | undefined) {
         GETST2Fetch(route),
         {enabled: !!datastreamID}
     )
+}
+
+export function useCreateUser(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'users'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (user: User) => {
+            const response = await POSTFetch(route, user, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                queryClient.setQueryData(['usersadmin'], (old: User[] | undefined) => {
+                    if (old != undefined) {
+                        return [...old, responseJson]
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateUser(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'users'
+    const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (updatedUser: User) => {
+            const response = await PATCHFetch(route, updatedUser, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+
+                // Update the user on the users list
+                queryClient.setQueryData(['usersadmin'], (old: User[] | undefined) => {
+                    if (old != undefined) {
+                        let newUsersList = [...old]
+                        const userIndex = old?.findIndex(user => user.id === responseJson["id"])
+
+                        if (userIndex != undefined && userIndex != -1) {
+                            newUsersList[userIndex] = responseJson
+                        }
+
+                        return newUsersList
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useCreateRole(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'roles'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (new_role: UserRole) => {
+            const response = await POSTFetch(route, new_role, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                queryClient.setQueryData(['roles'], (old: UserRole[] | undefined) => {
+                    if (old != undefined) {
+                        return [...old, responseJson]
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateRole(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'roles'
+    const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (updatedRole: UserRole) => {
+            const response = await PATCHFetch(route, updatedRole, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                console.log("RESP JSON: ", responseJson)
+
+                // Update the part on the parts list
+                queryClient.setQueryData(['roles'], (old: UserRole[] | undefined) => {
+                    if (old != undefined) {
+                        let newRoles = [...old]
+                        const roleIndex = old?.findIndex(role => role.id === responseJson["id"])
+
+                        if (roleIndex != undefined && roleIndex != -1) {
+                            newRoles[roleIndex] = responseJson
+                        }
+
+                        return newRoles
+                    }
+                    return []
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateUserPassword(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'users/update_password'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (updatedUserPassword: UpdatedUserPassword) => {
+            const response = await POSTFetch(route, updatedUserPassword, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
 }
 
 export function useCreateActivity(onSuccess: Function) {

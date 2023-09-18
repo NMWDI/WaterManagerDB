@@ -1,15 +1,29 @@
 import React from "react";
 import {useState} from 'react'
-import '../css/topbar.css'
 import Button from "@mui/material/Button";
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar'
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSignOut, useAuthUser } from "react-auth-kit";
+import { Grid } from "@mui/material";
 
-function Topbar() {
+const logoStyle = {
+    fontWeight: 'bold',
+    fontSize: '30px',
+    color: 'darkblue',
+    cursor: 'pointer',
+    marginLeft: '10px'
+}
 
+const containerStyle = {
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    py: 1,
+    boxShadow: '3px 2px 5px -2px rgba(0,0,0,0.2)'
+}
+
+export default function Topbar() {
     const location = useLocation()
     const signOut = useSignOut()
     const navigate = useNavigate()
@@ -29,38 +43,35 @@ function Topbar() {
     }
 
     return (
-        <div className="topbar">
-            <div className="topbarWrapper">
-                <div className="topLeft">
-                    <span className="logo">Meter Manager</span>
-                </div>
-                <div className="topRight">
-                    {/* Add current user info if not on login page */}
-                    { location.pathname != '/' ?
-                        <>
-                            <Button
-                                variant="contained"
-                                onClick={handleOpenProfileMenu}
-                                sx={{mt: 2}}
-                            >
-                                <Avatar sx={{width: 32, height: 32, marginRight: 1}}>{ authUser()?.username.substring(0, 1) }</Avatar>
-                                {authUser()?.username}
-                            </Button>
+        <Grid container sx={containerStyle}>
+            <Grid item xs={3}>
+                <span style={logoStyle} className="logo">Meter Manager</span>
+            </Grid>
 
-                            <Menu
-                                id="profile-menu"
-                                anchorEl={profileMenuElement}
-                                open={isProfileMenuOpen}
-                                onClose={handleCloseProfileMenu}
-                            >
-                                <MenuItem onClick={fullSignOut} >Logout</MenuItem>
-                            </Menu>
-                        </>
+            <Grid item xs={3} sx={{textAlign: 'right', mr: 3}}>
+                { location.pathname != '/' ?
+                    <>
+                        <Button
+                            variant="contained"
+                            onClick={handleOpenProfileMenu}
+                            sx={{marginTop: 'auto', marginBottom: 'auto'}}
+                        >
+                            <Avatar sx={{width: 32, height: 32, marginRight: 1}}>{ authUser()?.username.substring(0, 1) }</Avatar>
+                            {authUser()?.username}
+                        </Button>
 
-                    : '' }
-                </div>
-            </div>
-        </div>
+                        <Menu
+                            id="profile-menu"
+                            anchorEl={profileMenuElement}
+                            open={isProfileMenuOpen}
+                            onClose={handleCloseProfileMenu}
+                        >
+                            <MenuItem onClick={fullSignOut} >Logout</MenuItem>
+                        </Menu>
+                    </>
+
+                : '' }
+            </Grid>
+        </Grid>
     );
 }
-export default Topbar;

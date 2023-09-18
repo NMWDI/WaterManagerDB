@@ -38,13 +38,13 @@ class UserRoles(Base):
 
 # Defer sensitive info so it's not sent when it's included as part of a relationship
 class Users(Base):
-    username = Column(String, nullable=False)
+    username = deferred(Column(String, nullable=False))
     full_name = Column(String)
     email = deferred(Column(String))
     hashed_password = deferred(Column(String, nullable=False))
     disabled = Column(Boolean, default=False)
 
-    user_role_id = Column(Integer, ForeignKey("UserRoles.id"), nullable=False)
+    user_role_id = deferred(Column(Integer, ForeignKey("UserRoles.id"), nullable=False))
 
     user_role = relationship("UserRoles")
 

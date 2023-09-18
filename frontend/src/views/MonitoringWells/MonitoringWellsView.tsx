@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import { Box, FormControl, Select, MenuItem, InputLabel, Card, CardContent, CardHeader } from "@mui/material";
 import { useState } from "react";
 
 import { MonitoringWellsTable } from './MonitoringWellsTable';
@@ -29,7 +29,7 @@ const monitoredWells: MonitoredWell[] = [
 
 function getDatastreamID(input_wellID: number | undefined): number | undefined {
     let welldetails = monitoredWells.find(x => x.id == input_wellID)
-    if (welldetails) 
+    if (welldetails)
         return welldetails.datastream_id
     else
         return welldetails
@@ -53,35 +53,40 @@ export default function MonitoringWellsView(){
 
     return(
         <Box>
-            <FormControl sx={{minWidth: '100px'}}>
-                <InputLabel id="plot-select-label">Site</InputLabel>
-                <Select
-                    labelId="plot-select-label"
-                    id="plot-select"
-                    value={wellID ?? ''}
-                    onChange={(event: any) => setWellID(event.target.value)}
-                    label="Site"
-                >
-                    <MenuItem value={0} disabled sx={{display: 'none'}}>Select a Well</MenuItem>
-                    {monitoredWells.map((well: MonitoredWell) => <MenuItem value={well.id} key={well.id}>{well.name}</MenuItem>)}
-                </Select>
-            </FormControl>
-            <Box sx={{ mt: '10px', display: 'flex' }}>
-                <MonitoringWellsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
+            <h2 style={{color: "#292929", fontWeight: '500'}}>Monitored Well Values</h2>
+            <Card sx={{width: '95%', height: '75%'}}>
+                <CardContent>
+                <FormControl sx={{minWidth: '100px'}}>
+                    <InputLabel id="plot-select-label">Site</InputLabel>
+                    <Select
+                        labelId="plot-select-label"
+                        id="plot-select"
+                        value={wellID ?? ''}
+                        onChange={(event: any) => setWellID(event.target.value)}
+                        label="Site"
+                    >
+                        <MenuItem value={0} disabled sx={{display: 'none'}}>Select a Well</MenuItem>
+                        {monitoredWells.map((well: MonitoredWell) => <MenuItem value={well.id} key={well.id}>{well.name}</MenuItem>)}
+                    </Select>
+                </FormControl>
+                <Box sx={{ mt: '10px', display: 'flex' }}>
+                    <MonitoringWellsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
 
-                <MonitoringWellsPlot
-                    isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
-                    manual_dates={manualWaterLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
-                    manual_vals={manualWaterLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
-                    logger_dates={st2WaterLevelMeasurements.data?.map(measurement => measurement.resultTime) ?? []}
-                    logger_vals={st2WaterLevelMeasurements.data?.map(measurement => measurement.result) ?? []} />
+                    <MonitoringWellsPlot
+                        isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
+                        manual_dates={manualWaterLevelMeasurements.data?.map(measurement => measurement.timestamp) ?? []}
+                        manual_vals={manualWaterLevelMeasurements.data?.map(measurement => measurement.value) ?? []}
+                        logger_dates={st2WaterLevelMeasurements.data?.map(measurement => measurement.resultTime) ?? []}
+                        logger_vals={st2WaterLevelMeasurements.data?.map(measurement => measurement.result) ?? []} />
 
-            </Box>
+                </Box>
 
-            <NewMeasurementModal
-                isNewMeasurementModalOpen={isNewMeasurementModalOpen}
-                handleCloseNewMeasurementModal={handleCloseNewMeasurementModal}
-                handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
+                <NewMeasurementModal
+                    isNewMeasurementModalOpen={isNewMeasurementModalOpen}
+                    handleCloseNewMeasurementModal={handleCloseNewMeasurementModal}
+                    handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
+            </CardContent>
+            </Card>
         </Box>
     )
 }
