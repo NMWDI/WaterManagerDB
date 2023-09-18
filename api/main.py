@@ -41,7 +41,7 @@ from api.security import (
     get_password_hash,
     authenticate_user,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 from api.models.security_models import Users
 from api.session import engine, SessionLocal, get_db
