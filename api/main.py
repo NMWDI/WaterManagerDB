@@ -39,8 +39,7 @@ from api.security import (
     get_password_hash,
     authenticate_user,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    authenticated_router,
+    ACCESS_TOKEN_EXPIRE_MINUTES
 )
 from api.models.security_models import Users
 from api.session import engine, SessionLocal, get_db
@@ -121,6 +120,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 #     q = db.query(Meters)
 #     return q.count()
 
+
+authenticated_router = APIRouter()
 
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)

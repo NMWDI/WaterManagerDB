@@ -1,18 +1,3 @@
-# ===============================================================================
-# Copyright 2022 ross
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ===============================================================================
 from datetime import timedelta, datetime
 from typing import Union
 
@@ -29,15 +14,7 @@ from api.schemas import security_schemas
 from api.session import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="token",
-    scopes={
-        "read": "Read all data",
-        "meters:write": "Write meters",
-        "activities:write": "Write activities",
-        "well_measurement:write": "Write well measurements, i.e. Water Levels and Chlorides",
-        "reports:run": "Run reports",
-        "admin": "Admin specific scope",
-    },
+    tokenUrl="token"
 )
 
 SECRET_KEY = "09d25e194fbb6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -143,17 +120,3 @@ def scoped_user(scopes):
 
     return get_user
 
-
-authenticated_router = APIRouter(dependencies=[Depends(scoped_user(["read"]))])
-
-
-@authenticated_router.get(
-    "/users/me", response_model=security_schemas.User, tags=["login"]
-)
-async def read_users_me(
-    current_user: security_schemas.User = Depends(get_current_user),
-):
-    return current_user
-
-
-# ============= EOF =============================================
