@@ -63,7 +63,7 @@ def get_ose_history(
 ):
     """
     Returns activities and meter readings for each OSE well over input date range.
-    
+
     Datetime Format ISO8601: YYYY-MM-DDTHH:MM:SS+HH:MM, example 2023-09-12T00:00:00+00:00
     """
 
