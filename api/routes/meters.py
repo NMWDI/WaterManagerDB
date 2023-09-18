@@ -18,6 +18,7 @@ from api.models.main_models import (
     MeterObservations,
     Locations,
     MeterTypeLU,
+    WellUseLU,
     Wells,
 )
 from api.route_util import _patch
@@ -33,6 +34,14 @@ class MeterSortByField(Enum):
     RANumber = "ra_number"
     LandOwnerName = "land_owner_name"
     TRSS = "trss"
+
+
+class WellSortByField(Enum):
+    Name = 'name'
+    RANumber = 'ra_number'
+    OSEPod = 'osepod'
+    UseType = 'use_type'
+    Location = 'location'
 
 
 class SortDirection(Enum):
@@ -229,20 +238,62 @@ async def get_land_owners(
 @meter_router.get(
     "/wells",
     dependencies=[Depends(read_user)],
-    response_model=LimitOffsetPage[well_schemas.WellListDTO],
+    response_model=LimitOffsetPage[well_schemas.Well],
     tags=["meters"],
 )
 async def get_wells(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
+    sort_by: WellSortByField = WellSortByField.Name,
+    sort_direction: SortDirection = SortDirection.Ascending,
     db: Session = Depends(get_db),
 ):
-    queryStatement = select(Wells)
+    def sort_by_field_to_schema_field(name: WellSortByField):
+        match name:
+            case WellSortByField.Name:
+                return Wells.name
+
+            case WellSortByField.RANumber:
+                return Wells.ra_number
+
+            case WellSortByField.OSEPod:
+                return Wells.osepod
+
+            case WellSortByField.UseType:
+                return WellUseLU.use_type
+
+            case WellSortByField.Location:
+                return Locations.name
+
+    query_statement = (
+        select(Wells)
+        .options(joinedload(Wells.location), joinedload(Wells.use_type))
+        .join(Locations, isouter=True)
+        .join(WellUseLU, isouter=True)
+    )
 
     if search_string:
-        queryStatement = queryStatement.where(Wells.name.ilike(f"%{search_string}%"))
+        query_statement = query_statement.where(
+            or_(
+                Wells.name.ilike(f"%{search_string}%"),
+                Wells.ra_number.ilike(f"%{search_string}%"),
+                Wells.osepod.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%"),
+                WellUseLU.use_type.ilike(f"%{search_string}%"),
+            )
+        )
 
-    return paginate(db, queryStatement)
+    if sort_by:
+        schema_field_name = sort_by_field_to_schema_field(sort_by)
+
+        if sort_direction != SortDirection.Ascending:
+            query_statement = query_statement.order_by(desc(schema_field_name))
+        else:
+            query_statement = query_statement.order_by(
+                schema_field_name
+            )  # SQLAlchemy orders ascending by default
+
+    return paginate(db, query_statement)
 
 
 @meter_router.get(

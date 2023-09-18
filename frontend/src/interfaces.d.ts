@@ -1,4 +1,4 @@
-import { SortDirection, MeterSortByField } from 'enums'
+import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
 import { ActivityType } from './enums'
 
@@ -142,13 +142,23 @@ export interface NoteTypeLU {
     slug?: string
 }
 
+export interface WellUseLU {
+    id: number
+    use_type: string
+    code: string
+    description: string
+}
+
 export interface Well {
     id: int
     name?: string | null
     location_id?: number | null
+    well_distance_ft?: number | null
+    use_type_id?: number | null
     ra_number?: string | null
     osepod?: string | null
-    well_distance_ft?: number | null
+
+    use_type: WellUseLU | null
     location: Location | null
 }
 
@@ -323,8 +333,13 @@ export interface MeterListDTO {
     }
 }
 
-interface WellSearchQueryParams {
-    search_string: string | undefined
+interface WellListQueryParams {
+    search_string?: string
+    // sort_by?: WellSortByField
+    sort_direction?: SortDirection
+    limit?: number
+    offset?: number
+    exclude_inactive?: boolean
 }
 
 export interface Page<T> {

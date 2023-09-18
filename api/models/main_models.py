@@ -344,14 +344,11 @@ class Alerts(Base):
 
 # ------------ Wells --------------
 
-WellUseLU = Table(
-    "WellUseLU",
-    Base.metadata,
-    Column("id", Integer, primary_key=True, index=True, autoincrement=True),
-    Column("use_type", String, nullable=False),
-    Column("code", String),
-    Column("description", String),
-)
+
+class WellUseLU(Base):
+    use_type = Column(String, nullable=False)
+    code = Column(String)
+    description = Column(String)
 
 
 class Wells(Base):
@@ -363,6 +360,7 @@ class Wells(Base):
     well_distance_ft: Column(Float)
 
     location = relationship("Locations")
+    use_type = relationship("WellUseLU")
 
 
 class WellConstructions(Base):

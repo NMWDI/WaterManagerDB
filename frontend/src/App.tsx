@@ -20,6 +20,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { SnackbarProvider } from 'notistack'
 import UserManagementView from './views/UserManagement/UserManagementView';
 import { Grid } from '@mui/material';
+import WellManagementView from './views/WellManagement/WellManagementView';
 
 const queryClient = new QueryClient()
 
@@ -104,6 +105,13 @@ export default function App() {
                 <AppLayout pageComponent={
                     <RequireScopes requiredScopes={["admin"]}>
                         <UserManagementView/>
+                    </RequireScopes>
+                }/>
+            }/>
+            <Route path="/wellmanagement" element={
+                <AppLayout pageComponent={
+                    <RequireScopes requiredScopes={["admin"]}>
+                        <WellManagementView/>
                     </RequireScopes>
                 }/>
             }/>

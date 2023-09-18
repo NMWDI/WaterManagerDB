@@ -19,7 +19,7 @@ import {
     WaterLevelQueryParams,
     WellMeasurementDTO,
     Well,
-    WellSearchQueryParams,
+    WellListQueryParams,
     WellDetailsQueryParams,
     MeterDetailsQueryParams,
     MeterDetails,
@@ -270,7 +270,7 @@ export function useGetPropertyTypes() {
     )
 }
 
-export function useGetWells(params: WellSearchQueryParams | undefined) {
+export function useGetWells(params: WellListQueryParams | undefined) {
     const route = 'wells'
     const authHeader = useAuthHeader()
     return useQuery<Page<Well>, Error>([route, params], () =>

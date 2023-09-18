@@ -30,7 +30,7 @@ class LandOwner(ORMBase):
 
 
 class Location(ORMBase):
-    name: str
+    name: Optional[str]
     type_id: int
     trss: Optional[str]
     latitude: Optional[float]
@@ -45,15 +45,20 @@ class Location(ORMBase):
 
     land_owner: Optional[LandOwner]
 
+class WellUseLU(ORMBase):
+    use_type: str
+    code: str
+    description: str
 
 class Well(ORMBase):
     name: Optional[str]
-    location_id: Optional[str]
+    location_id: Optional[int]
+    use_type_id: Optional[int]
     ra_number: Optional[str]
     osepod: Optional[str]
-    well_distance_ft: Optional[float]
 
     location: Optional[Location]
+    use_type: Optional[WellUseLU]
 
 
 class WellListDTO(ORMBase):
