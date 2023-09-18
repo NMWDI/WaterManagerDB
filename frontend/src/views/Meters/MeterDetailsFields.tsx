@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useAuthUser } from 'react-auth-kit'
 import { useDebounce } from 'use-debounce'
 import { createSearchParams, useNavigate } from 'react-router-dom'
+import GradingIcon from '@mui/icons-material/Grading'
 
 import {
     Box,
@@ -14,7 +15,10 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Autocomplete
+    Autocomplete,
+    Card,
+    CardContent,
+    CardHeader
 } from '@mui/material'
 
 import {
@@ -235,8 +239,17 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
     }
 
     return (
-            <Box>
-                <h3 style={{marginTop: 0}}>Selected Meter Details</h3>
+            <Card>
+                <CardHeader
+                    title={
+                        <div className="custom-card-header">
+                            <span>Selected Meter Details</span>
+                            <GradingIcon/>
+                        </div>
+                    }
+                    sx={{mb: 0, pb: 0}}
+                />
+                <CardContent>
 
                 <MeterDetailsField
                     label="Serial Number"
@@ -258,20 +271,20 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 {/*<h4>Status: {meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name}</h4>*/}
 
                 <Grid item xs={12}>
-                <TableContainer sx={{ mb:2, mt:5 }}>
-                    <Table sx={{ minWidth: 500, maxWidth: 600, fontSize: 25 }}>
+                <TableContainer sx={{ mb:3, mt: 2}}>
+                    <Table size="small">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Status</TableCell>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>TRSS</TableCell>
-                                <TableCell sx={{ fontWeight: 700, fontSize: 18 }}>Lat/Long</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '50%' }}>Lat/Long</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             <TableRow>
-                                <TableCell sx={{ fontSize: 16 }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
-                                <TableCell sx={{ fontSize: 16 }}>{ selectedWell?.location?.trss == null ? '--' : selectedWell?.location?.trss}</TableCell>
-                                <TableCell sx={{ fontSize: 16 }}>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ selectedWell?.location?.trss == null ? '--' : selectedWell?.location?.trss}</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>
                                     { selectedWell?.location?.latitude == null ? '--' : selectedWell?.location?.latitude?.toFixed(6)+', '+selectedWell?.location?.longitude?.toFixed(6) }
                                 </TableCell>
                             </TableRow>
@@ -280,7 +293,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                 </TableContainer>
                 </Grid>
 
-                <Grid container item xs={10} spacing={2}>
+                <Grid container item xs={12} spacing={2}>
 
                     {/* First Row */}
                     <Grid item xs={3}>
@@ -352,6 +365,7 @@ export default function MeterDetailsFields({selectedMeterID}: MeterDetailsProps)
                         </Grid>
                     </Grid>
                 </Grid>
-            </Box>
+                </CardContent>
+            </Card>
         )
 }

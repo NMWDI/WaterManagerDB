@@ -16,8 +16,8 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     return (
-        <Grid container item {...gridBreakpoints}>
-            <h4>Activity Details</h4>
+        <Grid container item>
+        <h4 className="custom-card-header-small" style={{marginTop: 0, marginBottom: '20px', width: '100%'}}>Activity Details</h4>
 
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
@@ -55,6 +55,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         name="activity_details.date"
                         control={control}
                         error={errors?.activity_details?.date?.message}
+                        sx={{width: '100%'}}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -63,6 +64,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         name="activity_details.start_time"
                         control={control}
                         error={errors?.activity_details?.start_time?.message}
+                        sx={{width: '100%'}}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -71,6 +73,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         name="activity_details.end_time"
                         control={control}
                         error={errors?.activity_details?.end_time?.message}
+                        sx={{width: '100%'}}
                     />
                 </Grid>
             </Grid>

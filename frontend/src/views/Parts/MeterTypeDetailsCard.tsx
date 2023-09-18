@@ -62,14 +62,17 @@ export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMod
 
     return (
         <Card>
+            <CardHeader
+                title={
+                    meterTypeAddMode ?
+                        <div className="custom-card-header"><span>Create Meter Type</span><AddIcon style={{fontSize: '1rem'}}/> </div> :
+                        <div className="custom-card-header"><span>Edit Meter Type</span><EditIcon style={{fontSize: '1rem'}}/> </div>
+                }
+                sx={{mb: 0, pb: 0}}
+            />
             <CardContent>
-                <CardHeader
-                    title={meterTypeAddMode ? <><AddIcon style={{fontSize: '1rem'}}/> Create Meter Type</> : <><EditIcon style={{fontSize: '1rem'}}/> Edit Meter Type</>}
-                    sx={{m: 0, p: 0, color: '#A0A0A0'}}
-                />
-
                 <Grid container>
-                    <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
+                    <Grid container item xs={12} spacing={2}>
                         <Grid item xs={12} xl={6}>
                             <ControlledTextbox
                                 name="brand"

@@ -23,17 +23,10 @@ export default function PartsView() {
 
     return (
         <Box sx={{m: 2, mt: 0, width: '100%'}}>
-            <h2>Parts</h2>
+            <h2 style={{color: "#292929", fontWeight: '500'}}>Manage Parts</h2>
 
-            <Grid container spacing={2}>
-                <Grid container item xs={6} sx={{mb: 1}} spacing={2}>
-                    <Grid item xs={5}>
-                    </Grid>
-                </Grid>
-            </Grid>
-
-            <Grid container spacing={2}>
-                <Grid container item spacing={2}>
+            <Grid container spacing={4}>
+                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '70vh'}}}>
                     <Grid item xs={7}>
                         <PartsTable
                             setSelectedPartID={setSelectedPartID}
@@ -47,7 +40,7 @@ export default function PartsView() {
                         />
                     </Grid>
                 </Grid>
-                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '60vh'}}}>
+                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '70vh'}}}>
                     <Grid item xs={7}>
                         <MeterTypesTable
                             setSelectedMeterType={setSelectedMeterType}

@@ -16,7 +16,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
 
     return (
         <Grid container item {...gridBreakpoints} sx={{mt: 6}}>
-            <h4>Current Installation</h4>
+            <h4 className="custom-card-header-small" style={{marginTop: 0, marginBottom: '20px', width: '100%'}}>Current Installation</h4>
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
                     <ControlledTextbox

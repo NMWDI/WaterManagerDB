@@ -1,8 +1,9 @@
 import React from 'react'
 import { useEffect } from 'react'
 
-import { Box } from '@mui/material'
+import { Box, Card, CardContent, CardHeader } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import HistoryIcon from '@mui/icons-material/History'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
@@ -62,12 +63,24 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
 
 
     return (
-            <Box sx={{width: '100%', height: '100%', pb: 4}}>
-              <DataGrid
-                columns={columns}
-                rows={Array.isArray(selectedMeterHistory) ? selectedMeterHistory : []}
-                onRowClick={handleRowSelect}
-              />
-            </Box>
+            <Card sx={{height: '100%'}}>
+                <CardHeader
+                    title={
+                        <div className="custom-card-header">
+                            <span>Selected Meter History</span>
+                            <HistoryIcon/>
+                        </div>
+                    }
+                    sx={{mb: 0, pb: 0}}
+                />
+                <CardContent sx={{height: '100%'}}>
+                    <DataGrid
+                        sx={{height: '83%', border: 'none'}}
+                        columns={columns}
+                        rows={Array.isArray(selectedMeterHistory) ? selectedMeterHistory : []}
+                        onRowClick={handleRowSelect}
+                    />
+                </CardContent>
+            </Card>
         )
 }

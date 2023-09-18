@@ -50,3 +50,41 @@
 .underlined {
     text-decoration: underline;
 }
+
+.custom-card-header-small {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: white;
+  background: #292929;
+  box-shadow: '120px 120px 100px 120px rgba(0,0,0,0.2)';
+  border-radius: 5px;
+  padding: 10px 10px 10px 14px;
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.custom-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: white;
+  background: #292929;
+  box-shadow: '120px 120px 100px 120px rgba(0,0,0,0.2)';
+  border-radius: 5px;
+  padding: 10px 10px 10px 14px;
+  margin: 0;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.custom-card-header span {
+  flex: 1
+}
+
+.custom-card-header svg {
+  font-size: 1.3rem;
+  padding-bottom: 0px;
+  margin-right: 10px;
+}

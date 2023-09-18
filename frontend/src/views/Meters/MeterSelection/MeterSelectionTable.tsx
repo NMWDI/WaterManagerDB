@@ -83,8 +83,9 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery}
     }, [meterList])
 
     return (
-            <Box sx={{height: '100%'}}>
+            <Box sx={{height: '87%'}}>
                 <DataGrid
+                    sx={{border: 'none'}}
                     rows={meterList.data?.items ?? []}
                     loading={meterList.isPreviousData || meterList.isLoading}
                     columns={meterTableColumns}

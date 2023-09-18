@@ -69,8 +69,8 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
 
     return (
         <Box sx={{mt: 6}}>
-            <h4>Parts Used</h4>
-            <Grid container>
+            <h4 className="custom-card-header-small">Parts Used</h4>
+            <Grid container sx={{mt: 3}}>
 
                 {/*  Part selection buttons */}
                 <Grid container item xs={12}>

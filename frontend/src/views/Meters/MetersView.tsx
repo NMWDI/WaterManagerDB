@@ -11,15 +11,15 @@ export default function MetersView() {
     const [selectedMeterID, setSelectedMeterID] = useState<number>()
 
     return (
-            <Box sx={{width: '100vw', height: '100%', m: 2, mt: 0}}>
-                <h2>Meters</h2>
+            <Box sx={{height: '100%', m: 2, mt: 0}}>
+                <h2 style={{color: "#292929", fontWeight: '500'}}>Meter Information</h2>
 
                 {/* Top half of page: MeterSelection, MeterDetails */}
-                <Grid container spacing={6} sx={{}}>
-                    <Grid item xs={5}>
+                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '60vh'}}}>
+                    <Grid item xs={6}>
                         <MeterSelection onMeterSelection={setSelectedMeterID}/>
                     </Grid>
-                    <Grid item xs={7}>
+                    <Grid item xs={6}>
                         <MeterDetailsFields selectedMeterID={selectedMeterID} />
                     </Grid>
                 </Grid>
