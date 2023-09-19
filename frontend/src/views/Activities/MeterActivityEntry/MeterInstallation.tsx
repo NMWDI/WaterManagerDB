@@ -1,6 +1,12 @@
 import React from 'react'
 import {
     Grid,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
 } from '@mui/material'
 
 import { gridBreakpoints } from '../ActivitiesView'
@@ -17,67 +23,31 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
     return (
         <Grid container item {...gridBreakpoints} sx={{mt: 6}}>
             <h4 className="custom-card-header-small" style={{marginTop: 0, marginBottom: '20px', width: '100%'}}>Current Installation</h4>
+            <Grid item xs={12}>
+                <TableContainer sx={{ mb:3, mt: 2}}>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>Status</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '50%' }}>Lat/Long</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.meter.status.status_name") ?? '' }</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.well")?.location?.trss ?? '' }</TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>
+                                    { watch("current_installation.well").location.latitude == null ? '--': watch("current_installation.well").location.latitude.toFixed(6)+', '+ watch("current_installation.well").location.longitude.toFixed(6) }
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </Grid>
+
             <Grid container item xs={12} spacing={2}>
-                <Grid item xs={4}>
-                    <ControlledTextbox
-                        name="current_installation.meter.status.status_name"
-                        control={control}
-                        label={"Current Meter Status"}
-                        disabled={true}
-                        error={errors?.current_installation?.meter?.status?.status_name?.message}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <ControlledWellSelection
-                        name="current_installation.well"
-                        control={control}
-                        disabled={!isActivity([ActivityType.Install])}
-                        error={errors?.current_installation?.well.message}
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <ControlledTextbox
-                        name="current_installation.well.location.name"
-                        control={control}
-                        label={"Location Name"}
-                        value={watch("current_installation.well")?.location?.name ?? ''} // Watch the highest level of the form that can change this value
-                        disabled
-                    />
-                </Grid>
-            </Grid>
-
-            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                <Grid item xs={4}>
-                    <ControlledTextbox
-                        name="current_installation.well.ra_number"
-                        control={control}
-                        label={"RA Number"}
-                        value={watch("current_installation.well")?.ra_number ?? ''}
-                        disabled
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <ControlledTextbox
-                        name="current_installation.well.osepod"
-                        control={control}
-                        label={"OSE Tag"}
-                        value={watch("current_installation.well")?.osepod ?? ''}
-                        disabled
-                    />
-                </Grid>
-                <Grid item xs={4}>
-                    <ControlledTextbox
-                        name="current_installation.well.location.trss"
-                        control={control}
-                        label={"TRSS"}
-                        value={watch("current_installation.well")?.location?.trss ?? ''}
-                        disabled
-                    />
-                </Grid>
-            </Grid>
-
-            <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                     <ControlledTextbox
                         name="current_installation.meter.contact_name"
                         control={control}
@@ -85,7 +55,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                         value={watch("current_installation.meter")?.contact_name ?? ''}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                     <ControlledTextbox
                         name="current_installation.meter.contact_phone"
                         control={control}
@@ -93,7 +63,15 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                         value={watch("current_installation.meter")?.contact_phone ?? ''}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
+                    <ControlledWellSelection
+                        name="current_installation.well"
+                        control={control}
+                        disabled={!isActivity([ActivityType.Install])}
+                        error={errors?.current_installation?.well.message}
+                    />
+                </Grid>
+                <Grid item xs={3}>
                     <ControlledTextbox
                         name="current_installation.meter.well_distance_ft"
                         control={control}
