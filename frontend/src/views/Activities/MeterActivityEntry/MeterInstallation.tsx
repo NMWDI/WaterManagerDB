@@ -38,7 +38,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                                 <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.meter.status.status_name") ?? '' }</TableCell>
                                 <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.well")?.location?.trss ?? '' }</TableCell>
                                 <TableCell sx={{ fontSize: '1rem' }}>
-                                    { watch("current_installation.well").location.latitude == null ? '--': watch("current_installation.well").location.latitude.toFixed(6)+', '+ watch("current_installation.well").location.longitude.toFixed(6) }
+                                    { watch("current_installation.well")?.location?.latitude == null ? '--': watch("current_installation.well").location?.latitude?.toFixed(6)+', '+ watch("current_installation.well").location.longitude.toFixed(6) }
                                 </TableCell>
                             </TableRow>
                         </TableBody>
