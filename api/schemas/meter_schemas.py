@@ -71,8 +71,6 @@ class Meter(ORMBase):
     serial_number: str
     contact_name: Optional[str]
     contact_phone: Optional[str]
-    old_contact_name: Optional[str]
-    old_contact_phone: Optional[str]
     tag: Optional[str]
 
     well_distance_ft: Optional[float]
