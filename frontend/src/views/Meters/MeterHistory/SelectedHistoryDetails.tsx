@@ -23,7 +23,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
         return dayjs
                 .utc(dateIN)
                 .tz('America/Denver')
-                .format('MM/DD/YYYY hh:mm A')
+                .format('MM/DD/YYYY')
     }
 
     function formatTime(dateIN: any) {
@@ -31,7 +31,7 @@ export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHi
         return dayjs
                 .utc(dateIN)
                 .tz('America/Denver')
-                .format('MM/DD/YYYY hh:mm A')
+                .format('hh:mm A')
     }
 
     function emptyIfNull(value: any) {
