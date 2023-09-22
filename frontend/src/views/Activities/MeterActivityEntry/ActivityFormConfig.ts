@@ -116,7 +116,7 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 time: dayjs.utc(),
                 reading: '',
                 property_type: {
-                    id: 2,
+                    id: 1,
                     units: [
                     {
                         id: 1, name: 'Acre-feet', name_short: '...', description: '...'
@@ -131,7 +131,7 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 time: dayjs.utc(),
                 reading: '',
                 property_type: {
-                    id: 1,
+                    id: 2,
                     units: [
                     {
                         id: 3, name: 'Kilowatt hours', name_short: '...', description: '...'
@@ -146,7 +146,7 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 time: dayjs.utc(),
                 reading: '',
                 property_type: {
-                    id: 1,
+                    id: 2,
                     units: [
                     {
                         id: 3, name: 'Kilowatt hours', name_short: '...', description: '...'

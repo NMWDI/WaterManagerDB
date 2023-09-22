@@ -254,8 +254,6 @@ export interface MeterDetails {
     serial_number?: string | null
     contact_name?: string | null
     contact_phone?: string | null
-    old_contact_name?: string | null
-    old_contact_phone?: string | null
     ra_number?: string | null
     tag?: string | null
     well_distance_ft?: float | null
@@ -296,7 +294,6 @@ export interface Meter {
     serial_number: string
     contact_name?: string
     contact_phone?: string
-    old_contact_name?: string
     tag?: string
 
     well_distance_ft?: float

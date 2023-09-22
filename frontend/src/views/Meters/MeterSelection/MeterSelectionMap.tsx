@@ -30,7 +30,7 @@ export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapP
             return (
                 <Marker
                     key={meter.id}
-                    position={[meter.well?.location?.latitude, -meter.well?.location?.longitude]}
+                    position={[meter.well?.location?.latitude, meter.well?.location?.longitude]}
                     eventHandlers={{
                         click: () => {onMeterSelection(meter.id)}
                     }}

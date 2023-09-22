@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+V0.1.5 - Various minor bug fixes
 V0.1.4 - Updated "current installation" section of activities to match Meters page
 V0.1.3 - Added user admin, improved appearance, fixed OSE endpoint scope.
 V0.1.2 - Added an initial parts inventory and minor meter installation UI improvements
