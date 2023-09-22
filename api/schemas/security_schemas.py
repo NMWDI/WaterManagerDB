@@ -17,31 +17,30 @@ from typing import Union, List, Optional
 
 from pydantic import BaseModel
 
+class ORMBase(BaseModel):
+    id: Optional[int] = None
 
-class SecurityScope(BaseModel):
-    id: int
+    class Config:
+        orm_mode = True
+
+
+class SecurityScope(ORMBase):
     scope_string: str
-    description: str
-
-    class Config:
-        orm_mode = True
+    description: Optional[str]
 
 
-class UserRole(BaseModel):
-    id: Optional[int]
+class UserRole(ORMBase):
     name: str
-    security_scopes: Union[List[SecurityScope], None] = None  # Can be optionally joined
 
-    class Config:
-        orm_mode = True
+    security_scopes: Optional[List[SecurityScope]]
 
 
-class UpdatedUserPassword(BaseModel):
+class UpdatedUserPassword(ORMBase):
     user_id: int
     new_password: str
 
 
-class UpdatedUser(BaseModel):
+class UpdatedUser(ORMBase):
     id: int
     username: str
     email: str
@@ -50,7 +49,7 @@ class UpdatedUser(BaseModel):
     user_role_id: int
 
 
-class NewUser(BaseModel):
+class NewUser(ORMBase):
     username: str
     email: str
     full_name: str
@@ -59,26 +58,24 @@ class NewUser(BaseModel):
     password: str
 
 
-class User(BaseModel):
-    id: int
-    username: str
-    email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
+class User(ORMBase):
+    username: Optional[str]
+    email: Optional[str]
+    full_name: Optional[str]
+    disabled: bool
+
     user_role_id: int
-    user_role: Union[UserRole, None] = None  # Can be optionally joined
 
-    class Config:
-        orm_mode = True
+    user_role: Optional[UserRole]
 
 
-class Token(BaseModel):
+class Token(ORMBase):
     access_token: str
     token_type: str
     user: User
 
 
-class TokenData(BaseModel):
+class TokenData(ORMBase):
     username: Union[str, None] = None
     security_scopes: List[str] = []
 

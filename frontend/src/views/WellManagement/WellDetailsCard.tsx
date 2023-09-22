@@ -1,24 +1,18 @@
 import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Box, Button, Card, CardContent, CardHeader, Chip, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select } from '@mui/material'
+import { Alert, Button, Card, CardContent, CardHeader, Grid } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import CancelIcon from '@mui/icons-material/Cancel'
 import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
-import { useFieldArray } from 'react-hook-form'
 
-import { useCreateRole, useCreateWell, useGetSecurityScopes, useGetUseTypes, useUpdateRole, useUpdateWell } from '../../service/ApiServiceNew'
+import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SecurityScope, UserRole, Well, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
-
-
-// TODO:
-// handle token expiring and user cant hit endpoints
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
@@ -37,7 +31,7 @@ interface WellDetailsCardProps {
 }
 
 export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetailsCardProps) {
-    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<Well>({
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<SubmitWellUpdate | SubmitWellCreate>({
         resolver: yupResolver(WellResolverSchema)
     })
 
@@ -55,7 +49,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     const onAddWell: SubmitHandler<any> = data => createWell.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
 
-    // Populate the form with the selected wells's details
+    // Populate the form with the selected well's details
     useEffect(() => {
         console.log(selectedWell)
         if (selectedWell != undefined) {
@@ -66,7 +60,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
         }
     }, [selectedWell])
 
-    // Empty the form if entering role add mode
+    // Empty the form if entering well add mode
     useEffect(() => {
         if (wellAddMode) reset()
     }, [wellAddMode])

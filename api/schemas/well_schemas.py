@@ -49,17 +49,20 @@ class Location(ORMBase):
 
     land_owner: Optional[LandOwner]
 
+
 class WellUseLU(ORMBase):
     use_type: str
-    code: str
-    description: str
+    code: Optional[str]
+    description: Optional[str]
+
 
 class Well(ORMBase):
     name: Optional[str]
-    location_id: Optional[int]
-    use_type_id: Optional[int]
     ra_number: Optional[str]
     osepod: Optional[str]
+
+    location_id: Optional[int]
+    use_type_id: Optional[int]
 
     location: Optional[Location]
     use_type: Optional[WellUseLU]
@@ -113,15 +116,16 @@ class LocationTypeLU(ORMBase):
 
 
 class WellMeasurement(ORMBase):
-    id: int
     timestamp: datetime
     value: float
+
     observed_property_id: int
     submitting_user_id: int
     unit_id: int
     well_id: int
 
-    submitting_user: Optional[User]
+    # observed_property: Optional[any] #ObservedProeprtyTypeLU, but cant import bc of circular imports
+    # submitting_user: Optional[User]
 
 
 class WellMeasurementDTO(ORMBase):
@@ -132,24 +136,6 @@ class WellMeasurementDTO(ORMBase):
     timestamp: datetime
     value: float
     submitting_user: UserDTO
-
-
-class WellCreate(ORMBase):
-    owner_id: int
-    # location: str
-    # osepod: Optional[str] = None
-
-
-class ScreenInterval(ORMBase):
-    top: float
-    bottom: float
-
-
-class WellConstruction(ORMBase):
-    casing_diameter: float
-    hole_depth: float
-    well_depth: float
-    screens: Optional[List[ScreenInterval]]
 
 
 class WaterLevel(ORMBase):
