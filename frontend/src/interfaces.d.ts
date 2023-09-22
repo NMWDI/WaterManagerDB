@@ -93,6 +93,13 @@ export interface ObservationForm {
     unit_id: '' | number
 }
 
+export interface WellUseLU {
+    id: number
+    use_type?: string
+    code?: string
+    description?: string
+}
+
 export interface PartTypeLU {
     id: int
     name: string
@@ -147,6 +154,41 @@ export interface WellUseLU {
     use_type: string
     code: string
     description: string
+}
+
+export interface SubmitWellUpdate {
+    id: number
+    name: string
+    ra_number: string
+    osepod: string
+
+    use_type: {
+        id: number
+    }
+
+    location: {
+        name: string,
+        trss: string,
+        longitude: float,
+        latitude: float
+    }
+}
+
+export interface SubmitWellCreate {
+    name: string
+    ra_number: string
+    osepod: string
+
+    use_type: {
+        id: number
+    }
+
+    location: {
+        name: string,
+        trss: string,
+        longitude: float,
+        latitude: float
+    }
 }
 
 export interface Well {

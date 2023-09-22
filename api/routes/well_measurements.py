@@ -34,7 +34,7 @@ read_user = scoped_user(["read"])
     "/waterlevels",
     dependencies=[Depends(measurement_write_user)],
     response_model=well_schemas.WellMeasurement,
-    tags=["waterlevels"],
+    tags=["WaterLevels"],
 )
 async def add_waterlevel(
     waterlevel: well_schemas.NewWaterLevelMeasurement, db: Session = Depends(get_db)
@@ -65,7 +65,7 @@ async def add_waterlevel(
     "/chlorides",
     dependencies=[Depends(measurement_write_user)],
     response_model=well_schemas.WellMeasurement,
-    tags=["waterlevels"],
+    tags=["WaterLevels"],
 )
 async def add_chloride_measurement(
     chloride_measurement: well_schemas.NewWaterLevelMeasurement,
@@ -99,7 +99,7 @@ async def add_chloride_measurement(
     "/waterlevels",
     dependencies=[Depends(read_user)],
     response_model=List[well_schemas.WellMeasurementDTO],
-    tags=["chlorides"],
+    tags=["WaterLevels"],
 )
 async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
@@ -118,7 +118,7 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 @well_measurement_router.get(
     "/chlorides",
     response_model=List[well_schemas.WellMeasurementDTO],
-    tags=["chlorides"],
+    tags=["WaterLevels"],
 )
 async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(

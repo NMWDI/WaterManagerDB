@@ -8,6 +8,7 @@ from sqlalchemy import or_, select, desc, and_
 from sqlalchemy.orm import Session, joinedload
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
+from enum import Enum
 
 from api.schemas import meter_schemas
 from api.schemas import well_schemas
@@ -18,49 +19,20 @@ from api.models.main_models import (
     MeterObservations,
     Locations,
     MeterTypeLU,
-    WellUseLU,
-    Wells,
+    Wells
 )
 from api.route_util import _patch
-from api.security import scoped_user
 from api.session import get_db
-
-from enum import Enum
-
-
-# Find better location for these
-class MeterSortByField(Enum):
-    SerialNumber = "serial_number"
-    RANumber = "ra_number"
-    LandOwnerName = "land_owner_name"
-    TRSS = "trss"
-
-
-class WellSortByField(Enum):
-    Name = 'name'
-    RANumber = 'ra_number'
-    OSEPod = 'osepod'
-    UseType = 'use_type'
-    Location = 'location'
-
-
-class SortDirection(Enum):
-    Ascending = "asc"
-    Descending = "desc"
-
+from api.enums import ScopedUser, MeterSortByField, SortDirection
 
 meter_router = APIRouter()
-meter_write_user = scoped_user(["meters:write"])
-read_user = scoped_user(["read"])
-admin_user = scoped_user(["admin"])
-
 
 # Get paginated, sorted list of meters, filtered by a search string if applicable
 @meter_router.get(
     "/meters",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=LimitOffsetPage[meter_schemas.MeterListDTO],
-    tags=["meters"],
+    tags=["Meters"],
 )
 async def get_meters(
     # offset: int, limit: int - From fastapi_pagination
@@ -127,9 +99,9 @@ async def get_meters(
 
 @meter_router.get(
     "/meters_locations",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=List[meter_schemas.MeterMapDTO],
-    tags=["meters"],
+    tags=["Meters"],
 )
 async def get_meters_locations(
     db: Session = Depends(get_db),
@@ -152,9 +124,9 @@ async def get_meters_locations(
 # Get single, fully qualified meter
 @meter_router.get(
     "/meter",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=meter_schemas.Meter,
-    tags=["meters"],
+    tags=["Meters"],
 )
 async def get_meter(
     meter_id: int,
@@ -173,8 +145,8 @@ async def get_meter(
 
 @meter_router.get(
     "/meter_types",
-    dependencies=[Depends(read_user)],
-    tags=["meters"],
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"],
 )
 async def get_meter_types(
     db: Session = Depends(get_db),
@@ -184,8 +156,8 @@ async def get_meter_types(
 
 @meter_router.patch(
     "/meter_types",
-    dependencies=[Depends(read_user)],
-    tags=["meters"],
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Meters"],
 )
 async def update_meter_type(
     updated_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
@@ -201,8 +173,8 @@ async def update_meter_type(
 
 @meter_router.post(
     "/meter_types",
-    dependencies=[Depends(read_user)],
-    tags=["meters"],
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Meters"],
 )
 async def create_meter_type(
     new_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
@@ -225,9 +197,9 @@ async def create_meter_type(
 
 @meter_router.get(
     "/land_owners",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=List[well_schemas.LandOwner],
-    tags=["meters"],
+    tags=["Meters"],
 )
 async def get_land_owners(
     db: Session = Depends(get_db),
@@ -235,88 +207,11 @@ async def get_land_owners(
     return db.scalars(select(LandOwners)).all()
 
 
-@meter_router.get(
-    "/wells",
-    dependencies=[Depends(read_user)],
-    response_model=LimitOffsetPage[well_schemas.Well],
-    tags=["meters"],
-)
-async def get_wells(
-    # offset: int, limit: int - From fastapi_pagination
-    search_string: str = None,
-    sort_by: WellSortByField = WellSortByField.Name,
-    sort_direction: SortDirection = SortDirection.Ascending,
-    db: Session = Depends(get_db),
-):
-    def sort_by_field_to_schema_field(name: WellSortByField):
-        match name:
-            case WellSortByField.Name:
-                return Wells.name
-
-            case WellSortByField.RANumber:
-                return Wells.ra_number
-
-            case WellSortByField.OSEPod:
-                return Wells.osepod
-
-            case WellSortByField.UseType:
-                return WellUseLU.use_type
-
-            case WellSortByField.Location:
-                return Locations.name
-
-    query_statement = (
-        select(Wells)
-        .options(joinedload(Wells.location), joinedload(Wells.use_type))
-        .join(Locations, isouter=True)
-        .join(WellUseLU, isouter=True)
-    )
-
-    if search_string:
-        query_statement = query_statement.where(
-            or_(
-                Wells.name.ilike(f"%{search_string}%"),
-                Wells.ra_number.ilike(f"%{search_string}%"),
-                Wells.osepod.ilike(f"%{search_string}%"),
-                Locations.trss.ilike(f"%{search_string}%"),
-                WellUseLU.use_type.ilike(f"%{search_string}%"),
-            )
-        )
-
-    if sort_by:
-        schema_field_name = sort_by_field_to_schema_field(sort_by)
-
-        if sort_direction != SortDirection.Ascending:
-            query_statement = query_statement.order_by(desc(schema_field_name))
-        else:
-            query_statement = query_statement.order_by(
-                schema_field_name
-            )  # SQLAlchemy orders ascending by default
-
-    return paginate(db, query_statement)
-
-
-@meter_router.get(
-    "/well",
-    dependencies=[Depends(read_user)],
-    response_model=well_schemas.Well,
-    tags=["meters"],
-)
-async def get_well(well_id: int, db: Session = Depends(get_db)):
-    return db.scalars(
-        select(Wells)
-        .options(
-            joinedload(Wells.location).joinedload(Locations.land_owner),
-        )
-        .filter(Wells.id == well_id)
-    ).first()
-
-
 @meter_router.patch(
     "/meter",
-    dependencies=[Depends(admin_user)],
+    dependencies=[Depends(ScopedUser.Admin)],
     response_model=meter_schemas.Meter,
-    tags=["meters"],
+    tags=["Meters"],
 )
 async def patch_meter(
     updated_meter: meter_schemas.Meter,
@@ -327,7 +222,7 @@ async def patch_meter(
 
 # Build a list of a meter's history (activities and observations)
 # There's no real defined structure/schema to this on the front or backend
-@meter_router.get("/meter_history", dependencies=[Depends(read_user)], tags=["meters"])
+@meter_router.get("/meter_history", dependencies=[Depends(ScopedUser.Read)], tags=["Meters"])
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     class HistoryType(Enum):
         Activity = "Activity"

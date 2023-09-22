@@ -13,17 +13,13 @@ from api.schemas.part_schemas import Part
 from api.security import scoped_user
 from api.session import get_db
 from api.route_util import _patch
+from api.enums import ScopedUser
 
 part_router = APIRouter()
 
-activity_write_user = scoped_user(["read", "activities:write"])
-read_user = scoped_user(["read"])
-admin_user = scoped_user(["admin"])
-
-
 @part_router.get(
     "/parts",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_parts(db: Session = Depends(get_db)):
@@ -32,7 +28,7 @@ async def get_parts(db: Session = Depends(get_db)):
 
 @part_router.get(
     "/part_types",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_part_types(db: Session = Depends(get_db)):
@@ -41,7 +37,7 @@ async def get_part_types(db: Session = Depends(get_db)):
 
 @part_router.get(
     "/part",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_part(part_id: int, db: Session = Depends(get_db)):
@@ -57,7 +53,7 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
 
 @part_router.patch(
     "/part",
-    dependencies=[Depends(admin_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def update_part(updated_part: Part, db: Session = Depends(get_db)):
@@ -92,7 +88,7 @@ async def update_part(updated_part: Part, db: Session = Depends(get_db)):
 
 @part_router.post(
     "/parts",
-    dependencies=[Depends(admin_user)],
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Parts"],
 )
 async def create_part(new_part: Part, db: Session = Depends(get_db)):
@@ -133,7 +129,7 @@ async def create_part(new_part: Part, db: Session = Depends(get_db)):
 
 @part_router.get(
     "/meter_parts",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):

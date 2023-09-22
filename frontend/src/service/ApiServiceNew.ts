@@ -31,7 +31,10 @@ import {
     PartTypeLU,
     UserRole,
     SecurityScope,
-    UpdatedUserPassword
+    UpdatedUserPassword,
+    WellUseLU,
+    SubmitWellCreate,
+    SubmitWellUpdate
 } from '../interfaces.js'
 
 // Date display util
@@ -154,6 +157,15 @@ async function PATCHFetch(route: string, object: any, authHeader: string) {
         headers: headers,
         body: JSON.stringify(object)
     })
+}
+
+export function useGetUseTypes() {
+    const route = 'use_types'
+    const authHeader = useAuthHeader()
+    return useQuery<WellUseLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader()),
+        {keepPreviousData: true}
+    )
 }
 
 export function useGetMeterList(params: MeterListQueryParams | undefined) {
@@ -443,6 +455,35 @@ export function useUpdateUser(onSuccess: Function) {
     })
 }
 
+export function useCreateWell(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'wells'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (new_well: SubmitWellCreate) => {
+            const response = await POSTFetch(route, new_well, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useCreateRole(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const queryClient = useQueryClient()
@@ -480,6 +521,55 @@ export function useCreateRole(onSuccess: Function) {
     })
 }
 
+export function useUpdateWell(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'wells'
+    const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (updatedWell: SubmitWellUpdate) => {
+            const response = await PATCHFetch(route, updatedWell, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+
+                // Since query data will be based on params, iterate through all possible queries of this route
+                const wellsQueries = queryClient.getQueryCache().findAll('wells')
+
+                wellsQueries.forEach((query: any) => {
+                    queryClient.setQueryData(query.queryKey, (old: Page<Well> | undefined) => {
+                        if (old != undefined) {
+                            let newPage = JSON.parse(JSON.stringify(old)) // Deep copy so we can edit
+
+                            // If well found on the old query data, update it
+                            const wellIndex = old.items.findIndex((well: Well) => well.id == responseJson["id"])
+                            if (wellIndex != undefined && wellIndex != -1) {
+                                newPage.items[wellIndex] = responseJson
+                            }
+                            return newPage
+                        }
+                        return {items: [], total: 0, limit: 0, offset: 0} // Empty page if no old data
+                    })
+                })
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useUpdateRole(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const route = 'roles'
@@ -503,7 +593,6 @@ export function useUpdateRole(onSuccess: Function) {
             else {
                 onSuccess()
                 const responseJson = await response.json()
-                console.log("RESP JSON: ", responseJson)
 
                 // Update the part on the parts list
                 queryClient.setQueryData(['roles'], (old: UserRole[] | undefined) => {

@@ -5,7 +5,7 @@ import { Well } from '../../interfaces'
 import WellDetailsCard from './WellDetailsCard'
 
 export default function WellManagementView() {
-    const [wellAddMode, setWellAddMode] = useState<boolean>(false)
+    const [wellAddMode, setWellAddMode] = useState<boolean>(true)
     const [selectedWell, setSelectedWell] = useState<Well>()
 
     // Exit add mode when table row is selected

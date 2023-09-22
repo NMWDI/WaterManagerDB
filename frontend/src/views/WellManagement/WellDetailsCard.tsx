@@ -11,13 +11,25 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 import { useFieldArray } from 'react-hook-form'
 
-import { useCreateRole, useGetSecurityScopes, useUpdateRole } from '../../service/ApiServiceNew'
+import { useCreateRole, useCreateWell, useGetSecurityScopes, useGetUseTypes, useUpdateRole, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SecurityScope, UserRole, Well } from '../../interfaces'
+import { SecurityScope, UserRole, Well, WellUseLU } from '../../interfaces'
+import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 
-// const RoleResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
-//     name: Yup.string().required('Please enter a name.'),
-// })
+
+// TODO:
+// handle token expiring and user cant hit endpoints
+
+const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
+    name: Yup.string().required('Please enter a well name.'),
+    use_type: Yup.object().required('Please select a use type.'),
+    location: Yup.object().shape({
+        name: Yup.string().required('Please enter a location name.'),
+        trss: Yup.string().required('Please enter the TRSS.'),
+        longitude: Yup.number().typeError('Only numbers may be entered.').required('Please enter the longitude.'),
+        latitude: Yup.number().typeError('Only numbers may be entered.').required('Please enter the latitude.'),
+    })
+})
 
 interface WellDetailsCardProps {
     selectedWell: Well | undefined,
@@ -26,24 +38,21 @@ interface WellDetailsCardProps {
 
 export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetailsCardProps) {
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<Well>({
+        resolver: yupResolver(WellResolverSchema)
     })
 
-    // const { append, remove } = useFieldArray({
-    //     control, name: "security_scopes"
-    // })
+    const useTypeList = useGetUseTypes()
 
-    // const securityScopeList = useGetSecurityScopes()
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Well!', {variant: 'success'}) }
+    function onSuccessfulCreate() {
+        enqueueSnackbar('Successfully Created Well!', {variant: 'success'})
+        reset()
+    }
+    const createWell = useCreateWell(onSuccessfulCreate)
+    const updateWell = useUpdateWell(onSuccessfulUpdate)
 
-    // function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Role!', {variant: 'success'}) }
-    // function onSuccessfulCreate() {
-    //     enqueueSnackbar('Successfully Created Role!', {variant: 'success'})
-    //     reset()
-    // }
-    // const createRole = useCreateRole(onSuccessfulCreate)
-    // const updateRole = useUpdateRole(onSuccessfulUpdate)
-
-    const onSaveChanges: SubmitHandler<any> = data => console.log("SAVE: ", data)
-    const onAddWell: SubmitHandler<any> = data => console.log("ADD: ", data)
+    const onSaveChanges: SubmitHandler<any> = data => updateWell.mutate(data)
+    const onAddWell: SubmitHandler<any> = data => createWell.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
 
     // Populate the form with the selected wells's details
@@ -61,15 +70,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     useEffect(() => {
         if (wellAddMode) reset()
     }, [wellAddMode])
-
-    // function removeSecurityScope(securityScopeIndex: number) {
-    //     remove(securityScopeIndex)
-    // }
-
-    // function addSecurityScope(securityScopeID: number) {
-    //     const newType = securityScopeList.data?.find(x => x.id === securityScopeID)
-    //     if (newType) append(newType)
-    // }
 
     // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
     function hasErrors() {
@@ -99,13 +99,13 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="use_type.use_type"
-                                control={control}
+                            <ControlledSelect
+                                name="use_type"
                                 label="Use Type"
-                                error={errors?.use_type?.message != undefined}
-                                helperText={errors?.use_type?.message}
-                                value={watch("use_type.use_type")}
+                                options={useTypeList.data ?? []}
+                                getOptionLabel={(use: WellUseLU) => use.use_type}
+                                control={control}
+                                error={errors?.use_type?.message}
                             />
                         </Grid>
                     </Grid>

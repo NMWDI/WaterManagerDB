@@ -11,47 +11,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-import os
-from datetime import datetime, timedelta, date
+from datetime import timedelta
 
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_pagination import add_pagination
-from typing import List, Union
 
-from sqlalchemy.orm import Session
-from sqlalchemy import select
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
-from starlette.responses import RedirectResponse, FileResponse
 
 from api.schemas import security_schemas
 
-from api.route_util import _patch, _add, _delete
 from api.routes.meters import meter_router
 from api.routes.well_measurements import well_measurement_router
 from api.routes.activities import activity_router
 from api.routes.OSE import ose_router
 from api.routes.parts import part_router
 from api.routes.admin import admin_router
-
-from api.schemas import meter_schemas
+from api.routes.wells import well_router
 
 from api.security import (
-    get_password_hash,
     authenticate_user,
     create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
-from api.models.security_models import Users
-from api.session import engine, SessionLocal, get_db
-from api.xls_persistence import make_xls_backup
 
 tags_metadata = [
-    {"name": "wells", "description": "Water Wells"},
-    {"name": "repairs", "description": "Meter Repairs"},
-    {"name": "meters", "description": "Water use meters"},
+    {"name": "Wells", "description": "Well Related Endpoints"},
+    {"name": "Parts", "description": "Part Related Endpoints"},
+    {"name": "Meters", "description": "Meter Related Endpoints"},
+    {"name": "Activities", "description": "Activity Submission and Viewing Related Endpoints"},
+    {"name": "WaterLevels", "description": "Groundwater Depth and Chloride Measurement Related Endpoints"},
+    {"name": "OSE", "description": "Endpoints Used by the OSE to Generate Reports"},
+    {"name": "Admin", "description": "Admin Functionality Related Endpoints"},
+    {"name": "Login", "description": "User Auth and Token Related Endpoints"},
 ]
+
 description = """
 The PVACD Meter API gives programatic access to the PVACDs meter database
 
@@ -87,7 +82,7 @@ app.add_middleware(
 # ============== Security ==============
 
 
-@app.post("/token", response_model=security_schemas.Token, tags=["login"])
+@app.post("/token", response_model=security_schemas.Token, tags=["Login"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
@@ -112,25 +107,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # =======================================
 
-
-# ======  Meters
-# Not in use, commenting out for now
-# @app.get("/nmeters", response_model=int, tags=["meters"])
-# async def read_nmeters(
-#     db: Session = Depends(get_db),
-# ):
-#     q = db.query(Meters)
-#     return q.count()
-
-
-authenticated_router = APIRouter()
-
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
 authenticated_router.include_router(ose_router)
 authenticated_router.include_router(part_router)
 authenticated_router.include_router(admin_router)
+authenticated_router.include_router(well_router)
+
 add_pagination(app)
 
 app.include_router(authenticated_router)

@@ -9,6 +9,10 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr, validator, constr
 from api.schemas.security_schemas import User
 
+class ORMBaseSimple(BaseModel):
+    class Config:
+        orm_mode = True
+
 
 class ORMBase(BaseModel):
     id: Optional[int] = None
@@ -59,6 +63,44 @@ class Well(ORMBase):
 
     location: Optional[Location]
     use_type: Optional[WellUseLU]
+
+
+class SubmitWellCreate(ORMBaseSimple):
+    class SubmitLocationCreate(ORMBaseSimple):
+        name: str
+        trss: str
+        longitude: float
+        latitude: float
+
+    class SubmitUseTypeCreate(ORMBaseSimple):
+        id: int
+
+    name: Optional[str]
+    ra_number: Optional[str]
+    osepod: Optional[str]
+
+    location: SubmitLocationCreate
+    use_type: SubmitUseTypeCreate
+
+
+class SubmitWellUpdate(ORMBaseSimple):
+    class SubmitLocationUpdate(ORMBaseSimple):
+        id: int
+        name: str
+        trss: str
+        longitude: float
+        latitude: float
+
+    class SubmitUseTypeUpdate(ORMBaseSimple):
+        id: int
+
+    id: int
+    name: str
+    ra_number: str
+    osepod: str
+
+    location: SubmitLocationUpdate
+    use_type: SubmitUseTypeUpdate
 
 
 class WellListDTO(ORMBase):
