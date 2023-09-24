@@ -22,17 +22,14 @@ from sqlalchemy import select, and_
 
 from api.schemas import well_schemas
 from api.models.main_models import WellMeasurements, ObservedPropertyTypeLU, Units
-from api.security import scoped_user
 from api.session import get_db
+from api.enums import ScopedUser
 
 well_measurement_router = APIRouter()
-measurement_write_user = scoped_user(["well_measurement:write"])
-read_user = scoped_user(["read"])
-
 
 @well_measurement_router.post(
     "/waterlevels",
-    dependencies=[Depends(measurement_write_user)],
+    dependencies=[Depends(ScopedUser.WellMeasurementWrite)],
     response_model=well_schemas.WellMeasurement,
     tags=["WaterLevels"],
 )
@@ -63,7 +60,7 @@ async def add_waterlevel(
 
 @well_measurement_router.post(
     "/chlorides",
-    dependencies=[Depends(measurement_write_user)],
+    dependencies=[Depends(ScopedUser.WellMeasurementWrite)],
     response_model=well_schemas.WellMeasurement,
     tags=["WaterLevels"],
 )
@@ -97,7 +94,7 @@ async def add_chloride_measurement(
 
 @well_measurement_router.get(
     "/waterlevels",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=List[well_schemas.WellMeasurementDTO],
     tags=["WaterLevels"],
 )
@@ -117,6 +114,7 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
 
 @well_measurement_router.get(
     "/chlorides",
+    dependencies=[Depends(ScopedUser.Read)],
     response_model=List[well_schemas.WellMeasurementDTO],
     tags=["WaterLevels"],
 )
@@ -132,6 +130,3 @@ async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
             )
         )
     ).all()
-
-
-# ============= EOF =============================================

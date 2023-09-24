@@ -1,15 +1,9 @@
 from datetime import datetime
-from typing import List, Optional
-
-from pydantic import BaseModel
+from typing import List, Optional, Any
+from api.schemas.base import ORMBase
+from api.schemas.part_schemas import Part
+from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
-
-
-class ORMBase(BaseModel):
-    id: Optional[int] = None # TODO: Make this not optional
-
-    class Config:
-        orm_mode = True
 
 
 class MeterMapDTO(ORMBase):
@@ -32,7 +26,7 @@ class MeterTypeLU(ORMBase):
     description: Optional[str]
     in_use: bool
 
-    # parts: Optional[List[any]]
+    parts: Optional[List[Any]]
 
 
 # The minimal information used by the meters list
@@ -41,10 +35,8 @@ class MeterListDTO(ORMBase):
         class LocationDTO(ORMBase):
             class LandOwnerDTO(ORMBase):
                 organization: Optional[str]
-
             trss: Optional[str]
             land_owner: Optional[LandOwnerDTO]
-
         ra_number: Optional[str]
         location: Optional[LocationDTO]
 
@@ -75,14 +67,14 @@ class Meter(ORMBase):
     notes: Optional[str]
 
     meter_type_id: int
-    status_id: int
+    status_id: Optional[int]
     well_id: int
-    location_id: int
+    location_id: Optional[int]
 
-    # meter_type: Optional[any]
-    # status: Optional[any]
-    # well: Optional[any]
-    # location: Optional[any]
+    meter_type: Optional[MeterTypeLU]
+    status: Optional[MeterStatusLU]
+    well: Optional[Well]
+    location: Optional[Location]
 
 
 # The activity form submitted by the frontend
@@ -145,12 +137,12 @@ class MeterActivity(ORMBase):
     activity_type_id: int
     location_id: int
 
-    # submitting_user: Optional[any]
-    # meter: Optional[any]
-    # activity_type: Optional[any]
-    # location: Optional[any]
+    submitting_user: Optional[Any]
+    meter: Optional[Any]
+    activity_type: Optional[Any]
+    location: Optional[Any]
 
-    # parts_used: Optional[List[any]]
+    parts_used: Optional[List[Part]]
 
 
 class ObservedPropertyTypeLU(ORMBase):
@@ -172,11 +164,12 @@ class MeterObservation(ORMBase):
     unit_id: int
     location_id: int
 
-    # submitting_user: Optional[User]
-    # meter: Optional[Meter]
-    # observed_property_type: Optional[ObservedPropertyTypeLU]
-    # unit: Optional[Unit]
-    # location: Optional[Location]
+    submitting_user: Optional[User]
+    meter: Optional[Meter]
+    observed_property_type: Optional[ObservedPropertyTypeLU]
+    unit: Optional[Unit]
+    location: Optional[Location]
+
 
 class ServiceTypeLU(ORMBase):
     service_name: Optional[str]

@@ -277,7 +277,7 @@ class Locations(Base):
     quarter = Column(Integer)
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
-    geom = Column(Geometry("POINT"))
+    # geom = Column(Geometry("POINT")) # SQLAlchemy/FastAPI has some issue sending this
 
     type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
     land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))

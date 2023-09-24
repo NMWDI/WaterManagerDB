@@ -1,6 +1,3 @@
-# ===============================================================================
-# Routes associated with direct interaction with meters
-# ===============================================================================
 from typing import List
 
 from fastapi import Depends, APIRouter
@@ -124,8 +121,6 @@ async def get_meters_locations(
 # Get single, fully qualified meter
 @meter_router.get(
     "/meter",
-    dependencies=[Depends(ScopedUser.Read)],
-    response_model=meter_schemas.Meter,
     tags=["Meters"],
 )
 async def get_meter(
@@ -145,6 +140,7 @@ async def get_meter(
 
 @meter_router.get(
     "/meter_types",
+    response_model=List[meter_schemas.MeterTypeLU],
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Meters"],
 )
@@ -156,6 +152,7 @@ async def get_meter_types(
 
 @meter_router.patch(
     "/meter_types",
+    response_model=meter_schemas.MeterTypeLU,
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Meters"],
 )
@@ -173,6 +170,7 @@ async def update_meter_type(
 
 @meter_router.post(
     "/meter_types",
+    response_model=meter_schemas.MeterTypeLU,
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Meters"],
 )
@@ -222,8 +220,16 @@ async def patch_meter(
 
 # Build a list of a meter's history (activities and observations)
 # There's no real defined structure/schema to this on the front or backend
-@meter_router.get("/meter_history", dependencies=[Depends(ScopedUser.Read)], tags=["Meters"])
+@meter_router.get(
+    "/meter_history",
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"]
+)
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
+    """
+    Get a list of the given meters history.
+    No defined schema for this at the moment.
+    """
     class HistoryType(Enum):
         Activity = "Activity"
         Observation = "Observation"

@@ -1,22 +1,11 @@
-"""
-FastAPI input and response schemas
-Well related
-"""
-
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional, Any
+from pydantic import BaseModel
 
-from pydantic import BaseModel, EmailStr, validator, constr
 from api.schemas.security_schemas import User
+from api.schemas.base import ORMBase
 
 class ORMBaseSimple(BaseModel):
-    class Config:
-        orm_mode = True
-
-
-class ORMBase(BaseModel):
-    id: Optional[int] = None
-
     class Config:
         orm_mode = True
 
@@ -99,8 +88,8 @@ class SubmitWellUpdate(ORMBaseSimple):
 
     id: int
     name: str
-    ra_number: str
-    osepod: str
+    ra_number: Optional[str]
+    osepod: Optional[str]
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate
@@ -124,8 +113,8 @@ class WellMeasurement(ORMBase):
     unit_id: int
     well_id: int
 
-    # observed_property: Optional[any] #ObservedProeprtyTypeLU, but cant import bc of circular imports
-    # submitting_user: Optional[User]
+    observed_property: Optional[Any] #ObservedProeprtyTypeLU, but cant import bc of circular imports
+    submitting_user: Optional[User]
 
 
 class WellMeasurementDTO(ORMBase):

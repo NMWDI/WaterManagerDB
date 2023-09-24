@@ -13,15 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-from typing import Union, List, Optional
-
-from pydantic import BaseModel
-
-class ORMBase(BaseModel):
-    id: Optional[int] = None
-
-    class Config:
-        orm_mode = True
+from typing import List, Optional
+from api.schemas.base import ORMBase
 
 
 class SecurityScope(ORMBase):
@@ -76,7 +69,7 @@ class Token(ORMBase):
 
 
 class TokenData(ORMBase):
-    username: Union[str, None] = None
+    username: Optional[str]
     security_scopes: List[str] = []
 
 

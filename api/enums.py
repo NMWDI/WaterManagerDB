@@ -21,6 +21,9 @@ class SortDirection(Enum):
     Descending = "desc"
 
 class ScopedUser(Enum):
-    MeterWrite = scoped_user(["meters:write"])
     Read = scoped_user(["read"])
     Admin = scoped_user(["admin"])
+    OSE = scoped_user(["ose"])
+    ActivityWrite = scoped_user(["activities:write"])
+    WellMeasurementWrite = scoped_user(["well_measurement:write"])
+    MeterWrite = scoped_user(["meters:write"])
