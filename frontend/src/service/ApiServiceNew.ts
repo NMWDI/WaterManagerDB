@@ -24,7 +24,6 @@ import {
     MeterDetailsQueryParams,
     MeterDetails,
     MeterPartParams,
-    PartAssociation,
     MeterMapDTO,
     MeterHistoryDTO,
     Part,
@@ -34,7 +33,8 @@ import {
     UpdatedUserPassword,
     WellUseLU,
     SubmitWellCreate,
-    SubmitWellUpdate
+    SubmitWellUpdate,
+    Meter
 } from '../interfaces.js'
 
 // Date display util
@@ -721,6 +721,36 @@ export function useUpdateMeterType(onSuccess: Function) {
     })
 }
 
+export function useCreateMeter(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'meters'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (meter: Meter) => {
+            const response = await POSTFetch(route, meter, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useCreateMeterType(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const queryClient = useQueryClient()
@@ -808,9 +838,10 @@ export function useUpdateMeter(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const route = 'meter'
     const authHeader = useAuthHeader()
+    const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async (meterDetails: Partial<MeterDetails>) => {
+        mutationFn: async (meterDetails: Meter) => {
             const response = await PATCHFetch(route, meterDetails, authHeader())
 
             if (!response.ok) {
@@ -827,6 +858,25 @@ export function useUpdateMeter(onSuccess: Function) {
                 onSuccess()
 
                 const responseJson = await response.json()
+
+                // Since query data will be based on params, iterate through all possible queries of this route
+                const meterQueries = queryClient.getQueryCache().findAll('meters')
+
+                meterQueries.forEach((query: any) => {
+                    queryClient.setQueryData(query.queryKey, (old: Page<Meter> | undefined) => {
+                        if (old != undefined) {
+                            let newPage = JSON.parse(JSON.stringify(old)) // Deep copy so we can edit
+
+                            // If well found on the old query data, update it
+                            const meterIndex = old.items.findIndex((meter: Meter) => meter.id == responseJson["id"])
+                            if (meterIndex != undefined && meterIndex != -1) {
+                                newPage.items[meterIndex] = responseJson
+                            }
+                            return newPage
+                        }
+                        return {items: [], total: 0, limit: 0, offset: 0} // Empty page if no old data
+                    })
+                })
                 return responseJson
             }
         },

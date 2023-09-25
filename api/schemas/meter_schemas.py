@@ -59,6 +59,18 @@ class NoteTypeLU(ORMBase):
     slug: Optional[str]
 
 
+class SubmitMeter(ORMBase):
+    serial_number: str
+    contact_name: Optional[str]
+    contact_phone: Optional[str]
+    well_distance_ft: Optional[float]
+    notes: Optional[str]
+
+    meter_type: Optional[MeterTypeLU]
+    status: Optional[MeterStatusLU]
+    well: Optional[Well]
+
+
 class Meter(ORMBase):
     serial_number: str
     contact_name: Optional[str]

@@ -16,7 +16,8 @@ from api.models.main_models import (
     MeterObservations,
     Locations,
     MeterTypeLU,
-    Wells
+    Wells,
+    MeterStatusLU
 )
 from api.route_util import _patch
 from api.session import get_db
@@ -91,9 +92,38 @@ async def get_meters(
     return paginate(db, query_statement)
 
 
+@meter_router.post(
+    "/meters",
+    response_model=meter_schemas.Meter,
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Meters"],
+)
+async def create_meter(
+    new_meter: meter_schemas.SubmitMeter, db: Session = Depends(get_db)
+):
+    warehouse_status_id = db.scalars(
+        select(MeterStatusLU.id)
+        .where(MeterStatusLU.status_name == "Warehouse")
+    ).first()
+
+    new_meter_model = Meters(
+        serial_number = new_meter.serial_number,
+        contact_name = new_meter.contact_name,
+        contact_phone = new_meter.contact_phone,
+        meter_type_id = new_meter.meter_type.id,
+        status_id = warehouse_status_id,
+        well_id = new_meter.well.id,
+        location_id = new_meter.well.location.id
+    )
+
+    db.add(new_meter_model)
+    db.commit()
+    db.refresh(new_meter_model)
+
+    return new_meter_model
+
+
 # Get list of all meters and their coordinates (if they have them)
-
-
 @meter_router.get(
     "/meters_locations",
     dependencies=[Depends(ScopedUser.Read)],
@@ -212,10 +242,25 @@ async def get_land_owners(
     tags=["Meters"],
 )
 async def patch_meter(
-    updated_meter: meter_schemas.Meter,
+    updated_meter: meter_schemas.SubmitMeter,
     db: Session = Depends(get_db),
 ):
-    return _patch(db, Meters, updated_meter.id, updated_meter)
+    updated_meter_model = _patch(db, Meters, updated_meter.id, updated_meter)
+
+    updated_meter_model.location_id = updated_meter.well.location.id
+    updated_meter_model.well_id = updated_meter.well.id
+
+    db.commit()
+
+    return db.scalars(
+        select(Meters)
+        .options(
+            joinedload(Meters.meter_type),
+            joinedload(Meters.well).joinedload(Wells.location),
+            joinedload(Meters.status),
+        )
+        .filter(Meters.id == updated_meter_model.id)
+    ).first()
 
 
 # Build a list of a meter's history (activities and observations)
