@@ -33,7 +33,8 @@ from api.routes.wells import well_router
 from api.security import (
     authenticate_user,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    authenticated_router
 )
 
 tags_metadata = [
