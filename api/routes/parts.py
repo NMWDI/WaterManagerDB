@@ -1,6 +1,7 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
+from typing import List
 
 from api.models.main_models import (
     Parts,
@@ -9,21 +10,17 @@ from api.models.main_models import (
     Meters,
     MeterTypeLU,
 )
-from api.schemas.part_schemas import Part
-from api.security import scoped_user
+from api.schemas import part_schemas
 from api.session import get_db
 from api.route_util import _patch
+from api.enums import ScopedUser
 
 part_router = APIRouter()
 
-activity_write_user = scoped_user(["read", "activities:write"])
-read_user = scoped_user(["read"])
-admin_user = scoped_user(["admin"])
-
-
 @part_router.get(
     "/parts",
-    dependencies=[Depends(read_user)],
+    response_model=List[part_schemas.Part],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_parts(db: Session = Depends(get_db)):
@@ -32,7 +29,8 @@ async def get_parts(db: Session = Depends(get_db)):
 
 @part_router.get(
     "/part_types",
-    dependencies=[Depends(read_user)],
+    response_model=List[part_schemas.PartTypeLU],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_part_types(db: Session = Depends(get_db)):
@@ -41,7 +39,8 @@ async def get_part_types(db: Session = Depends(get_db)):
 
 @part_router.get(
     "/part",
-    dependencies=[Depends(read_user)],
+    response_model=part_schemas.Part,
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_part(part_id: int, db: Session = Depends(get_db)):
@@ -57,10 +56,11 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
 
 @part_router.patch(
     "/part",
-    dependencies=[Depends(admin_user)],
+    response_model=part_schemas.Part,
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
-async def update_part(updated_part: Part, db: Session = Depends(get_db)):
+async def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     _patch(db, Parts, updated_part.id, updated_part)
 
     part = db.scalars(
@@ -92,10 +92,11 @@ async def update_part(updated_part: Part, db: Session = Depends(get_db)):
 
 @part_router.post(
     "/parts",
-    dependencies=[Depends(admin_user)],
+    response_model=part_schemas.Part,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Parts"],
 )
-async def create_part(new_part: Part, db: Session = Depends(get_db)):
+async def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
     new_part_model = Parts(
         part_number=new_part.part_number,
         part_type_id=db.scalars(
@@ -133,7 +134,8 @@ async def create_part(new_part: Part, db: Session = Depends(get_db)):
 
 @part_router.get(
     "/meter_parts",
-    dependencies=[Depends(read_user)],
+    response_model=List[part_schemas.Part],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
 async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):

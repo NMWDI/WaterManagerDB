@@ -65,6 +65,7 @@ export default function Sidenav() {
                     </Grid>
                     <NavLink route="/parts" label="Parts" />
                     <NavLink route="/usermanagement" label="Users" />
+                    <NavLink route="/wellmanagement" label="Wells" />
                 </>}
 
             </Grid>

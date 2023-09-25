@@ -1,7 +1,4 @@
-"""
-Routes related to OSE reporting and work requests
-"""
-from typing import List, Union
+from typing import List
 from datetime import datetime, date
 
 from pydantic import BaseModel
@@ -15,11 +12,10 @@ from api.models.main_models import (
     MeterObservations,
 )
 
-from api.security import scoped_user
 from api.session import get_db
+from api.enums import ScopedUser
 
 ose_router = APIRouter()
-ose_user = scoped_user(["ose"])
 
 
 class ActivityDTO(BaseModel):
@@ -41,8 +37,6 @@ class ObservationDTO(BaseModel):
 class MeterHistoryDTO(BaseModel):
     name: str
     location: str
-    # ra_numbers: Union(List[str],None)
-    # owners: Union(List[str],None)
     activities: List[ActivityDTO]
     observations: List[ObservationDTO]
 
@@ -54,7 +48,7 @@ class DateHistoryDTO(BaseModel):
 
 @ose_router.get(
     "/ose_well_history",
-    dependencies=[Depends(ose_user)],
+    dependencies=[Depends(ScopedUser.OSE)],
     response_model=List[DateHistoryDTO],
     tags=["OSE"],
 )

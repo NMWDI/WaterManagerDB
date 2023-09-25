@@ -1,43 +1,31 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload, undefer
 from sqlalchemy import select
+from typing import List
+from passlib.context import CryptContext
 
-from api.models.main_models import (
-    Parts,
-    PartAssociation,
-    PartTypeLU,
-    Meters,
-    MeterTypeLU,
-)
 from api.models.security_models import (
     Users,
     UserRoles,
     SecurityScopes
 )
-from api.schemas.security_schemas import (
-    NewUser,
-    UpdatedUserPassword,
-    User,
-    UpdatedUser,
-    UserRole,
-)
-from api.security import scoped_user
+
+from api.schemas import security_schemas
 from api.session import get_db
 from api.route_util import _patch
-from passlib.context import CryptContext
+from api.enums import ScopedUser
 
 admin_router = APIRouter()
-
-admin_user = scoped_user(["admin"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
+# define response models
 @admin_router.post(
     "/users/update_password",
-    dependencies=[Depends(admin_user)],
+    response_model=security_schemas.User,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def update_user_password(updatedUserPassword: UpdatedUserPassword, db: Session = Depends(get_db)):
+async def update_user_password(updatedUserPassword: security_schemas.UpdatedUserPassword, db: Session = Depends(get_db)):
     user = db.scalars(
         select(Users)
         .where(Users.id == updatedUserPassword.user_id)
@@ -52,10 +40,11 @@ async def update_user_password(updatedUserPassword: UpdatedUserPassword, db: Ses
 
 @admin_router.patch(
     "/users",
-    dependencies=[Depends(admin_user)],
+    response_model=security_schemas.User,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def update_user(updated_user: UpdatedUser, db: Session = Depends(get_db)):
+async def update_user(updated_user: security_schemas.UpdatedUser, db: Session = Depends(get_db)):
     _patch(db, Users, updated_user.id, updated_user)
 
     qualified_user = db.scalars(
@@ -74,10 +63,11 @@ async def update_user(updated_user: UpdatedUser, db: Session = Depends(get_db)):
 
 @admin_router.post(
     "/users",
-    dependencies=[Depends(admin_user)],
+    response_model=security_schemas.User,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def create_user(user: NewUser, db: Session = Depends(get_db)):
+async def create_user(user: security_schemas.NewUser, db: Session = Depends(get_db)):
     new_user = Users(
         username=user.username,
         email=user.email,
@@ -105,10 +95,14 @@ async def create_user(user: NewUser, db: Session = Depends(get_db)):
 
 @admin_router.get(
     "/usersadmin",
-    dependencies=[Depends(admin_user)],
+    response_model=List[security_schemas.User],
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"]
 )
 async def get_users_admin(db: Session = Depends(get_db)):
+    """
+    Admin-specific users list that includes sensitive information such as username and role
+    """
     return db.scalars(
         select(Users)
         .options(
@@ -122,7 +116,8 @@ async def get_users_admin(db: Session = Depends(get_db)):
 
 @admin_router.get(
     "/security_scopes",
-    dependencies=[Depends(admin_user)],
+    response_model=List[security_schemas.SecurityScope],
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"]
 )
 async def get_security_scopes(db: Session = Depends(get_db)):
@@ -133,7 +128,8 @@ async def get_security_scopes(db: Session = Depends(get_db)):
 
 @admin_router.get(
     "/roles",
-    dependencies=[Depends(admin_user)],
+    response_model=List[security_schemas.UserRole],
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"]
 )
 async def get_roles(db: Session = Depends(get_db)):
@@ -145,10 +141,11 @@ async def get_roles(db: Session = Depends(get_db)):
 
 @admin_router.post(
     "/roles",
-    dependencies=[Depends(admin_user)],
+    response_model=security_schemas.UserRole,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"]
 )
-async def create_role(new_role: UserRole, db: Session = Depends(get_db)):
+async def create_role(new_role: security_schemas.UserRole, db: Session = Depends(get_db)):
     scopes = []
     if new_role.security_scopes:
         scope_ids = map(lambda s: s.id, new_role.security_scopes)
@@ -175,10 +172,11 @@ async def create_role(new_role: UserRole, db: Session = Depends(get_db)):
 
 @admin_router.patch(
     "/roles",
-    dependencies=[Depends(admin_user)],
+    response_model=security_schemas.UserRole,
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"]
 )
-async def update_role(updated_role: UserRole, db: Session = Depends(get_db)):
+async def update_role(updated_role: security_schemas.UserRole, db: Session = Depends(get_db)):
     role = db.scalars(
         select(UserRoles)
         .where(UserRoles.id == updated_role.id)
@@ -201,4 +199,3 @@ async def update_role(updated_role: UserRole, db: Session = Depends(get_db)):
         .where(UserRoles.id == updated_role.id)
         .options(joinedload(UserRoles.security_scopes))
     ).first()
-

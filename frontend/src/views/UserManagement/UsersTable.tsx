@@ -43,8 +43,8 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
         },
         {field: 'disabled', headerName: 'Active',
             renderCell: (params: any) => params.value != true ?
-                <Chip variant="outlined" label="True" color="success"/> :
-                <Chip variant="outlined" label="False" color="error"/> },
+                <Chip variant="outlined" size="small" label="True" color="success"/> :
+                <Chip variant="outlined" size="small" label="False" color="error"/> },
     ]
 
     // Filter rows based on search. Cant use multiple filters w/o pro datagrid
