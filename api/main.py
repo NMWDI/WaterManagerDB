@@ -111,11 +111,11 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 authenticated_router.include_router(meter_router)
 authenticated_router.include_router(activity_router)
 authenticated_router.include_router(well_measurement_router)
-authenticated_router.include_router(ose_router)
 authenticated_router.include_router(part_router)
 authenticated_router.include_router(admin_router)
 authenticated_router.include_router(well_router)
 
 add_pagination(app)
 
+app.include_router(ose_router)
 app.include_router(authenticated_router)
