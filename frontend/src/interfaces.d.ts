@@ -343,21 +343,22 @@ export interface Organization {
 }
 
 export interface Meter {
+    id: number
     serial_number: string
     contact_name?: string
     contact_phone?: string
-    tag?: string
-
-    well_distance_ft?: float
+    well_distance_ft?: number
     notes?: string
 
-    meter_type_id?: number
+    meter_type_id: number
     status_id?: number
-    well_id?: number
+    well_id: number
+    location_id?: number
 
     meter_type?: MeterType
     status?: MeterStatus
     well?: Well
+    location?: Location
 }
 
 export interface MeterListDTO {
