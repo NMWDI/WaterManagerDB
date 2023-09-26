@@ -6,18 +6,6 @@ from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
 
 
-class MeterMapDTO(ORMBase):
-    class WellDTO(ORMBase):
-        class MeterLocationDTO(ORMBase):
-            longitude: Optional[float]
-            latitude: Optional[float]
-
-        location: Optional[MeterLocationDTO]
-
-    id: int
-    well: Optional[WellDTO]
-
-
 class MeterTypeLU(ORMBase):
     brand: Optional[str]
     series: Optional[str]
@@ -31,20 +19,22 @@ class MeterTypeLU(ORMBase):
 
 # The minimal information used by the meters list
 class MeterListDTO(ORMBase):
-    class WellDTO(ORMBase):
-        class LocationDTO(ORMBase):
-            class LandOwnerDTO(ORMBase):
-                organization: Optional[str]
-            trss: Optional[str]
-            land_owner: Optional[LandOwnerDTO]
+    class WellDTO(ORMBase): 
         ra_number: Optional[str]
-        location: Optional[LocationDTO]
+        name: Optional[str]
+
+    class LocationDTO(ORMBase):
+        trss: Optional[str]
+        longitude: Optional[float]
+        latitude: Optional[float]
 
     class StatusDTO(ORMBase):
         status_name: Optional[str]
 
+    id: int
     serial_number: str
     well: Optional[WellDTO]
+    location: Optional[LocationDTO]
     status: Optional[StatusDTO]
 
 

@@ -61,7 +61,6 @@ async def get_meters(
         .options(joinedload(Meters.well), joinedload(Meters.status))
         .join(Wells, isouter=True)
         .join(Locations, isouter=True)
-        .join(LandOwners, isouter=True)
     )
 
     if exclude_inactive:
@@ -124,28 +123,28 @@ async def create_meter(
 
 
 # Get list of all meters and their coordinates (if they have them)
-@meter_router.get(
-    "/meters_locations",
-    dependencies=[Depends(ScopedUser.Read)],
-    response_model=List[meter_schemas.MeterMapDTO],
-    tags=["Meters"],
-)
-async def get_meters_locations(
-    db: Session = Depends(get_db),
-):
-    return db.scalars(
-        select(Meters)
-        .options(joinedload(Meters.well))
-        .where(
-            and_(
-                Locations.latitude.is_not(None),
-                Locations.longitude.is_not(None),
-                Meters.status_id == 1,  # Need to improve this
-            )
-        )
-        .join(Wells, isouter=True)
-        .join(Locations, isouter=True)
-    ).all()
+# @meter_router.get(
+#     "/meters_locations",
+#     dependencies=[Depends(ScopedUser.Read)],
+#     response_model=List[meter_schemas.MeterMapDTO],
+#     tags=["Meters"],
+# )
+# async def get_meters_locations(
+#     db: Session = Depends(get_db),
+# ):
+#     return db.scalars(
+#         select(Meters)
+#         .options(joinedload(Meters.well))
+#         .where(
+#             and_(
+#                 Locations.latitude.is_not(None),
+#                 Locations.longitude.is_not(None),
+#                 Meters.status_id == 1,  # Need to improve this
+#             )
+#         )
+#         .join(Wells, isouter=True)
+#         .join(Locations, isouter=True)
+#     ).all()
 
 
 # Get single, fully qualified meter
