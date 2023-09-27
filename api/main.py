@@ -93,7 +93,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    if user.disabled:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This account is disabled",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     access_token = create_access_token(
         data={
             "sub": user.username,
@@ -101,7 +107,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                 map(lambda scope: scope.scope_string, user.user_role.security_scopes)
             ),
         },
-        expires_delta=access_token_expires,
+        expires_delta = timedelta(minutes = ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     return {"access_token": access_token, "token_type": "bearer", "user": user}
 

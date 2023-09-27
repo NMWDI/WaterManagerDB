@@ -70,7 +70,6 @@ class Token(ORMBase):
 
 class TokenData(ORMBase):
     username: Optional[str]
-    security_scopes: List[str] = []
 
 
 class UserInDB(User):

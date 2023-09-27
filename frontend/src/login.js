@@ -42,7 +42,6 @@ export default function Login() {
                     // Dont allow login if user does not have read scope
                     if (!data?.user?.user_role?.security_scopes?.map((scope) => scope.scope_string).find((scope_string) => scope_string == 'read')) {
                         enqueueSnackbar('Your role does not have access to the site UI. Please try accessing data via our API.', {variant: 'error'})
-                        console.log("NO READ")
                         return
                     }
                     if(signIn({
@@ -52,6 +51,7 @@ export default function Login() {
                       authState: data.user
                     })){
                         localStorage.setItem("_auth", data.access_token)
+                        localStorage.setItem('loggedIn', 'true')
                         console.log('Sign-in successful')
                         navigate('/home')
                     }else{
