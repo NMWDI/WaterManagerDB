@@ -86,7 +86,6 @@ export interface MeterActivity {
 }
 
 export interface ObservationForm {
-    // id: number // Just used for tracking them in the UI
     time: Dayjs
     reading: '' | number
     property_type_id: '' | number

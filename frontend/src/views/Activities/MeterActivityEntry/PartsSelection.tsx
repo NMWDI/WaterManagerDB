@@ -13,7 +13,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import { useFieldArray } from 'react-hook-form'
 
 import { gridBreakpoints, toggleStyle } from '../ActivitiesView'
-import { Part, PartAssociation } from '../../../interfaces'
+import { Part } from '../../../interfaces'
 import { useGetMeterPartsList } from '../../../service/ApiServiceNew'
 
 {/*  Controls which part IDs are selected, only shows parts associated with the selected meter */}

@@ -2,6 +2,13 @@ import React from 'react'
 import { FormControl, Select, InputLabel, MenuItem, FormHelperText } from '@mui/material'
 import { Controller } from "react-hook-form";
 
+const disabledInputStyle = {
+    "& .MuiInputBase-input.Mui-disabled": {
+      WebkitTextFillColor: "#000000",
+    },
+    cursor: 'default'
+}
+
 // React-Hook-Form controlled version of the select component
 // Uses the name field to get the ID that keeps the state of this box
 // But, will fully populate the selected object in the form

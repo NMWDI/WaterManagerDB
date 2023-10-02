@@ -1,11 +1,10 @@
 import React from 'react'
 import './sidenav.css'
-import { LineStyle } from "@mui/icons-material";
 import TableViewIcon from '@mui/icons-material/TableView';
 
 import {Link, useLocation} from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
-import { Box, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 
 interface NavLinkProps {
     route: string
@@ -27,48 +26,33 @@ export default function Sidenav() {
         )
     }
 
-    //Blank sidebar for login
-    if(location.pathname == '/') {
-        return (
-            <div className="sidebar">
-                <div className="sidebarWrapper"></div>
-            </div>
-        )
-    }
-
-    else {
-        //make bg color on nav white, make container bg offwhite
-        //then rewrite topnav
-        //handle pages that shouldnt have offwhite bg
-
-        return (
-            <Grid container direction="column" sx={{
-                backgroundColor: 'white',
-                height: '103%',
-                minHeight: '110vh',
-                px: '1rem',
-                boxShadow: '3px 5px 2px -2px rgba(0,0,0,0.2)',
-            }}>
-                <Grid item sx={{mt: 3, mb: 1}}>
-                    <h5 style={{margin: 0, color: '#555555'}}>Pages</h5>
-                </Grid>
-
-                <NavLink route="/home" label="Home" />
-                <NavLink route="/meters" label="Meters" />
-                <NavLink route="/activities" label="Activities" />
-                <NavLink route="/wells" label="Monitoring Wells" />
-                <NavLink route="/chlorides" label="Chlorides" />
-
-                {hasAdminScope && <>
-                    <Grid item sx={{mt: 3, mb: 1}}>
-                        <h5 style={{margin: 0, color: '#555555'}}>Admin Management</h5>
-                    </Grid>
-                    <NavLink route="/parts" label="Parts" />
-                    <NavLink route="/usermanagement" label="Users" />
-                    <NavLink route="/wellmanagement" label="Wells" />
-                </>}
-
+    return (
+        <Grid container direction="column" sx={{
+            backgroundColor: 'white',
+            height: '103%',
+            minHeight: '110vh',
+            px: '1rem',
+            boxShadow: '3px 5px 2px -2px rgba(0,0,0,0.2)',
+        }}>
+            <Grid item sx={{mt: 3, mb: 1}}>
+                <h5 style={{margin: 0, color: '#555555'}}>Pages</h5>
             </Grid>
-        )
-    }
+
+            <NavLink route="/home" label="Home" />
+            <NavLink route="/meters" label="Meters" />
+            <NavLink route="/activities" label="Activities" />
+            <NavLink route="/wells" label="Monitoring Wells" />
+            <NavLink route="/chlorides" label="Chlorides" />
+
+            {hasAdminScope && <>
+                <Grid item sx={{mt: 3, mb: 1}}>
+                    <h5 style={{margin: 0, color: '#555555'}}>Admin Management</h5>
+                </Grid>
+                <NavLink route="/parts" label="Parts" />
+                <NavLink route="/usermanagement" label="Users" />
+                <NavLink route="/wellmanagement" label="Wells" />
+            </>}
+
+        </Grid>
+    )
 }

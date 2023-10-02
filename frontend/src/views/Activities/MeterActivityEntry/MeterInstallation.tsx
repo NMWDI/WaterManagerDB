@@ -68,7 +68,8 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                         name="current_installation.well"
                         control={control}
                         disabled={!isActivity([ActivityType.Install])}
-                        error={errors?.current_installation?.well.message}
+                        error={errors?.current_installation?.well?.message != undefined}
+                        helperText={errors?.well?.message}
                     />
                 </Grid>
                 <Grid item xs={3}>

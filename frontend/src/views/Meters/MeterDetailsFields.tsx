@@ -81,7 +81,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                 setValue(field as any, value)
             })
         }
-    }, [selectedMeterID])
+    }, [meterDetails.data])
 
     // Empty form if entering add mode
     useEffect(() => {
