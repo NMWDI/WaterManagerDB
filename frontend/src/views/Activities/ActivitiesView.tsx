@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Box, Tabs, Tab, Grid, CardContent, Card } from '@mui/material'
+import { Box, Grid, CardContent, Card } from '@mui/material'
 import TabPanel from '../../components/TabPanel'
 
 import MeterActivityEntry from './MeterActivityEntry/MeterActivityEntry'
@@ -10,7 +10,6 @@ export const toggleStyle = { '&.Mui-selected':{'borderColor':'blue','border': 1}
 
 export default function ActivitiesView() {
     const [currentTabIndex, setCurrentTabIndex] = useState(0)
-    const handleTabChange = (event: React.SyntheticEvent, newTabIndex: number) => setCurrentTabIndex(newTabIndex)
 
     return (
         <Box sx={{height: '100%', width: '100%', m: 2, mt: 0}}>

@@ -2,7 +2,6 @@ import React from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Grid } from '@mui/material'
 
-import { gridBreakpoints } from '../ActivitiesView'
 import { SecurityScope } from '../../../interfaces'
 import ControlledMeterSelection from '../../../components/RHControlled/ControlledMeterSelection'
 import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'

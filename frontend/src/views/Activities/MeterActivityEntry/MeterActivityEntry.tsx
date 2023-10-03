@@ -75,23 +75,18 @@ export default function MeterActivityEntry() {
     }, [watch("activity_details.selected_meter"), watch("activity_details.activity_type")])
 
     useEffect(() => {
-        setMeterID(watch("activity_details.selected_meter.id"))
-    }, [watch("activity_details.selected_meter")?.id]) // Update the ID used by meterDetails if a new meter is selected
-
-    useEffect(() => {
-        setWellID(watch("current_installation.meter.well.id"))
-    }, [watch("current_installation.meter")?.well?.id]) // Update the ID used by wellDetails if a new meter is selected
-
-    useEffect(() => {
-        setWellID(watch("current_installation.well.id"))
-    }, [watch("current_installation.well")?.id]) // Update the ID used by wellDetails if new well selected from dropdown
-
-    useEffect(() => {
-            setValue("current_installation.meter", meterDetails.data ?? null)
+        if (meterDetails.data) {
+            setValue("current_installation.meter", meterDetails.data)
+            setWellID(meterDetails.data?.well?.id)
+        }
     }, [meterDetails.data]) // Set the form's current meter details based on API response
 
     useEffect(() => {
-            setValue("current_installation.well", wellDetails.data ?? null)
+        setMeterID(watch("activity_details.selected_meter.id"))
+    }, [watch("activity_details.selected_meter")]) // Update the ID used by meterDetails if a new meter is selected
+
+    useEffect(() => {
+            if (wellDetails.data) setValue("current_installation.well", wellDetails.data)
     }, [wellDetails.data]) // Set the form's current well details based on API response
 
     // Determine if form is valid, {errors} in useEffect or formState's isValid don't work

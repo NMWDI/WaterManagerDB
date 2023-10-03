@@ -6,11 +6,11 @@ import { Box, Button } from '@mui/material'
 import { DataGrid, GridSortModel } from '@mui/x-data-grid'
 import AddIcon from '@mui/icons-material/Add'
 
-import { useDidMountEffect } from '../../../service/ApiService'
-import { MeterListQueryParams } from '../../../interfaces'
+import { MeterListQueryParams, SecurityScope } from '../../../interfaces'
 import { SortDirection, MeterSortByField } from '../../../enums'
 import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
+import { useAuthUser } from 'react-auth-kit'
 
 interface MeterSelectionTableProps {
     onMeterSelection: Function
@@ -33,6 +33,9 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     const [gridPage, setGridPage] = useState<number>(0)
     const [gridPageSize, setGridPageSize] = useState<number>(25)
     const [gridRowCount, setGridRowCount] = useState<number>(100)
+
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const meterList = useGetMeterList(meterListQueryParams)
 
@@ -70,7 +73,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
 
     // On any query param change from the table, update meterListQueryParam
     // Ternaries in sorting make sure that the view defaults to showing the backend's defaults
-    useDidMountEffect(() => {
+    useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
             sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
@@ -106,9 +109,10 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
                     components={{Footer: GridFooterWithButton}}
                     componentsProps={{footer: {
                         button:
-                            <Button sx={{mt: 1}} variant="contained" size="small" onClick={() => setMeterAddMode(true)}>
-                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter
-                            </Button>
+                            hasAdminScope &&
+                                <Button sx={{mt: 1}} variant="contained" size="small" onClick={() => setMeterAddMode(true)}>
+                                    <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter
+                                </Button>
                     }}}
                 />
             </Box>

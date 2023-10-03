@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { API_URL } from '../API_config.js'
-import { useAuthHeader } from 'react-auth-kit'
-import { useSnackbar } from 'notistack';
+import { useAuthHeader, useSignOut } from 'react-auth-kit'
+import { enqueueSnackbar, useSnackbar } from 'notistack';
 import {
     ActivityForm,
     ActivityTypeLU,
@@ -36,6 +36,7 @@ import {
     SubmitWellUpdate,
     Meter
 } from '../interfaces.js'
+import { useNavigate } from 'react-router-dom';
 
 // Date display util
 export function toGMT6String(date: Date) {
@@ -63,23 +64,24 @@ function formattedQueryParams(queryParams: any) {
     return queryParamString
 }
 
-async function GETFetch(route: string, params: any, authHeader: string, requireParams = false) {
-    if (!params && requireParams) return
-    const headers = {
-        "Authorization": authHeader
+// Fetch function that handles incoming errors from the response. Used as the queryFn in useQuery hooks
+async function GETFetch(route: string, params: any, authHeader: string, signOut: Function, navigate: Function) {
+    const headers = { "Authorization": authHeader }
+    const response = await fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
+
+    if (!response.ok) {
+
+        // If backend indicates that user's token is expired, log them out and notify
+        if (response.status == 440 && localStorage.getItem('loggedIn') ) {
+            localStorage.removeItem('loggedIn')
+            navigate("/")
+            signOut()
+            enqueueSnackbar('Your session has expired, please login again.', {variant: 'error'})
+        }
+        throw new Error(response.status.toString())
     }
 
-    return fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
-            .then(r => r.json())
-}
-
-async function GETFetch2(route: string, params: any, authHeader: string, requireParams = false) {
-    if (!params && requireParams) return
-    const headers = {
-        "Authorization": authHeader
-    }
-
-    return fetch(API_URL + `/${route}` + formattedQueryParams(params), { headers: headers })
+    return response.json()
 }
 
 // Fetches from the NM API's ST2 subdomain (data that relates to water levels)
@@ -162,8 +164,11 @@ async function PATCHFetch(route: string, object: any, authHeader: string) {
 export function useGetUseTypes() {
     const route = 'use_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<WellUseLU[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
         {keepPreviousData: true}
     )
 }
@@ -171,41 +176,55 @@ export function useGetUseTypes() {
 export function useGetMeterList(params: MeterListQueryParams | undefined) {
     const route = 'meters'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<Page<MeterListDTO>, Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
-        {keepPreviousData: true}
+        GETFetch(route, params, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetMeterLocations() {
     const route = 'meters_locations'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<MeterMapDTO[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetMeterTypeList() {
     const route = 'meter_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<MeterTypeLU[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetNoteTypes() {
     const route = 'note_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<NoteTypeLU[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetMeterHistory(params: MeterDetailsQueryParams) {
     const route = 'meter_history'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<MeterHistoryDTO[], Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {enabled: params?.meter_id != undefined}
     )
 }
@@ -213,80 +232,110 @@ export function useGetMeterHistory(params: MeterDetailsQueryParams) {
 export function useGetSecurityScopes() {
     const route = 'security_scopes'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<SecurityScope[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetRoles() {
     const route = 'roles'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<UserRole[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetUserAdminList() {
     const route = 'usersadmin'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<User[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetUserList() {
     const route = 'users'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<User[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetActivityTypeList() {
     const route = 'activity_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<ActivityTypeLU[], Error>([route, null], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetServiceTypes() {
     const route = 'service_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<ServiceTypeLU[], Error>([route, null], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetWaterLevels(params: WaterLevelQueryParams) {
     const route = 'waterlevels'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<WellMeasurementDTO[], Error>([route, params], () =>
-        GETFetch(route, params, authHeader())
+        GETFetch(route, params, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetChloridesLevels(params: WaterLevelQueryParams) {
     const route = 'chlorides'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<WellMeasurementDTO[], Error>([route, params], () =>
-        GETFetch(route, params, authHeader())
+        GETFetch(route, params, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetPropertyTypes() {
     const route = 'observed_property_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<ObservedPropertyTypeLU[], Error>([route], () =>
-        GETFetch(route, null, authHeader())
+        GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
 
 export function useGetWells(params: WellListQueryParams | undefined) {
     const route = 'wells'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<Page<Well>, Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {keepPreviousData: true}
     )
 }
@@ -294,15 +343,13 @@ export function useGetWells(params: WellListQueryParams | undefined) {
 export function useGetWell(params: WellDetailsQueryParams | undefined) {
     const route = 'well'
     const authHeader = useAuthHeader()
-    return useQuery<Well, Error>([route, params], async() =>
-        {
-            const response = await GETFetch2(route, params, authHeader(), true)
-            if (!response?.ok) {return null }
-            return response?.json() ?? null
-        },
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<Well, Error>([route, params], () =>
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {
             keepPreviousData: true,
-            retry: 0,
             enabled: params?.well_id != undefined
         }
     )
@@ -311,8 +358,11 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
 export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
     const route = 'meter'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<MeterDetails, Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {
             keepPreviousData: true,
             enabled: params?.meter_id != undefined
@@ -323,8 +373,11 @@ export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
 export function useGetPartTypeList() {
     const route = 'part_types'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<PartTypeLU[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
         {
             keepPreviousData: true,
         }
@@ -334,8 +387,11 @@ export function useGetPartTypeList() {
 export function useGetParts() {
     const route = 'parts'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<Part[], Error>([route], () =>
-        GETFetch(route, null, authHeader()),
+        GETFetch(route, null, authHeader(), signOut, navigate),
         {
             keepPreviousData: true,
         }
@@ -345,8 +401,11 @@ export function useGetParts() {
 export function useGetPart(params: {part_id: number} | undefined) {
     const route = 'part'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<Part, Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {
             keepPreviousData: true,
             enabled: params?.part_id != undefined
@@ -357,8 +416,11 @@ export function useGetPart(params: {part_id: number} | undefined) {
 export function useGetMeterPartsList(params: MeterPartParams | undefined) {
     const route = 'meter_parts'
     const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
     return useQuery<Part[], Error>([route, params], () =>
-        GETFetch(route, params, authHeader()),
+        GETFetch(route, params, authHeader(), signOut, navigate),
         {
             enabled: params?.meter_id != undefined
         }
@@ -367,6 +429,7 @@ export function useGetMeterPartsList(params: MeterPartParams | undefined) {
 
 export function useGetST2WaterLevels(datastreamID: number | undefined) {
     const route = `Datastreams(${datastreamID})/Observations`
+
     return useQuery<ST2Measurement[], Error>([route, datastreamID], () =>
         GETST2Fetch(route),
         {enabled: !!datastreamID}

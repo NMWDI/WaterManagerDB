@@ -57,7 +57,7 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
 @part_router.patch(
     "/part",
     response_model=part_schemas.Part,
-    dependencies=[Depends(ScopedUser.Read)],
+    dependencies=[Depends(ScopedUser.Admin)],
     tags=["Parts"],
 )
 async def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
