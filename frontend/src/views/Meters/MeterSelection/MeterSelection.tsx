@@ -39,15 +39,14 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
                         </Tabs>
                         </Grid>
                         <Grid item xs={3}>
-                            {currentTabIndex == 0 &&
-                                <TextField
-                                    sx={{mt: 1}}
-                                    label="Search Meter"
-                                    variant="outlined"
-                                    size="small"
-                                    value={meterSearchQuery}
-                                    onChange={(e) => {setMeterSearchQuery(e.target.value)}}
-                                />}
+                            <TextField
+                                sx={{mt: 1}}
+                                label="Search Meter"
+                                variant="outlined"
+                                size="small"
+                                value={meterSearchQuery}
+                                onChange={(e) => {setMeterSearchQuery(e.target.value)}}
+                            />
                         </Grid>
                     </Grid>
 

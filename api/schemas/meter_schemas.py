@@ -37,6 +37,22 @@ class MeterListDTO(ORMBase):
     location: Optional[LocationDTO]
     status: Optional[StatusDTO]
 
+# Similar to MeterListDTO, but focused on location and installed meters
+class MeterMapDTO(ORMBase):
+    class WellDTO(ORMBase): 
+        ra_number: Optional[str]
+        name: Optional[str]
+
+    class LocationDTO(ORMBase):
+        trss: Optional[str]
+        longitude: Optional[float]
+        latitude: Optional[float]
+
+    id: int
+    serial_number: str
+    well: Optional[WellDTO]
+    location: Optional[LocationDTO]
+
 
 class MeterStatusLU(ORMBase):
     status_name: Optional[str]

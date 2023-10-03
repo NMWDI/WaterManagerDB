@@ -120,30 +120,47 @@ async def create_meter(
 
     return new_meter_model
 
+ 
+# Get search for meters similar to /meters but no pagination and only for installed meters 
+# Returns all installed meters with a location when search is None
+@meter_router.get(
+    "/meters_locations",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[meter_schemas.MeterMapDTO],
+    tags=["Meters"],
+)
+async def get_meters_locations(
+    search_string: str = None,
+    db: Session = Depends(get_db),
+):
+    
+    # Build the query statement based on query params
+    # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
+    query_statement = (
+        select(Meters)
+        .join(Wells, isouter=True)
+        .join(Locations, isouter=True)
+    )
 
-# Get list of all meters and their coordinates (if they have them)
-# @meter_router.get(
-#     "/meters_locations",
-#     dependencies=[Depends(ScopedUser.Read)],
-#     response_model=List[meter_schemas.MeterMapDTO],
-#     tags=["Meters"],
-# )
-# async def get_meters_locations(
-#     db: Session = Depends(get_db),
-# ):
-#     return db.scalars(
-#         select(Meters)
-#         .options(joinedload(Meters.well))
-#         .where(
-#             and_(
-#                 Locations.latitude.is_not(None),
-#                 Locations.longitude.is_not(None),
-#                 Meters.status_id == 1,  # Need to improve this
-#             )
-#         )
-#         .join(Wells, isouter=True)
-#         .join(Locations, isouter=True)
-#     ).all()
+    # Ensure there are coordinates and meter is installed
+    query_statement = query_statement.where(
+            and_(
+                Locations.latitude.is_not(None),
+                Locations.longitude.is_not(None),
+                Meters.status_id == 1
+            )
+    )
+
+    if search_string:
+        query_statement = query_statement.where(
+            or_(
+                Meters.serial_number.ilike(f"%{search_string}%"),
+                Wells.ra_number.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%")
+            )
+        )
+
+    return db.scalars(query_statement).all()
 
 
 # Get single, fully qualified meter
