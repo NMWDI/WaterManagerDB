@@ -73,8 +73,7 @@ async def get_meters(
             or_(
                 Meters.serial_number.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
-                Locations.trss.ilike(f"%{search_string}%"),
-                LandOwners.organization.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%")
             )
         )
 

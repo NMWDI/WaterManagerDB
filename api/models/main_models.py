@@ -157,7 +157,7 @@ class MeterTypeLU(Base):
     description = Column(String)
     in_use = Column(Boolean, nullable=False)
 
-    parts = relationship("Parts", secondary="PartAssociation")
+    #parts = relationship("Parts", secondary="PartAssociation")
 
 
 class MeterStatusLU(Base):
