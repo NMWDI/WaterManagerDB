@@ -56,7 +56,7 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
                     </TabPanel>
 
                     <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
-                        <MeterSelectionMap onMeterSelection={onMeterSelection}/>
+                        <MeterSelectionMap onMeterSelection={onMeterSelection} meterSearch={meterSearchQuery}/>
                     </TabPanel>
                 </Box>
                 </CardContent>

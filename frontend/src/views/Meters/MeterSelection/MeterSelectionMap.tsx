@@ -1,4 +1,6 @@
 import React from 'react'
+import { useState, useEffect } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { MeterMapDTO } from '../../../interfaces'
@@ -15,11 +17,20 @@ const DefaultIcon = L.icon({iconUrl: icon, shadowUrl: iconShadow})
 L.Marker.prototype.options.icon = DefaultIcon
 
 interface MeterSelectionMapProps {
+    meterSearch: string
     onMeterSelection: Function
 }
 
-export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
-    const meters = useGetMeterLocations()
+export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
+    
+    const [meterSearchDebounced] = useDebounce(meterSearch, 250)
+    const meters = useGetMeterLocations(meterSearchDebounced)
+    
+
+    // // Re-load map when search is changed
+    // useEffect(() => {
+    //     setMeterListQueryParams(newParams)
+    // }, [meterSearchQueryDebounced, gridSortModel, gridPage, gridPageSize])
 
     const mapStyle = {
         height: '100%',
@@ -30,7 +41,7 @@ export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapP
             return (
                 <Marker
                     key={meter.id}
-                    position={[meter.well?.location?.latitude, meter.well?.location?.longitude]}
+                    position={[meter.location?.latitude, meter.location?.longitude]}
                     eventHandlers={{
                         click: () => {onMeterSelection(meter.id)}
                     }}

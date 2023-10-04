@@ -329,11 +329,14 @@ export interface MeterListQueryParams {
 
 export interface MeterMapDTO {
     id: number
+    serial_number: string
     well: {
-        location: {
-            longitude: number
-            latitude: number
-        }
+        ra_number: string
+        name: string
+    }   
+    location: {
+        longitude: number
+        latitude: number
     }
 }
 

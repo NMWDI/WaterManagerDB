@@ -184,14 +184,14 @@ export function useGetMeterList(params: MeterListQueryParams | undefined) {
     )
 }
 
-export function useGetMeterLocations() {
+export function useGetMeterLocations(searchstring: string | undefined) {
     const route = 'meters_locations'
     const authHeader = useAuthHeader()
     const navigate = useNavigate()
     const signOut = useSignOut()
 
     return useQuery<MeterMapDTO[], Error>([route], () =>
-        GETFetch(route, null, authHeader(), signOut, navigate),
+        GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
     )
 }
 
