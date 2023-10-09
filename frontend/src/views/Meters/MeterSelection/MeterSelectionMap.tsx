@@ -22,47 +22,48 @@ interface MeterSelectionMapProps {
 }
 
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
-    
-    const [meterSearchDebounced] = useDebounce(meterSearch, 250)
-    const meters = useGetMeterLocations(meterSearchDebounced)
-    
-
-    // // Re-load map when search is changed
-    // useEffect(() => {
-    //     setMeterListQueryParams(newParams)
-    // }, [meterSearchQueryDebounced, gridSortModel, gridPage, gridPageSize])
+     
+    const [meterSearchDebounced] = useDebounce(meterSearch, 100)
+    const [meterSearchQuery, setMeterSearchQuery] = useState<string>('')
+    console.log(meterSearchDebounced)
 
     const mapStyle = {
         height: '100%',
         width: '100%'
     }
 
-    const meterMarkers = meters.data?.map((meter: MeterMapDTO) => {
-            return (
-                <Marker
-                    key={meter.id}
-                    position={[meter.location?.latitude, meter.location?.longitude]}
-                    eventHandlers={{
-                        click: () => {onMeterSelection(meter.id)}
-                    }}
-                ></Marker>
-              )
-        })
+    const meterMarkers = useGetMeterLocations(meterSearchDebounced)
+    const meterMarkersMap = meterMarkers.data?.map((meter: MeterMapDTO) => {
+        return (
+            <Marker
+                key={meter.id}
+                position={[meter.location?.latitude, meter.location?.longitude]}
+                eventHandlers={{
+                    click: () => {onMeterSelection(meter.id)}
+                }}
+            ></Marker>
+        )})
+    
+    
+    // console.log(meterMarkers.data)
+
+    // useEffect(() => {
+    //     setMeterSearchQuery(meterSearchDebounced)
+    // }, [meterSearchDebounced])
 
     return (
             <MapContainer
-                center={[34.5199, -105.8701]}
+                center={[34.5199, -104.8701]}
                 zoom={7}
                 style={mapStyle}
                 maxBounds={L.latLngBounds([30.38, -110.76], [38.56, -101.79])}
-                maxZoom={13}
+                maxZoom={14}
                 >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-
-                {meterMarkers}
+                {meterMarkersMap}            
             </MapContainer>
         )
 }

@@ -189,6 +189,8 @@ export function useGetMeterLocations(searchstring: string | undefined) {
     const authHeader = useAuthHeader()
     const navigate = useNavigate()
     const signOut = useSignOut()
+    console.log('inside get meter locations')
+    console.log(searchstring)
 
     return useQuery<MeterMapDTO[], Error>([route], () =>
         GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
