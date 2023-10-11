@@ -157,7 +157,7 @@ class MeterTypeLU(Base):
     description = Column(String)
     in_use = Column(Boolean, nullable=False)
 
-    #parts = relationship("Parts", secondary="PartAssociation")
+    # parts = relationship("Parts", secondary="PartAssociation")
 
 
 class MeterStatusLU(Base):
@@ -217,7 +217,9 @@ class MeterObservations(Base):
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    observed_property_type_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    observed_property_type_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
@@ -369,8 +371,8 @@ class Wells(Base):
     """
 
     name = Column(String)
-    ra_number = Column(String)      # RA Number is an OSE well identifier
-    osepod = Column(String)         # Another OSE identifier?
+    ra_number = Column(String)  # RA Number is an OSE well identifier
+    osepod = Column(String)  # Another OSE identifier?
 
     use_type_id = Column(Integer, ForeignKey("WellUseLU.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
@@ -387,7 +389,9 @@ class WellMeasurements(Base):
     timestamp = Column(DateTime, default=func.now(), nullable=False)
     value = Column(Float, nullable=False)
 
-    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
     submitting_user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)

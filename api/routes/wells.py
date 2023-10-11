@@ -7,11 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import well_schemas
-from api.models.main_models import (
-    Locations,
-    WellUseLU,
-    Wells
-)
+from api.models.main_models import Locations, WellUseLU, Wells
 from api.route_util import _patch
 from api.session import get_db
 from api.enums import ScopedUser, WellSortByField, SortDirection
@@ -97,7 +93,7 @@ async def get_wells(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Wells"],
 )
-async def update_well (
+async def update_well(
     updated_well: well_schemas.SubmitWellUpdate, db: Session = Depends(get_db)
 ):
     # Update well and location
@@ -112,10 +108,7 @@ async def update_well (
     updated_well_model = db.scalars(
         select(Wells)
         .where(Wells.id == updated_well.id)
-        .options(
-            joinedload(Wells.use_type),
-            joinedload(Wells.location)
-        )
+        .options(joinedload(Wells.use_type), joinedload(Wells.location))
     ).first()
 
     # Return qualified well model
@@ -130,14 +123,13 @@ async def update_well (
 async def create_well(
     new_well: well_schemas.SubmitWellCreate, db: Session = Depends(get_db)
 ):
-
     # First, commit the new location that was added with the new well
     new_location_model = Locations(
-        name = new_well.location.name,
-        type_id = 2,
-        trss = new_well.location.trss,
-        latitude = new_well.location.latitude,
-        longitude = new_well.location.longitude
+        name=new_well.location.name,
+        type_id=2,
+        trss=new_well.location.trss,
+        latitude=new_well.location.latitude,
+        longitude=new_well.location.longitude,
     )
 
     db.add(new_location_model)
@@ -147,11 +139,11 @@ async def create_well(
     # Then, commit the well using the location we just created
     try:
         new_well_model = Wells(
-            name = new_well.name,
-            use_type_id = new_well.use_type.id,
-            location_id = new_location_model.id,
-            ra_number = new_well.ra_number,
-            osepod = new_well.osepod
+            name=new_well.name,
+            use_type_id=new_well.use_type.id,
+            location_id=new_location_model.id,
+            ra_number=new_well.ra_number,
+            osepod=new_well.osepod,
         )
 
         db.add(new_well_model)

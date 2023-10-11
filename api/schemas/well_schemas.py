@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from api.schemas.security_schemas import User
 from api.schemas.base import ORMBase
 
+
 class ORMBaseSimple(BaseModel):
     class Config:
         orm_mode = True
@@ -113,7 +114,9 @@ class WellMeasurement(ORMBase):
     unit_id: int
     well_id: int
 
-    observed_property: Optional[Any] #ObservedProeprtyTypeLU, but cant import bc of circular imports
+    observed_property: Optional[
+        Any
+    ]  # ObservedProeprtyTypeLU, but cant import bc of circular imports
     submitting_user: Optional[User]
 
 

@@ -37,6 +37,7 @@ expired_token_exception = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
+
 # Return the current user if credentials were correct, False if not
 def authenticate_user(username: str, password: str):
     user = get_user(username)
@@ -46,6 +47,7 @@ def authenticate_user(username: str, password: str):
         return False
     return user
 
+
 # Helper function to create JWT token
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
     to_encode = data.copy()
@@ -53,7 +55,7 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(hours = ACCESS_TOKEN_EXPIRE_HOURS)
+        expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -100,7 +102,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         if username is None:
             raise invalid_credentials_exception
 
-        user = get_user(username=username) # dont base off username since its not unique
+        user = get_user(
+            username=username
+        )  # dont base off username since its not unique
         if user is None:
             raise invalid_credentials_exception
 
@@ -116,7 +120,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 # Provide a list of scope_strings, recieve the current user if those scopes are present, raise auth exception if not
 def scoped_user(scopes):
     def get_user(current_user: security_models.Users = Security(get_current_user)):
-        current_user_scope_strings = list(map(lambda x: x.scope_string, current_user.user_role.security_scopes))
+        current_user_scope_strings = list(
+            map(lambda x: x.scope_string, current_user.user_role.security_scopes)
+        )
 
         for scope in scopes:
             if scope not in current_user_scope_strings:
@@ -129,10 +135,9 @@ def scoped_user(scopes):
 
 authenticated_router = APIRouter(dependencies=[Depends(scoped_user(["read"]))])
 
+
 @authenticated_router.get(
-    "/users/me",
-    response_model=security_schemas.User,
-    tags=["Login"]
+    "/users/me", response_model=security_schemas.User, tags=["Login"]
 )
 async def read_users_me(
     current_user: security_schemas.User = Depends(get_current_user),

@@ -35,7 +35,9 @@ activity_router = APIRouter()
     dependencies=[Depends(ScopedUser.ActivityWrite)],
     tags=["Activities"],
 )
-async def post_activity(activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db)):
+async def post_activity(
+    activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db)
+):
     """
     Handles submission of an activity.
     """

@@ -27,6 +27,7 @@ from api.enums import ScopedUser
 
 well_measurement_router = APIRouter()
 
+
 @well_measurement_router.post(
     "/waterlevels",
     dependencies=[Depends(ScopedUser.WellMeasurementWrite)],

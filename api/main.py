@@ -34,15 +34,21 @@ from api.security import (
     authenticate_user,
     create_access_token,
     ACCESS_TOKEN_EXPIRE_HOURS,
-    authenticated_router
+    authenticated_router,
 )
 
 tags_metadata = [
     {"name": "Wells", "description": "Well Related Endpoints"},
     {"name": "Parts", "description": "Part Related Endpoints"},
     {"name": "Meters", "description": "Meter Related Endpoints"},
-    {"name": "Activities", "description": "Activity Submission and Viewing Related Endpoints"},
-    {"name": "WaterLevels", "description": "Groundwater Depth and Chloride Measurement Related Endpoints"},
+    {
+        "name": "Activities",
+        "description": "Activity Submission and Viewing Related Endpoints",
+    },
+    {
+        "name": "WaterLevels",
+        "description": "Groundwater Depth and Chloride Measurement Related Endpoints",
+    },
     {"name": "OSE", "description": "Endpoints Used by the OSE to Generate Reports"},
     {"name": "Admin", "description": "Admin Functionality Related Endpoints"},
     {"name": "Login", "description": "User Auth and Token Related Endpoints"},
@@ -107,7 +113,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                 map(lambda scope: scope.scope_string, user.user_role.security_scopes)
             ),
         },
-        expires_delta = timedelta(hours = ACCESS_TOKEN_EXPIRE_HOURS),
+        expires_delta=timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
     )
     return {"access_token": access_token, "token_type": "bearer", "user": user}
 

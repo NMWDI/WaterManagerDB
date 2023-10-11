@@ -19,7 +19,7 @@ class MeterTypeLU(ORMBase):
 
 # The minimal information used by the meters list
 class MeterListDTO(ORMBase):
-    class WellDTO(ORMBase): 
+    class WellDTO(ORMBase):
         ra_number: Optional[str]
         name: Optional[str]
 
@@ -37,9 +37,10 @@ class MeterListDTO(ORMBase):
     location: Optional[LocationDTO]
     status: Optional[StatusDTO]
 
+
 # Similar to MeterListDTO, but focused on location and installed meters
 class MeterMapDTO(ORMBase):
-    class WellDTO(ORMBase): 
+    class WellDTO(ORMBase):
         ra_number: Optional[str]
         name: Optional[str]
 
