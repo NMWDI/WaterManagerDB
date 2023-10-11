@@ -1,6 +1,3 @@
-# ===============================================================================
-# Models in database
-# ===============================================================================
 from sqlalchemy import (
     Column,
     Integer,
@@ -38,10 +35,15 @@ class Base:
 
 
 class PartTypeLU(Base):
+    """
+    The types of parts
+    """
+
     name = Column(String)
     description = Column(String)
 
 
+# Association table that links meter types and their commonly used parts
 PartAssociation = Table(
     "PartAssociation",
     Base.metadata,
@@ -51,8 +53,11 @@ PartAssociation = Table(
 
 
 class Parts(Base):
+    """
+    All parts
+    """
+
     part_number = Column(String, unique=True, nullable=False)
-    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
     description = Column(String)
     vendor = Column(String)
     count = Column(Integer, default=0)
@@ -60,16 +65,20 @@ class Parts(Base):
     in_use = Column(Boolean, nullable=False, default=True)
     commonly_used = Column(Boolean, nullable=False, default=False)
 
+    part_type_id = Column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+
     part_type = relationship("PartTypeLU")
+
+    # The meter types associated with this part
     meter_types = relationship("MeterTypeLU", secondary="PartAssociation")
 
 
+# Association table that links parts and the meter activity they were used on
 PartsUsed = Table(
     "PartsUsed",
     Base.metadata,
     Column("meter_activity_id", ForeignKey("MeterActivities.id"), nullable=False),
     Column("part_id", ForeignKey("Parts.id"), nullable=False),
-    Column("count", Integer),
 )
 
 
@@ -82,6 +91,7 @@ class ServiceTypeLU(Base):
     description = Column(String)
 
 
+# Association table that links meter activities and the services that were performed during
 ServicesPerformed = Table(
     "ServicesPerformed",
     Base.metadata,
@@ -92,14 +102,18 @@ ServicesPerformed = Table(
 
 class NoteTypeLU(Base):
     """
-    Commonly used notes associated with meter activities
+    Pre-defined notes that can be set on activities
     """
 
     note = Column(String)
     details = Column(String)
+
+    # Either one of the special 3 slugs that represent the working status of a meter or null
+    # working | not-working | not-checked | null
     slug = Column(String)
 
 
+# Association table that links notes and the meter activity they were added to
 Notes = Table(
     "Notes",
     Base.metadata,
@@ -118,29 +132,22 @@ class Meters(Base):
     serial_number = Column(String, nullable=False)
     contact_name = Column(String)  # Contact information specific to particular meter
     contact_phone = Column(String)
-
-    well_distance_ft = Column(Float)  # Distance of meter install from well
     notes = Column(String)
 
     meter_type_id = Column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
-    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"))
-    well_id = Column(Integer, ForeignKey("Wells.id"))
-    location_id = Column(Integer, ForeignKey("Locations.id"))
+    status_id = Column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
+    well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
+    location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
-    meter_type = relationship("MeterTypeLU", lazy="noload")
-    status = relationship("MeterStatusLU", lazy="noload")
-    well = relationship("Wells", lazy="noload")
-    location = relationship("Locations", lazy="noload")
-
-    @property
-    def land_owner_organization(self):
-        return self.well.location.land_owner.organization
+    meter_type = relationship("MeterTypeLU")
+    status = relationship("MeterStatusLU")
+    well = relationship("Wells")
+    location = relationship("Locations")
 
 
 class MeterTypeLU(Base):
     """
-    Details different meter types, but does not include parts
-    - See parts table for sub-components
+    Meter types
     """
 
     brand = Column(String)
@@ -148,9 +155,9 @@ class MeterTypeLU(Base):
     model_number = Column(String)
     size = Column(Float)
     description = Column(String)
-    in_use = Column(Boolean)
+    in_use = Column(Boolean, nullable=False)
 
-    parts = relationship("Parts", secondary="PartAssociation")
+    #parts = relationship("Parts", secondary="PartAssociation")
 
 
 class MeterStatusLU(Base):
@@ -171,7 +178,7 @@ class MeterActivities(Base):
     timestamp_end = Column(DateTime, nullable=False)
     description = Column(String)
 
-    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
@@ -193,7 +200,10 @@ class ActivityTypeLU(Base):
 
     name = Column(String)
     description = Column(String)
-    permission = Column(String)  # Specifies who can perform this activity
+
+    # Specifies who can perform this activity (must be either 'technician' or 'admin')
+    # If admin, only admins can perform, if technician then technician or admin can perform
+    permission = Column(String)
 
 
 class MeterObservations(Base):
@@ -207,9 +217,7 @@ class MeterObservations(Base):
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
-    observed_property_type_id = Column(
-        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
-    )
+    observed_property_type_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
 
@@ -222,13 +230,14 @@ class MeterObservations(Base):
 
 class ObservedPropertyTypeLU(Base):
     """
-    Defines the types of observations made during meter maintenance
+    Defines the types of observations made on a meter
     """
 
     name = Column(String)
     description = Column(String)
-    context = Column(String)  # Specifies if property associated with meter or well
+    context = Column(String)  # Specifies if property associated with 'meter' or 'well'
 
+    # The units that can be used on this property type
     units = relationship("Units", secondary="PropertyUnits")
 
 
@@ -242,6 +251,7 @@ class Units(Base):
     description = Column(String)
 
 
+# Association table that links observed property types and their appropriate units
 PropertyUnits = Table(
     "PropertyUnits",
     Base.metadata,
@@ -254,11 +264,10 @@ PropertyUnits = Table(
 
 class Locations(Base):
     """
-    Table for tracking information about a meters location
+    Table for tracking information about a well's location
     """
 
     name = Column(String)
-    type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
     trss = Column(String)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
@@ -268,11 +277,13 @@ class Locations(Base):
     quarter = Column(Integer)
     half_quarter = Column(Integer)
     quarter_quarter = Column(Integer)
+    # geom = Column(Geometry("POINT")) # SQLAlchemy/FastAPI has some issue sending this
+
+    type_id = Column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
     land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
 
     land_owner = relationship("LandOwners")
-
-    geom = Column(Geometry("POINT"))
+    type = relationship("LocationTypeLU")
 
     @property
     def lat(self):
@@ -291,9 +302,6 @@ class Locations(Base):
     @property
     def location(self):
         return f"{self.township}.{self.range}.{self.section}.{self.quarter}.{self.half_quarter}"
-
-    land_owner_id = Column(Integer, ForeignKey("LandOwners.id"))
-    land_owner = relationship("LandOwners")
 
 
 class LocationTypeLU(Base):
@@ -323,8 +331,8 @@ class LandOwners(Base):
     note = Column(String)
 
 
+# Not used
 class Alerts(Base):
-    # id = Column(Integer, primary_key=True, index=True)
     alert = Column(String)
     open_timestamp = Column(DateTime, default=func.now())
     closed_timestamp = Column(DateTime)
@@ -344,55 +352,49 @@ class Alerts(Base):
 
 # ------------ Wells --------------
 
-WellUseLU = Table(
-    "WellUseLU",
-    Base.metadata,
-    Column("id", Integer, primary_key=True, index=True, autoincrement=True),
-    Column("use_type", String, nullable=False),
-    Column("code", String),
-    Column("description", String),
-)
+
+class WellUseLU(Base):
+    """
+    The type of well
+    """
+
+    use_type = Column(String, nullable=False)
+    code = Column(String)
+    description = Column(String)
 
 
 class Wells(Base):
+    """
+    All wells
+    """
+
     name = Column(String)
+    ra_number = Column(String)      # RA Number is an OSE well identifier
+    osepod = Column(String)         # Another OSE identifier?
+
     use_type_id = Column(Integer, ForeignKey("WellUseLU.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))
-    ra_number = Column(String)  # RA Number is an OSE well identifier
-    osepod = Column(String)  # Another OSE identifier?
-    well_distance_ft: Column(Float)
 
+    use_type = relationship("WellUseLU")
     location = relationship("Locations")
 
 
-class WellConstructions(Base):
-    casing_diameter = Column(Float, default=0)
-    hole_depth = Column(Float, default=0)
-    well_depth = Column(Float, default=0)
-    well_id = Column(Integer, ForeignKey("Wells.id"))
-
-
-class ScreenIntervals(Base):
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    top = Column(Float)
-    bottom = Column(Float)
-    well_construction_id = Column(Integer, ForeignKey("WellConstructions.id"))
-
-
 class WellMeasurements(Base):
+    """
+    The measurements made on a monitored well
+    """
+
     timestamp = Column(DateTime, default=func.now(), nullable=False)
     value = Column(Float, nullable=False)
 
-    observed_property_id = Column(
-        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
-    )
-    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
+    observed_property_id = Column(Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False)
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
     unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
     well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
 
+    observed_property = relationship("ObservedPropertyTypeLU")
     submitting_user = relationship("Users")
+    unit = relationship("Units")
+    well = relationship("Wells")
 
-
-class QC(Base):
-    timestamp = Column(DateTime, default=func.now())
-    status = Column(Boolean)
+    submitting_user = relationship("Users")

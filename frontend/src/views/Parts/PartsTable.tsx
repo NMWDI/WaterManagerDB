@@ -28,12 +28,12 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
         {field: 'count', headerName: 'Count'},
         {field: 'in_use', headerName: 'In Use',
             renderCell: (params: any) => params.value == true ?
-                <Chip variant="outlined" label="True" color="success"/> :
-                <Chip variant="outlined" label="False" color="error"/> },
+                <Chip variant="outlined" size="small" label="True" color="success"/> :
+                <Chip variant="outlined" size="small" label="False" color="error"/> },
         {field: 'commonly_used', headerName: 'Commonly Used',
             renderCell: (params: any) => params.value == true ?
-                <Chip variant="outlined" label="True" color="success"/> :
-                <Chip variant="outlined" label="False" color="error"/> }
+                <Chip variant="outlined" size="small" label="True" color="success"/> :
+                <Chip variant="outlined" size="small" label="False" color="error"/> }
     ]
 
     // Filter rows based on search. Cant use multiple filters w/o pro datagrid
@@ -98,7 +98,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     componentsProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setPartAddMode(true)}>
-                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part Type
+                                <AddIcon style={{fontSize: '1rem'}}/>Add a New Part
                             </Button>
                     }}}
                     disableColumnFilter

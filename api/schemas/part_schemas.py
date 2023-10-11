@@ -1,40 +1,27 @@
-"""
-FastAPI input and response schemas related to PVACD parts
-"""
-
 from typing import List, Optional, Any
-from pydantic import BaseModel
+from api.schemas.base import ORMBase
 
 
-class ORMBase(BaseModel):
-    id: Optional[int] = None
-
-    class Config:
-        orm_mode = True
+class PartTypeLU(ORMBase):
+    name: Optional[str]
+    description: Optional[str]
 
 
 class Part(ORMBase):
-    """
-    Complete description of a part
-    """
-
     part_number: str
-    part_type_id: Optional[int]
     description: Optional[str]
     vendor: Optional[str]
-    count: Optional[int]
+    count: int
     note: Optional[str]
     in_use: bool
     commonly_used: bool
+
+    part_type_id: Optional[int]
+
     part_type: Optional[Any]
-    meter_types: Optional[List[Any]]
+    meter_types: Optional[List[Any]] # MeterTypeLU, but cant import bc of circular imports
 
 
 class PartUsed(ORMBase):
-    """
-    Describes quantity used of a given part number
-    """
-
     part_id: int
     meter_id: int
-    count: int

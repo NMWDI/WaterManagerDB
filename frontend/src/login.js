@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useSignIn } from 'react-auth-kit'
 import {Box, TextField, Button, Card, CardContent, CardHeader} from "@mui/material";
 import { API_URL } from "./API_config.js"
+import { enqueueSnackbar } from "notistack";
 
 export default function Login() {
     const [userval, setUserVal] = useState('')
@@ -38,6 +39,11 @@ export default function Login() {
             //Successful authorization
             r.json().then(
                 data => {
+                    // Dont allow login if user does not have read scope
+                    if (!data?.user?.user_role?.security_scopes?.map((scope) => scope.scope_string).find((scope_string) => scope_string == 'read')) {
+                        enqueueSnackbar('Your role does not have access to the site UI. Please try accessing data via our API.', {variant: 'error'})
+                        return
+                    }
                     if(signIn({
                       token: data.access_token,
                       expiresIn: 30,
@@ -45,6 +51,7 @@ export default function Login() {
                       authState: data.user
                     })){
                         localStorage.setItem("_auth", data.access_token)
+                        localStorage.setItem('loggedIn', 'true')
                         console.log('Sign-in successful')
                         navigate('/home')
                     }else{

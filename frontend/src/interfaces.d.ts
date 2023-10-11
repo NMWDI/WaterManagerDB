@@ -1,4 +1,4 @@
-import { SortDirection, MeterSortByField } from 'enums'
+import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
 import { ActivityType } from './enums'
 
@@ -86,11 +86,17 @@ export interface MeterActivity {
 }
 
 export interface ObservationForm {
-    // id: number // Just used for tracking them in the UI
     time: Dayjs
     reading: '' | number
     property_type_id: '' | number
     unit_id: '' | number
+}
+
+export interface WellUseLU {
+    id: number
+    use_type?: string
+    code?: string
+    description?: string
 }
 
 export interface PartTypeLU {
@@ -142,13 +148,58 @@ export interface NoteTypeLU {
     slug?: string
 }
 
+export interface WellUseLU {
+    id: number
+    use_type: string
+    code: string
+    description: string
+}
+
+export interface SubmitWellUpdate {
+    id: number
+    name: string
+    ra_number: string
+    osepod: string
+
+    use_type: {
+        id: number
+    }
+
+    location: {
+        name: string,
+        trss: string,
+        longitude: float,
+        latitude: float
+    }
+}
+
+export interface SubmitWellCreate {
+    name: string
+    ra_number: string
+    osepod: string
+
+    use_type: {
+        id: number
+    }
+
+    location: {
+        name: string,
+        trss: string,
+        longitude: float,
+        latitude: float
+    }
+}
+
 export interface Well {
     id: int
     name?: string | null
     location_id?: number | null
+    well_distance_ft?: number | null
+    use_type_id?: number | null
     ra_number?: string | null
     osepod?: string | null
-    well_distance_ft?: number | null
+
+    use_type: WellUseLU | null
     location: Location | null
 }
 
@@ -278,11 +329,14 @@ export interface MeterListQueryParams {
 
 export interface MeterMapDTO {
     id: number
+    serial_number: string
     well: {
-        location: {
-            longitude: number
-            latitude: number
-        }
+        ra_number: string
+        name: string
+    }   
+    location: {
+        longitude: number
+        latitude: number
     }
 }
 
@@ -291,21 +345,22 @@ export interface Organization {
 }
 
 export interface Meter {
+    id: number
     serial_number: string
     contact_name?: string
     contact_phone?: string
-    tag?: string
-
-    well_distance_ft?: float
+    well_distance_ft?: number
     notes?: string
 
-    meter_type_id?: number
+    meter_type_id: number
     status_id?: number
-    well_id?: number
+    well_id: number
+    location_id?: number
 
     meter_type?: MeterType
     status?: MeterStatus
     well?: Well
+    location?: Location
 }
 
 export interface MeterListDTO {
@@ -323,8 +378,13 @@ export interface MeterListDTO {
     }
 }
 
-interface WellSearchQueryParams {
-    search_string: string | undefined
+interface WellListQueryParams {
+    search_string?: string
+    // sort_by?: WellSortByField
+    sort_direction?: SortDirection
+    limit?: number
+    offset?: number
+    exclude_inactive?: boolean
 }
 
 export interface Page<T> {

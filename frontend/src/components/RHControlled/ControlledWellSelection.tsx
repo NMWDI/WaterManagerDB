@@ -6,6 +6,7 @@ import { useDebounce } from 'use-debounce'
 import { useGetWells } from '../../service/ApiServiceNew'
 import { Well } from '../../interfaces'
 import ControlledAutocomplete from './ControlledAutocomplete'
+import { isNull } from 'util'
 
 export default function ControlledWellSelection({name, control, ...childProps}: any) {
     const [wellSearchQuery, setWellSearchQuery] = useState<string>('')

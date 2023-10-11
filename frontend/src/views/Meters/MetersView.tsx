@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 
 import MeterSelection from './MeterSelection/MeterSelection'
@@ -9,6 +9,11 @@ import { Grid, Box } from '@mui/material'
 
 export default function MetersView() {
     const [selectedMeterID, setSelectedMeterID] = useState<number>()
+    const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (selectedMeterID) setMeterAddMode(false)
+    }, [selectedMeterID])
 
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>
@@ -17,10 +22,10 @@ export default function MetersView() {
                 {/* Top half of page: MeterSelection, MeterDetails */}
                 <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '60vh'}}}>
                     <Grid item xs={6}>
-                        <MeterSelection onMeterSelection={setSelectedMeterID}/>
+                        <MeterSelection onMeterSelection={setSelectedMeterID} setMeterAddMode={setMeterAddMode}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <MeterDetailsFields selectedMeterID={selectedMeterID} />
+                        <MeterDetailsFields selectedMeterID={selectedMeterID} meterAddMode={meterAddMode}/>
                     </Grid>
                 </Grid>
 

@@ -1,13 +1,10 @@
-# ===============================================================================
-# Routes supporting PVACD activities and observations
-# ===============================================================================
-
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from datetime import datetime
+from typing import List
 
-from api.schemas.meter_schemas import ActivityForm
+from api.schemas import meter_schemas
 from api.models.main_models import (
     Meters,
     ObservedPropertyTypeLU,
@@ -18,20 +15,15 @@ from api.models.main_models import (
     MeterObservations,
     ServiceTypeLU,
     NoteTypeLU,
-    PartAssociation,
     Wells,
     Locations,
     MeterStatusLU,
-    PartTypeLU,
 )
 from api.models.security_models import Users
-from api.security import scoped_user
 from api.session import get_db
+from api.enums import ScopedUser
 
 activity_router = APIRouter()
-
-activity_write_user = scoped_user(["read", "activities:write"])
-read_user = scoped_user(["read"])
 
 
 # Process a submitted activity
@@ -39,10 +31,15 @@ read_user = scoped_user(["read"])
 # Returns the new MeterActivity on success
 @activity_router.post(
     "/activities",
-    dependencies=[Depends(activity_write_user)],
+    response_model=meter_schemas.MeterActivity,
+    dependencies=[Depends(ScopedUser.ActivityWrite)],
     tags=["Activities"],
 )
-async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_db)):
+async def post_activity(activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db)):
+    """
+    Handles submission of an activity.
+    """
+
     activity_meter = db.scalars(
         select(Meters).where(activity_form.activity_details.meter_id == Meters.id)
     ).first()
@@ -176,7 +173,8 @@ async def post_activity(activity_form: ActivityForm, db: Session = Depends(get_d
 
 @activity_router.get(
     "/activity_types",
-    dependencies=[Depends(read_user)],
+    response_model=List[meter_schemas.ActivityTypeLU],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_activity_types(db: Session = Depends(get_db)):
@@ -185,7 +183,7 @@ async def get_activity_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/users",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_users(db: Session = Depends(get_db)):
@@ -194,7 +192,8 @@ async def get_users(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/units",
-    dependencies=[Depends(read_user)],
+    response_model=List[meter_schemas.Unit],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_units(db: Session = Depends(get_db)):
@@ -203,7 +202,8 @@ async def get_units(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/observed_property_types",
-    dependencies=[Depends(read_user)],
+    response_model=List[meter_schemas.ObservedPropertyTypeLU],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_observed_property_types(db: Session = Depends(get_db)):
@@ -220,7 +220,8 @@ async def get_observed_property_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/service_types",
-    dependencies=[Depends(read_user)],
+    response_model=List[meter_schemas.ServiceTypeLU],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_service_types(db: Session = Depends(get_db)):
@@ -229,7 +230,7 @@ async def get_service_types(db: Session = Depends(get_db)):
 
 @activity_router.get(
     "/note_types",
-    dependencies=[Depends(read_user)],
+    dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
 async def get_note_types(db: Session = Depends(get_db)):

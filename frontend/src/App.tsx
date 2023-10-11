@@ -1,9 +1,12 @@
 import './App.css';
-import React from 'react'
-import Sidenav from './sidenav'
-import { AuthProvider, useAuthUser } from 'react-auth-kit'; //https://authkit.arkadip.dev/
-import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
+import React, { useEffect, useState } from 'react'
+import { AuthProvider, useAuthUser } from 'react-auth-kit';
+import {Route, BrowserRouter as Router, Routes, useNavigate} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { SnackbarProvider, enqueueSnackbar } from 'notistack'
+import { Grid } from '@mui/material';
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
@@ -11,20 +14,35 @@ import MetersView from './views/Meters/MetersView'
 import ChloridesView from "./views/Chlorides/ChloridesView";
 import PartsView from "./views/Parts/PartsView";
 
+import Sidenav from './sidenav'
 import Home from "./Home";
 import Topbar from "./components/Topbar";
 import Login from './login';
-import RequireScopes from './components/RequireScopes'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers'
-import { SnackbarProvider } from 'notistack'
 import UserManagementView from './views/UserManagement/UserManagementView';
-import { Grid } from '@mui/material';
+import WellManagementView from './views/WellManagement/WellManagementView';
+import { SecurityScope } from './interfaces';
 
-const queryClient = new QueryClient()
+// A wrapper that handles checking that the user is logged in and has any necessary scopes
+function AppLayout({pageComponent, requiredScopes = null, setErrorMessage = null}: any) {
+    const authUser = useAuthUser()
+    const navigate = useNavigate()
 
-function AppLayout({pageComponent}: any) {
-    return (
+    const isLoggedIn = authUser() != null
+    const userScopes = authUser()?.user_role?.security_scopes?.map((scope: SecurityScope) => scope.scope_string)
+    const hasScopes = requiredScopes == null ? true : requiredScopes?.every((scope: string) => userScopes?.includes(scope))
+
+    useEffect(() => {
+        if (!isLoggedIn) {
+            if (setErrorMessage) setErrorMessage('You must login to view pages.')
+            navigate('/')
+        } else if (!hasScopes) {
+            if (setErrorMessage) setErrorMessage('You do not have sufficient permissions to view this page.')
+            navigate('/home')
+        }
+    }, [authUser()])
+
+
+    if (isLoggedIn && hasScopes) return (
         <Grid container>
             <Grid item xs={12}>
                 <Topbar/>
@@ -39,10 +57,20 @@ function AppLayout({pageComponent}: any) {
             </Grid>
         </Grid>
     )
+    return null
 }
 
-
 export default function App() {
+    const queryClient = new QueryClient()
+
+    // Showing messages between navigation (eg: accessing forbidden page, accessing while not logged in) results in duplicated snackbars, this is a workaround
+    const [errorMessage, setErrorMessage] = useState<string>()
+    useEffect(() => {
+        if (errorMessage) {
+            enqueueSnackbar(errorMessage, {variant: 'error'})
+        }
+    }, [errorMessage])
+
     return (
         <QueryClientProvider client={queryClient}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -59,53 +87,60 @@ export default function App() {
                 <Login/>
             }/>
             <Route path="/home" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["read"]}>
-                        <Home/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<Home/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/meters" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["meter:write"]}>
-                        <MetersView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<MetersView/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/activities" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["activities:write"]}>
-                        <ActivitiesView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<ActivitiesView/>}
+                    requiredScopes={["activities:write"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/wells" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["well_measurement:write"]}>
-                        <MonitoringWellsView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<MonitoringWellsView/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/chlorides" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["well_measurement:write"]}>
-                        <ChloridesView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<ChloridesView/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/parts" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["admin"]}>
-                        <PartsView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<PartsView/>}
+                    requiredScopes={["admin"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
             <Route path="/usermanagement" element={
-                <AppLayout pageComponent={
-                    <RequireScopes requiredScopes={["admin"]}>
-                        <UserManagementView/>
-                    </RequireScopes>
-                }/>
+                <AppLayout
+                    pageComponent={<UserManagementView/>}
+                    requiredScopes={["admin"]}
+                    setErrorMessage={setErrorMessage}
+                />
+            }/>
+            <Route path="/wellmanagement" element={
+                <AppLayout
+                    pageComponent={<WellManagementView/>}
+                    requiredScopes={["admin"]}
+                    setErrorMessage={setErrorMessage}
+                />
             }/>
         </Routes>
         </Router>

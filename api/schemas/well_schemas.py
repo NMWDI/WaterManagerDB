@@ -1,18 +1,11 @@
-"""
-FastAPI input and response schemas
-Well related
-"""
-
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional, Any
+from pydantic import BaseModel
 
-from pydantic import BaseModel, EmailStr, validator, constr
 from api.schemas.security_schemas import User
+from api.schemas.base import ORMBase
 
-
-class ORMBase(BaseModel):
-    id: Optional[int] = None
-
+class ORMBaseSimple(BaseModel):
     class Config:
         orm_mode = True
 
@@ -30,7 +23,7 @@ class LandOwner(ORMBase):
 
 
 class Location(ORMBase):
-    name: str
+    name: Optional[str]
     type_id: int
     trss: Optional[str]
     latitude: Optional[float]
@@ -46,14 +39,60 @@ class Location(ORMBase):
     land_owner: Optional[LandOwner]
 
 
+class WellUseLU(ORMBase):
+    use_type: str
+    code: Optional[str]
+    description: Optional[str]
+
+
 class Well(ORMBase):
     name: Optional[str]
-    location_id: Optional[str]
     ra_number: Optional[str]
     osepod: Optional[str]
-    well_distance_ft: Optional[float]
+
+    location_id: Optional[int]
+    use_type_id: Optional[int]
 
     location: Optional[Location]
+    use_type: Optional[WellUseLU]
+
+
+class SubmitWellCreate(ORMBaseSimple):
+    class SubmitLocationCreate(ORMBaseSimple):
+        name: str
+        trss: str
+        longitude: float
+        latitude: float
+
+    class SubmitUseTypeCreate(ORMBaseSimple):
+        id: int
+
+    name: Optional[str]
+    ra_number: Optional[str]
+    osepod: Optional[str]
+
+    location: SubmitLocationCreate
+    use_type: SubmitUseTypeCreate
+
+
+class SubmitWellUpdate(ORMBaseSimple):
+    class SubmitLocationUpdate(ORMBaseSimple):
+        id: int
+        name: str
+        trss: str
+        longitude: float
+        latitude: float
+
+    class SubmitUseTypeUpdate(ORMBaseSimple):
+        id: int
+
+    id: int
+    name: str
+    ra_number: Optional[str]
+    osepod: Optional[str]
+
+    location: SubmitLocationUpdate
+    use_type: SubmitUseTypeUpdate
 
 
 class WellListDTO(ORMBase):
@@ -66,14 +105,15 @@ class LocationTypeLU(ORMBase):
 
 
 class WellMeasurement(ORMBase):
-    id: int
     timestamp: datetime
     value: float
+
     observed_property_id: int
     submitting_user_id: int
     unit_id: int
     well_id: int
 
+    observed_property: Optional[Any] #ObservedProeprtyTypeLU, but cant import bc of circular imports
     submitting_user: Optional[User]
 
 
@@ -85,24 +125,6 @@ class WellMeasurementDTO(ORMBase):
     timestamp: datetime
     value: float
     submitting_user: UserDTO
-
-
-class WellCreate(ORMBase):
-    owner_id: int
-    # location: str
-    # osepod: Optional[str] = None
-
-
-class ScreenInterval(ORMBase):
-    top: float
-    bottom: float
-
-
-class WellConstruction(ORMBase):
-    casing_diameter: float
-    hole_depth: float
-    well_depth: float
-    screens: Optional[List[ScreenInterval]]
 
 
 class WaterLevel(ORMBase):

@@ -10,9 +10,10 @@ import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBullet
 
 interface MeterSelectionProps {
   onMeterSelection: Function
+  setMeterAddMode: Function
 }
 
-export default function MeterSelection({onMeterSelection}: MeterSelectionProps) {
+export default function MeterSelection({onMeterSelection, setMeterAddMode}: MeterSelectionProps) {
     const [currentTabIndex, setCurrentTabIndex] = useState(0)
     const handleTabChange = (event: React.SyntheticEvent, newTabIndex: number) => setCurrentTabIndex(newTabIndex)
 
@@ -38,25 +39,24 @@ export default function MeterSelection({onMeterSelection}: MeterSelectionProps) 
                         </Tabs>
                         </Grid>
                         <Grid item xs={3}>
-                            {currentTabIndex == 0 &&
-                                <TextField
-                                    sx={{mt: 1}}
-                                    label="Search Meter"
-                                    variant="outlined"
-                                    size="small"
-                                    value={meterSearchQuery}
-                                    onChange={(e) => {setMeterSearchQuery(e.target.value)}}
-                                />}
+                            <TextField
+                                sx={{mt: 1}}
+                                label="Search Meter"
+                                variant="outlined"
+                                size="small"
+                                value={meterSearchQuery}
+                                onChange={(e) => {setMeterSearchQuery(e.target.value)}}
+                            />
                         </Grid>
                     </Grid>
 
                 <Box sx={{height: '89%'}}>
                     <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
-                        <MeterSelectionTable onMeterSelection={onMeterSelection} meterSearchQuery={meterSearchQuery} />
+                        <MeterSelectionTable onMeterSelection={onMeterSelection} meterSearchQuery={meterSearchQuery} setMeterAddMode={setMeterAddMode}/>
                     </TabPanel>
 
                     <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
-                        <MeterSelectionMap onMeterSelection={onMeterSelection}/>
+                        <MeterSelectionMap onMeterSelection={onMeterSelection} meterSearch={meterSearchQuery}/>
                     </TabPanel>
                 </Box>
                 </CardContent>

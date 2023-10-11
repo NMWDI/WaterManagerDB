@@ -1,4 +1,6 @@
 import React from 'react'
+import { useState, useEffect } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import { MeterMapDTO } from '../../../interfaces'
@@ -15,43 +17,51 @@ const DefaultIcon = L.icon({iconUrl: icon, shadowUrl: iconShadow})
 L.Marker.prototype.options.icon = DefaultIcon
 
 interface MeterSelectionMapProps {
+    meterSearch: string
     onMeterSelection: Function
 }
 
-export default function MeterSelectionMap({onMeterSelection}: MeterSelectionMapProps) {
-    const meters = useGetMeterLocations()
+export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
+     
+    const [meterSearchDebounced] = useDebounce(meterSearch, 250)
+    const [meterMarkersMap, setMeterMarkersMap] = useState<any>([])
 
     const mapStyle = {
         height: '100%',
         width: '100%'
     }
 
-    const meterMarkers = meters.data?.map((meter: MeterMapDTO) => {
-            return (
-                <Marker
-                    key={meter.id}
-                    position={[meter.well?.location?.latitude, meter.well?.location?.longitude]}
-                    eventHandlers={{
-                        click: () => {onMeterSelection(meter.id)}
-                    }}
-                ></Marker>
-              )
-        })
+    const meterMarkers = useGetMeterLocations(meterSearchDebounced)
+
+    useEffect(() => {
+        setMeterMarkersMap(
+            meterMarkers.data?.map((meter: MeterMapDTO) => {
+                return (
+                    <Marker
+                        key={meter.id}
+                        position={[meter.location?.latitude, meter.location?.longitude]}
+                        eventHandlers={{
+                            click: () => {onMeterSelection(meter.id)}
+                        }}
+                    ></Marker>
+                )
+            })
+        )
+    }, [meterMarkers.data])
 
     return (
             <MapContainer
-                center={[34.5199, -105.8701]}
-                zoom={7}
+                center={[33, -104.0]}
+                zoom={8}
                 style={mapStyle}
-                maxBounds={L.latLngBounds([30.38, -110.76], [38.56, -101.79])}
-                maxZoom={13}
+                //maxBounds={L.latLngBounds([30.38, -110.76], [38.56, -101.79])}
+                maxZoom={14}
                 >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-
-                {meterMarkers}
+                {meterMarkersMap}
             </MapContainer>
         )
 }

@@ -10,6 +10,14 @@ export enum MeterSortByField {
     TRSS = 'trss'
 }
 
+export enum WellSortByField {
+    Name = 'name',
+    RANumber = 'ra_number',
+    OSEPod = 'osepod',
+    UseType = 'use_type',
+    Location = 'location'
+}
+
 export enum MeterHistoryType {
     Activity = 'Activity',
     Observation = 'Observation'
