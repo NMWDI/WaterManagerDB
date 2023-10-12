@@ -11,6 +11,7 @@ import { SortDirection, MeterSortByField } from '../../../enums'
 import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
 import { useAuthUser } from 'react-auth-kit'
+import { parseMutationArgs } from 'react-query/types/core/utils'
 
 interface MeterSelectionTableProps {
     onMeterSelection: Function
@@ -46,10 +47,10 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             width: 150
         },
         {
-            field: 'well',
+            field: 'location',
             headerName: 'TRSS',
             width: 150,
-            valueFormatter: (params: any) => params.value?.location?.trss,
+            valueGetter: (location: any) => location.value?.trss
         },
         {
             field: 'well2',
