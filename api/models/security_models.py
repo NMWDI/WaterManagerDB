@@ -50,7 +50,9 @@ class Users(Base):
 
     full_name = Column(String)
     disabled = Column(Boolean, default=False)
-    username = deferred(Column(String, nullable=False)) # Defer sensitive info so it's not sent when it's included as part of a relationship
+    username = deferred(
+        Column(String, nullable=False)
+    )  # Defer sensitive info so it's not sent when it's included as part of a relationship
     email = deferred(Column(String))
     hashed_password = deferred(Column(String, nullable=False))
 

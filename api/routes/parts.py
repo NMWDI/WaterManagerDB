@@ -17,6 +17,7 @@ from api.enums import ScopedUser
 
 part_router = APIRouter()
 
+
 @part_router.get(
     "/parts",
     response_model=List[part_schemas.Part],

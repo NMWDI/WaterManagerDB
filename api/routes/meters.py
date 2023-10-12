@@ -17,13 +17,14 @@ from api.models.main_models import (
     Locations,
     MeterTypeLU,
     Wells,
-    MeterStatusLU
+    MeterStatusLU,
 )
 from api.route_util import _patch
 from api.session import get_db
 from api.enums import ScopedUser, MeterSortByField, SortDirection
 
 meter_router = APIRouter()
+
 
 # Get paginated, sorted list of meters, filtered by a search string if applicable
 @meter_router.get(
@@ -73,7 +74,7 @@ async def get_meters(
             or_(
                 Meters.serial_number.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
-                Locations.trss.ilike(f"%{search_string}%")
+                Locations.trss.ilike(f"%{search_string}%"),
             )
         )
 
@@ -100,18 +101,17 @@ async def create_meter(
     new_meter: meter_schemas.SubmitMeter, db: Session = Depends(get_db)
 ):
     warehouse_status_id = db.scalars(
-        select(MeterStatusLU.id)
-        .where(MeterStatusLU.status_name == "Warehouse")
+        select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
     ).first()
 
     new_meter_model = Meters(
-        serial_number = new_meter.serial_number,
-        contact_name = new_meter.contact_name,
-        contact_phone = new_meter.contact_phone,
-        meter_type_id = new_meter.meter_type.id,
-        status_id = warehouse_status_id,
-        well_id = new_meter.well.id,
-        location_id = new_meter.well.location.id
+        serial_number=new_meter.serial_number,
+        contact_name=new_meter.contact_name,
+        contact_phone=new_meter.contact_phone,
+        meter_type_id=new_meter.meter_type.id,
+        status_id=warehouse_status_id,
+        well_id=new_meter.well.id,
+        location_id=new_meter.well.location.id,
     )
 
     db.add(new_meter_model)
@@ -120,8 +120,8 @@ async def create_meter(
 
     return new_meter_model
 
- 
-# Get search for meters similar to /meters but no pagination and only for installed meters 
+
+# Get search for meters similar to /meters but no pagination and only for installed meters
 # Returns all installed meters with a location when search is None
 @meter_router.get(
     "/meters_locations",
@@ -133,22 +133,19 @@ async def get_meters_locations(
     search_string: str = None,
     db: Session = Depends(get_db),
 ):
-    
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
-        select(Meters)
-        .join(Wells, isouter=True)
-        .join(Locations, isouter=True)
+        select(Meters).join(Wells, isouter=True).join(Locations, isouter=True)
     )
 
     # Ensure there are coordinates and meter is installed
     query_statement = query_statement.where(
-            and_(
-                Locations.latitude.is_not(None),
-                Locations.longitude.is_not(None),
-                Meters.status_id == 1
-            )
+        and_(
+            Locations.latitude.is_not(None),
+            Locations.longitude.is_not(None),
+            Meters.status_id == 1,
+        )
     )
 
     if search_string:
@@ -156,7 +153,7 @@ async def get_meters_locations(
             or_(
                 Meters.serial_number.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
-                Locations.trss.ilike(f"%{search_string}%")
+                Locations.trss.ilike(f"%{search_string}%"),
             )
         )
 
@@ -281,15 +278,14 @@ async def patch_meter(
 # Build a list of a meter's history (activities and observations)
 # There's no real defined structure/schema to this on the front or backend
 @meter_router.get(
-    "/meter_history",
-    dependencies=[Depends(ScopedUser.Read)],
-    tags=["Meters"]
+    "/meter_history", dependencies=[Depends(ScopedUser.Read)], tags=["Meters"]
 )
 async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     """
     Get a list of the given meters history.
     No defined schema for this at the moment.
     """
+
     class HistoryType(Enum):
         Activity = "Activity"
         Observation = "Observation"
