@@ -105,17 +105,13 @@ async def get_users_admin(db: Session = Depends(get_db)):
     """
     Admin-specific users list that includes sensitive information such as username and role
     """
-    return db.scalars(
-        select(Users)
+    return db.scalars(select(Users)
         .options(
             undefer(Users.username),
             undefer(Users.user_role_id),
             undefer(Users.email),
             joinedload(Users.user_role),
-        )
-        .unique()
-        .all()
-    )
+        )).unique().all()
 
 
 @admin_router.get(
