@@ -66,17 +66,25 @@ class NoteTypeLU(ORMBase):
     slug: Optional[str]
 
 
-class SubmitMeter(ORMBase):
+class SubmitNewMeter(ORMBase):
+    serial_number: str
+    meter_type: MeterTypeLU
+
+    contact_name: Optional[str]
+    contact_phone: Optional[str]
+    well_distance_ft: Optional[float]
+    notes: Optional[str]
+    well: Optional[Well]
+
+class SubmitMeterUpdate(ORMBase):
     serial_number: str
     contact_name: Optional[str]
     contact_phone: Optional[str]
     well_distance_ft: Optional[float]
     notes: Optional[str]
-
-    meter_type: Optional[MeterTypeLU]
+    meter_type: MeterTypeLU
     status: Optional[MeterStatusLU]
     well: Optional[Well]
-
 
 class Meter(ORMBase):
     serial_number: str
@@ -87,7 +95,7 @@ class Meter(ORMBase):
 
     meter_type_id: int
     status_id: Optional[int]
-    well_id: int
+    well_id: Optional[int]
     location_id: Optional[int]
 
     meter_type: Optional[MeterTypeLU]

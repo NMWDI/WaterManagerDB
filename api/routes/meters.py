@@ -98,21 +98,38 @@ async def get_meters(
     tags=["Meters"],
 )
 async def create_meter(
-    new_meter: meter_schemas.SubmitMeter, db: Session = Depends(get_db)
-):
+    new_meter: meter_schemas.SubmitNewMeter,
+    db: Session = Depends(get_db)):
+    '''
+    Create a new meter. This requires a SN and meter type.
+    Status is infered from based on if a well is provided.
+    '''
     warehouse_status_id = db.scalars(
         select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
     ).first()
 
+    warehouse_location_id = db.scalars(
+        select(Locations.id).where(Locations.name == "headquarters")
+    ).first()
+
+    # Create a meter located in warehouse
     new_meter_model = Meters(
         serial_number=new_meter.serial_number,
         contact_name=new_meter.contact_name,
         contact_phone=new_meter.contact_phone,
         meter_type_id=new_meter.meter_type.id,
         status_id=warehouse_status_id,
-        well_id=new_meter.well.id,
-        location_id=new_meter.well.location.id,
+        location_id=warehouse_location_id
     )
+
+    # If there is a well set, update status, well and location
+    if new_meter.well.id:
+        new_meter_model.status_id = db.scalars(
+            select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Installed")
+        ).first()
+
+        new_meter_model.well_id = new_meter.well.id
+        new_meter_model.location_id = new_meter.well.location_id
 
     db.add(new_meter_model)
     db.commit()
@@ -254,7 +271,7 @@ async def get_land_owners(
     tags=["Meters"],
 )
 async def patch_meter(
-    updated_meter: meter_schemas.SubmitMeter,
+    updated_meter: meter_schemas.SubmitMeterUpdate,
     db: Session = Depends(get_db),
 ):
     updated_meter_model = _patch(db, Meters, updated_meter.id, updated_meter)
