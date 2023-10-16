@@ -1,8 +1,9 @@
 from typing import List
 
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy import or_, select, desc, and_
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 from enum import Enum
@@ -131,8 +132,13 @@ async def create_meter(
         new_meter_model.well_id = new_meter.well.id
         new_meter_model.location_id = new_meter.well.location_id
 
-    db.add(new_meter_model)
-    db.commit()
+    # Try adding the meter, if it fails due to integrety error...
+    try:
+        db.add(new_meter_model)
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(status_code=409, detail="Meter already exists")
+    
     db.refresh(new_meter_model)
 
     return new_meter_model
