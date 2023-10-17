@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { enqueueSnackbar } from 'notistack'
 import { useAuthUser } from 'react-auth-kit'
 import { createSearchParams, useNavigate } from 'react-router-dom'
@@ -50,6 +50,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     const navigate = useNavigate()
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+    const [isInitialLoad, setIsInitialLoad] = useState(true) //Use to disable fields on initial load
 
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<Meter>({
         resolver: yupResolver(MeterResolverSchema)
@@ -73,10 +74,11 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     }
     const onErr = (data: any) => console.log("ERR: ", data)
 
-    // Populate the form with the selected part's details
+    // Populate the form with the selected meter's details
     useEffect(() => {
         if (meterDetails.data != undefined) {
             reset()
+            setIsInitialLoad(false)
             Object.entries(meterDetails.data).forEach(([field, value]) => {
                 setValue(field as any, value)
             })
@@ -85,7 +87,10 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
 
     // Empty form if entering add mode
     useEffect(() => {
-        if (meterAddMode) reset()
+        if (meterAddMode){
+            reset()
+            setIsInitialLoad(false)
+        }
     }, [meterAddMode])
 
     function navigateToNewActivity() {
@@ -126,7 +131,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 label="Serial Number"
                                 error={errors?.serial_number?.message != undefined}
                                 helperText={errors?.serial_number?.message}
-                                disabled={!hasAdminScope}
+                                disabled={!hasAdminScope || isInitialLoad}
                             />
                         </Grid>
                     </Grid>
@@ -136,7 +141,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 name="meter_type"
                                 control={control}
                                 errors={errors?.meter_type?.message}
-                                disabled={!hasAdminScope}
+                                disabled={!hasAdminScope || isInitialLoad}
                             />
                         </Grid>
                     </Grid>
@@ -146,7 +151,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 name="well"
                                 control={control}
                                 errors={errors?.meter_type?.message}
-                                disabled={!hasAdminScope}
+                                disabled={!hasAdminScope || isInitialLoad}
                             />
                         </Grid>
                     </Grid>
@@ -183,7 +188,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             label="Contact Name"
                             error={errors?.contact_name?.message != undefined}
                             helperText={errors?.contact_name?.message}
-                            disabled={!hasAdminScope}
+                            disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -193,7 +198,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             label="Contact Phone"
                             error={errors?.contact_phone?.message != undefined}
                             helperText={errors?.contact_phone?.message}
-                            disabled={!hasAdminScope}
+                            disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -203,7 +208,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             label="Well Distance"
                             error={errors?.well_distance_ft?.message != undefined}
                             helperText={errors?.well_distance_ft?.message}
-                            disabled={!hasAdminScope}
+                            disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -213,7 +218,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             label="Installation Notes"
                             error={errors?.notes?.message != undefined}
                             helperText={errors?.notes?.message}
-                            disabled={!hasAdminScope}
+                            disabled={!hasAdminScope || isInitialLoad}
                             rows={3}
                             multiline
                         />
@@ -226,7 +231,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
                                     meterAddMode ?
                                     <Button color="success" variant="contained" onClick={handleSubmit(onAddMeter, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Meter</Button> :
-                                    <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Chanages</Button>
+                                    <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
                                 }
                             </Grid>
                         }
@@ -234,7 +239,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={meterDetails.data?.status?.status_name == 'Sold' || meterDetails.data?.status?.status_name == 'Scrapped'}
+                                disabled={meterDetails.data?.status?.status_name == 'Sold' || meterDetails.data?.status?.status_name == 'Scrapped' || isInitialLoad}
                                 onClick={navigateToNewActivity}
                             >New Activity</Button>
                         </Grid>
