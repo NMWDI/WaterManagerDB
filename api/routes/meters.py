@@ -293,7 +293,7 @@ async def patch_meter(
             continue
 
     # If there is a well set, update status, well and location
-    if updated_meter.well.id:
+    if updated_meter.well:
         meter_db.status_id = db.scalars(
             select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Installed")
         ).first()

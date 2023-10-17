@@ -20,7 +20,7 @@ export default function ControlledWellSelection({name, control, ...childProps}: 
         <ControlledAutocomplete
             control={control}
             name={name}
-            disableClearable={true}
+            disableClearable={false}
             defaultValue={null}
             options={wellList.data?.items ?? []}
             {...childProps}
