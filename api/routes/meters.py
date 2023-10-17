@@ -20,7 +20,7 @@ from api.models.main_models import (
     Wells,
     MeterStatusLU,
 )
-from api.route_util import _patch
+from api.route_util import _patch, _get
 from api.session import get_db
 from api.enums import ScopedUser, MeterSortByField, SortDirection
 
@@ -278,14 +278,34 @@ async def get_land_owners(
 )
 async def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate,
-    db: Session = Depends(get_db),
-):
-    updated_meter_model = _patch(db, Meters, updated_meter.id, updated_meter)
+    db: Session = Depends(get_db)):
+    '''
+    Update a meter. Returns http error if meter SN changed to existing SN.
+    '''
+    meter_db = _get(db, Meters, updated_meter.id)
 
-    updated_meter_model.location_id = updated_meter.well.location.id
-    updated_meter_model.well_id = updated_meter.well.id
+    # Update the meter (this won't include Well or Location due to schema structure)
+    for k, v in updated_meter.dict(exclude_unset=True).items():
+        try:
+            setattr(meter_db, k, v)
+        except AttributeError as e:
+            print(e)
+            continue
 
-    db.commit()
+    # If there is a well set, update status, well and location
+    if updated_meter.well.id:
+        meter_db.status_id = db.scalars(
+            select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Installed")
+        ).first()
+
+        meter_db.well_id = updated_meter.well.id
+        meter_db.location_id = updated_meter.well.location_id
+
+    try:
+        db.add(meter_db)
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(status_code=409, detail="Meter already exists")
 
     return db.scalars(
         select(Meters)
@@ -294,7 +314,7 @@ async def patch_meter(
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
         )
-        .filter(Meters.id == updated_meter_model.id)
+        .filter(Meters.id == updated_meter.id)
     ).first()
 
 
