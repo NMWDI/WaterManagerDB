@@ -281,6 +281,8 @@ async def patch_meter(
     db: Session = Depends(get_db)):
     '''
     Update a meter. Returns http error if meter SN changed to existing SN.
+    Note that if well information is not included it is assumed the meter is
+    in the warehouse.
     '''
     meter_db = _get(db, Meters, updated_meter.id)
 
@@ -300,6 +302,11 @@ async def patch_meter(
 
         meter_db.well_id = updated_meter.well.id
         meter_db.location_id = updated_meter.well.location_id
+    else:
+        # If there is no well, set status to warehouse
+        meter_db.status_id = db.scalars(
+            select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
+        ).first()
 
     try:
         db.add(meter_db)
