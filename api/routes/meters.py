@@ -99,12 +99,12 @@ async def get_meters(
     tags=["Meters"],
 )
 async def create_meter(
-    new_meter: meter_schemas.SubmitNewMeter,
-    db: Session = Depends(get_db)):
-    '''
+    new_meter: meter_schemas.SubmitNewMeter, db: Session = Depends(get_db)
+):
+    """
     Create a new meter. This requires a SN and meter type.
     Status is infered from based on if a well is provided.
-    '''
+    """
     warehouse_status_id = db.scalars(
         select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
     ).first()
@@ -120,7 +120,7 @@ async def create_meter(
         contact_phone=new_meter.contact_phone,
         meter_type_id=new_meter.meter_type.id,
         status_id=warehouse_status_id,
-        location_id=warehouse_location_id
+        location_id=warehouse_location_id,
     )
 
     # If there is a well set, update status, well and location
@@ -138,7 +138,7 @@ async def create_meter(
         db.commit()
     except IntegrityError as e:
         raise HTTPException(status_code=409, detail="Meter already exists")
-    
+
     db.refresh(new_meter_model)
 
     return new_meter_model
@@ -277,13 +277,13 @@ async def get_land_owners(
     tags=["Meters"],
 )
 async def patch_meter(
-    updated_meter: meter_schemas.SubmitMeterUpdate,
-    db: Session = Depends(get_db)):
-    '''
+    updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
+):
+    """
     Update a meter. Returns http error if meter SN changed to existing SN.
     Note that if well information is not included it is assumed the meter is
     in the warehouse.
-    '''
+    """
     meter_db = _get(db, Meters, updated_meter.id)
 
     # Update the meter (this won't include Well or Location due to schema structure)
@@ -309,7 +309,7 @@ async def patch_meter(
         ).first()
 
         meter_db.location_id = db.scalars(
-        select(Locations.id).where(Locations.name == "headquarters")
+            select(Locations.id).where(Locations.name == "headquarters")
         ).first()
 
         meter_db.well_id = None
