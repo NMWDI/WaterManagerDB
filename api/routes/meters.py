@@ -308,6 +308,12 @@ async def patch_meter(
             select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
         ).first()
 
+        meter_db.location_id = db.scalars(
+        select(Locations.id).where(Locations.name == "headquarters")
+        ).first()
+
+        meter_db.well_id = None
+
     try:
         db.add(meter_db)
         db.commit()
