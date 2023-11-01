@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+V0.1.8 - Fix bug in meter selection autocomplete
 V0.1.7 - Fixed bugs in Add Meter
 V0.1.6 - Various fixes and meter search via map UI
 V0.1.5 - Various minor bug fixes
