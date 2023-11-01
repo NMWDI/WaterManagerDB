@@ -76,6 +76,7 @@ class SubmitNewMeter(ORMBase):
     notes: Optional[str]
     well: Optional[Well]
 
+
 class SubmitMeterUpdate(ORMBase):
     serial_number: str
     contact_name: Optional[str]
@@ -85,6 +86,7 @@ class SubmitMeterUpdate(ORMBase):
     meter_type: MeterTypeLU
     status: Optional[MeterStatusLU]
     well: Optional[Well]
+
 
 class Meter(ORMBase):
     serial_number: str
