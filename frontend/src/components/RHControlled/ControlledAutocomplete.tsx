@@ -27,6 +27,7 @@ export default function ControlledAutocomplete({
                     disableClearable={true}
                     {...childProps}
                     sx={disabledInputStyle}
+                    filterOptions={ (x)=>x } // Disable filtering because backend already does this
                     isOptionEqualToValue={(a: any, b: any) => {
                         // Let any value be an option whether or not its in the list
                         const optionPresent = childProps.options.find((x: any) => (x.id == b?.id))
