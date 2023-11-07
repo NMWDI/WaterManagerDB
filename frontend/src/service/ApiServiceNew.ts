@@ -870,6 +870,10 @@ export function useUpdatePart(onSuccess: Function) {
                     enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
                     throw Error("Incomplete form, check network logs for details")
                 }
+                if(response.status == 409) {
+                    enqueueSnackbar('Cannot use existing serial number!', {variant: 'error'})
+                    throw Error("Part serial number already in database")
+                }
                 else {
                     enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
                     throw Error("Unknown Error: " + response.status)
@@ -970,6 +974,10 @@ export function useCreatePart(onSuccess: Function) {
                     if(response.status == 422) {
                         enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
                         throw Error("Incomplete form, check network logs for details")
+                    }
+                    if(response.status == 409) {
+                        enqueueSnackbar('Cannot use existing serial number!', {variant: 'error'})
+                        throw Error("Part serial number already in database")
                     }
                     else {
                         enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
