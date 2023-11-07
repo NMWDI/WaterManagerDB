@@ -1,3 +1,5 @@
+// **I don't think this is currently used... CC 11/7/2023**
+
 import React from 'react'
 import { FormControl, Select, InputLabel, MenuItem } from '@mui/material'
 import { useGetActivityTypeList } from '../service/ApiServiceNew'
@@ -12,6 +14,7 @@ interface ActivityTypeSelectionProps {
 
 export default function ActivityTypeSelection({selectedActivity, onActivityChange, isAdmin, error = false}: ActivityTypeSelectionProps) {
     const activityTypeList = useGetActivityTypeList()
+    console.log(activityTypeList)
 
     function handleActivityChange(activityID: number) {
         const selectedActivity = activityTypeList.data?.find((a: ActivityTypeLU) => a.id == activityID)
