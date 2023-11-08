@@ -180,18 +180,25 @@ async def post_activity(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_activity_types(db: Session = Depends(get_db), user: Users = Depends(get_current_user)):
-    '''
-    Only returns activity types approved for user type. 
-    '''
-    if user.user_role.name not in ['Admin','Technician']:
+async def get_activity_types(
+    db: Session = Depends(get_db), user: Users = Depends(get_current_user)
+):
+    """
+    Only returns activity types approved for user type.
+    """
+    if user.user_role.name not in ["Admin", "Technician"]:
         return []
     else:
         activities = db.scalars(select(ActivityTypeLU)).all()
         if user.user_role.name != "Admin":
-            return [activity for activity in activities if activity.name not in ["Sell", "Scrap"]]
-    
+            return [
+                activity
+                for activity in activities
+                if activity.name not in ["Sell", "Scrap"]
+            ]
+
     return activities
+
 
 @activity_router.get(
     "/users",
