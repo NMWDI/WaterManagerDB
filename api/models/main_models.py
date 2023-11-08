@@ -372,7 +372,7 @@ class Wells(Base):
 
     name = Column(String)
     ra_number = Column(String)  # RA Number is an OSE well identifier
-    osepod = Column(String)  # Another OSE identifier?
+    owners = Column(String)
 
     use_type_id = Column(Integer, ForeignKey("WellUseLU.id"))
     location_id = Column(Integer, ForeignKey("Locations.id"))

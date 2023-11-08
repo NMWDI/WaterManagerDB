@@ -19,14 +19,6 @@ interface MeterSelectionTableProps {
     setMeterAddMode: Function
 }
 
-// For now, only the meter_location field on
-function getSortByString(field: string) {
-    switch(field) {
-        case ('well2'): return 'land_owner_name'
-        default: field
-    }
-}
-
 export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode}: MeterSelectionTableProps) {
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
@@ -47,27 +39,21 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             width: 150
         },
         {
-            field: 'location',
+            field: 'trss',
             headerName: 'TRSS',
             width: 150,
-            valueGetter: (location: any) => location.value?.trss
+            valueGetter: (params: any) => params.row.location?.trss
         },
         {
-            field: 'well2',
-            headerName: 'Land Owner',
-            valueGetter: ({ id }: any) => {
-                const item = meterList.data?.items.find(item => item.id === id);
-                return item?.well?.location?.land_owner?.organization;
-            },
+            field: 'owners',
+            headerName: 'Owners',
+            valueGetter: (params: any) => params.row.well?.owners,
             width: 200
         },
         {
             field: 'ra_number',
             headerName: 'RA Number',
-            valueGetter: ({ id }: any) => {
-                const item = meterList.data?.items.find(item => item.id === id);
-                return item?.well?.ra_number;
-            },
+            valueGetter: (params: any) => params.row.well?.ra_number,
             width: 100
         },
     ];
@@ -77,7 +63,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
-            sort_by: gridSortModel ? getSortByString(gridSortModel[0]?.field) : MeterSortByField.SerialNumber,
+            sort_by: gridSortModel ? gridSortModel[0]?.field : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: gridPageSize,
             offset: gridPage * gridPageSize

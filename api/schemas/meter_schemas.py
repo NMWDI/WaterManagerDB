@@ -22,6 +22,7 @@ class MeterListDTO(ORMBase):
     class WellDTO(ORMBase):
         ra_number: Optional[str]
         name: Optional[str]
+        owners: Optional[str]
 
     class LocationDTO(ORMBase):
         trss: Optional[str]

@@ -50,8 +50,8 @@ async def get_meters(
             case MeterSortByField.RANumber:
                 return Wells.ra_number
 
-            case MeterSortByField.LandOwnerName:
-                return LandOwners.organization
+            case MeterSortByField.Owners:
+                return Wells.owners
 
             case MeterSortByField.TRSS:
                 return Locations.trss

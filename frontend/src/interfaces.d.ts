@@ -367,14 +367,15 @@ export interface MeterListDTO {
     id: number
     serial_number: string
     status?: {status_name?: string}
+    location: {
+        trss: string
+        longitude: number
+        latitude: number
+    }
     well: {
         ra_number: string
-        location: {
-            trss: string
-            land_owner: {
-                organization: string
-            }
-        }
+        name: string
+        owners: string
     }
 }
 
