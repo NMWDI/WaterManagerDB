@@ -63,7 +63,6 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
     tags=["Parts"],
 )
 async def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
-    
     # Update the part (this won't include secondary attributes like associations)
     part_db = _get(db, Parts, updated_part.id)
     for k, v in updated_part.dict(exclude_unset=True).items():
