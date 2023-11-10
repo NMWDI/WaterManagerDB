@@ -163,12 +163,19 @@ async def create_well(
             use_type_id=new_well.use_type.id,
             location_id=new_location_model.id,
             ra_number=new_well.ra_number,
-            osepod=new_well.osepod,
+            owners=new_well.owners,
+            osetag=new_well.osetag
         )
 
         db.add(new_well_model)
         db.commit()
         db.refresh(new_well_model)
+
+    except IntegrityError as e:
+        db.rollback()
+        db.delete(new_location_model)
+        db.commit()
+        raise HTTPException(status_code=409, detail="RA number already exists")
 
     # Manually rollback adding the location if anything fails
     except:
