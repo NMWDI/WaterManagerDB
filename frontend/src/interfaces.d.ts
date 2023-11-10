@@ -159,7 +159,8 @@ export interface SubmitWellUpdate {
     id: number
     name: string
     ra_number: string
-    osepod: string
+    owners: string
+    osetag: string
 
     use_type: {
         id: number
@@ -176,7 +177,8 @@ export interface SubmitWellUpdate {
 export interface SubmitWellCreate {
     name: string
     ra_number: string
-    osepod: string
+    owners: string
+    osetag: string
 
     use_type: {
         id: number
@@ -197,7 +199,8 @@ export interface Well {
     well_distance_ft?: number | null
     use_type_id?: number | null
     ra_number?: string | null
-    osepod?: string | null
+    owners?: string | null
+    osetag?: string | null
 
     use_type: WellUseLU | null
     location: Location | null

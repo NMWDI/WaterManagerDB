@@ -115,11 +115,22 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                         </Grid>
                         <Grid item xs={6}>
                             <ControlledTextbox
-                                name="osepod"
+                                name="osetag"
                                 control={control}
-                                label="OSE POD"
-                                error={errors?.osepod?.message != undefined}
-                                helperText={errors?.osepod?.message}
+                                label="OSE Tag"
+                                error={errors?.osetag?.message != undefined}
+                                helperText={errors?.osetag?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
+                            <ControlledTextbox
+                                name="owners"
+                                control={control}
+                                label="Owners"
+                                error={errors?.owners?.message != undefined}
+                                helperText={errors?.owners?.message}
                             />
                         </Grid>
                     </Grid>

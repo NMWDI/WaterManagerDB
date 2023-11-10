@@ -27,9 +27,10 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
     const wellsList = useGetWells(wellListQueryParams)
 
     const cols: GridColDef[] = [
-        {field: 'name', headerName: 'Name', width: 200},
+        {field: 'name', headerName: 'Name', width: 150},
         {field: 'ra_number', headerName: 'RA Number', width: 150},
-        {field: 'osepod', headerName: 'OSE POD', width: 150},
+        {field: 'owners', headerName: 'Owners', width: 150},
+        {field: 'osetag', headerName: 'OSE Tag', width: 100},
         {field: 'use_type', headerName: 'Use Type', width: 150,
             valueGetter: (params: any) => params.value?.use_type,
         },
