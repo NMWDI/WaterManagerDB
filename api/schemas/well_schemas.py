@@ -49,7 +49,8 @@ class WellUseLU(ORMBase):
 class Well(ORMBase):
     name: Optional[str]
     ra_number: Optional[str]
-    osepod: Optional[str]
+    owners: Optional[str]
+    osetag: Optional[str]
 
     location_id: Optional[int]
     use_type_id: Optional[int]
@@ -70,7 +71,8 @@ class SubmitWellCreate(ORMBaseSimple):
 
     name: Optional[str]
     ra_number: Optional[str]
-    osepod: Optional[str]
+    owners: Optional[str]
+    osetag: Optional[str]
 
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
@@ -90,7 +92,8 @@ class SubmitWellUpdate(ORMBaseSimple):
     id: int
     name: str
     ra_number: Optional[str]
-    osepod: Optional[str]
+    owners: Optional[str]
+    osetag: Optional[str]
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate

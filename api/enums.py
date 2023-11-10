@@ -12,7 +12,8 @@ class MeterSortByField(Enum):
 class WellSortByField(Enum):
     Name = "name"
     RANumber = "ra_number"
-    OSEPod = "osepod"
+    OSETag = "osetag"
+    Owners = "owners"
     UseType = "use_type"
     Location = "location"
 
