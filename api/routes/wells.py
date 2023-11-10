@@ -3,12 +3,13 @@ from typing import List
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy import or_, select, desc
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import well_schemas
 from api.models.main_models import Locations, WellUseLU, Wells
-from api.route_util import _patch
+from api.route_util import _patch, _get
 from api.session import get_db
 from api.enums import ScopedUser, WellSortByField, SortDirection
 
@@ -100,10 +101,25 @@ async def get_wells(
 async def update_well(
     updated_well: well_schemas.SubmitWellUpdate, db: Session = Depends(get_db)
 ):
-    # Update well and location
+    # Update location since locations are mostly associated with wells
     _patch(db, Locations, updated_well.location.id, updated_well.location)
-    updated_well_model = _patch(db, Wells, updated_well.id, updated_well)
 
+    # Update well - RA number must be unique
+    updated_well_model = _get(db, Wells, updated_well.id)
+
+    for k, v in updated_well.dict(exclude_unset=True).items():
+        try:
+            setattr(updated_well_model, k, v)
+        except AttributeError as e:
+            print(e)
+            continue
+
+    try:
+        db.add(updated_well_model)
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(status_code=409, detail="RA number already exists")
+    
     # Update use type of well
     updated_well_model.use_type_id = updated_well.use_type.id
     db.commit()

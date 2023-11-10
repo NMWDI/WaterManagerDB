@@ -599,6 +599,10 @@ export function useUpdateWell(onSuccess: Function) {
                     enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
                     throw Error("Incomplete form, check network logs for details")
                 }
+                if(response.status == 409) {
+                    enqueueSnackbar('Cannot use existing RA number', {variant: 'error'})
+                    throw Error("RA number already in database")
+                }
                 else {
                     enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
                     throw Error("Unknown Error: " + response.status)
