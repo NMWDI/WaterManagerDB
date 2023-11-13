@@ -140,9 +140,7 @@ def update_well(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Wells"],
 )
-def create_well(
-    new_well: well_schemas.SubmitWellCreate, db: Session = Depends(get_db)
-):
+def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(get_db)):
     # First, commit the new location that was added with the new well
     new_location_model = Locations(
         name=new_well.location.name,

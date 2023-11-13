@@ -149,9 +149,7 @@ def get_roles(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-def create_role(
-    new_role: security_schemas.UserRole, db: Session = Depends(get_db)
-):
+def create_role(new_role: security_schemas.UserRole, db: Session = Depends(get_db)):
     scopes = []
     if new_role.security_scopes:
         scope_ids = map(lambda s: s.id, new_role.security_scopes)
@@ -178,9 +176,7 @@ def create_role(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-def update_role(
-    updated_role: security_schemas.UserRole, db: Session = Depends(get_db)
-):
+def update_role(updated_role: security_schemas.UserRole, db: Session = Depends(get_db)):
     role = db.scalars(select(UserRoles).where(UserRoles.id == updated_role.id)).first()
 
     scope_ids = map(lambda s: s.id, updated_role.security_scopes)
