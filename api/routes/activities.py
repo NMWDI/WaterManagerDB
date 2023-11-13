@@ -36,7 +36,7 @@ activity_router = APIRouter()
     dependencies=[Depends(ScopedUser.ActivityWrite)],
     tags=["Activities"],
 )
-async def post_activity(
+def post_activity(
     activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db)
 ):
     """
@@ -180,7 +180,7 @@ async def post_activity(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_activity_types(
+def get_activity_types(
     db: Session = Depends(get_db), user: Users = Depends(get_current_user)
 ):
     """
@@ -205,7 +205,7 @@ async def get_activity_types(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db)):
     return db.scalars(select(Users).where(Users.disabled == False)).all()
 
 
@@ -215,7 +215,7 @@ async def get_users(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_units(db: Session = Depends(get_db)):
+def get_units(db: Session = Depends(get_db)):
     return db.scalars(select(Units)).all()
 
 
@@ -225,7 +225,7 @@ async def get_units(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_observed_property_types(db: Session = Depends(get_db)):
+def get_observed_property_types(db: Session = Depends(get_db)):
     return (
         db.scalars(
             select(ObservedPropertyTypeLU).options(
@@ -243,7 +243,7 @@ async def get_observed_property_types(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_service_types(db: Session = Depends(get_db)):
+def get_service_types(db: Session = Depends(get_db)):
     return db.scalars(select(ServiceTypeLU)).all()
 
 
@@ -252,5 +252,5 @@ async def get_service_types(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Activities"],
 )
-async def get_note_types(db: Session = Depends(get_db)):
+def get_note_types(db: Session = Depends(get_db)):
     return db.scalars(select(NoteTypeLU)).all()

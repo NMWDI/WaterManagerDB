@@ -139,7 +139,7 @@ authenticated_router = APIRouter(dependencies=[Depends(scoped_user(["read"]))])
 @authenticated_router.get(
     "/users/me", response_model=security_schemas.User, tags=["Login"]
 )
-async def read_users_me(
+def read_users_me(
     current_user: security_schemas.User = Depends(get_current_user),
 ):
     return current_user

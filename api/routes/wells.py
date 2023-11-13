@@ -22,7 +22,7 @@ well_router = APIRouter()
     response_model=List[well_schemas.WellUseLU],
     tags=["Wells"],
 )
-async def get_use_types(
+def get_use_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(WellUseLU)).all()
@@ -34,7 +34,7 @@ async def get_use_types(
     response_model=LimitOffsetPage[well_schemas.Well],
     tags=["Wells"],
 )
-async def get_wells(
+def get_wells(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
     sort_by: WellSortByField = WellSortByField.Name,
@@ -98,7 +98,7 @@ async def get_wells(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Wells"],
 )
-async def update_well(
+def update_well(
     updated_well: well_schemas.SubmitWellUpdate, db: Session = Depends(get_db)
 ):
     # Update location since locations are mostly associated with wells
@@ -140,7 +140,7 @@ async def update_well(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Wells"],
 )
-async def create_well(
+def create_well(
     new_well: well_schemas.SubmitWellCreate, db: Session = Depends(get_db)
 ):
     # First, commit the new location that was added with the new well
@@ -193,7 +193,7 @@ async def create_well(
     response_model=well_schemas.Well,
     tags=["Wells"],
 )
-async def get_well(well_id: int, db: Session = Depends(get_db)):
+def get_well(well_id: int, db: Session = Depends(get_db)):
     return db.scalars(
         select(Wells)
         .options(

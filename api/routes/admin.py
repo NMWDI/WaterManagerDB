@@ -22,7 +22,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def update_user_password(
+def update_user_password(
     updatedUserPassword: security_schemas.UpdatedUserPassword,
     db: Session = Depends(get_db),
 ):
@@ -43,7 +43,7 @@ async def update_user_password(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def update_user(
+def update_user(
     updated_user: security_schemas.UpdatedUser, db: Session = Depends(get_db)
 ):
     _patch(db, Users, updated_user.id, updated_user)
@@ -68,7 +68,7 @@ async def update_user(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def create_user(user: security_schemas.NewUser, db: Session = Depends(get_db)):
+def create_user(user: security_schemas.NewUser, db: Session = Depends(get_db)):
     new_user = Users(
         username=user.username,
         email=user.email,
@@ -101,7 +101,7 @@ async def create_user(user: security_schemas.NewUser, db: Session = Depends(get_
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def get_users_admin(db: Session = Depends(get_db)):
+def get_users_admin(db: Session = Depends(get_db)):
     """
     Admin-specific users list that includes sensitive information such as username and role
     """
@@ -125,7 +125,7 @@ async def get_users_admin(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def get_security_scopes(db: Session = Depends(get_db)):
+def get_security_scopes(db: Session = Depends(get_db)):
     return db.scalars(select(SecurityScopes)).all()
 
 
@@ -135,7 +135,7 @@ async def get_security_scopes(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def get_roles(db: Session = Depends(get_db)):
+def get_roles(db: Session = Depends(get_db)):
     return (
         db.scalars(select(UserRoles).options(joinedload(UserRoles.security_scopes)))
         .unique()
@@ -149,7 +149,7 @@ async def get_roles(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def create_role(
+def create_role(
     new_role: security_schemas.UserRole, db: Session = Depends(get_db)
 ):
     scopes = []
@@ -178,7 +178,7 @@ async def create_role(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Admin"],
 )
-async def update_role(
+def update_role(
     updated_role: security_schemas.UserRole, db: Session = Depends(get_db)
 ):
     role = db.scalars(select(UserRoles).where(UserRoles.id == updated_role.id)).first()

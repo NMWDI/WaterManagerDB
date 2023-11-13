@@ -25,7 +25,7 @@ part_router = APIRouter()
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
-async def get_parts(db: Session = Depends(get_db)):
+def get_parts(db: Session = Depends(get_db)):
     return db.scalars(select(Parts).options(joinedload(Parts.part_type))).all()
 
 
@@ -35,7 +35,7 @@ async def get_parts(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
-async def get_part_types(db: Session = Depends(get_db)):
+def get_part_types(db: Session = Depends(get_db)):
     return db.scalars(select(PartTypeLU)).all()
 
 
@@ -45,7 +45,7 @@ async def get_part_types(db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
-async def get_part(part_id: int, db: Session = Depends(get_db)):
+def get_part(part_id: int, db: Session = Depends(get_db)):
     return db.scalars(
         select(Parts)
         .where(Parts.id == part_id)
@@ -62,7 +62,7 @@ async def get_part(part_id: int, db: Session = Depends(get_db)):
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Parts"],
 )
-async def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
+def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     # Update the part (this won't include secondary attributes like associations)
     part_db = _get(db, Parts, updated_part.id)
     for k, v in updated_part.dict(exclude_unset=True).items():
@@ -112,7 +112,7 @@ async def update_part(updated_part: part_schemas.Part, db: Session = Depends(get
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Parts"],
 )
-async def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
+def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
     new_part_model = Parts(
         part_number=new_part.part_number,
         part_type_id=db.scalars(
@@ -157,7 +157,7 @@ async def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Parts"],
 )
-async def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
+def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
     meter_type_id = db.scalars(
         select(Meters.meter_type_id).where(Meters.id == meter_id)
     ).first()

@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+V0.1.11 - Remove all async code to see if it fixes deadlock issue
 V0.1.10 - Fix owners and osetag on Wells page
 V0.1.9 - Add owners to Meters table, fix various bugs
 V0.1.8 - Fix bug in meter selection autocomplete

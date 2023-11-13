@@ -34,7 +34,7 @@ meter_router = APIRouter()
     response_model=LimitOffsetPage[meter_schemas.MeterListDTO],
     tags=["Meters"],
 )
-async def get_meters(
+def get_meters(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
     sort_by: MeterSortByField = MeterSortByField.SerialNumber,
@@ -98,7 +98,7 @@ async def get_meters(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Meters"],
 )
-async def create_meter(
+def create_meter(
     new_meter: meter_schemas.SubmitNewMeter, db: Session = Depends(get_db)
 ):
     """
@@ -152,7 +152,7 @@ async def create_meter(
     response_model=List[meter_schemas.MeterMapDTO],
     tags=["Meters"],
 )
-async def get_meters_locations(
+def get_meters_locations(
     search_string: str = None,
     db: Session = Depends(get_db),
 ):
@@ -188,7 +188,7 @@ async def get_meters_locations(
     "/meter",
     tags=["Meters"],
 )
-async def get_meter(
+def get_meter(
     meter_id: int,
     db: Session = Depends(get_db),
 ):
@@ -209,7 +209,7 @@ async def get_meter(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Meters"],
 )
-async def get_meter_types(
+def get_meter_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(MeterTypeLU)).all()
@@ -221,7 +221,7 @@ async def get_meter_types(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Meters"],
 )
-async def update_meter_type(
+def update_meter_type(
     updated_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
 ):
     _patch(db, MeterTypeLU, updated_meter_type.id, updated_meter_type)
@@ -239,7 +239,7 @@ async def update_meter_type(
     dependencies=[Depends(ScopedUser.Admin)],
     tags=["Meters"],
 )
-async def create_meter_type(
+def create_meter_type(
     new_meter_type: meter_schemas.MeterTypeLU, db: Session = Depends(get_db)
 ):
     new_type_model = MeterTypeLU(
@@ -264,7 +264,7 @@ async def create_meter_type(
     response_model=List[well_schemas.LandOwner],
     tags=["Meters"],
 )
-async def get_land_owners(
+def get_land_owners(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(LandOwners)).all()
@@ -276,7 +276,7 @@ async def get_land_owners(
     response_model=meter_schemas.Meter,
     tags=["Meters"],
 )
-async def patch_meter(
+def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
 ):
     """
@@ -336,7 +336,7 @@ async def patch_meter(
 @meter_router.get(
     "/meter_history", dependencies=[Depends(ScopedUser.Read)], tags=["Meters"]
 )
-async def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
+def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
     """
     Get a list of the given meters history.
     No defined schema for this at the moment.

@@ -34,7 +34,7 @@ well_measurement_router = APIRouter()
     response_model=well_schemas.WellMeasurement,
     tags=["WaterLevels"],
 )
-async def add_waterlevel(
+def add_waterlevel(
     waterlevel: well_schemas.NewWaterLevelMeasurement, db: Session = Depends(get_db)
 ):
     # Create the well measurement from the form, qualify with units and property type
@@ -65,7 +65,7 @@ async def add_waterlevel(
     response_model=well_schemas.WellMeasurement,
     tags=["WaterLevels"],
 )
-async def add_chloride_measurement(
+def add_chloride_measurement(
     chloride_measurement: well_schemas.NewWaterLevelMeasurement,
     db: Session = Depends(get_db),
 ):
@@ -99,7 +99,7 @@ async def add_chloride_measurement(
     response_model=List[well_schemas.WellMeasurementDTO],
     tags=["WaterLevels"],
 )
-async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
+def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
         select(WellMeasurements)
         .options(joinedload(WellMeasurements.submitting_user))
@@ -119,7 +119,7 @@ async def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     response_model=List[well_schemas.WellMeasurementDTO],
     tags=["WaterLevels"],
 )
-async def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
+def read_chlorides(well_id: int = None, db: Session = Depends(get_db)):
     return db.scalars(
         select(WellMeasurements)
         .options(joinedload(WellMeasurements.submitting_user))
