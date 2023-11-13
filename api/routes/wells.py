@@ -48,7 +48,7 @@ def get_wells(
 
             case WellSortByField.RANumber:
                 return Wells.ra_number
-            
+
             case WellSortByField.Owners:
                 return Wells.owners
 
@@ -119,7 +119,7 @@ def update_well(
         db.commit()
     except IntegrityError as e:
         raise HTTPException(status_code=409, detail="RA number already exists")
-    
+
     # Update use type of well
     updated_well_model.use_type_id = updated_well.use_type.id
     db.commit()
@@ -164,7 +164,7 @@ def create_well(
             location_id=new_location_model.id,
             ra_number=new_well.ra_number,
             owners=new_well.owners,
-            osetag=new_well.osetag
+            osetag=new_well.osetag,
         )
 
         db.add(new_well_model)
