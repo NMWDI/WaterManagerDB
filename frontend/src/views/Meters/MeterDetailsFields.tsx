@@ -35,6 +35,9 @@ import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import ControlledMeterTypeSelect from '../../components/RHControlled/ControlledMeterTypeSelect'
 import ControlledWellSelection from '../../components/RHControlled/ControlledWellSelection'
 
+import { decimalToDMS } from '../../conversions'
+import { GCSdimension } from '../../enums'
+
 interface MeterDetailsProps {
     selectedMeterID: number | undefined
     meterAddMode: boolean
@@ -109,6 +112,12 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
         return Object.keys(errors).length > 0
     }
 
+    // Formatting of the lat/long
+    function formatLatLong(decimalVal: number | null,latorlong: GCSdimension) {
+        if (decimalVal == null) return '--'
+        return decimalToDMS(decimalVal,latorlong)
+    }
+
     return (
         <Card>
             <CardHeader
@@ -172,7 +181,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                         <TableCell sx={{ fontSize: '1rem' }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
                                         <TableCell sx={{ fontSize: '1rem' }}>{ watch("well")?.location?.trss == null ? '--' : watch("well")?.location?.trss}</TableCell>
                                         <TableCell sx={{ fontSize: '1rem' }}>
-                                            { watch("well")?.location?.latitude == null ? '--' : watch("well")?.location?.latitude?.toFixed(6)+', '+ watch("well")?.location?.longitude?.toFixed(6) }
+                                            { formatLatLong(watch("well")?.location?.latitude, GCSdimension.Latitude) + ', ' + formatLatLong(watch("well")?.location?.longitude, GCSdimension.Longitude) }
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>

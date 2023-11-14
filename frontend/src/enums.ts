@@ -3,6 +3,11 @@ export enum SortDirection {
     Descending = 'desc'
 }
 
+export enum GCSdimension {
+    Latitude = 'latitude',
+    Longitude = 'longitude'
+}
+
 export enum MeterSortByField {
     SerialNumber = 'serial_number',
     RANumber = 'ra_number',
