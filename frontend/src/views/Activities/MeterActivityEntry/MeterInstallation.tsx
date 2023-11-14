@@ -14,6 +14,8 @@ import { ActivityType } from '../../../enums'
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox'
 import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
 
+import { formatLatLong } from '../../../conversions'
+
 {/* Controls fields of the current meter and well, also allows changing the current well if applicable */}
 export default function MeterInstallation({control, errors, watch, setValue}: any) {
     function isActivity(activitiesList: ActivityType[]) {
@@ -38,7 +40,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                                 <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.meter.status.status_name") ?? '' }</TableCell>
                                 <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.well")?.location?.trss ?? '' }</TableCell>
                                 <TableCell sx={{ fontSize: '1rem' }}>
-                                    { watch("current_installation.well")?.location?.latitude == null ? '--': watch("current_installation.well").location?.latitude?.toFixed(6)+', '+ watch("current_installation.well").location.longitude.toFixed(6) }
+                                    { watch("current_installation.well")?.location?.latitude == null ? '--': formatLatLong(watch("current_installation.well")?.location?.latitude, watch("current_installation.well")?.location?.longitude) }
                                 </TableCell>
                             </TableRow>
                         </TableBody>

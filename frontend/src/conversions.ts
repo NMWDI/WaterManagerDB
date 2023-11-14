@@ -21,3 +21,8 @@ export function decimalToDMS(decimal: number, dimension: GCSdimension): string {
   const seconds = Math.floor(((decimal - degrees) * 60 - minutes) * 60);
   return `${direction}${degrees}° ${minutes}' ${seconds}"`;
 }
+
+// Formatting of the lat/long
+export function formatLatLong(latitude: number, longitude: number): string {
+    return `${decimalToDMS(latitude, GCSdimension.Latitude)}, ${decimalToDMS(longitude, GCSdimension.Longitude)}`;
+}
