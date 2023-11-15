@@ -4,18 +4,18 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
-V0.1.11 - Remove all async code to see if it fixes deadlock issue
-V0.1.10 - Fix owners and osetag on Wells page
-V0.1.9 - Add owners to Meters table, fix various bugs
-V0.1.8 - Fix bug in meter selection autocomplete
-V0.1.7 - Fixed bugs in Add Meter
-V0.1.6 - Various fixes and meter search via map UI
-V0.1.5 - Various minor bug fixes
-V0.1.4 - Updated "current installation" section of activities to match Meters page
-V0.1.3 - Added user admin, improved appearance, fixed OSE endpoint scope.
-V0.1.2 - Added an initial parts inventory and minor meter installation UI improvements
-V0.1.1 - Initial version with new clean database
-V0.0 - Initial minimum viable product
+- V0.1.11 - Remove all async code to see if it fixes deadlock issue
+- V0.1.10 - Fix owners and osetag on Wells page
+- V0.1.9 - Add owners to Meters table, fix various bugs
+- V0.1.8 - Fix bug in meter selection autocomplete
+- V0.1.7 - Fixed bugs in Add Meter
+- V0.1.6 - Various fixes and meter search via map UI
+- V0.1.5 - Various minor bug fixes
+- V0.1.4 - Updated "current installation" section of activities to match Meters page
+- V0.1.3 - Added user admin, improved appearance, fixed OSE endpoint scope.
+- V0.1.2 - Added an initial parts inventory and minor meter installation UI improvements
+- V0.1.1 - Initial version with new clean database
+- V0.0 - Initial minimum viable product
 
 ## Purpose
 This web app facilitates reporting of water management operations to other organizations. The initial goal is to help water conservation districts communicate with local and state governments. However, the interface may eventually be developed to be more general.
