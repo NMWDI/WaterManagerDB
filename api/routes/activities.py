@@ -1,4 +1,5 @@
 from fastapi import Depends, APIRouter
+from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select
 from datetime import datetime
@@ -43,12 +44,33 @@ def post_activity(
     Handles submission of an activity.
     """
 
+    # First check that the date and time of the activity are newer than the last activity
+    last_activity = db.scalars(
+        select(MeterActivities)
+        .where(MeterActivities.meter_id == activity_form.activity_details.meter_id)
+        .order_by(MeterActivities.timestamp_end.desc())
+        .limit(1)
+    ).first()
+
+    # Calculate event start and end datetimes
+    activity_date = activity_form.activity_details.date.date()
+    starttime = activity_form.activity_details.start_time.time()
+    endtime = activity_form.activity_details.end_time.time()
+    start_datetime = datetime.combine(activity_date, starttime)
+    end_datetime = datetime.combine(activity_date, endtime)
+
+    if last_activity:
+        if last_activity.timestamp_end > end_datetime:
+            raise HTTPException(status_code=409, detail="Submitted activity is older than the last activity.")
+
     activity_meter = db.scalars(
         select(Meters).where(activity_form.activity_details.meter_id == Meters.id)
     ).first()
+
     activity_well = db.scalars(
         select(Wells).where(activity_form.current_installation.well_id == Wells.id)
     ).first()
+
     activity_type = db.scalars(
         select(ActivityTypeLU).where(
             activity_form.activity_details.activity_type_id == ActivityTypeLU.id
@@ -99,12 +121,7 @@ def post_activity(
         )
         activity_meter.notes = activity_form.current_installation.notes
 
-    # Use the date and times to assign correct timestamp datetimes
-    activity_date = activity_form.activity_details.date.date()
-    starttime = activity_form.activity_details.start_time.time()
-    endtime = activity_form.activity_details.end_time.time()
-    start_datetime = datetime.combine(activity_date, starttime)
-    end_datetime = datetime.combine(activity_date, endtime)
+    
 
     # Create the meter activity
     meter_activity = MeterActivities(
@@ -117,7 +134,6 @@ def post_activity(
         location_id=activity_well.location.id,
     )
 
-    # If testing this with seeded test data, must run 'alter sequence "MeterActivities_id_seq" restart with 401' for correct autoinc ID
     db.add(meter_activity)
     db.flush()
 

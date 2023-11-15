@@ -730,6 +730,10 @@ export function useCreateActivity(onSuccess: Function) {
                     enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
                     throw Error("Incomplete form, check network logs for details")
                 }
+                if(response.status == 409) {
+                    enqueueSnackbar('Every new meter activity must be more recent than last. See meter history.', {variant: 'error'})
+                    throw Error("Activity date out of order from history")
+                }
                 else {
                     enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
                     throw Error("Unknown Error: " + response.status)

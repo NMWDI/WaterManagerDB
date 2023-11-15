@@ -34,15 +34,6 @@ function ObservationRow({control, watch, errors, fieldID, index, propertyTypes, 
                         />
                     </Grid>
                     <Grid item xs={3}>
-                        <ControlledTextbox
-                            name={`observations.${index}.reading`}
-                            control={control}
-                            label={"Value"}
-                            error={errors?.observations?.at(index)?.reading?.message != undefined}
-                            helperText={errors?.observations?.at(index)?.reading?.message}
-                        />
-                    </Grid>
-                    <Grid item xs={3}>
                         <ControlledSelect
                             name={`observations.${index}.property_type`}
                             control={control}
@@ -50,6 +41,15 @@ function ObservationRow({control, watch, errors, fieldID, index, propertyTypes, 
                             options={propertyTypes.data ?? []}
                             getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
                             error={errors?.observations?.at(index)?.property_type?.message}
+                        />
+                    </Grid>
+                    <Grid item xs={3}>
+                        <ControlledTextbox
+                            name={`observations.${index}.reading`}
+                            control={control}
+                            label={"Value"}
+                            error={errors?.observations?.at(index)?.reading?.message != undefined}
+                            helperText={errors?.observations?.at(index)?.reading?.message}
                         />
                     </Grid>
                     <Grid item xs={3}>
