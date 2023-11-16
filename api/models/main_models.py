@@ -182,6 +182,7 @@ class MeterActivities(Base):
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)
     activity_type_id = Column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("Locations.id"), nullable=False)
+    ose_share = Column(Boolean, nullable=False)
 
     submitting_user = relationship("Users")
     meter = relationship("Meters")

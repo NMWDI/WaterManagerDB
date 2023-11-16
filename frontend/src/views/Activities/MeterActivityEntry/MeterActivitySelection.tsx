@@ -8,6 +8,7 @@ import ControlledActivitySelect from '../../../components/RHControlled/Controlle
 import ControlledUserSelect from '../../../components/RHControlled/ControlledUserSelect'
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
+import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
 
 {/* Controls the selection of the meter, activity, user, and other fields from 'Activity Details' */}
 export function MeterActivitySelection({control, errors, watch, setValue}: any) {
@@ -73,6 +74,16 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         control={control}
                         error={errors?.activity_details?.end_time?.message}
                         sx={{width: '100%'}}
+                    />
+                </Grid>
+            </Grid>
+            <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
+                <Grid item xs={4}>
+                    <ControlledCheckbox
+                        name="activity_details.ose_share"
+                        control={control}
+                        label="Share activity with OSE"
+                        labelPlacement="start"
                     />
                 </Grid>
             </Grid>

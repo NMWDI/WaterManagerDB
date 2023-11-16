@@ -166,6 +166,7 @@ class MeterActivity(ORMBase):
     meter_id: int
     activity_type_id: int
     location_id: int
+    ose_share: bool
 
     submitting_user: Optional[Any]
     meter: Optional[Any]
