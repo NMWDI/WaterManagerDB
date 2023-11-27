@@ -215,6 +215,7 @@ class MeterObservations(Base):
     timestamp = Column(DateTime, nullable=False)
     value = Column(Float, nullable=False)
     notes = Column(String)
+    ose_share = Column(Boolean, nullable=False)
 
     submitting_user_id = Column(Integer, ForeignKey("Users.id"))
     meter_id = Column(Integer, ForeignKey("Meters.id"), nullable=False)

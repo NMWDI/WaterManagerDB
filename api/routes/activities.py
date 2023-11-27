@@ -43,7 +43,6 @@ def post_activity(
     """
     Handles submission of an activity.
     """
-    print(f'OSE status: {activity_form.activity_details.share_ose}')
 
     # First check that the date and time of the activity are newer than the last activity
     last_activity = db.scalars(
@@ -140,6 +139,12 @@ def post_activity(
     db.flush()
 
     # Create the observations
+    if activity_form.activity_details.share_ose:
+        # Set OSE flag in observation to true
+        share_ose_observation = True
+    else:
+        share_ose_observation = False
+
     for observation_form in activity_form.observations:
         observation_time = observation_form.time.time()
         observation_datetime = datetime.combine(activity_date, observation_time)
@@ -151,6 +156,7 @@ def post_activity(
             submitting_user_id=activity_form.activity_details.user_id,
             meter_id=activity_form.activity_details.meter_id,
             location_id=activity_well.location.id,
+            ose_share=share_ose_observation,
         )
         db.add(observation)
 

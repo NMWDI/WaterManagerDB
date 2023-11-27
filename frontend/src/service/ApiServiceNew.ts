@@ -722,7 +722,6 @@ export function useCreateActivity(onSuccess: Function) {
 
     return useMutation({
         mutationFn: async (activityForm: ActivityForm) => {
-            console.log(activityForm)
             const response = await POSTFetch(route, activityForm, authHeader())
 
             // This responsibility will eventually move to callsite when special error codes arent relied on
