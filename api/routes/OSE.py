@@ -76,6 +76,7 @@ def get_ose_history(
                 and_(
                     MeterActivities.timestamp_end >= start_datetime,
                     MeterActivities.timestamp_end <= end_datetime,
+                    MeterActivities.ose_share == True,
                 )
             )
         )
@@ -96,6 +97,7 @@ def get_ose_history(
                 and_(
                     MeterObservations.timestamp >= start_datetime,
                     MeterObservations.timestamp <= end_datetime,
+                    MeterObservations.ose_share == True,
                 )
             )
         )
