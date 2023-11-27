@@ -80,7 +80,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
             <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
                 <Grid item xs={4}>
                     <ControlledCheckbox
-                        name="activity_details.ose_share"
+                        name="activity_details.share_ose"
                         control={control}
                         label="Share activity with OSE"
                         labelPlacement="start"

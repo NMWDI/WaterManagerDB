@@ -43,6 +43,7 @@ def post_activity(
     """
     Handles submission of an activity.
     """
+    print(f'OSE status: {activity_form.activity_details.share_ose}')
 
     # First check that the date and time of the activity are newer than the last activity
     last_activity = db.scalars(
@@ -132,7 +133,7 @@ def post_activity(
         meter_id=activity_form.activity_details.meter_id,
         activity_type_id=activity_form.activity_details.activity_type_id,
         location_id=activity_well.location.id,
-        ose_share=activity_form.activity_details.ose_share,
+        ose_share=activity_form.activity_details.share_ose,
     )
 
     db.add(meter_activity)

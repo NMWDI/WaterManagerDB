@@ -11,6 +11,7 @@ export interface ActivityForm {
         date?: Dayjs
         start_time?: Dayjs
         end_time?: Dayjs
+        share_ose: boolean
     }
 
     current_installation?: {
@@ -46,6 +47,7 @@ export interface ActivityFormControl {
         date: Dayjs
         start_time: Dayjs
         end_time: Dayjs
+        share_ose: boolean = false
     },
     current_installation: {
         meter: Partial<MeterDetails> | null

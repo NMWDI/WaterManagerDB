@@ -5,7 +5,6 @@ import { ControlledSelect } from './ControlledSelect'
 
 export default function ControlledActivitySelect({name, control, ...childProps}: any) {
     const activityTypeList = useGetActivityTypeList()
-    console.log(activityTypeList)
 
     return (
         <ControlledSelect

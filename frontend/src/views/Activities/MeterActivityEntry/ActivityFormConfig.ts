@@ -70,6 +70,7 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             date: activityFormControl?.activity_details?.date,
             start_time: activityFormControl?.activity_details?.start_time,
             end_time: activityFormControl?.activity_details?.end_time,
+            share_ose: activityFormControl?.activity_details?.share_ose
         },
         current_installation: {
             contact_name: activityFormControl?.current_installation?.meter?.contact_name as string,
@@ -102,7 +103,8 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
             user: null,
             date: Dayjs(),
             start_time: Dayjs(),
-            end_time: Dayjs()
+            end_time: Dayjs(),
+            share_ose: false
         },
 
         current_installation: {

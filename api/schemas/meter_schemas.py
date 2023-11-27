@@ -116,6 +116,7 @@ class ActivityForm(ORMBase):
         date: datetime
         start_time: datetime
         end_time: datetime
+        share_ose: bool = False
 
     class CurrentInstallation(ORMBase):
         contact_name: Optional[str]
