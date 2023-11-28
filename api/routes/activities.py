@@ -61,7 +61,10 @@ def post_activity(
 
     if last_activity:
         if last_activity.timestamp_end > end_datetime:
-            raise HTTPException(status_code=409, detail="Submitted activity is older than the last activity.")
+            raise HTTPException(
+                status_code=409,
+                detail="Submitted activity is older than the last activity.",
+            )
 
     activity_meter = db.scalars(
         select(Meters).where(activity_form.activity_details.meter_id == Meters.id)
@@ -120,8 +123,6 @@ def post_activity(
             activity_form.current_installation.well_distance_ft
         )
         activity_meter.notes = activity_form.current_installation.notes
-
-    
 
     # Create the meter activity
     meter_activity = MeterActivities(
