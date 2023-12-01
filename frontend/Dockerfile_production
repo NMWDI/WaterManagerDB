@@ -3,11 +3,10 @@ FROM node:19-alpine as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY ./package.json /app/
-COPY ./yarn.lock /app/
-RUN corepack enable
-RUN yarn install
-COPY . /app
-RUN yarn build
+COPY ./package-lock.json /app/
+RUN npm ci
+RUN npm build
+
 
 # stage 2 - build the final image and copy the react build files
 FROM nginx:1.23.2-alpine
