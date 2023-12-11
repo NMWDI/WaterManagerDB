@@ -37,14 +37,18 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # def get_db():
 #     db = SessionLocal()
 #     try:
-#         yield db
+#         yield db 
 #     finally:
 #         db.close()
 
 
 def get_db():
     with Session(engine) as session:
-        yield session
+        try:
+            yield session
+        finally:
+            pass
+        
 
 
 # ============= EOF =============================================
