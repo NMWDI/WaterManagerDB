@@ -6,7 +6,6 @@ import { useDebounce } from 'use-debounce'
 import { useGetWells } from '../../service/ApiServiceNew'
 import { Well } from '../../interfaces'
 import ControlledAutocomplete from './ControlledAutocomplete'
-import { isNull } from 'util'
 
 export default function ControlledWellSelection({name, control, ...childProps}: any) {
     const [wellSearchQuery, setWellSearchQuery] = useState<string>('')
@@ -26,7 +25,7 @@ export default function ControlledWellSelection({name, control, ...childProps}: 
             {...childProps}
             disabled={childProps.disabled || wellList.isLoading}
             onInputChange={(event: any, query: string) => {setWellSearchQuery(query)}}
-            getOptionLabel={(op: Well) => op?.name ?? ''}
+            getOptionLabel={(op: Well) => op?.ra_number ?? ''}
             renderInput={(params: any) => {
                 if (wellList.isLoading) params.inputProps.value = "Loading..."
                 return (<TextField

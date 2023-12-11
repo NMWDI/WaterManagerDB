@@ -61,7 +61,7 @@ export default function PartsSelection({control, errors, watch, setValue}: any) 
                     sx={toggleStyle}
                     key={part.id}
                 >
-                {`${part.description} (${part.part_number})`}
+                {`${part.part_type?.name} - ${part.description} (${part.part_number})`}
                 </ToggleButton>
             </Grid>
         )
