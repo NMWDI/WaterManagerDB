@@ -14,7 +14,8 @@
 # limitations under the License.
 # ===============================================================================
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+#from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 
 from .config import settings
 
@@ -28,16 +29,19 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 # engine = create_engine(
 #     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 # )
-print(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+#print(SQLALCHEMY_DATABASE_URL)
+#SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+    with Session(engine) as session:
+        yield session
 
 # ============= EOF =============================================
