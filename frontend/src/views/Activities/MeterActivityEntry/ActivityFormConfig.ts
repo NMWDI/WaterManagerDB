@@ -37,7 +37,7 @@ export const ActivityResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape(
 
     observations: Yup.array().of(Yup.object().shape({
         time: Yup.date().required(),
-        reading: Yup.number().typeError('Please enter a number.').positive().required('Please enter a value.'),
+        reading: Yup.number().typeError('Please enter a number.').min(0, 'Please enter a non-negative value.').required('Please enter a value.'),
         property_type: Yup.object().shape({
             id: Yup.number().required('Please select a property type.'),
         }).required('Please select a property type.'),
