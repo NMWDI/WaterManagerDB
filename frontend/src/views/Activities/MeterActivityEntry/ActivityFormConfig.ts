@@ -153,16 +153,25 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 time: dayjs.utc(),
                 reading: '',
                 property_type: {
-                    id: 2,
+                    id: 3,
                     units: [
                     {
-                        id: 3, name: 'Kilowatt hours', name_short: '...', description: '...'
-                    },
-                    {
-                        id: 4, name: 'Gas BTU', name_short: '...', description: '...'
+                        id: 5, name: 'Percent', name_short: '...', description: '...'
                     }
                 ]},
-                unit: {id: 1}
+                unit: {id: 5}
+            },
+            {
+                time: dayjs.utc(),
+                reading: '',
+                property_type: {
+                    id: 7,
+                    units: [
+                    {
+                        id: 11, name: 'Inches', name_short: '...', description: '...'
+                    }
+                ]},
+                unit: {id: 7}
             },
         ],
         notes: {
