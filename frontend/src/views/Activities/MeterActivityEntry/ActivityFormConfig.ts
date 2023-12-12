@@ -96,14 +96,19 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
 
 // Provides the default values of the activity form
 export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
+
+    //Generate start and end times using current time and end time 15min later
+    const start_time = Dayjs()
+    const end_time = Dayjs().add(15, 'minute')
+
     const defaultForm: ActivityFormControl = {
         activity_details: {
             selected_meter: initialMeter,
             activity_type: null,
             user: null,
             date: Dayjs(),
-            start_time: Dayjs(),
-            end_time: Dayjs(),
+            start_time: start_time,
+            end_time: end_time,
             share_ose: false
         },
 
