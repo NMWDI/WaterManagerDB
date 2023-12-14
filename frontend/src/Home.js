@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.14 - Display RA number instead of well name, well distance is now observation, new default observations",
             "V0.1.13 - Add checkbox for sharing activities with OSE.",
             "V0.1.12 - Change lat/long to DMS, reorder observation inputs, block out of order activities",
             "V0.1.11 - Remove all async code to see if it fixes deadlock issue",
