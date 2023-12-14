@@ -73,7 +73,6 @@ class SubmitNewMeter(ORMBase):
 
     contact_name: Optional[str]
     contact_phone: Optional[str]
-    well_distance_ft: Optional[float]
     notes: Optional[str]
     well: Optional[Well]
 
@@ -82,7 +81,6 @@ class SubmitMeterUpdate(ORMBase):
     serial_number: str
     contact_name: Optional[str]
     contact_phone: Optional[str]
-    well_distance_ft: Optional[float]
     notes: Optional[str]
     meter_type: MeterTypeLU
     status: Optional[MeterStatusLU]
@@ -93,7 +91,6 @@ class Meter(ORMBase):
     serial_number: str
     contact_name: Optional[str]
     contact_phone: Optional[str]
-    well_distance_ft: Optional[float]
     notes: Optional[str]
 
     meter_type_id: int
@@ -122,7 +119,6 @@ class ActivityForm(ORMBase):
         contact_name: Optional[str]
         contact_phone: Optional[str]
         well_id: Optional[int]
-        well_distance_ft: Optional[int]
         notes: Optional[str]
 
     class ObservationForm(ORMBase):

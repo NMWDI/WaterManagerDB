@@ -119,9 +119,6 @@ def post_activity(
     if activity_type.name != "Uninstall":
         activity_meter.contact_name = activity_form.current_installation.contact_name
         activity_meter.contact_phone = activity_form.current_installation.contact_phone
-        activity_meter.well_distance_ft = (
-            activity_form.current_installation.well_distance_ft
-        )
         activity_meter.notes = activity_form.current_installation.notes
 
     # Create the meter activity
