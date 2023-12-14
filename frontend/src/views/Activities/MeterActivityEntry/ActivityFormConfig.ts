@@ -76,7 +76,6 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             contact_name: activityFormControl?.current_installation?.meter?.contact_name as string,
             contact_phone: activityFormControl?.current_installation?.meter?.contact_phone as string,
             well_id: activityFormControl?.current_installation?.well?.id,
-            well_distance_ft: activityFormControl?.current_installation?.meter?.well_distance_ft,
             notes: activityFormControl?.current_installation?.meter?.notes as string,
         },
         observations: observationForms,

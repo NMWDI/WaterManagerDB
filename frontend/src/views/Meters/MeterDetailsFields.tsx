@@ -203,16 +203,6 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
-                    <Grid item xs={4}>
-                        <ControlledTextbox
-                            name="well_distance_ft"
-                            control={control}
-                            label="Well Distance"
-                            error={errors?.well_distance_ft?.message != undefined}
-                            helperText={errors?.well_distance_ft?.message}
-                            disabled={!hasAdminScope || isInitialLoad}
-                        />
-                    </Grid>
                     <Grid item xs={12}>
                         <ControlledTextbox
                             name="notes"

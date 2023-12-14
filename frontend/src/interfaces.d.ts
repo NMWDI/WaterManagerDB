@@ -18,7 +18,6 @@ export interface ActivityForm {
         contact_name?: string
         contact_phone?: string
         well_id?: number
-        well_distance_ft?: number
         notes?: string
     }
 
@@ -354,7 +353,6 @@ export interface Meter {
     serial_number: string
     contact_name?: string
     contact_phone?: string
-    well_distance_ft?: number
     notes?: string
 
     meter_type_id: number
