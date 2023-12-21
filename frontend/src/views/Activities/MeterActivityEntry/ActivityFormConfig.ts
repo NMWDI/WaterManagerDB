@@ -30,9 +30,12 @@ export const ActivityResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape(
             id: Yup.number(),
         }),
 
+        // Conditionally require a well if the activity type is "Installation"
         well: Yup.object().shape({
-            id: Yup.number().required('Please select a well.'),
-        }).required('Please select a well.')
+            id: Yup.number().when('activity_details.activity_type.id', (activityTypeId: number, schema: any) => {
+                return activityTypeId === 1 ? schema.required('Please select a well.') : schema.notRequired();
+            })
+        }),
     }),
 
     observations: Yup.array().of(Yup.object().shape({
