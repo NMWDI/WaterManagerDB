@@ -4,7 +4,7 @@ from sqlalchemy import select
 from typing import List
 from passlib.context import CryptContext
 
-from api.models.security_models import Users, UserRoles, SecurityScopes
+from api.models.main_models import Users, UserRoles, SecurityScopes
 
 from api.schemas import security_schemas
 from api.session import get_db

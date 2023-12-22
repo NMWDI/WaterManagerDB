@@ -8,7 +8,7 @@ from api.schemas.base import ORMBase
 
 class ORMBaseSimple(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LandOwner(ORMBase):

@@ -183,6 +183,7 @@ celerybeat.pid
 .env
 .env_*
 .env310
+.venv*
 .local
 .venv
 env/
@@ -191,6 +192,7 @@ ENV/
 env.bak/
 venv.bak/
 .local
+.local_py312_sql2
 .vscode
 
 # Spyder project settings
