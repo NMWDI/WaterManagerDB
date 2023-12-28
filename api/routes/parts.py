@@ -168,8 +168,10 @@ def get_meter_parts(meter_id: int, db: Session = Depends(get_db)):
         )
     ).all()
 
-    return db.scalars(
+    meter_parts = db.scalars(
         select(Parts)
         .where(Parts.id.in_(part_id_list))
         .options(joinedload(Parts.part_type))
     ).all()
+
+    return meter_parts

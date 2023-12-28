@@ -9,12 +9,12 @@ from api.schemas.security_schemas import User
 class MeterTypeLU(ORMBase):
     brand: Optional[str]
     series: Optional[str]
-    model_number: str
+    model: str
     size: Optional[float]
     description: Optional[str]
     in_use: bool
 
-    parts: Optional[List[Any]]
+    # parts: Optional[List[Any]]
 
 
 # The minimal information used by the meters list

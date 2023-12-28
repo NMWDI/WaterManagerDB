@@ -15,6 +15,8 @@ from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from typing import Optional, List
 
+from pydantic import field_serializer
+
 class Base(DeclarativeBase):
     """
     Base class for all models
@@ -65,7 +67,7 @@ class Parts(Base):
     part_type: Mapped["PartTypeLU"] = relationship()
 
     # The meter types associated with this part
-    meter_types: Mapped[List["MeterTypeLU"]] = relationship(secondary="PartAssociation")
+    # meter_types: Mapped[Optional[List["MeterTypeLU"]]] = relationship(secondary=PartAssociation, back_populates="parts")
 
 
 # Association table that links parts and the meter activity they were used on
@@ -147,12 +149,18 @@ class MeterTypeLU(Base):
     __tablename__ = "MeterTypeLU"
     brand: Mapped[str] = mapped_column(String)
     series: Mapped[str] = mapped_column(String)
-    model_number: Mapped[str] = mapped_column(String)
+    model: Mapped[str] = mapped_column(String)
     size: Mapped[float] = mapped_column(Float)
     description: Mapped[str] = mapped_column(String)
     in_use: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
-    parts: Mapped[List["Parts"]] = relationship(secondary="PartAssociation")
+    # parts: Mapped[List["Parts"]] = relationship(secondary=PartAssociation)
+
+    # @field_serializer("parts")
+    # def serialize_parts(self, parts: Optional[List["Parts"]]):
+    #     if parts is None:
+    #         return None
+    #     return [part.part_type for part in parts]
 
 
 class MeterStatusLU(Base):

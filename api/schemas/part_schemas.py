@@ -17,11 +17,7 @@ class Part(ORMBase):
     commonly_used: bool
 
     part_type_id: Optional[int]
-
-    part_type: Optional[Any]
-    meter_types: Optional[
-        List[Any]
-    ]  # MeterTypeLU, but cant import bc of circular imports
+    part_type: Optional[PartTypeLU]
 
 
 class PartUsed(ORMBase):

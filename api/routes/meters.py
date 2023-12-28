@@ -209,9 +209,8 @@ def get_meter(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Meters"],
 )
-def get_meter_types(
-    db: Session = Depends(get_db),
-):
+def get_meter_types(db: Session = Depends(get_db)):
+    
     return db.scalars(select(MeterTypeLU)).all()
 
 
@@ -245,7 +244,7 @@ def create_meter_type(
     new_type_model = MeterTypeLU(
         brand=new_meter_type.brand,
         series=new_meter_type.series,
-        model_number=new_meter_type.model_number,
+        model=new_meter_type.model,
         size=new_meter_type.size,
         description=new_meter_type.description,
         in_use=new_meter_type.in_use,
