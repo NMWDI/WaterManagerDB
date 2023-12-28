@@ -165,13 +165,6 @@ class MeterActivity(ORMBase):
     location_id: int
     ose_share: bool
 
-    submitting_user: Optional[Any]
-    meter: Optional[Any]
-    activity_type: Optional[Any]
-    location: Optional[Any]
-
-    parts_used: Optional[List[Part]]
-
 
 class ObservedPropertyTypeLU(ORMBase):
     name: Optional[str]
