@@ -1,5 +1,6 @@
 from typing import List, Optional, Any
 from api.schemas.base import ORMBase
+from api.schemas.meter_schemas import MeterTypeLU
 
 
 class PartTypeLU(ORMBase):
@@ -18,6 +19,8 @@ class Part(ORMBase):
 
     part_type_id: Optional[int]
     part_type: Optional[PartTypeLU]
+
+    meter_types: Optional[List[MeterTypeLU]]
 
 
 class PartUsed(ORMBase):

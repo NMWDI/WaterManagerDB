@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Any
 from api.schemas.base import ORMBase
-from api.schemas.part_schemas import Part
 from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
 

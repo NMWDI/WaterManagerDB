@@ -67,7 +67,7 @@ class Parts(Base):
     part_type: Mapped["PartTypeLU"] = relationship()
 
     # The meter types associated with this part
-    # meter_types: Mapped[Optional[List["MeterTypeLU"]]] = relationship(secondary=PartAssociation, back_populates="parts")
+    meter_types: Mapped[Optional[List["MeterTypeLU"]]] = relationship(secondary=PartAssociation)
 
 
 # Association table that links parts and the meter activity they were used on
@@ -155,12 +155,6 @@ class MeterTypeLU(Base):
     in_use: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     # parts: Mapped[List["Parts"]] = relationship(secondary=PartAssociation)
-
-    # @field_serializer("parts")
-    # def serialize_parts(self, parts: Optional[List["Parts"]]):
-    #     if parts is None:
-    #         return None
-    #     return [part.part_type for part in parts]
 
 
 class MeterStatusLU(Base):

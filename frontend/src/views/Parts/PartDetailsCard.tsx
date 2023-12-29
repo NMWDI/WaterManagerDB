@@ -175,7 +175,7 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
                                         {selected.map((value, index) => (
                                            <Chip
                                                 key={value.id}
-                                                label={`${value.brand} - ${value.model_number}`}
+                                                label={`${value.brand} - ${value.model}`}
                                                 clickable
                                                 deleteIcon={
                                                     <CancelIcon
@@ -193,7 +193,7 @@ export default function PartDetailsCard({selectedPartID, partAddMode}: PartDetai
                             {meterTypeList.data?.
                                 filter(x => !watch("meter_types")?.map(scope => scope.id).includes(x.id))
                                 .map((type: MeterTypeLU) =>
-                                     <MenuItem value={type.id}>{`${type.brand} - ${type.model_number}`}</MenuItem>
+                                     <MenuItem value={type.id}>{`${type.brand} - ${type.model}`}</MenuItem>
                             )}
                             </Select>
                             </FormControl>

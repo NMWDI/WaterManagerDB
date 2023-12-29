@@ -264,7 +264,7 @@ export interface MeterType {
     id?: int
     brand?: string
     series?: string
-    model_number?: string
+    model?: string
     size?: float
     description?: string
 }
@@ -298,7 +298,7 @@ export interface MeterTypeLU {
     id: number
     brand: string
     series: string
-    model_number: string
+    model: string
     size: number
     description: string
     in_use: boolean
