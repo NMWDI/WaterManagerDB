@@ -1,26 +1,26 @@
-from typing import List, Optional, Any
+from typing import List
 from api.schemas.base import ORMBase
 from api.schemas.meter_schemas import MeterTypeLU
 
 
 class PartTypeLU(ORMBase):
-    name: Optional[str]
-    description: Optional[str]
+    name: str | None
+    description: str | None
 
 
 class Part(ORMBase):
     part_number: str
-    description: Optional[str]
-    vendor: Optional[str]
+    description: str | None
+    vendor: str | None
     count: int
-    note: Optional[str]
+    note: str | None
     in_use: bool
     commonly_used: bool
 
-    part_type_id: Optional[int]
-    part_type: Optional[PartTypeLU]
+    part_type_id: int
+    part_type: PartTypeLU | None
 
-    meter_types: Optional[List[MeterTypeLU]]
+    meter_types: List[MeterTypeLU] | None
 
 
 class PartUsed(ORMBase):

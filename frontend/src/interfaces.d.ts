@@ -119,13 +119,7 @@ export interface Part {
 
     part_type?: PartTypeLU
     meter_types?: MeterTypeLU[]
-    meter_type_associations?: {
-        id: number
-        part_id: number
-        meter_type_id: number
-        commonly_used: boolean
-        associated_meter_type: MeterTypeLU
-    }[]
+
 }
 
 export interface PartAssociation {

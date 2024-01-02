@@ -65,7 +65,7 @@ def get_part(part_id: int, db: Session = Depends(get_db)):
 def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     # Update the part (this won't include secondary attributes like associations)
     part_db = _get(db, Parts, updated_part.id)
-    for k, v in updated_part.dict(exclude_unset=True).items():
+    for k, v in updated_part.model_dump(exclude_unset=True).items():
         try:
             setattr(part_db, k, v)
         except AttributeError as e:
@@ -86,16 +86,11 @@ def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     ).first()
 
     # Update associations, _patch only handles direct attributes
-    if updated_part.part_type:
-        part.part_type = db.scalars(
-            select(PartTypeLU).where(PartTypeLU.id == updated_part.part_type["id"])
-        ).first()
-
     if updated_part.meter_types:
         part.meter_types = db.scalars(
             select(MeterTypeLU).where(
                 MeterTypeLU.id.in_(
-                    map(lambda type: type["id"], updated_part.meter_types)
+                    map(lambda type: type.id, updated_part.meter_types)
                 )
             )
         ).all()
@@ -115,11 +110,7 @@ def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
 def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
     new_part_model = Parts(
         part_number=new_part.part_number,
-        part_type_id=db.scalars(
-            select(PartTypeLU).where(PartTypeLU.id == new_part.part_type["id"])
-        )
-        .first()
-        .id,
+        part_type_id=new_part.part_type_id,
         description=new_part.description,
         vendor=new_part.vendor,
         count=new_part.count,
@@ -138,7 +129,7 @@ def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
     if new_part.meter_types:
         new_part_model.meter_types = db.scalars(
             select(MeterTypeLU).where(
-                MeterTypeLU.id.in_(map(lambda type: type["id"], new_part.meter_types))
+                MeterTypeLU.id.in_(map(lambda type: type.id, new_part.meter_types))
             )
         ).all()
 

@@ -875,6 +875,7 @@ export function useUpdatePart(onSuccess: Function) {
 
     return useMutation({
         mutationFn: async (part: Partial<Part>) => {
+            console.log(part)
             const response = await PATCHFetch(route, part, authHeader())
 
             if (!response.ok) {
@@ -980,6 +981,7 @@ export function useCreatePart(onSuccess: Function) {
     return useMutation({
         mutationFn: async (part: Part) => {
             try {
+                console.log(part)
                 const response = await POSTFetch(route, part, authHeader())
 
                 if (!response.ok) {
