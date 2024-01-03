@@ -90,7 +90,7 @@ class Meter(ORMBase):
     notes: str | None = None
 
     meter_type_id: int
-    status_id: int | None = 6 # Default "unknown"
+    status_id: int | None = 6  # Default "unknown"
     well_id: int | None = None
     location_id: int | None = None
 

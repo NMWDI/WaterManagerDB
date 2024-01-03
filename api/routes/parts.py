@@ -89,9 +89,7 @@ def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     if updated_part.meter_types:
         part.meter_types = db.scalars(
             select(MeterTypeLU).where(
-                MeterTypeLU.id.in_(
-                    map(lambda type: type.id, updated_part.meter_types)
-                )
+                MeterTypeLU.id.in_(map(lambda type: type.id, updated_part.meter_types))
             )
         ).all()
 

@@ -210,7 +210,6 @@ def get_meter(
     tags=["Meters"],
 )
 def get_meter_types(db: Session = Depends(get_db)):
-    
     return db.scalars(select(MeterTypeLU)).all()
 
 
