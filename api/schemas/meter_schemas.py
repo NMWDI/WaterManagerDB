@@ -1,106 +1,103 @@
 from datetime import datetime
-from typing import List, Optional, Any
 from api.schemas.base import ORMBase
 from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
 
 
 class MeterTypeLU(ORMBase):
-    brand: Optional[str]
-    series: Optional[str]
+    brand: str | None = None
+    series: str | None = None
     model: str
-    size: Optional[float]
-    description: Optional[str]
+    size: float | None = None
+    description: str | None = None
     in_use: bool
-
-    # parts: Optional[List[Any]]
 
 
 # The minimal information used by the meters list
 class MeterListDTO(ORMBase):
     class WellDTO(ORMBase):
-        ra_number: Optional[str]
-        name: Optional[str]
-        owners: Optional[str]
+        ra_number: str | None = None
+        name: str | None = None
+        owners: str | None = None
 
     class LocationDTO(ORMBase):
-        trss: Optional[str]
-        longitude: Optional[float]
-        latitude: Optional[float]
+        trss: str | None = None
+        longitude: float | None = None
+        latitude: float | None = None
 
     class StatusDTO(ORMBase):
-        status_name: Optional[str]
+        status_name: str | None = None
 
     id: int
     serial_number: str
-    well: Optional[WellDTO]
-    location: Optional[LocationDTO]
-    status: Optional[StatusDTO]
+    well: WellDTO | None = None
+    location: LocationDTO | None = None
+    status: StatusDTO | None = None
 
 
 # Similar to MeterListDTO, but focused on location and installed meters
 class MeterMapDTO(ORMBase):
     class WellDTO(ORMBase):
-        ra_number: Optional[str]
-        name: Optional[str]
+        ra_number: str | None = None
+        name: str | None = None
 
     class LocationDTO(ORMBase):
-        trss: Optional[str]
-        longitude: Optional[float]
-        latitude: Optional[float]
+        trss: str | None = None
+        longitude: float | None = None
+        latitude: float | None = None
 
     id: int
     serial_number: str
-    well: Optional[WellDTO]
-    location: Optional[LocationDTO]
+    well: WellDTO | None = None
+    location: LocationDTO | None = None
 
 
 class MeterStatusLU(ORMBase):
-    status_name: Optional[str]
-    description: Optional[str]
+    status_name: str | None = None
+    description: str | None = None
 
 
 class NoteTypeLU(ORMBase):
-    note: Optional[str]
-    details: Optional[str]
-    slug: Optional[str]
+    note: str | None = None
+    details: str | None = None
+    slug: str | None = None
 
 
 class SubmitNewMeter(ORMBase):
     serial_number: str
     meter_type: MeterTypeLU
 
-    contact_name: Optional[str]
-    contact_phone: Optional[str]
-    notes: Optional[str]
-    well: Optional[Well]
+    contact_name: str | None = None
+    contact_phone: str | None = None
+    notes: str | None = None
+    well: Well | None = None
 
 
 class SubmitMeterUpdate(ORMBase):
     serial_number: str
-    contact_name: Optional[str]
-    contact_phone: Optional[str]
-    notes: Optional[str]
+    contact_name: str | None = None
+    contact_phone: str | None = None
+    notes: str | None = None
     meter_type: MeterTypeLU
-    status: Optional[MeterStatusLU]
-    well: Optional[Well]
+    status: MeterStatusLU | None = None
+    well: Well | None = None
 
 
 class Meter(ORMBase):
     serial_number: str
-    contact_name: Optional[str]
-    contact_phone: Optional[str]
-    notes: Optional[str]
+    contact_name: str | None = None
+    contact_phone: str | None = None
+    notes: str | None = None
 
     meter_type_id: int
-    status_id: Optional[int]
-    well_id: Optional[int]
-    location_id: Optional[int]
+    status_id: int | None = 6 # Default "unknown"
+    well_id: int | None = None
+    location_id: int | None = None
 
-    meter_type: Optional[MeterTypeLU]
-    status: Optional[MeterStatusLU]
-    well: Optional[Well]
-    location: Optional[Location]
+    meter_type: MeterTypeLU | None = None
+    status: MeterStatusLU | None = None
+    well: Well | None = None
+    location: Location | None = None
 
 
 # The activity form submitted by the frontend
@@ -115,10 +112,10 @@ class ActivityForm(ORMBase):
         share_ose: bool = False
 
     class CurrentInstallation(ORMBase):
-        contact_name: Optional[str]
-        contact_phone: Optional[str]
-        well_id: Optional[int]
-        notes: Optional[str]
+        contact_name: str | None = None
+        contact_phone: str | None = None
+        well_id: int | None = None
+        notes: str | None = None
 
     class ObservationForm(ORMBase):
         time: datetime
@@ -127,36 +124,36 @@ class ActivityForm(ORMBase):
         unit_id: int
 
     class MaintenanceRepair(ORMBase):
-        service_type_ids: Optional[List[int]]
-        description: Optional[str]
+        service_type_ids: list[int] | None = None
+        description: str | None = None
 
     class Notes(ORMBase):
         working_on_arrival_slug: str
-        selected_note_ids: Optional[List[int]]
+        selected_note_ids: list[int] | None = None
 
     activity_details: ActivityDetails
     current_installation: CurrentInstallation
-    observations: Optional[List[ObservationForm]]
-    maintenance_repair: Optional[MaintenanceRepair]
+    observations: list[ObservationForm] | None = None
+    maintenance_repair: MaintenanceRepair | None = None
     notes: Notes
-    part_used_ids: Optional[List[int]]
+    part_used_ids: list[int] | None = None
 
 
 class Unit(ORMBase):
-    name: Optional[str]
-    name_short: Optional[str]
-    description: Optional[str]
+    name: str | None = None
+    name_short: str | None = None
+    description: str | None = None
 
 
 class ActivityTypeLU(ORMBase):
-    name: Optional[str]
-    description: Optional[str]
+    name: str | None = None
+    description: str | None = None
 
 
 class MeterActivity(ORMBase):
     timestamp_start: datetime
     timestamp_end: datetime
-    description: Optional[str]
+    description: str | None = None
 
     submitting_user_id: int
     meter_id: int
@@ -166,17 +163,17 @@ class MeterActivity(ORMBase):
 
 
 class ObservedPropertyTypeLU(ORMBase):
-    name: Optional[str]
-    description: Optional[str]
-    context: Optional[str]
+    name: str | None = None
+    description: str | None = None
+    context: str | None = None
 
-    units: Optional[List[Unit]]
+    units: list[Unit] | None = None
 
 
 class MeterObservation(ORMBase):
     timestamp: datetime
     value: float
-    notes: Optional[str]
+    notes: str | None = None
 
     submitting_user_id: int
     meter_id: int
@@ -184,13 +181,13 @@ class MeterObservation(ORMBase):
     unit_id: int
     location_id: int
 
-    submitting_user: Optional[User]
-    meter: Optional[Meter]
-    observed_property_type: Optional[ObservedPropertyTypeLU]
-    unit: Optional[Unit]
-    location: Optional[Location]
+    submitting_user: User | None = None
+    meter: Meter | None = None
+    observed_property_type: ObservedPropertyTypeLU | None = None
+    unit: Unit | None = None
+    location: Location | None = None
 
 
 class ServiceTypeLU(ORMBase):
-    service_name: Optional[str]
-    description: Optional[str]
+    service_name: str | None = None
+    description: str | None = None

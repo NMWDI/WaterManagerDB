@@ -124,7 +124,7 @@ def create_meter(
     )
 
     # If there is a well set, update status, well and location
-    if new_meter.well.id:
+    if new_meter.well:
         new_meter_model.status_id = db.scalars(
             select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Installed")
         ).first()
