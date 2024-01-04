@@ -83,9 +83,7 @@ def get_user(username: str):
             undefer(Users.username),
             undefer(Users.user_role_id),
             undefer(Users.email),
-            joinedload(Users.user_role).joinedload(
-                UserRoles.security_scopes
-            ),
+            joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
         )
         .first()
     )

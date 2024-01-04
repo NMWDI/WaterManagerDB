@@ -19,7 +19,7 @@ from api.models.main_models import (
     Wells,
     Locations,
     MeterStatusLU,
-    Users
+    Users,
 )
 from api.session import get_db
 from api.security import get_current_user

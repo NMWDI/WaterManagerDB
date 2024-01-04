@@ -10,12 +10,19 @@ from sqlalchemy import (
     Table,
 )
 
-from sqlalchemy.orm import relationship, DeclarativeBase, mapped_column, Mapped, deferred
+from sqlalchemy.orm import (
+    relationship,
+    DeclarativeBase,
+    mapped_column,
+    Mapped,
+    deferred,
+)
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from typing import Optional, List
 
 from pydantic import field_serializer
+
 
 class Base(DeclarativeBase):
     """
@@ -34,6 +41,7 @@ class PartTypeLU(Base):
     """
     The types of parts
     """
+
     __tablename__ = "PartTypeLU"
     name: Mapped[str]
     description: Mapped[str]
@@ -53,6 +61,7 @@ class Parts(Base):
     """
     All parts
     """
+
     __tablename__ = "Parts"
 
     part_number: Mapped[str] = mapped_column(String, unique=True, nullable=False)
@@ -63,11 +72,15 @@ class Parts(Base):
     in_use: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     commonly_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    part_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("PartTypeLU.id"), nullable=False)
+    part_type_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("PartTypeLU.id"), nullable=False
+    )
     part_type: Mapped["PartTypeLU"] = relationship()
 
     # The meter types associated with this part
-    meter_types: Mapped[Optional[List["MeterTypeLU"]]] = relationship(secondary=PartAssociation)
+    meter_types: Mapped[Optional[List["MeterTypeLU"]]] = relationship(
+        secondary=PartAssociation
+    )
 
 
 # Association table that links parts and the meter activity they were used on
@@ -83,6 +96,7 @@ class ServiceTypeLU(Base):
     """
     Describes the type of service performed during an activity
     """
+
     __tablename__ = "ServiceTypeLU"
     service_name: Mapped[str]
     description: Mapped[str]
@@ -101,6 +115,7 @@ class NoteTypeLU(Base):
     """
     Pre-defined notes that can be set on activities
     """
+
     __tablename__ = "NoteTypeLU"
     note: Mapped[str]
     details: Mapped[str]
@@ -125,16 +140,27 @@ class Meters(Base):
     """
     Primary table for tracking meters
     """
+
     __tablename__ = "Meters"
     serial_number: Mapped[str] = mapped_column(String, nullable=False)
-    contact_name: Mapped[Optional[str]] = mapped_column(String)  # Contact information specific to particular meter
+    contact_name: Mapped[Optional[str]] = mapped_column(
+        String
+    )  # Contact information specific to particular meter
     contact_phone: Mapped[Optional[str]] = mapped_column(String)
     notes: Mapped[Optional[str]] = mapped_column(String)
 
-    meter_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("MeterTypeLU.id"), nullable=False)
-    status_id: Mapped[int] = mapped_column(Integer, ForeignKey("MeterStatusLU.id"), nullable=False)
-    well_id: Mapped[int] = mapped_column(Integer, ForeignKey("Wells.id"), nullable=False)
-    location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"), nullable=False)
+    meter_type_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("MeterTypeLU.id"), nullable=False
+    )
+    status_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("MeterStatusLU.id"), nullable=False
+    )
+    well_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Wells.id"), nullable=False
+    )
+    location_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Locations.id"), nullable=False
+    )
 
     meter_type: Mapped["MeterTypeLU"] = relationship()
     status: Mapped["MeterStatusLU"] = relationship()
@@ -146,6 +172,7 @@ class MeterTypeLU(Base):
     """
     Meter types
     """
+
     __tablename__ = "MeterTypeLU"
     brand: Mapped[str] = mapped_column(String)
     series: Mapped[str] = mapped_column(String)
@@ -161,6 +188,7 @@ class MeterStatusLU(Base):
     """
     Establishes if a meter is installed, in inventory, retired, or other options as needed.
     """
+
     __tablename__ = "MeterStatusLU"
     status_name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
@@ -170,15 +198,24 @@ class MeterActivities(Base):
     """
     Logs all meter activities
     """
+
     __tablename__ = "MeterActivities"
     timestamp_start: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     timestamp_end: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     description: Mapped[DateTime] = mapped_column(String)
 
-    submitting_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=False)
-    meter_id: Mapped[int] = mapped_column(Integer, ForeignKey("Meters.id"), nullable=False)
-    activity_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("ActivityTypeLU.id"), nullable=False)
-    location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"), nullable=False)
+    submitting_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Users.id"), nullable=False
+    )
+    meter_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Meters.id"), nullable=False
+    )
+    activity_type_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("ActivityTypeLU.id"), nullable=False
+    )
+    location_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Locations.id"), nullable=False
+    )
     ose_share: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     submitting_user: Mapped["Users"] = relationship()
@@ -187,7 +224,9 @@ class MeterActivities(Base):
     location: Mapped["Locations"] = relationship()
 
     parts_used: Mapped[List["Parts"]] = relationship("Parts", secondary=PartsUsed)
-    services_performed: Mapped[List["ServiceTypeLU"]] = relationship("ServiceTypeLU", secondary=ServicesPerformed)
+    services_performed: Mapped[List["ServiceTypeLU"]] = relationship(
+        "ServiceTypeLU", secondary=ServicesPerformed
+    )
     notes: Mapped[List["NoteTypeLU"]] = relationship("NoteTypeLU", secondary=Notes)
 
 
@@ -195,6 +234,7 @@ class ActivityTypeLU(Base):
     """
     Details the different types of activities PVACD implements
     """
+
     __tablename__ = "ActivityTypeLU"
     name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
@@ -208,6 +248,7 @@ class MeterObservations(Base):
     """
     Tracks all observations associated with a meter
     """
+
     __tablename__ = "MeterObservations"
     timestamp: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     value: Mapped[float] = mapped_column(Float, nullable=False)
@@ -215,12 +256,18 @@ class MeterObservations(Base):
     ose_share: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     submitting_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"))
-    meter_id: Mapped[int] = mapped_column(Integer, ForeignKey("Meters.id"), nullable=False)
+    meter_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Meters.id"), nullable=False
+    )
     observed_property_type_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
     )
-    unit_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
-    location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"), nullable=False)
+    unit_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Units.id"), nullable=False
+    )
+    location_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Locations.id"), nullable=False
+    )
 
     submitting_user: Mapped["Users"] = relationship()
     meter: Mapped["Meters"] = relationship()
@@ -233,10 +280,13 @@ class ObservedPropertyTypeLU(Base):
     """
     Defines the types of observations made on a meter
     """
+
     __tablename__ = "ObservedPropertyTypeLU"
     name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
-    context: Mapped[str] = mapped_column(String)  # Specifies if property associated with 'meter' or 'well'
+    context: Mapped[str] = mapped_column(
+        String
+    )  # Specifies if property associated with 'meter' or 'well'
 
     # The units that can be used on this property type
     units: Mapped[List["Units"]] = relationship(secondary="PropertyUnits")
@@ -246,6 +296,7 @@ class Units(Base):
     """
     Defines units used in observations
     """
+
     __tablename__ = "Units"
     name: Mapped[str] = mapped_column(String)
     name_short: Mapped[str] = mapped_column(String)
@@ -267,6 +318,7 @@ class Locations(Base):
     """
     Table for tracking information about a well's location
     """
+
     __tablename__ = "Locations"
     name: Mapped[str] = mapped_column(String)
     trss: Mapped[str] = mapped_column(String)
@@ -280,7 +332,9 @@ class Locations(Base):
     quarter_quarter: Mapped[int] = mapped_column(Integer)
     # geom = mapped_column(Geometry("POINT")) # SQLAlchemy/FastAPI has some issue sending this
 
-    type_id: Mapped[int] = mapped_column(Integer, ForeignKey("LocationTypeLU.id"), nullable=False)
+    type_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("LocationTypeLU.id"), nullable=False
+    )
     land_owner_id: Mapped[int] = mapped_column(Integer, ForeignKey("LandOwners.id"))
 
     land_owner: Mapped["LandOwners"] = relationship()
@@ -309,6 +363,7 @@ class LocationTypeLU(Base):
     """
     Defines the type of location, such as well
     """
+
     __tablename__ = "LocationTypeLU"
     type_name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
@@ -319,6 +374,7 @@ class LandOwners(Base):
     Organizations and people that have some relationship with a PVACD meter
     - Typically irrigators?
     """
+
     __tablename__ = "LandOwners"
     contact_name: Mapped[str] = mapped_column(String)
     organization: Mapped[str] = mapped_column(String)
@@ -332,12 +388,14 @@ class LandOwners(Base):
     note: Mapped[str] = mapped_column(String)
 
 
-#-----------    Security Tables    ---------------
+# -----------    Security Tables    ---------------
+
 
 class Users(Base):
     """
     All info about a user of the app
     """
+
     __tablename__ = "Users"
 
     full_name: Mapped[str] = mapped_column(String)
@@ -348,9 +406,12 @@ class Users(Base):
     email: Mapped[str] = deferred(mapped_column(String))
     hashed_password: Mapped[str] = deferred(mapped_column(String, nullable=False))
 
-    user_role_id: Mapped[int] = deferred(mapped_column(Integer, ForeignKey("UserRoles.id"), nullable=False))
+    user_role_id: Mapped[int] = deferred(
+        mapped_column(Integer, ForeignKey("UserRoles.id"), nullable=False)
+    )
 
     user_role: Mapped["UserRoles"] = relationship("UserRoles")
+
 
 # Association table that links roles and their associated scopes
 ScopesRoles = Table(
@@ -360,10 +421,12 @@ ScopesRoles = Table(
     Column("user_role_id", ForeignKey("UserRoles.id"), nullable=False),
 )
 
+
 class SecurityScopes(Base):
     """
     Individual permissions
     """
+
     __tablename__ = "SecurityScopes"
     scope_string: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String)
@@ -374,7 +437,9 @@ class UserRoles(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
 
     # The scopes associated with a given role
-    security_scopes: Mapped[List["SecurityScopes"]] = relationship(secondary=ScopesRoles)
+    security_scopes: Mapped[List["SecurityScopes"]] = relationship(
+        secondary=ScopesRoles
+    )
 
 
 # Not used
@@ -403,6 +468,7 @@ class WellUseLU(Base):
     """
     The type of well
     """
+
     __tablename__ = "WellUseLU"
     use_type: Mapped[str] = mapped_column(String, nullable=False)
     code: Mapped[str] = mapped_column(String)
@@ -413,9 +479,12 @@ class Wells(Base):
     """
     All wells
     """
+
     __tablename__ = "Wells"
     name: Mapped[str] = mapped_column(String)
-    ra_number: Mapped[str] = mapped_column(String)  # RA Number is an OSE well identifier
+    ra_number: Mapped[str] = mapped_column(
+        String
+    )  # RA Number is an OSE well identifier
     owners: Mapped[str] = mapped_column(String)
     osetag: Mapped[str] = mapped_column(String)
 
@@ -430,16 +499,25 @@ class WellMeasurements(Base):
     """
     The measurements made on a monitored well
     """
+
     __tablename__ = "WellMeasurements"
-    timestamp: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
+    timestamp: Mapped[DateTime] = mapped_column(
+        DateTime, default=func.now(), nullable=False
+    )
     value: Mapped[float] = mapped_column(Float, nullable=False)
 
     observed_property_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
     )
-    submitting_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=False)
-    unit_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
-    well_id: Mapped[int] = mapped_column(Integer, ForeignKey("Wells.id"), nullable=False)
+    submitting_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Users.id"), nullable=False
+    )
+    unit_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Units.id"), nullable=False
+    )
+    well_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("Wells.id"), nullable=False
+    )
 
     observed_property: Mapped["ObservedPropertyTypeLU"] = relationship()
     submitting_user: Mapped["Users"] = relationship()
