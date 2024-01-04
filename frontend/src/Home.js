@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.16 - Fixed bug where status is changed when clearing well from meter",
             "V0.1.15 - Updated backend to use SQLAlchemy 2 (resolve connection issue?)",
             "V0.1.14 - Display RA number instead of well name, well distance is now observation, new default observations",
             "V0.1.13 - Add checkbox for sharing activities with OSE.",
