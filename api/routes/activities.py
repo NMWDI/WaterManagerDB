@@ -19,8 +19,8 @@ from api.models.main_models import (
     Wells,
     Locations,
     MeterStatusLU,
+    Users,
 )
-from api.models.security_models import Users
 from api.session import get_db
 from api.security import get_current_user
 from api.enums import ScopedUser

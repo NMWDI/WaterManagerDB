@@ -67,11 +67,10 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     const createMeter = useCreateMeter(onSuccessfulCreate)
 
     const onSaveChanges: SubmitHandler<any> = data => {
-        data.well_distance_ft = data.well_distance_ft == "" ? null : parseFloat(data.well_distance_ft)
         updateMeter.mutate(data)
     }
     const onAddMeter: SubmitHandler<any> = data => {
-        data.well_distance_ft = data.well_distance_ft == "" ? null : parseFloat(data.well_distance_ft)
+        data.well = data.well == "" ? null : data.well  // If no well selected, set to null for API
         createMeter.mutate(data)
     }
     const onErr = (data: any) => console.log("ERR: ", data)

@@ -6,4 +6,4 @@ class ORMBase(BaseModel):
     id: Optional[int] = None  # TODO: not optional
 
     class Config:
-        orm_mode = True
+        from_attributes = True

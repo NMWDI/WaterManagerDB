@@ -16,7 +16,7 @@ import { ControlledSelectNonObject } from '../../components/RHControlled/Control
 
 const MeterTypeResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     brand: Yup.string().required('Please enter a brand.'),
-    model_number: Yup.string().required('Please enter a model number.'),
+    model: Yup.string().required('Please enter a model number.'),
     size: Yup.number().typeError('Please enter a number.').required('Please enter a size.'),
     in_use: Yup.boolean().typeError('Please indicate if part is in use.').required('Please indicate if part is in use.')
 })
@@ -84,11 +84,11 @@ export default function MeterTypeDetailsCard({selectedMeterType, meterTypeAddMod
                         </Grid>
                         <Grid item xs={12} xl={6}>
                             <ControlledTextbox
-                                name="model_number"
+                                name="model"
                                 control={control}
                                 label="Model Number"
-                                error={errors?.model_number?.message != undefined}
-                                helperText={errors?.model_number?.message}
+                                error={errors?.model?.message != undefined}
+                                helperText={errors?.model?.message}
                             />
                         </Grid>
                         <Grid item xs={12} xl={6}>

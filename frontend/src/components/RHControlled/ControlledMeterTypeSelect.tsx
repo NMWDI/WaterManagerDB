@@ -12,7 +12,7 @@ export default function ControlledMeterTypeSelect({name, control, ...childProps}
             name={name}
             label="Meter Type"
             options={meterTypeList.data ?? []}
-            getOptionLabel={(type: MeterTypeLU) => `${type.brand} - ${type.model_number}`}
+            getOptionLabel={(type: MeterTypeLU) => `${type.brand} - ${type.model}`}
             disabled={meterTypeList.isLoading}
             {...childProps}
             value={meterTypeList.isLoading ? 'Loading...' : childProps.value}

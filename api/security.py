@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 from starlette import status
 from sqlalchemy.orm import joinedload, undefer
 
-from api.models import security_models
+from api.models.main_models import Users, UserRoles, SecurityScopes
 from api.schemas import security_schemas
 from api.session import get_db
 
@@ -76,16 +76,14 @@ def get_user(username: str):
 
     # Eager load roles and scopes
     dbuser = (
-        db.query(security_models.Users)
-        .filter(security_models.Users.username == username)
+        db.query(Users)
+        .filter(Users.username == username)
         .options(
-            undefer(security_models.Users.hashed_password),
-            undefer(security_models.Users.username),
-            undefer(security_models.Users.user_role_id),
-            undefer(security_models.Users.email),
-            joinedload(security_models.Users.user_role).joinedload(
-                security_models.UserRoles.security_scopes
-            ),
+            undefer(Users.hashed_password),
+            undefer(Users.username),
+            undefer(Users.user_role_id),
+            undefer(Users.email),
+            joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
         )
         .first()
     )
@@ -119,7 +117,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
 # Provide a list of scope_strings, recieve the current user if those scopes are present, raise auth exception if not
 def scoped_user(scopes):
-    def get_user(current_user: security_models.Users = Security(get_current_user)):
+    def get_user(current_user: Users = Security(get_current_user)):
         current_user_scope_strings = list(
             map(lambda x: x.scope_string, current_user.user_role.security_scopes)
         )

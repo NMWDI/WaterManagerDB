@@ -16,7 +16,7 @@ export default function MeterTypeSelect({selectedMeterTypeID, setSelectedMeterTy
                 {...childProps}
             >
                 {meterTypeList.data?.map((meterType: MeterTypeLU) => {
-                    return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model_number}</MenuItem>
+                    return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model}</MenuItem>
                 })}
 
                 {meterTypeList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}

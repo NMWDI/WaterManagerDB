@@ -23,7 +23,7 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
     const cols: GridColDef[] = [
         {field: 'brand', headerName: 'Brand', width: 200},
         {field: 'series', headerName: 'Series', width: 100},
-        {field: 'model_number', headerName: 'Model Number', width: 200},
+        {field: 'model', headerName: 'Model Number', width: 200},
         {field: 'size', headerName: 'Size', width: 100},
         {field: 'description', headerName: 'Description', width: 200},
         {field: 'in_use', headerName: 'In Use',
@@ -37,7 +37,7 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
         const psq = meterTypeSearchQuery.toLowerCase()
         let filtered = (meterTypes.data ?? []).filter(row =>
             row.brand?.toLowerCase().includes(psq) ||
-            row.model_number?.toLowerCase().includes(psq) ||
+            row.model?.toLowerCase().includes(psq) ||
             row.size?.toString().includes(psq) ||
             row.series?.toLowerCase().includes(psq) ||
             row.description?.toLowerCase().includes(psq)

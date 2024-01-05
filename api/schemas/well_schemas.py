@@ -8,55 +8,55 @@ from api.schemas.base import ORMBase
 
 class ORMBaseSimple(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LandOwner(ORMBase):
-    contact_name: Optional[str]
-    organization: Optional[str]
-    address: Optional[str]
-    city: Optional[str]
-    state: Optional[str]
-    zip: Optional[str]
-    phone: Optional[str]
-    email: Optional[str]
-    city: Optional[str]
+    contact_name: str | None = None
+    organization: str | None = None
+    address: str | None = None
+    city: str | None = None
+    state: str | None = None
+    zip: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    city: str | None = None
 
 
 class Location(ORMBase):
-    name: Optional[str]
+    name: str | None = None
     type_id: int
-    trss: Optional[str]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    township: Optional[int]
-    range: Optional[int]
-    section: Optional[int]
-    quarter: Optional[int]
-    half_quarter: Optional[int]
-    quarter_quarter: Optional[int]
-    land_owner_id: Optional[int]
+    trss: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    township: int | None = None
+    range: int | None = None
+    section: int | None = None
+    quarter: int | None = None
+    half_quarter: int | None = None
+    quarter_quarter: int | None = None
+    land_owner_id: int | None = None
 
-    land_owner: Optional[LandOwner]
+    land_owner: LandOwner | None = None
 
 
 class WellUseLU(ORMBase):
     use_type: str
-    code: Optional[str]
-    description: Optional[str]
+    code: str | None = None
+    description: str | None = None
 
 
 class Well(ORMBase):
-    name: Optional[str]
-    ra_number: Optional[str]
-    owners: Optional[str]
-    osetag: Optional[str]
+    name: str | None = None
+    ra_number: str | None = None
+    owners: str | None = None
+    osetag: str | None = None
 
-    location_id: Optional[int]
-    use_type_id: Optional[int]
+    location_id: int | None = None
+    use_type_id: int | None = None
 
-    location: Optional[Location]
-    use_type: Optional[WellUseLU]
+    location: Location | None = None
+    use_type: WellUseLU | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
@@ -69,10 +69,10 @@ class SubmitWellCreate(ORMBaseSimple):
     class SubmitUseTypeCreate(ORMBaseSimple):
         id: int
 
-    name: Optional[str]
-    ra_number: Optional[str]
-    owners: Optional[str]
-    osetag: Optional[str]
+    name: str | None = None
+    ra_number: str | None = None
+    owners: str | None = None
+    osetag: str | None = None
 
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
@@ -91,21 +91,21 @@ class SubmitWellUpdate(ORMBaseSimple):
 
     id: int
     name: str
-    ra_number: Optional[str]
-    owners: Optional[str]
-    osetag: Optional[str]
+    ra_number: str | None = None
+    owners: str | None = None
+    osetag: str | None = None
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate
 
 
 class WellListDTO(ORMBase):
-    name: Optional[str]
+    name: str | None = None
 
 
 class LocationTypeLU(ORMBase):
-    type_name: Optional[str]
-    description: Optional[str]
+    type_name: str | None = None
+    description: str | None = None
 
 
 class WellMeasurement(ORMBase):
@@ -117,10 +117,7 @@ class WellMeasurement(ORMBase):
     unit_id: int
     well_id: int
 
-    observed_property: Optional[
-        Any
-    ]  # ObservedProeprtyTypeLU, but cant import bc of circular imports
-    submitting_user: Optional[User]
+    submitting_user: User | None = None
 
 
 class WellMeasurementDTO(ORMBase):
@@ -150,5 +147,5 @@ class NewWaterLevelMeasurement(ORMBase):
 
 class WaterLevelPatch(ORMBase):
     timestamp: Optional[datetime] = None
-    value: Optional[float]
-    well_id: Optional[int]
+    value: float | None = None
+    well_id: int | None = None

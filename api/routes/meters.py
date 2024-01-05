@@ -124,7 +124,7 @@ def create_meter(
     )
 
     # If there is a well set, update status, well and location
-    if new_meter.well.id:
+    if new_meter.well:
         new_meter_model.status_id = db.scalars(
             select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Installed")
         ).first()
@@ -209,9 +209,7 @@ def get_meter(
     dependencies=[Depends(ScopedUser.Read)],
     tags=["Meters"],
 )
-def get_meter_types(
-    db: Session = Depends(get_db),
-):
+def get_meter_types(db: Session = Depends(get_db)):
     return db.scalars(select(MeterTypeLU)).all()
 
 
@@ -245,7 +243,7 @@ def create_meter_type(
     new_type_model = MeterTypeLU(
         brand=new_meter_type.brand,
         series=new_meter_type.series,
-        model_number=new_meter_type.model_number,
+        model=new_meter_type.model,
         size=new_meter_type.size,
         description=new_meter_type.description,
         in_use=new_meter_type.in_use,
@@ -280,14 +278,15 @@ def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
 ):
     """
-    Update a meter. Returns http error if meter SN changed to existing SN.
-    Note that if well information is not included it is assumed the meter is
-    in the warehouse.
+    Update a meter. This is only used by Meter Details on the frontend, so status should not
+    be changed when the well is cleared.
+    
+    Returns http error if meter SN changed to existing SN.
     """
     meter_db = _get(db, Meters, updated_meter.id)
 
     # Update the meter (this won't include Well or Location due to schema structure)
-    for k, v in updated_meter.dict(exclude_unset=True).items():
+    for k, v in updated_meter.model_dump(exclude_unset=True).items():
         try:
             setattr(meter_db, k, v)
         except AttributeError as e:
@@ -303,15 +302,8 @@ def patch_meter(
         meter_db.well_id = updated_meter.well.id
         meter_db.location_id = updated_meter.well.location_id
     else:
-        # If there is no well, set status to warehouse
-        meter_db.status_id = db.scalars(
-            select(MeterStatusLU.id).where(MeterStatusLU.status_name == "Warehouse")
-        ).first()
-
-        meter_db.location_id = db.scalars(
-            select(Locations.id).where(Locations.name == "headquarters")
-        ).first()
-
+        # If there is no well set, clear the well and location
+        meter_db.location_id = None
         meter_db.well_id = None
 
     try:

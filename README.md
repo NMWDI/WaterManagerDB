@@ -4,6 +4,8 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.16 - Fixed bug where status is changed when clearing well from meter
+- V0.1.15 - Updated backend to use SQLAlchemy 2 (resolve connection issue?)
 - V0.1.14 - Display RA number instead of well name, well distance is now observation, new default observations
 - V0.1.13 - Add checkbox for sharing activities with OSE.
 - V0.1.12 - Change lat/long to DMS, reorder observation inputs, block out of order activities
