@@ -21,7 +21,6 @@ from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from typing import Optional, List
 
-from pydantic import field_serializer
 
 
 class Base(DeclarativeBase):

@@ -1,31 +1,15 @@
-# ===============================================================================
-# Copyright 2022 ross
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ===============================================================================
-from typing import List, Optional
 from api.schemas.base import ORMBase
+from pydantic import BaseModel
 
 
 class SecurityScope(ORMBase):
     scope_string: str
-    description: Optional[str]
+    description: str | None = None
 
 
 class UserRole(ORMBase):
     name: str
-
-    security_scopes: Optional[List[SecurityScope]]
+    security_scopes: list[SecurityScope] | None = None
 
 
 class UpdatedUserPassword(ORMBase):
@@ -52,24 +36,24 @@ class NewUser(ORMBase):
 
 
 class User(ORMBase):
-    username: Optional[str]
-    email: Optional[str]
-    full_name: Optional[str]
+    username: str | None = None
+    email: str | None = None
+    full_name: str | None = None
     disabled: bool
 
     user_role_id: int
 
-    user_role: Optional[UserRole]
+    user_role: UserRole | None = None
 
 
-class Token(ORMBase):
+class Token(BaseModel):
     access_token: str
     token_type: str
     user: User
 
 
 class TokenData(ORMBase):
-    username: Optional[str]
+    username: str | None = None
 
 
 class UserInDB(User):

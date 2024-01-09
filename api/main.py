@@ -21,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 
 from api.schemas import security_schemas
+from api.models.main_models import Users
 
 from api.routes.meters import meter_router
 from api.routes.well_measurements import well_measurement_router
@@ -36,6 +37,9 @@ from api.security import (
     ACCESS_TOKEN_EXPIRE_HOURS,
     authenticated_router,
 )
+
+from api.session import get_db
+from sqlalchemy.orm import Session
 
 tags_metadata = [
     {"name": "Wells", "description": "Well Related Endpoints"},
@@ -90,8 +94,11 @@ app.add_middleware(
 
 
 @app.post("/token", response_model=security_schemas.Token, tags=["Login"])
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+    ):
+    user: Users = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -115,7 +122,9 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         },
         expires_delta=timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
     )
-    return {"access_token": access_token, "token_type": "bearer", "user": user}
+    user_response = security_schemas.User(**user.__dict__)
+    
+    return {"access_token": access_token, "token_type": "bearer", "user": user_response}
 
 
 # =======================================
