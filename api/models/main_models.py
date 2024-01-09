@@ -22,7 +22,6 @@ from geoalchemy2.shape import to_shape
 from typing import Optional, List
 
 
-
 class Base(DeclarativeBase):
     """
     Base class for all models
