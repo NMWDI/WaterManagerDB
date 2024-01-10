@@ -280,7 +280,7 @@ def patch_meter(
     """
     Update a meter. This is only used by Meter Details on the frontend, so status should not
     be changed when the well is cleared.
-    
+
     Returns http error if meter SN changed to existing SN.
     """
     meter_db = _get(db, Meters, updated_meter.id)
