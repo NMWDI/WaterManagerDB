@@ -163,9 +163,10 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
-                                    <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>Status</TableCell>
+                                    <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '15%' }}>Status</TableCell>
                                         <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
-                                        <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '50%' }}>Lat/Long</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '35%' }}>Lat/Long</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>OSE Tag</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -174,6 +175,9 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                         <TableCell sx={{ fontSize: '1rem' }}>{ watch("well")?.location?.trss == null ? '--' : watch("well")?.location?.trss}</TableCell>
                                         <TableCell sx={{ fontSize: '1rem' }}>
                                             { watch("well")?.location?.latitude == null ? '--': formatLatLong(watch("well")?.location?.latitude, watch("well")?.location?.longitude) }
+                                        </TableCell>
+                                        <TableCell sx={{ fontSize: '1rem' }}>
+                                            { watch("well")?.osetag == null ? '--': watch("well")?.osetag }
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>

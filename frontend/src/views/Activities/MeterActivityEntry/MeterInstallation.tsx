@@ -30,9 +30,10 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                     <Table size="small">
                         <TableHead>
                             <TableRow>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>Status</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '15%' }}>Status</TableCell>
                                 <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
-                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '50%' }}>Lat/Long</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '35%' }}>Lat/Long</TableCell>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>OSE Tag</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -42,6 +43,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                                 <TableCell sx={{ fontSize: '1rem' }}>
                                     { watch("current_installation.well")?.location?.latitude == null ? '--': formatLatLong(watch("current_installation.well")?.location?.latitude, watch("current_installation.well")?.location?.longitude) }
                                 </TableCell>
+                                <TableCell sx={{ fontSize: '1rem' }}>{ watch("current_installation.well")?.osetag ?? '--' }</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
