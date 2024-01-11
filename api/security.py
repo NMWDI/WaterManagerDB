@@ -73,22 +73,28 @@ def get_password_hash(password):
 
 
 def get_user(username: str, db: Session) -> Users:
-
     # Load User with all security scopes
-    user_stmt = select(Users).options(
-                    undefer(Users.hashed_password),
-                    undefer(Users.username),
-                    undefer(Users.user_role_id),
-                    undefer(Users.email),
-                    joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
-                ).filter(Users.username == username)
+    user_stmt = (
+        select(Users)
+        .options(
+            undefer(Users.hashed_password),
+            undefer(Users.username),
+            undefer(Users.user_role_id),
+            undefer(Users.email),
+            joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
+        )
+        .filter(Users.username == username)
+    )
     dbuser = db.scalars(user_stmt).first()
 
     if dbuser:
         return dbuser
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(get_db)]):
+def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Annotated[Session, Depends(get_db)],
+):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
@@ -97,7 +103,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotate
             raise invalid_credentials_exception
 
         user = get_user(username=username, db=db)
-        
+
         if user is None:
             raise invalid_credentials_exception
 

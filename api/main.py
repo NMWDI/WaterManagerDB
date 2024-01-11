@@ -95,9 +95,8 @@ app.add_middleware(
 
 @app.post("/token", response_model=security_schemas.Token, tags=["Login"])
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
-    ):
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     user: Users = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
@@ -123,7 +122,7 @@ def login_for_access_token(
         expires_delta=timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS),
     )
     user_response = security_schemas.User(**user.__dict__)
-    
+
     return {"access_token": access_token, "token_type": "bearer", "user": user_response}
 
 
