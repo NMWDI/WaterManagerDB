@@ -1,12 +1,13 @@
 from datetime import timedelta, datetime
-from typing import Union
+from typing import Union, Annotated
 
 from fastapi import HTTPException, Depends, APIRouter, Security
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, ExpiredSignatureError
 from passlib.context import CryptContext
 from starlette import status
-from sqlalchemy.orm import joinedload, undefer
+from sqlalchemy.orm import joinedload, undefer, Session
+from sqlalchemy.sql import select
 
 from api.models.main_models import Users, UserRoles, SecurityScopes
 from api.schemas import security_schemas
@@ -39,8 +40,8 @@ expired_token_exception = HTTPException(
 
 
 # Return the current user if credentials were correct, False if not
-def authenticate_user(username: str, password: str):
-    user = get_user(username)
+def authenticate_user(username: str, password: str, db: Session):
+    user = get_user(username, db)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -71,28 +72,23 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(username: str):
-    db = next(get_db())
+def get_user(username: str, db: Session) -> Users:
 
-    # Eager load roles and scopes
-    dbuser = (
-        db.query(Users)
-        .filter(Users.username == username)
-        .options(
-            undefer(Users.hashed_password),
-            undefer(Users.username),
-            undefer(Users.user_role_id),
-            undefer(Users.email),
-            joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
-        )
-        .first()
-    )
+    # Load User with all security scopes
+    user_stmt = select(Users).options(
+                    undefer(Users.hashed_password),
+                    undefer(Users.username),
+                    undefer(Users.user_role_id),
+                    undefer(Users.email),
+                    joinedload(Users.user_role).joinedload(UserRoles.security_scopes),
+                ).filter(Users.username == username)
+    dbuser = db.scalars(user_stmt).first()
 
     if dbuser:
-        return security_schemas.UserInDB(**dbuser.__dict__)
+        return dbuser
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[Session, Depends(get_db)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
@@ -100,9 +96,8 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         if username is None:
             raise invalid_credentials_exception
 
-        user = get_user(
-            username=username
-        )  # dont base off username since its not unique
+        user = get_user(username=username, db=db)
+        
         if user is None:
             raise invalid_credentials_exception
 
