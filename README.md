@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.18 - Only require well on install activity, display OSE tag
 - V0.1.17 - Restructure security code to prevent database connection problems
 - V0.1.16 - Fixed bug where status is changed when clearing well from meter
 - V0.1.15 - Updated backend to use SQLAlchemy 2 (resolve connection issue?)
