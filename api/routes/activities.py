@@ -70,24 +70,33 @@ def post_activity(
         select(Meters).where(activity_form.activity_details.meter_id == Meters.id)
     ).first()
 
-    activity_well = db.scalars(
-        select(Wells).where(activity_form.current_installation.well_id == Wells.id)
-    ).first()
-
     activity_type = db.scalars(
         select(ActivityTypeLU).where(
             activity_form.activity_details.activity_type_id == ActivityTypeLU.id
         )
     ).first()
 
+    # Get the location of the activity based on the well associated with the meter
+    # If there is no well, assume the activity took place at the "Warehouse"
+    hq_location = db.scalars(
+            select(Locations).where(Locations.type_id == 1)
+        ).first()  # Probably needs a slug
+    
+    if activity_form.current_installation.well_id:
+        activity_well = db.scalars(
+                select(Wells).where(activity_form.current_installation.well_id == Wells.id)
+                ).first()
+        activity_location = activity_well.location.id
+    else:
+        activity_location = hq_location.id
+
+    # ---- Update the meter based on the activity type ----
     if activity_type.name == "Uninstall":  # This needs to be a slug
         warehouse_status = db.scalars(
             select(MeterStatusLU).where(MeterStatusLU.status_name == "Warehouse")
         ).first()
-        assumed_hq_location = db.scalars(
-            select(Locations).where(Locations.type_id == 1)
-        ).first()  # Probably needs a slug
-        activity_meter.location_id = assumed_hq_location.id
+        
+        activity_meter.location_id = hq_location.id
         activity_meter.well_id = None
         activity_meter.status_id = warehouse_status.id
 
@@ -96,7 +105,7 @@ def post_activity(
             select(MeterStatusLU).where(MeterStatusLU.status_name == "Installed")
         ).first()
         activity_meter.well_id = activity_well.id
-        activity_meter.location_id = activity_well.location.id
+        activity_meter.location_id = activity_location
         activity_meter.status_id = installed_status.id
 
     if activity_type.name == "Scrap":
@@ -121,7 +130,7 @@ def post_activity(
         activity_meter.contact_phone = activity_form.current_installation.contact_phone
         activity_meter.notes = activity_form.current_installation.notes
 
-    # Create the meter activity
+    # ---- Create the activity itself ----
     meter_activity = MeterActivities(
         timestamp_start=start_datetime,
         timestamp_end=end_datetime,
@@ -129,7 +138,7 @@ def post_activity(
         submitting_user_id=activity_form.activity_details.user_id,
         meter_id=activity_form.activity_details.meter_id,
         activity_type_id=activity_form.activity_details.activity_type_id,
-        location_id=activity_well.location.id,
+        location_id=activity_location,
         ose_share=activity_form.activity_details.share_ose,
     )
 
@@ -153,7 +162,7 @@ def post_activity(
             unit_id=observation_form.unit_id,
             submitting_user_id=activity_form.activity_details.user_id,
             meter_id=activity_form.activity_details.meter_id,
-            location_id=activity_well.location.id,
+            location_id=activity_location,
             ose_share=share_ose_observation,
         )
         db.add(observation)
