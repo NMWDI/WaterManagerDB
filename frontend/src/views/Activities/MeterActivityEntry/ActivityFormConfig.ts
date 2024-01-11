@@ -25,22 +25,24 @@ export const ActivityResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape(
 
     }).required(),
 
-    current_installation: Yup.object().shape({
-        meter: Yup.object().shape({
-            id: Yup.number(),
+    current_installation: Yup.object().when('activity_details.activity_type.id', {
+        is: 1,
+        then: (schema) => schema.shape({
+            meter: Yup.object().shape({
+                id: Yup.number(),
+            }),
+            well: Yup.object().shape({
+                id: Yup.number().required('Please select a well.'),
+            }).required('Please select a well.'),
         }),
-
-        // Conditionally require a well if the activity type is "Installation"
-        well: Yup.object().shape({
-            id: Yup.number().when('activity_details.activity_type.id', ([activityTypeId], ActivityResolverSchema: any) => {
-                return activityTypeId === 1 ? Yup.number().required('Please select a well!!') : Yup.number().notRequired();
-            })
-        }),
-        // well: Yup.object().shape({
-        //     id: Yup.number().when('activity_details.activity_type.id', (activity_details.activity_type.id: number, ActivityResolverSchema: any) => {
-        //         return activityTypeId === 1 ? schema.required('Please select a well.') : schema.notRequired();
-        //     })
-        // }),
+        otherwise: (schema) => schema.shape({
+            meter: Yup.object().shape({
+                id: Yup.number(),
+            }),
+            well: Yup.object().shape({
+                id: Yup.number().notRequired(),
+            }).notRequired(),
+        })
     }),
 
     observations: Yup.array().of(Yup.object().shape({
