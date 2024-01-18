@@ -13,6 +13,7 @@ import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiS
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
+import DMSentry from '../../components/DMSentry';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
@@ -187,6 +188,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                         }
                     </Grid>
                 </Grid>
+                <DMSentry dms_label="Latitude" onChange={(value: number) => console.log(value)} />
             </CardContent>
         </Card>
     )
