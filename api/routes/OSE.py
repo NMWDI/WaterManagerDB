@@ -27,7 +27,7 @@ class ActivityDTO(BaseModel):
     activity_start: datetime
     activity_end: datetime
     activity_type: str
-    well_ra_number: str
+    well_ra_number: str|None
     well_ose_tag: str|None
     description: str
     services: list[str]
@@ -179,14 +179,23 @@ def get_ose_history(
                     observations_list,
                 )
 
+                # Some activities are not associated with a well
+                # If well is none, set the well's RA number and OSE tag to None
+                if not meter_activity.meter.well:
+                    ra_number = None
+                    ose_tag = None
+                else:
+                    ra_number = meter_activity.meter.well.ra_number
+                    ose_tag = meter_activity.meter.well.osetag
+
                 activity = ActivityDTO(
                     activity_id=meter_activity.id,
                     activity_type=meter_activity.activity_type.name,
                     activity_start=meter_activity.timestamp_start,
                     activity_end=meter_activity.timestamp_end,
-                    well_ra_number=meter_with_history.well.ra_number,
-                    well_ose_tag=meter_with_history.well.osetag,
-                    description="",
+                    well_ra_number=ra_number,
+                    well_ose_tag=ose_tag,
+                    description=meter_activity.description,
                     services=services_performed_strings,
                     notes=notes_strings,
                     parts_used=parts_used_strings,
