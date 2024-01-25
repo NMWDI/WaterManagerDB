@@ -13,7 +13,7 @@ import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiS
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
-import ControlledDMS from '../../components/RHControlled/ControlledDMS';
+import ControlledDMS from '../../components/RHControlled/ControlledDMS_v2';
 import { GCSdimension } from '../../enums';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({

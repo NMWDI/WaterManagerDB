@@ -37,11 +37,9 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
     const [decimal_degrees, setDecimalDegrees] = useState<number>(value);
 
     if(dimension_type === GCSdimension.Latitude) {
-        var dms_label = "Latitude";
-        var cardinal_direction = 'N';
+        var dms_label = "Latitude (N)";
     } else {
-        var dms_label = "Longitude";
-        var cardinal_direction = 'W';
+        var dms_label = "Longitude (W)";
     }
 
     function calculateDecimalDegrees(d: number ,m: number, s: number) {
@@ -55,7 +53,7 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
 
     return (
         <Container>
-            {dms_label}: {cardinal_direction}
+            {dms_label}:
             <TextField sx={dms_style} value={ degrees } onChange={ (e: any) => setDegrees(Number(e.target.value)) } type="number"/>&deg;
             <TextField sx={dms_style} value={ minutes } onChange={ (e: any) => setMinutes(Number(e.target.value)) } type="number"/>&prime;
             <TextField sx={dms_style} value={ seconds } onChange={ (e: any) => setSeconds(Number(e.target.value)) } type="number"/>&Prime;&Prime;
