@@ -42,6 +42,12 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
                         .tz('America/Denver')
                         //.format('MM/DD/YYYY hh:mm A')
             },
+            valueFormatter: (params: any) => {
+                return dayjs
+                        .utc(params?.value)
+                        .tz('America/Denver')
+                        .format('MM/DD/YYYY hh:mm A')
+            },
             type: 'dateTime'
         },
         { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },
