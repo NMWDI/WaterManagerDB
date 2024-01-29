@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.20 - Fix monitoring wells sort
 - V0.1.19 - Updated OSE endpoint to have activity_id, reorganized data returned
 - V0.1.18 - Only require well on install activity, display OSE tag
 - V0.1.17 - Restructure security code to prevent database connection problems
