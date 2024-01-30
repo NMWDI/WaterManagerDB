@@ -72,6 +72,7 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
     }
 
     function calculateDecimalDegreesFromDMS(dms_string: string): number {
+        console.log("in function: " + dms_string)
         const d = parseInt(dms_string.substring(0, 3));
         const m = parseInt(dms_string.substring(3, 5));
         const s = parseFloat(dms_string.substring(5, 11));
@@ -83,8 +84,19 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
         console.log("newDMSString: " + newDMSString)
         setDMSString(newDMSString)
         setDecimalDegrees(calculateDecimalDegreesFromDMS(newDMSString))
-        onChange(decimal_degrees)
+        //onChange(decimal_degrees)
+        //onChange(calculateDecimalDegreesFromDMS(newDMSString))
     }
+
+    useEffect(() => {
+        onChange(decimal_degrees)
+    }, [decimal_degrees])
+
+    useEffect(() => {
+        console.log("useEffect: " + value)
+        setDecimalDegrees(value)
+        //setDMSString(getDMSstringFromDecimalDegrees(value))
+    }, [value])
     
     return (
         <TextField
@@ -98,13 +110,13 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
     )
 }
 
-export default function ControlledDMS({ dimension, control, name }: any) {
+export default function ControlledDMS({ name, control, ...childProps}: any) {
     return (
         <Controller
             name={name}
             control={control}
             render={({ field }) => (
-                <DMSInput {...field} dimension_type={dimension}/>
+                <DMSInput {...field} {...childProps}/>
             )}
         />
     )
