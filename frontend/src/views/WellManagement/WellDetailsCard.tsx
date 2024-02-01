@@ -13,7 +13,7 @@ import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiS
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
-import ControlledDMS from '../../components/RHControlled/ControlledDMS_v2';
+import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
@@ -165,7 +165,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <p>{watch("location.latitude")}</p>
                             <ControlledDMS
                                 name="location.latitude"
                                 control={control}
@@ -174,7 +173,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <p>{watch("location.longitude")}</p>
                             <ControlledDMS
                                 name="location.longitude"
                                 control={control}
