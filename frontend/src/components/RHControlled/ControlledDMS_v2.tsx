@@ -1,6 +1,6 @@
 /*
 
-This component is a UI that allows a user to enter a latitude or longitude using 
+This component is a UI that allows a user to enter a latitude or longitude using
 degrees, minutes, and seconds. This version uses a "controller" from react-hook-form
 
 In this version I try and use a pattern mask to display Degrees, minutes, and seconds
@@ -23,14 +23,14 @@ interface DMSInputProps {
 
 //This is from the MUI example
 interface CustomProps {
-    onChange: (event: { target: { name: string; value: string } }) => void; 
+    onChange: (event: { target: { name: string; value: string } }) => void;
     name: string;
 }
 
 const DMSFormatCustom = React.forwardRef<PatternFormatProps, CustomProps>(
     function PatternFormatCustom(props, ref) {
       const { onChange, ...other } = props;
-  
+
       return (
         <PatternFormat
           {...other}
@@ -50,20 +50,27 @@ const DMSFormatCustom = React.forwardRef<PatternFormatProps, CustomProps>(
   );
 
 //A function to convert decimal degrees to a DMS string which is a string of 10 numbers XXXXXXXXXX
-//The numbers can be mapped to XXX degrees, XX minutes, and XX.XXX seconds in the UI 
+//The numbers can be mapped to XXX degrees, XX minutes, and XX.XXX seconds in the UI
 function getDMSstringFromDecimalDegrees(decimal_degrees: number): string {
     const degrees = Math.floor(decimal_degrees);
     const minutes = Math.floor((decimal_degrees - degrees) * 60);
-    const seconds_string = ((decimal_degrees - degrees - minutes/60) * 3600).toFixed(3);
-    return degrees.toString().padStart(3, '0') + minutes.toString().padStart(2, '0') + seconds_string.padStart(2, '0');
+    const seconds = ((decimal_degrees - degrees) * 3600) % 60;
+    const formattedSeconds = seconds.toFixed(3);
+    return `${degrees.toString().padStart(3, '0')}${minutes.toString().padStart(2, '0')}${formattedSeconds.padStart(6, '0')}`;
+}
+
+function calculateDecimalDegreesFromDMS(dms_string: string): number {
+    const d = parseInt(dms_string.substring(0, 3));
+    const m = parseInt(dms_string.substring(3, 5));
+    const s = parseFloat(dms_string.substring(5, 7) + '.' + dms_string.substring(7));
+    return d + m/60 + s/3600;
 }
 
 //Create a component that takes a label (latitude or longitude) and a callback function
 //that will be called when the user enters a valid latitude or longitude.
 //The 'value' prop will be controlled by the parent component.
 function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
-    const [dms_string, setDMSString] = useState<string>(value ? getDMSstringFromDecimalDegrees(value): "0000000000")
-    const [decimal_degrees, setDecimalDegrees] = useState<number>(value);
+    const [dms_string, setDMSString] = useState<string>(getDMSstringFromDecimalDegrees(value))
 
     if(dimension_type === GCSdimension.Latitude) {
         var dms_label = "Latitude (N)";
@@ -71,43 +78,35 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
         var dms_label = "Longitude (W)";
     }
 
-    function calculateDecimalDegreesFromDMS(dms_string: string): number {
-        console.log("in function: " + dms_string)
-        const d = parseInt(dms_string.substring(0, 3));
-        const m = parseInt(dms_string.substring(3, 5));
-        const s = parseFloat(dms_string.substring(5, 11));
-        return d + m/60 + s/3600;
-    }
-    
     function handleUpdate(event: React.ChangeEvent<HTMLInputElement>){
-        let newDMSString = event.target.value;
-        console.log("newDMSString: " + newDMSString)
-        setDMSString(newDMSString)
-        setDecimalDegrees(calculateDecimalDegreesFromDMS(newDMSString))
-        //onChange(decimal_degrees)
-        //onChange(calculateDecimalDegreesFromDMS(newDMSString))
+        setDMSString(event.target.value)
     }
 
-    useEffect(() => {
-        onChange(decimal_degrees)
-    }, [decimal_degrees])
+    // Update underlying value from this component only when user leaves the input box, to avoid an infinite loop of updates caused by setting the underlying form value
+    function handleBlur() {
+        if (calculateDecimalDegreesFromDMS(dms_string) != value) {
+            onChange(calculateDecimalDegreesFromDMS(dms_string))
+        }
+    }
 
+    // Update display value when underlying value changes
     useEffect(() => {
-        console.log("useEffect: " + value)
-        setDecimalDegrees(value)
-        //setDMSString(getDMSstringFromDecimalDegrees(value))
+        if (calculateDecimalDegreesFromDMS(dms_string) != value) {
+            setDMSString(getDMSstringFromDecimalDegrees(value))
+        }
     }, [value])
-    
+
     return (
         <TextField
-            label={dms_label}
-            value={dms_string}
-            onChange={handleUpdate}
-            InputProps={{
-                inputComponent: DMSFormatCustom as any,
-            }}
-        />
-    )
+                label={dms_label}
+                value={dms_string}
+                onChange={handleUpdate}
+                onBlur={handleBlur}
+                InputProps={{
+                    inputComponent: DMSFormatCustom as any,
+                }}
+            />
+        )
 }
 
 export default function ControlledDMS({ name, control, ...childProps}: any) {
@@ -116,7 +115,11 @@ export default function ControlledDMS({ name, control, ...childProps}: any) {
             name={name}
             control={control}
             render={({ field }) => (
-                <DMSInput {...field} {...childProps}/>
+                <DMSInput
+                    {...childProps}
+                    value={childProps.value}
+                    onChange={(newValue) => field.onChange(newValue)}
+                />
             )}
         />
     )

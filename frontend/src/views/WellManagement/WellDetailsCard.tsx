@@ -165,6 +165,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
+                            <p>{watch("location.latitude")}</p>
                             <ControlledDMS
                                 name="location.latitude"
                                 control={control}
@@ -173,6 +174,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
+                            <p>{watch("location.longitude")}</p>
                             <ControlledDMS
                                 name="location.longitude"
                                 control={control}
