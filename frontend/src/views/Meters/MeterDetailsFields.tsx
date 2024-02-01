@@ -188,6 +188,25 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     {/* Other meter details */}
                     <Grid item xs={4}>
                         <ControlledTextbox
+                            name="water_users"
+                            control={control}
+                            label="Water Users"
+                            disabled={true}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <ControlledTextbox
+                            name="meter_owner"
+                            control={control}
+                            label="Meter Owner"
+                            disabled={true}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        {/*spacer*/}
+                    </Grid>
+                    <Grid item xs={4}>
+                        <ControlledTextbox
                             name="contact_name"
                             control={control}
                             label="Contact Name"

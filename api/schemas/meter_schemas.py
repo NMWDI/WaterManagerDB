@@ -30,6 +30,7 @@ class MeterListDTO(ORMBase):
 
     id: int
     serial_number: str
+    water_users: str | None = None
     well: WellDTO | None = None
     location: LocationDTO | None = None
     status: StatusDTO | None = None

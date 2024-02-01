@@ -141,9 +141,8 @@ class Meters(Base):
 
     __tablename__ = "Meters"
     serial_number: Mapped[str] = mapped_column(String, nullable=False)
-    contact_name: Mapped[Optional[str]] = mapped_column(
-        String
-    )  # Contact information specific to particular meter
+    # Contact information specific to particular meter
+    contact_name: Mapped[Optional[str]] = mapped_column(String)  
     contact_phone: Mapped[Optional[str]] = mapped_column(String)
     notes: Mapped[Optional[str]] = mapped_column(String)
 
@@ -159,6 +158,9 @@ class Meters(Base):
     location_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("Locations.id"), nullable=False
     )
+
+    water_users: Mapped[Optional[str]] = mapped_column(String)
+    meter_owner: Mapped[Optional[str]] = mapped_column(String)
 
     meter_type: Mapped["MeterTypeLU"] = relationship()
     status: Mapped["MeterStatusLU"] = relationship()

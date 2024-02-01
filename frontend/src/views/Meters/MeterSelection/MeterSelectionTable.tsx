@@ -45,9 +45,9 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             valueGetter: (params: any) => params.row.location?.trss
         },
         {
-            field: 'owners',
-            headerName: 'Owners',
-            valueGetter: (params: any) => params.row.well?.owners,
+            field: 'water_users',
+            headerName: 'Water Users',
+            valueGetter: (params: any) => params.row.water_users,
             width: 200
         },
         {

@@ -51,6 +51,31 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
             </Grid>
 
             <Grid container item xs={12} spacing={2}>
+                <Grid item xs={4}>
+                    <ControlledTextbox
+                        name="water_users"
+                        control={control}
+                        label="Water Users"
+                        disabled={true}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <ControlledTextbox
+                        name="meter_owner"
+                        control={control}
+                        label="Meter Owner"
+                        disabled={true}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <ControlledWellSelection
+                        name="current_installation.well"
+                        control={control}
+                        disabled={!isActivity([ActivityType.Install])}
+                        error={errors?.current_installation?.well?.message != undefined}
+                        helperText={errors?.well?.message}
+                    />
+                </Grid>
                 <Grid item xs={3}>
                     <ControlledTextbox
                         name="current_installation.meter.contact_name"
@@ -67,15 +92,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                         value={watch("current_installation.meter")?.contact_phone ?? ''}
                     />
                 </Grid>
-                <Grid item xs={3}>
-                    <ControlledWellSelection
-                        name="current_installation.well"
-                        control={control}
-                        disabled={!isActivity([ActivityType.Install])}
-                        error={errors?.current_installation?.well?.message != undefined}
-                        helperText={errors?.well?.message}
-                    />
-                </Grid>
+                
             </Grid>
             <Grid item xs={12} sx={{mt: 2}}>
                 <ControlledTextbox
