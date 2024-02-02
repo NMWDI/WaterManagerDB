@@ -13,6 +13,8 @@ import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiS
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
+import ControlledDMS from '../../components/RHControlled/ControlledDMS';
+import { GCSdimension } from '../../enums';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
@@ -159,23 +161,19 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="location.longitude"
+                            <ControlledDMS
+                                name="location.latitude"
                                 control={control}
-                                label="Longitude"
-                                error={errors?.location?.longitude?.message != undefined}
-                                helperText={errors?.location?.longitude?.message}
-                                value={watch("location.longitude") ?? ''}
+                                dimension_type={GCSdimension.Latitude}
+                                value={watch("location.latitude") ?? 0}
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="location.latitude"
+                            <ControlledDMS
+                                name="location.longitude"
                                 control={control}
-                                label="Latitude"
-                                error={errors?.location?.latitude?.message != undefined}
-                                helperText={errors?.location?.latitude?.message}
-                                value={watch("location.latitude") ?? ''}
+                                dimension_type={GCSdimension.Longitude}
+                                value={watch("location.longitude") ?? 0}
                             />
                         </Grid>
                     </Grid>
