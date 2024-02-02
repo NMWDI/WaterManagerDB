@@ -47,8 +47,8 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     const createWell = useCreateWell(onSuccessfulCreate)
     const updateWell = useUpdateWell(onSuccessfulUpdate)
 
-    const onSaveChanges: SubmitHandler<any> = data => console.log(data)//updateWell.mutate(data)
-    const onAddWell: SubmitHandler<any> = data => console.log(data)//createWell.mutate(data)
+    const onSaveChanges: SubmitHandler<any> = data => updateWell.mutate(data)
+    const onAddWell: SubmitHandler<any> = data => createWell.mutate(data)
     const onErr = (data: any) => console.log("ERR: ", data)
 
     // Populate the form with the selected well's details
@@ -66,10 +66,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     useEffect(() => {
         if (wellAddMode) reset()
     }, [wellAddMode])
-
-    useEffect(() => {
-        console.log("Location.latitude: " + watch("location.latitude"))
-    }, [watch("location.latitude")])
 
     // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
     function hasErrors() {

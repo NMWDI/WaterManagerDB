@@ -88,7 +88,7 @@ function DMSInput({ dimension_type, value, onChange }: DMSInputProps) {
     }
 
     function handleUpdate(event: React.ChangeEvent<HTMLInputElement>){
-        console.log('input string:' + event.target.value)
+        
         let input_str = event.target.value;
         //Force fill in the string with 0s if length is less than 10
         if(input_str.length < 10){
