@@ -5,7 +5,7 @@ from api.security import scoped_user
 class MeterSortByField(Enum):
     SerialNumber = "serial_number"
     RANumber = "ra_number"
-    Owners = "owners"
+    WaterUsers = "water_users"
     TRSS = "trss"
 
 

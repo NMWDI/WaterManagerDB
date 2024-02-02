@@ -50,8 +50,8 @@ def get_meters(
             case MeterSortByField.RANumber:
                 return Wells.ra_number
 
-            case MeterSortByField.Owners:
-                return Wells.owners
+            case MeterSortByField.WaterUsers:
+                return Meters.water_users
 
             case MeterSortByField.TRSS:
                 return Locations.trss
@@ -76,6 +76,7 @@ def get_meters(
                 Meters.serial_number.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
                 Locations.trss.ilike(f"%{search_string}%"),
+                Meters.water_users.ilike(f"%{search_string}%"),
             )
         )
 
