@@ -16,45 +16,54 @@ from api.enums import ScopedUser
 
 ose_router = APIRouter()
 
+
 class ObservationDTO(BaseModel):
-    observation_time: time #Will be associated with a given activity
+    observation_time: time  # Will be associated with a given activity
     observation_type: str
     measurement: float
     units: str
+
 
 class ActivityDTO(BaseModel):
     activity_id: int
     activity_start: datetime
     activity_end: datetime
     activity_type: str
-    well_ra_number: str|None
-    well_ose_tag: str|None
+    well_ra_number: str | None
+    well_ose_tag: str | None
     description: str
     services: list[str]
     notes: list[str]
     parts_used: list[str]
     observations: list[ObservationDTO]
 
+
 class MeterHistoryDTO(BaseModel):
     serial_number: str
     activities: list[ActivityDTO]
+
 
 class DateHistoryDTO(BaseModel):
     date: date
     meters: list[MeterHistoryDTO] = []
 
+
 def getObservations(
-        activity_start: datetime,
-        activity_end: datetime,
-        meter_id: int,
-        observations: list[MeterObservations]
-        ) -> list[ObservationDTO]:
-    '''
+    activity_start: datetime,
+    activity_end: datetime,
+    meter_id: int,
+    observations: list[MeterObservations],
+) -> list[ObservationDTO]:
+    """
     A function to return a list of observations that occurred during a given activity
-    '''
+    """
     observations_list = []
     for observation in observations:
-        if observation.timestamp >= activity_start and observation.timestamp <= activity_end and observation.meter_id == meter_id:
+        if (
+            observation.timestamp >= activity_start
+            and observation.timestamp <= activity_end
+            and observation.meter_id == meter_id
+        ):
             observation = ObservationDTO(
                 observation_time=observation.timestamp.time(),
                 observation_type=observation.observed_property.name,
@@ -62,8 +71,9 @@ def getObservations(
                 units=observation.unit.name_short,
             )
             observations_list.append(observation)
-    
+
     return observations_list
+
 
 @ose_router.get(
     "/ose_well_history",
@@ -203,11 +213,10 @@ def get_ose_history(
                 )
                 meter_activity_list.append(activity)
 
-
             # Use the meter's info and it's history that occurred on this day to build its information object
             meter_history = MeterHistoryDTO(
                 serial_number=meter_with_history.serial_number,
-                activities=meter_activity_list
+                activities=meter_activity_list,
             )
             meter_history_list.append(meter_history)
 

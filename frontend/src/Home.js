@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long",
             "V0.1.20 - Fix monitoring wells sort",
             "V0.1.19 - Updated OSE endpoint to have activity_id",
             "V0.1.18 - Only require well on install activity, display OSE tag",

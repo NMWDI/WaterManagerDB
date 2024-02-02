@@ -79,13 +79,13 @@ def post_activity(
     # Get the location of the activity based on the well associated with the meter
     # If there is no well, assume the activity took place at the "Warehouse"
     hq_location = db.scalars(
-            select(Locations).where(Locations.type_id == 1)
-        ).first()  # Probably needs a slug
-    
+        select(Locations).where(Locations.type_id == 1)
+    ).first()  # Probably needs a slug
+
     if activity_form.current_installation.well_id:
         activity_well = db.scalars(
-                select(Wells).where(activity_form.current_installation.well_id == Wells.id)
-                ).first()
+            select(Wells).where(activity_form.current_installation.well_id == Wells.id)
+        ).first()
         activity_location = activity_well.location.id
     else:
         activity_location = hq_location.id
@@ -95,7 +95,7 @@ def post_activity(
         warehouse_status = db.scalars(
             select(MeterStatusLU).where(MeterStatusLU.status_name == "Warehouse")
         ).first()
-        
+
         activity_meter.location_id = hq_location.id
         activity_meter.well_id = None
         activity_meter.status_id = warehouse_status.id
