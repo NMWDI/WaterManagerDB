@@ -303,6 +303,8 @@ export interface MeterDetails {
     serial_number?: string | null
     contact_name?: string | null
     contact_phone?: string | null
+    water_users?: string | null
+    meter_owner?: string | null
     ra_number?: string | null
     tag?: string | null
     well_distance_ft?: float | null

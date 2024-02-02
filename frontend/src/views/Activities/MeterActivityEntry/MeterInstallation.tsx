@@ -53,7 +53,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
             <Grid container item xs={12} spacing={2}>
                 <Grid item xs={4}>
                     <ControlledTextbox
-                        name="water_users"
+                        name="current_installation.meter.water_users"
                         control={control}
                         label="Water Users"
                         disabled={true}
@@ -61,7 +61,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                 </Grid>
                 <Grid item xs={4}>
                     <ControlledTextbox
-                        name="meter_owner"
+                        name="current_installation.meter.meter_owner"
                         control={control}
                         label="Meter Owner"
                         disabled={true}
