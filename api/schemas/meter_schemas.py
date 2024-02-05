@@ -117,6 +117,7 @@ class ActivityForm(ORMBase):
         contact_phone: str | None = None
         well_id: int | None = None
         notes: str | None = None
+        water_users: str | None = None
 
     class ObservationForm(ORMBase):
         time: datetime
@@ -161,6 +162,7 @@ class MeterActivity(ORMBase):
     activity_type_id: int
     location_id: int
     ose_share: bool
+    water_users: str | None = None
 
 
 class ObservedPropertyTypeLU(ORMBase):

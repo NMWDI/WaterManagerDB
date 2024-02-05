@@ -140,6 +140,7 @@ def post_activity(
         activity_type_id=activity_form.activity_details.activity_type_id,
         location_id=activity_location,
         ose_share=activity_form.activity_details.share_ose,
+        water_users=activity_form.current_installation.water_users,
     )
 
     db.add(meter_activity)

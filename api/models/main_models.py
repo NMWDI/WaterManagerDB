@@ -217,6 +217,7 @@ class MeterActivities(Base):
         Integer, ForeignKey("Locations.id"), nullable=False
     )
     ose_share: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    water_users: Mapped[str] = mapped_column(String)
 
     submitting_user: Mapped["Users"] = relationship()
     meter: Mapped["Meters"] = relationship()
