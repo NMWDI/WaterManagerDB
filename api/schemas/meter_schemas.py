@@ -118,6 +118,7 @@ class ActivityForm(ORMBase):
         well_id: int | None = None
         notes: str | None = None
         water_users: str | None = None
+        meter_owner: str | None = None
 
     class ObservationForm(ORMBase):
         time: datetime

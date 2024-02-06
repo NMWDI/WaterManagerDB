@@ -20,6 +20,7 @@ export interface ActivityForm {
         well_id?: number
         notes?: string
         water_users?: string
+        meter_owner?: string
     }
 
     observations?: ObservationForm[]

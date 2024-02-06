@@ -123,6 +123,8 @@ def post_activity(
         activity_meter.well_id = None
         activity_meter.location_id = None
         activity_meter.status_id = sold_status.id
+        activity_meter.water_users = None
+        activity_meter.meter_owner = activity_form.current_installation.meter_owner
 
     # Make updates to the meter based on user's entry in the current installation section
     if activity_type.name != "Uninstall":

@@ -87,7 +87,8 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             contact_phone: activityFormControl?.current_installation?.meter?.contact_phone as string,
             well_id: activityFormControl?.current_installation?.well?.id,
             notes: activityFormControl?.current_installation?.meter?.notes as string,
-            water_users: activityFormControl?.current_installation?.meter?.water_users as string
+            water_users: activityFormControl?.current_installation?.meter?.water_users as string,
+            meter_owner: activityFormControl?.current_installation?.meter?.meter_owner as string
         },
         observations: observationForms,
         maintenance_repair: {
