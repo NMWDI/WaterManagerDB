@@ -56,7 +56,7 @@ export default function MeterInstallation({control, errors, watch, setValue}: an
                         name="current_installation.meter.water_users"
                         control={control}
                         label="Water Users"
-                        disabled={!isActivity([ActivityType.Install])}
+                        disabled={!(isActivity([ActivityType.Install]) || isActivity([ActivityType.ChangeWaterUsers]))}
                     />
                 </Grid>
                 <Grid item xs={4}>

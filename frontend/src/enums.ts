@@ -36,7 +36,8 @@ export enum ActivityType {
     Repair = 'Repair',
     RateMeter = 'Rate Meter',
     Sell = 'Sell',
-    Scrap = 'Scrap'
+    Scrap = 'Scrap',
+    ChangeWaterUsers = 'Change Water Users'
 }
 
 export enum WorkingOnArrivalValue {

@@ -99,6 +99,7 @@ def post_activity(
         activity_meter.location_id = hq_location.id
         activity_meter.well_id = None
         activity_meter.status_id = warehouse_status.id
+        activity_meter.water_users = None
 
     if activity_type.name == "Install":
         installed_status = db.scalars(
@@ -107,6 +108,7 @@ def post_activity(
         activity_meter.well_id = activity_well.id
         activity_meter.location_id = activity_location
         activity_meter.status_id = installed_status.id
+        activity_meter.water_users = activity_form.current_installation.water_users
 
     if activity_type.name == "Scrap":
         scrapped_status = db.scalars(
@@ -115,6 +117,8 @@ def post_activity(
         activity_meter.well_id = None
         activity_meter.location_id = None
         activity_meter.status_id = scrapped_status.id
+        activity_meter.water_users = None
+        activity_meter.meter_owner = None
 
     if activity_type.name == "Sell":
         sold_status = db.scalars(
@@ -125,6 +129,9 @@ def post_activity(
         activity_meter.status_id = sold_status.id
         activity_meter.water_users = None
         activity_meter.meter_owner = activity_form.current_installation.meter_owner
+
+    if activity_type.name == "Change Water Users":
+        activity_meter.water_users = activity_form.current_installation.water_users
 
     # Make updates to the meter based on user's entry in the current installation section
     if activity_type.name != "Uninstall":
