@@ -122,6 +122,7 @@ def create_meter(
         meter_type_id=new_meter.meter_type.id,
         status_id=warehouse_status_id,
         location_id=warehouse_location_id,
+        meter_owner='PVACD'
     )
 
     # If there is a well set, update status, well and location
