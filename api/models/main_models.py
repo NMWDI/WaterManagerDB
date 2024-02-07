@@ -142,7 +142,7 @@ class Meters(Base):
     __tablename__ = "Meters"
     serial_number: Mapped[str] = mapped_column(String, nullable=False)
     # Contact information specific to particular meter
-    contact_name: Mapped[Optional[str]] = mapped_column(String)  
+    contact_name: Mapped[Optional[str]] = mapped_column(String)
     contact_phone: Mapped[Optional[str]] = mapped_column(String)
     notes: Mapped[Optional[str]] = mapped_column(String)
 
