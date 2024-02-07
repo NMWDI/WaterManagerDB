@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.22 - Change ownership so there is now water_users and meter_owner
 - V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long
 - V0.1.20 - Fix monitoring wells sort
 - V0.1.19 - Updated OSE endpoint to have activity_id, reorganized data returned
