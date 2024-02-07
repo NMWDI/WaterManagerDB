@@ -22,8 +22,6 @@ const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     location: Yup.object().shape({
         name: Yup.string().required('Please enter a location name.'),
         trss: Yup.string().required('Please enter the TRSS.'),
-        longitude: Yup.number().typeError('Only numbers may be entered.').required('Please enter the longitude.'),
-        latitude: Yup.number().typeError('Only numbers may be entered.').required('Please enter the latitude.'),
     })
 })
 
@@ -34,7 +32,10 @@ interface WellDetailsCardProps {
 
 export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetailsCardProps) {
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<SubmitWellUpdate | SubmitWellCreate>({
-        resolver: yupResolver(WellResolverSchema)
+        resolver: yupResolver(WellResolverSchema),
+        defaultValues: {
+            location: {latitude: 0, longitude: 0}
+        }
     })
 
     const useTypeList = useGetUseTypes()
