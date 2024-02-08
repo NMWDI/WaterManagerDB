@@ -1,6 +1,7 @@
 from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from datetime import datetime
 from typing import List
@@ -54,8 +55,9 @@ def post_activity(
 
     # Calculate event start and end datetimes
     activity_date = activity_form.activity_details.date.date()
-    starttime = activity_form.activity_details.start_time.time()
-    endtime = activity_form.activity_details.end_time.time()
+    # Set the times to have 0 seconds, this prevents accidental duplicate activities
+    starttime = activity_form.activity_details.start_time.time().replace(second=0)
+    endtime = activity_form.activity_details.end_time.time().replace(second=0)
     start_datetime = datetime.combine(activity_date, starttime)
     end_datetime = datetime.combine(activity_date, endtime)
 
@@ -152,7 +154,12 @@ def post_activity(
         water_users=activity_form.current_installation.water_users,
     )
 
-    db.add(meter_activity)
+    try:
+        db.add(meter_activity)
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(status_code=409, detail="Activity overlaps with existing activity.")
+    
     db.flush()
 
     # Create the observations

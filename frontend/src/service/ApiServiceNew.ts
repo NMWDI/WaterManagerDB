@@ -37,6 +37,7 @@ import {
     Meter
 } from '../interfaces.js'
 import { useNavigate } from 'react-router-dom';
+import { parseJsonText } from 'typescript';
 
 // Date display util
 export function toGMT6String(date: Date) {
@@ -731,8 +732,10 @@ export function useCreateActivity(onSuccess: Function) {
                     throw Error("Incomplete form, check network logs for details")
                 }
                 if(response.status == 409) {
-                    enqueueSnackbar('Every new meter activity must be more recent than last. See meter history.', {variant: 'error'})
-                    throw Error("Activity date out of order from history")
+                    //There could be a couple reasons for this... out of order activity or duplicate activity
+                    let errorText = await response.text()
+                    enqueueSnackbar(JSON.parse(errorText).detail, {variant: 'error'})
+                    throw Error(errorText)
                 }
                 else {
                     enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
