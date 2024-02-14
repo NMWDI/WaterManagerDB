@@ -158,8 +158,10 @@ def post_activity(
         db.add(meter_activity)
         db.commit()
     except IntegrityError as e:
-        raise HTTPException(status_code=409, detail="Activity overlaps with existing activity.")
-    
+        raise HTTPException(
+            status_code=409, detail="Activity overlaps with existing activity."
+        )
+
     db.flush()
 
     # Create the observations
