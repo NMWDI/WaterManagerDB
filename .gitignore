@@ -224,3 +224,6 @@ cython_debug/
 
 # Local database setup
 /api/backupdb/*.sql
+# dependencies
+/node_modules
+/frontend/node_modules
