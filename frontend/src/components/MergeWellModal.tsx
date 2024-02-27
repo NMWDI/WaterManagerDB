@@ -3,12 +3,7 @@
 import {
     Box,
     Modal,
-    TextField,
     Button,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
     Grid
 } from "@mui/material";
 import { useState } from 'react'
@@ -18,9 +13,10 @@ interface NewMeasurementModalProps {
     isWellMergeModalOpen: boolean
     handleCloseMergeModal: () => void
     handleSubmit: () => void
+    raNumber: string
   }
 
-export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSubmit}: NewMeasurementModalProps) {
+export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSubmit, raNumber}: NewMeasurementModalProps) {
     //TODO: Add functionality to merge wells
 
 
@@ -41,20 +37,17 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                 borderRadius: 15,
                 paddingLeft: 25}}
             >
-                <Grid item xs={6}>
-                    <h1>Test the Modal</h1>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        Testing
+                <Grid item xs={12}>
+                    <h2>Well Merge</h2>
+                    <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        Merge all meter history from {raNumber} into target well:
                     </Grid>
-                    
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                       Testing
+                    <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                        Test
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        Testing
-                    </Grid>
-                    <Grid container item xs={3} sx={{mr: 'auto', ml: 'auto'}}>
+                    <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
                         <Button type="submit" variant="contained" onClick={handleSubmit}>Merge</Button>
+                        <Button variant="contained" onClick={handleCloseMergeModal}>Cancel</Button>
                     </Grid>
                 </Grid>
             </Box>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Button, Card, CardContent, CardHeader, Grid } from '@mui/material'
+import { Alert, Button, Card, CardContent, CardHeader, Grid, Stack } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -186,20 +186,23 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                         </Grid>
                     </Grid>
                     <Grid container item xs={12} sx={{mt: 2}}>
-                        {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
-                            wellAddMode ?
-                            <Button color="success" variant="contained" onClick={handleSubmit(onAddWell, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Well</Button> :
-                            <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
-                        }
-                        {// If in edit mode, show the merge button
-                            !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal}>Merge Well</Button> : ''
-                        }
+                        <Stack direction="row" spacing={2}>
+                            {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
+                                wellAddMode ?
+                                <Button color="success" variant="contained" onClick={handleSubmit(onAddWell, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Well</Button> :
+                                <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
+                            }
+                            {// If in edit mode, show the merge button
+                                !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal}>Merge Well</Button> : ''
+                            }
+                        </Stack>
                     </Grid>
                 </Grid>
             <MergeWellModal 
                 isWellMergeModalOpen={isWellMergeModalOpen} 
                 handleCloseMergeModal={handleCloseMergeModal} 
-                handleSubmit={() => {console.log('test')}} />
+                handleSubmit={() => {console.log('test')}}
+                raNumber='RA123' />
             </CardContent>
         </Card>
     )
