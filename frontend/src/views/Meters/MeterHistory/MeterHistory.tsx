@@ -13,6 +13,7 @@ interface MeterHistoryProps {
 export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
+    //console.log(meterHistory.data)
 
     return (
             <Box sx={{width: '100%'}}>

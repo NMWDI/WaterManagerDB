@@ -229,24 +229,24 @@ def merge_well(well: well_schemas.SubmitWellMerge, db: Session = Depends(get_db)
     # Update meter activities table to target well_id and location_id
     meter_activities_sql = text("""
         UPDATE "MeterActivities"
-        SET well_id = :target_well_id, location_id = :target_location_id
-        WHERE well_id = :merge_well_id
+        SET location_id = :target_location_id
+        WHERE location_id = :merge_location_id
     """)
     db.execute(meter_activities_sql, {
         'target_well_id': target_well.id,
         'target_location_id': target_well.location_id,
-        'merge_well_id': merge_well.id
+        'merge_location_id': merge_well.location_id
     })
     # Update meter observations table to target well_id and location_id
     meter_observations_sql = text("""
         UPDATE "MeterObservations"
-        SET well_id = :target_well_id, location_id = :target_location_id
-        WHERE well_id = :merge_well_id
+        SET location_id = :target_location_id
+        WHERE location_id = :merge_location_id
     """)
     db.execute(meter_observations_sql, {
         'target_well_id': target_well.id,
         'target_location_id': target_well.location_id,
-        'merge_well_id': merge_well.id
+        'merge_location_id': merge_well.location_id
     })
 
     # Delete merge well and location

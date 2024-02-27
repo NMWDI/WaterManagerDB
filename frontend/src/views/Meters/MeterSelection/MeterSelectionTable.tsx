@@ -54,7 +54,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             field: 'ra_number',
             headerName: 'RA Number',
             valueGetter: (params: any) => params.row.well?.ra_number,
-            width: 100
+            width: 200
         },
     ];
 
