@@ -15,6 +15,8 @@ import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../inter
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
+import { MergeWellModal } from '../../components/MergeWellModal';
+import { isMainThread } from 'worker_threads';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
@@ -72,6 +74,11 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     function hasErrors() {
         return Object.keys(errors).length > 0
     }
+
+    // Modal related functions
+    const [isWellMergeModalOpen, setIsWellMergeModalOpen] = React.useState(false)
+    const handleOpenMergeModal = () => setIsWellMergeModalOpen(true)
+    const handleCloseMergeModal = () => setIsWellMergeModalOpen(false)
 
     return (
         <Card>
@@ -184,8 +191,15 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             <Button color="success" variant="contained" onClick={handleSubmit(onAddWell, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Well</Button> :
                             <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
                         }
+                        {// If in edit mode, show the merge button
+                            !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal}>Merge Well</Button> : ''
+                        }
                     </Grid>
                 </Grid>
+            <MergeWellModal 
+                isWellMergeModalOpen={isWellMergeModalOpen} 
+                handleCloseMergeModal={handleCloseMergeModal} 
+                handleSubmit={() => {console.log('test')}} />
             </CardContent>
         </Card>
     )
