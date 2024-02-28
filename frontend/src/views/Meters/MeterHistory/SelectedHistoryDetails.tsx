@@ -19,7 +19,7 @@ const disabledInputStyle = {
 export default function SelectedHistoryDetails({selectedHistoryItem}: SelectedHistoryDetailsProps) {
 
     function formatDate(dateIN: any) {
-        if (!dateIN) return null
+        if (!dateIN) return null 
         return dayjs
                 .utc(dateIN)
                 .tz('America/Denver')

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useSignIn } from 'react-auth-kit'
-import {Box, TextField, Button, Card, CardContent, CardHeader} from "@mui/material";
+import {Box, TextField, Button, Card, CardContent, CardHeader, Alert, Divider} from "@mui/material";
 import { API_URL } from "./API_config.js"
 import { enqueueSnackbar } from "notistack";
 
@@ -11,6 +11,7 @@ export default function Login() {
     const [userval, setUserVal] = useState('')
     const [passval, setPassVal] = useState('')
     const [errormsg, setErrorMsg] = useState('')
+    const [showError, setShowError] =  useState(false);
     const signIn = useSignIn()
     let navigate = useNavigate()
 
@@ -30,7 +31,13 @@ export default function Login() {
         const formData_vals = new FormData()
         formData_vals.append("username",userval)
         formData_vals.append("password",passval)
-        fetch(API_URL+'/token', {method: "POST", body: formData_vals}).then(handleLogin)
+        fetch(API_URL+'/token', {method: "POST", body: formData_vals})
+        .then(handleLogin)
+        .catch(error => {
+           setShowError(true);
+           setErrorMsg('There was a problem connecting to the server. Please try again later.');
+          });
+      
     }
 
     function handleLogin(r) {
@@ -55,18 +62,19 @@ export default function Login() {
                         console.log('Sign-in successful')
                         navigate('/home')
                     }else{
-                        console.log('signin error')
+                        setShowError(true);
+                        setErrorMsg('signin error');
                     }
                 }
             )
         }else{
-            console.log(r)
+            setShowError(true);
             setErrorMsg('User and/or Password not recognized')
         }
     }
 
     return (
-        <Box sx={{height: '100%', m: 2, mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+       <> <Box sx={{height: '100%', m: 2, mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <h2 style={{color: "#212121", fontWeight: 500}}>PVACD Meter Manager Home</h2>
             <Card sx={{width: '25%'}}>
                 <CardHeader
@@ -78,7 +86,7 @@ export default function Login() {
                     sx={{mb: 0, pb: 0}}
                 />
             <CardContent sx={{pt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <p id="error_txt" style={{color: "red"}}>{errormsg}</p> {/*Return error if problem with login*/}
+               
                 <Box component="form" autoComplete="off" onSubmit={handleSubmit} id="myform">
                     <div>
                         <TextField
@@ -107,6 +115,12 @@ export default function Login() {
                 </Box>
                 </CardContent>
             </Card>
+            <Divider/>
+            {showError &&
+           <Alert sx={{alignItems: 'center',mt:2}} severity="error">{errormsg}</Alert>
+           }
             </Box>
+           
+            </>
     );
 }
