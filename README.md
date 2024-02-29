@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.24 - Add non-functional merge button for initial testing
 - V0.1.23 - Prevent duplicate activities from being added
 - V0.1.22 - Change ownership so there is now water_users and meter_owner
 - V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long
