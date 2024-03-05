@@ -79,6 +79,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     const [isWellMergeModalOpen, setIsWellMergeModalOpen] = React.useState(false)
     const handleOpenMergeModal = () => setIsWellMergeModalOpen(true)
     const handleCloseMergeModal = () => setIsWellMergeModalOpen(false)
+    const onMergeError = (error: string) => enqueueSnackbar(error, {variant: 'error'})
 
     return (
         <Card>
@@ -201,8 +202,9 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
             <MergeWellModal 
                 isWellMergeModalOpen={isWellMergeModalOpen} 
                 handleCloseMergeModal={handleCloseMergeModal} 
-                handleSubmit={() => {console.log('test')}}
-                raNumber='RA123' />
+                handleMergeError={onMergeError}
+                raNumber = {selectedWell?.ra_number ?? ''}
+            />
             </CardContent>
         </Card>
     )

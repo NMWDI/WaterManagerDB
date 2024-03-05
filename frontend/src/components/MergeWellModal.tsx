@@ -12,13 +12,22 @@ import React from 'react'
 interface NewMeasurementModalProps {
     isWellMergeModalOpen: boolean
     handleCloseMergeModal: () => void
-    handleSubmit: () => void
+    handleMergeError: (error: string) => void
     raNumber: string
   }
 
-export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSubmit, raNumber}: NewMeasurementModalProps) {
-    //TODO: Add functionality to merge wells
+export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleMergeError, raNumber}: NewMeasurementModalProps) {
+    //Create state variable targetWell
+    const [targetWell, setTargetWell] = useState<string>('RA456-test')
 
+    //Create function to handle submit
+    const handleSubmit = () => {
+        console.log('Merging well: ' + raNumber + ' into ' + targetWell)
+        handleCloseMergeModal()
+
+        //Simulate an error
+        handleMergeError('Error merging well: ' + raNumber + ' into ' + targetWell)
+    }
 
     return (
         <Modal
@@ -43,7 +52,7 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                         Merge all meter history from {raNumber} into target well:
                     </Grid>
                     <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        Test
+                        {targetWell}
                     </Grid>
                     <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
                         <Button type="submit" variant="contained" onClick={handleSubmit}>Merge</Button>
