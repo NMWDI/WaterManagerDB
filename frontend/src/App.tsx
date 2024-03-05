@@ -142,6 +142,11 @@ export default function App() {
                     setErrorMessage={setErrorMessage}
                 />
             }/>
+             <Route path='*' element={<AppLayout
+                    pageComponent={<Home/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />} />
         </Routes>
         </Router>
         </AuthProvider>
