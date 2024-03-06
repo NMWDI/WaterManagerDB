@@ -8,25 +8,29 @@ import {
 } from "@mui/material";
 import { useState } from 'react'
 import React from 'react'
+import { useMergeWells } from "../service/ApiServiceNew";
 
+//Interface for Modal
+//Errors are handled by the API service
+//handleSuccess is passed from parent and is likely used for a snackbar message
 interface NewMeasurementModalProps {
     isWellMergeModalOpen: boolean
     handleCloseMergeModal: () => void
-    handleMergeError: (error: string) => void
+    handleSuccess: () => void
     raNumber: string
   }
 
-export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleMergeError, raNumber}: NewMeasurementModalProps) {
+export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, raNumber}: NewMeasurementModalProps) {
     //Create state variable targetWell
     const [targetWell, setTargetWell] = useState<string>('RA456-test')
+
+    const mergeWells = useMergeWells(handleSuccess)
 
     //Create function to handle submit
     const handleSubmit = () => {
         console.log('Merging well: ' + raNumber + ' into ' + targetWell)
+        mergeWells.mutate({merge_well: raNumber, target_well: targetWell})
         handleCloseMergeModal()
-
-        //Simulate an error
-        handleMergeError('Error merging well: ' + raNumber + ' into ' + targetWell)
     }
 
     return (

@@ -219,6 +219,11 @@ export interface WaterLevelQueryParams {
     well_id: number | undefined
 }
 
+export interface WellMergeParams {
+    merge_well: string
+    target_well: string
+}
+
 export interface ST2WaterLevelQueryParams {
     $filter: string
     $orderby: string
