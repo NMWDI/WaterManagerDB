@@ -1099,6 +1099,7 @@ export function useMergeWells(onSuccess: Function) {
 
     return useMutation({
         mutationFn: async (mergeWells: WellMergeParams) => {
+            console.log(mergeWells)
             const response = await POSTFetch(route, mergeWells, authHeader())
 
             if (!response.ok) {

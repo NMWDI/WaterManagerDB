@@ -22,7 +22,7 @@ interface NewMeasurementModalProps {
 
 export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, raNumber}: NewMeasurementModalProps) {
     //Create state variable targetWell
-    const [targetWell, setTargetWell] = useState<string>('RA456-test')
+    const [targetWell, setTargetWell] = useState<string>('RA3200-S5')
 
     const mergeWells = useMergeWells(handleSuccess)
 

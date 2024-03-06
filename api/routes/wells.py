@@ -209,8 +209,8 @@ def merge_well(well: well_schemas.SubmitWellMerge, db: Session = Depends(get_db)
     '''
     Transfers the history of merge well to target well then deletes the merge well
     '''
-    merge_well = db.scalars(select(Wells).where(Wells.ra_number == well.merge_well_ranumber)).first()
-    target_well = db.scalars(select(Wells).where(Wells.ra_number == well.target_well_ranumber)).first()
+    merge_well = db.scalars(select(Wells).where(Wells.ra_number == well.merge_well)).first()
+    target_well = db.scalars(select(Wells).where(Wells.ra_number == well.target_well)).first()
     merge_location = db.scalars(select(Locations).where(Locations.id == merge_well.location_id)).first()
 
     # Transfer history of merge well to target well
