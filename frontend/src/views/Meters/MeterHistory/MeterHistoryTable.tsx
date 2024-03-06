@@ -36,6 +36,12 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
                 return dayjs
                         .utc(params?.value)
                         .tz('America/Denver')
+                        // .format('MM/DD/YYYY hh:mm A')
+            },
+            valueFormatter: (params: any) => {
+                return dayjs
+                        .utc(params?.value)
+                        .tz('America/Denver')
                         .format('MM/DD/YYYY hh:mm A')
             },
             width: 200
