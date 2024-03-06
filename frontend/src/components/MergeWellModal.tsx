@@ -9,6 +9,8 @@ import {
 import { useState } from 'react'
 import React from 'react'
 import { useMergeWells } from "../service/ApiServiceNew";
+import WellSelection from "./WellSelection";
+import { Well } from '../interfaces'
 
 //Interface for Modal
 //Errors are handled by the API service
@@ -22,7 +24,7 @@ interface NewMeasurementModalProps {
 
 export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, raNumber}: NewMeasurementModalProps) {
     //Create state variable targetWell
-    const [targetWell, setTargetWell] = useState<string>('RA3200-S5')
+    const [targetWell, setTargetWell] = useState<string>('')
 
     const mergeWells = useMergeWells(handleSuccess)
 
@@ -31,6 +33,12 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
         console.log('Merging well: ' + raNumber + ' into ' + targetWell)
         mergeWells.mutate({merge_well: raNumber, target_well: targetWell})
         handleCloseMergeModal()
+    }
+
+    //Handle well selection
+    function handleWellSelection(selectedWell: Well) {
+        console.log('Selected well: ' + selectedWell)
+        setTargetWell(selectedWell.ra_number)
     }
 
     return (
@@ -56,7 +64,7 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                         Merge all meter history from {raNumber} into target well:
                     </Grid>
                     <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        {targetWell}
+                        <WellSelection selectedWell={targetWell} onSelection={handleWellSelection} />
                     </Grid>
                     <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
                         <Button type="submit" variant="contained" onClick={handleSubmit}>Merge</Button>

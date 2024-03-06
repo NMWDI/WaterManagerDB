@@ -195,7 +195,7 @@ export interface Well {
     location_id?: number | null
     well_distance_ft?: number | null
     use_type_id?: number | null
-    ra_number?: string | null
+    ra_number: string
     owners?: string | null
     osetag?: string | null
 
