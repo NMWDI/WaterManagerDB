@@ -206,7 +206,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                 isWellMergeModalOpen={isWellMergeModalOpen} 
                 handleCloseMergeModal={handleCloseMergeModal} 
                 handleSuccess={onSuccessfulMerge}
-                raNumber = {selectedWell?.ra_number ?? ''}
+                mergeWell_raNumber = {selectedWell?.ra_number ?? ''}
             />
             </CardContent>
         </Card>

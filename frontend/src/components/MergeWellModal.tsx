@@ -19,26 +19,28 @@ interface NewMeasurementModalProps {
     isWellMergeModalOpen: boolean
     handleCloseMergeModal: () => void
     handleSuccess: () => void
-    raNumber: string
+    mergeWell_raNumber: string
   }
 
-export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, raNumber}: NewMeasurementModalProps) {
+export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, mergeWell_raNumber}: NewMeasurementModalProps) {
     //Create state variable targetWell
-    const [targetWell, setTargetWell] = useState<string>('')
+    const [targetWell, setTargetWell] = useState<Well | null>(null)
 
     const mergeWells = useMergeWells(handleSuccess)
 
     //Create function to handle submit
     const handleSubmit = () => {
-        console.log('Merging well: ' + raNumber + ' into ' + targetWell)
-        mergeWells.mutate({merge_well: raNumber, target_well: targetWell})
+        let targetWell_raNumber = targetWell?.ra_number ?? ''
+        console.log('Merging well: ' + mergeWell_raNumber + ' into ' + targetWell_raNumber)
+        mergeWells.mutate({merge_well: mergeWell_raNumber, target_well: targetWell_raNumber})
+        setTargetWell(null)
         handleCloseMergeModal()
     }
 
-    //Handle well selection
-    function handleWellSelection(selectedWell: Well) {
-        console.log('Selected well: ' + selectedWell)
-        setTargetWell(selectedWell.ra_number)
+    //Clear targetWell on cancel button
+    const handleCancelMergeModal = () => {
+        setTargetWell(null)
+        handleCloseMergeModal()
     }
 
     return (
@@ -61,14 +63,14 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                 <Grid item xs={12}>
                     <h2>Well Merge</h2>
                     <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        Merge all meter history from {raNumber} into target well:
+                        Merge all meter history from {mergeWell_raNumber} into target well:
                     </Grid>
                     <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
-                        <WellSelection selectedWell={targetWell} onSelection={handleWellSelection} />
+                        <WellSelection selectedWell={targetWell} onSelection={setTargetWell} />
                     </Grid>
                     <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
                         <Button type="submit" variant="contained" onClick={handleSubmit}>Merge</Button>
-                        <Button variant="contained" onClick={handleCloseMergeModal}>Cancel</Button>
+                        <Button variant="contained" onClick={handleCancelMergeModal}>Cancel</Button>
                     </Grid>
                 </Grid>
             </Box>

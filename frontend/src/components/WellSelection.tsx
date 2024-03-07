@@ -10,7 +10,12 @@ import { Autocomplete } from "@mui/material";
 import { useGetWells } from '../service/ApiServiceNew'
 import { Well } from '../interfaces'
 
-export default function WellSelection({selectedWell, onSelection}: any) {
+interface WellSelectionProps {
+    selectedWell: Well | null
+    onSelection: (well: Well | null) => void
+}
+
+export default function WellSelection({selectedWell, onSelection}: WellSelectionProps) {
     const [wellSearchQuery, setWellSearchQuery] = useState<string>('')
     const [wellSearchQueryDebounced] = useDebounce(wellSearchQuery, 250)
 
@@ -20,6 +25,7 @@ export default function WellSelection({selectedWell, onSelection}: any) {
 
     return (
         <Autocomplete
+            id='well-selection-autocomplete'
             sx={{width: 300}}
             value={selectedWell}
             onChange={(e, value) => onSelection(value)}
@@ -28,6 +34,9 @@ export default function WellSelection({selectedWell, onSelection}: any) {
             disableClearable={false}
             options={wellList.data?.items ?? []}
             getOptionLabel={(op: Well) => op?.ra_number ?? ''}
+            isOptionEqualToValue={(a: any, b: any) => {
+                return a?.id == b?.id
+            }}
             renderInput={(params) => (
                 <TextField
                     {...params}
