@@ -138,7 +138,7 @@ export default function App() {
             <Route path="/wellmanagement" element={
                 <AppLayout
                     pageComponent={<WellManagementView/>}
-                    requiredScopes={["admin"]}
+                    requiredScopes={["read"]}
                     setErrorMessage={setErrorMessage}
                 />
             }/>

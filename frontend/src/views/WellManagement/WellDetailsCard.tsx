@@ -18,6 +18,9 @@ import { GCSdimension } from '../../enums';
 import { MergeWellModal } from '../../components/MergeWellModal';
 import { isMainThread } from 'worker_threads';
 
+import { useAuthUser } from 'react-auth-kit';
+import { SecurityScope } from '../../interfaces';
+
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
     use_type: Yup.object().required('Please select a use type.'),
@@ -39,6 +42,9 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
             location: {latitude: 0, longitude: 0}
         }
     })
+
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const useTypeList = useGetUseTypes()
 
@@ -193,7 +199,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
                             }
                             {// If in edit mode, show the merge button
-                                !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal}>Merge Well</Button> : ''
+                                !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal} disabled={!hasAdminScope}>Merge Well</Button> : ''
                             }
                         </Stack>
                     </Grid>

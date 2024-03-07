@@ -30,4 +30,4 @@ class ScopedUser(Enum):
     ActivityWrite = scoped_user(["activities:write"])
     WellMeasurementWrite = scoped_user(["well_measurement:write"])
     MeterWrite = scoped_user(["meters:write"])
-    WellWrite = scoped_user(["wells:write"])
+    WellWrite = scoped_user(["well:write"])
