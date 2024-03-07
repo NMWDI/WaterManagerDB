@@ -95,7 +95,7 @@ def get_wells(
 
 @well_router.patch(
     "/wells",
-    dependencies=[Depends(ScopedUser.Admin)],
+    dependencies=[Depends(ScopedUser.WellWrite)],
     tags=["Wells"],
 )
 def update_well(
