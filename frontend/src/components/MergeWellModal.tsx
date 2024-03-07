@@ -6,11 +6,12 @@ import {
     Button,
     Grid
 } from "@mui/material";
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import React from 'react'
 import { useMergeWells } from "../service/ApiServiceNew";
 import WellSelection from "./WellSelection";
 import { Well } from '../interfaces'
+import { set } from "react-hook-form";
 
 //Interface for Modal
 //Errors are handled by the API service
@@ -25,6 +26,7 @@ interface NewMeasurementModalProps {
 export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, handleSuccess, mergeWell_raNumber}: NewMeasurementModalProps) {
     //Create state variable targetWell
     const [targetWell, setTargetWell] = useState<Well | null>(null)
+    const [disableMergeButton, setDisableMergeButton] = useState<boolean>(true)
 
     const mergeWells = useMergeWells(handleSuccess)
 
@@ -32,6 +34,15 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
     const handleSubmit = () => {
         let targetWell_raNumber = targetWell?.ra_number ?? ''
         console.log('Merging well: ' + mergeWell_raNumber + ' into ' + targetWell_raNumber)
+
+        //Prevent merge if mergeWell and targetWell are the same
+        if (mergeWell_raNumber == targetWell_raNumber) {
+            console.log('Cannot merge well into itself')
+            setTargetWell(null)
+            handleCloseMergeModal()
+            return
+        }
+
         mergeWells.mutate({merge_well: mergeWell_raNumber, target_well: targetWell_raNumber})
         setTargetWell(null)
         handleCloseMergeModal()
@@ -42,6 +53,15 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
         setTargetWell(null)
         handleCloseMergeModal()
     }
+
+    //Enable merge button if targetWell is selected
+    useEffect(() => {
+        if (targetWell) {
+            setDisableMergeButton(false)
+        }else{
+            setDisableMergeButton(true)
+        }
+    }, [targetWell])
 
     return (
         <Modal
@@ -69,7 +89,7 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                         <WellSelection selectedWell={targetWell} onSelection={setTargetWell} />
                     </Grid>
                     <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
-                        <Button type="submit" variant="contained" onClick={handleSubmit}>Merge</Button>
+                        <Button type="submit" variant="contained" onClick={handleSubmit} disabled={disableMergeButton}>Merge</Button>
                         <Button variant="contained" onClick={handleCancelMergeModal}>Cancel</Button>
                     </Grid>
                 </Grid>
