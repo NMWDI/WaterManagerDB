@@ -9,6 +9,8 @@ import { Well, WellListQueryParams } from '../../interfaces'
 import GridFooterWithButton from '../../components/GridFooterWithButton'
 import { useDebounce } from 'use-debounce'
 import { SortDirection, WellSortByField } from '../../enums'
+import { useAuthUser } from 'react-auth-kit'
+import {  SecurityScope } from '../../interfaces'
 
 interface WellsTableProps {
     setSelectedWell: Function,
@@ -25,6 +27,9 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
     const [gridRowCount, setGridRowCount] = useState<number>(100)
 
     const wellsList = useGetWells(wellListQueryParams)
+
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const cols: GridColDef[] = [
         {field: 'name', headerName: 'Name', width: 150},
@@ -100,7 +105,7 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
                     components={{Footer: GridFooterWithButton}}
                     componentsProps={{footer: {
                         button:
-                            <Button variant="contained" size="small" onClick={() => setWellAddMode(true)}>
+                            <Button variant="contained" size="small" onClick={() => setWellAddMode(true)} disabled={!hasAdminScope}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Well
                             </Button>
                     }}}

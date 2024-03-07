@@ -42,7 +42,7 @@ export default function Sidenav() {
             <NavLink route="/meters" label="Meters" />
             <NavLink route="/activities" label="Activities" />
             <NavLink route="/wells" label="Monitoring Wells" />
-            <NavLink route="/chlorides" label="Chlorides" />
+            <NavLink route="/wellmanagement" label="Wells" />
 
             {hasAdminScope && <>
                 <Grid item sx={{mt: 3, mb: 1}}>
@@ -50,7 +50,6 @@ export default function Sidenav() {
                 </Grid>
                 <NavLink route="/parts" label="Parts" />
                 <NavLink route="/usermanagement" label="Users" />
-                <NavLink route="/wellmanagement" label="Wells" />
             </>}
 
         </Grid>
