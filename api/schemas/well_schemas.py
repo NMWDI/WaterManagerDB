@@ -99,8 +99,8 @@ class SubmitWellUpdate(ORMBaseSimple):
     use_type: SubmitUseTypeUpdate
 
 class SubmitWellMerge(ORMBaseSimple):
-    merge_well_ranumber: str
-    target_well_ranumber: str
+    merge_well: str
+    target_well: str
 
 class WellListDTO(ORMBase):
     name: str | None = None

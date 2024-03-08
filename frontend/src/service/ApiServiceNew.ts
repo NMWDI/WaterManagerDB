@@ -17,6 +17,7 @@ import {
     ServiceTypeLU,
     User,
     WaterLevelQueryParams,
+    WellMergeParams,
     WellMeasurementDTO,
     Well,
     WellListQueryParams,
@@ -1084,6 +1085,36 @@ export function useCreateWaterLevel() {
                 const responseJson = await response.json()
 
                 queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useMergeWells(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'merge_wells'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (mergeWells: WellMergeParams) => {
+            console.log(mergeWells)
+            const response = await POSTFetch(route, mergeWells, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('Testing remove??!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
                 return responseJson
             }
         },
