@@ -88,9 +88,13 @@ export function MergeWellModal({isWellMergeModalOpen, handleCloseMergeModal, han
                     <Grid container item xs={12} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <WellSelection selectedWell={targetWell} onSelection={setTargetWell} />
                     </Grid>
-                    <Grid container item xs={6} sx={{mr: 'auto', ml: 'auto'}}>
-                        <Button type="submit" variant="contained" onClick={handleSubmit} disabled={disableMergeButton}>Merge</Button>
-                        <Button variant="contained" onClick={handleCancelMergeModal}>Cancel</Button>
+                    <Grid container item spacing={2} xs={6} sx={{mr: 'auto', ml: 'auto'}}>
+                        <Grid item>
+                            <Button type="submit" variant="contained" onClick={handleSubmit} disabled={disableMergeButton}>Merge</Button>
+                        </Grid>    
+                        <Grid item>
+                            <Button variant="contained" onClick={handleCancelMergeModal}>Cancel</Button>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Box>
