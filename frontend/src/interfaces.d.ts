@@ -195,7 +195,7 @@ export interface Well {
     location_id?: number | null
     well_distance_ft?: number | null
     use_type_id?: number | null
-    ra_number?: string | null
+    ra_number: string
     owners?: string | null
     osetag?: string | null
 
@@ -217,6 +217,11 @@ export interface WellDetailsQueryParams {
 
 export interface WaterLevelQueryParams {
     well_id: number | undefined
+}
+
+export interface WellMergeParams {
+    merge_well: string
+    target_well: string
 }
 
 export interface ST2WaterLevelQueryParams {

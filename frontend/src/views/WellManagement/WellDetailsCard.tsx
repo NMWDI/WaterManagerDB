@@ -53,6 +53,10 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
         enqueueSnackbar('Successfully Created Well!', {variant: 'success'})
         reset()
     }
+    function onSuccessfulMerge() {
+        enqueueSnackbar('Successfully Merged Well!', {variant: 'success'})
+        reset()
+    }
     const createWell = useCreateWell(onSuccessfulCreate)
     const updateWell = useUpdateWell(onSuccessfulUpdate)
 
@@ -207,8 +211,9 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
             <MergeWellModal 
                 isWellMergeModalOpen={isWellMergeModalOpen} 
                 handleCloseMergeModal={handleCloseMergeModal} 
-                handleSubmit={() => {console.log('test')}}
-                raNumber='RA123' />
+                handleSuccess={onSuccessfulMerge}
+                mergeWell_raNumber = {selectedWell?.ra_number ?? ''}
+            />
             </CardContent>
         </Card>
     )

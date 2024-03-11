@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.26 - Add functional merge button for admin",
             "V0.1.25 - Fix datesort on meter history, give techs limited well management",
             "V0.1.24 - Add non-functional merge button for initial testing",
             "V0.1.23 - Prevent duplicate activities from being added",
