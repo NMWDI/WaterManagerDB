@@ -19,10 +19,11 @@ import { ControlledSelect } from '../../../components/RHControlled/ControlledSel
 function ObservationRow({control, watch, errors, fieldID, index, propertyTypes, remove, setValue}: any) {
     useEffect(() => {
         setValue(`observations.${index}.unit`, watch(`observations.${index}.property_type`)?.units?.at(0))
-    }, [watch(`observations.${index}.property_type`)]) // Update the selected unit to the first in the newly selected property type
+        setValue(`observations.${index}.time`,watch("activity_details.start_time")) //Update the Match start time
+    }, [watch(`observations.${index}.property_type`),watch("activity_details.start_time")]) // Update the selected unit to the first in the newly selected property type
 
     return (
-            <Grid container item xs={12} sx={{mb: 2}} key={fieldID}>
+            <Grid container item xs={12} sx={{mb: 2}} key={fieldID}>     
             {!propertyTypes.isLoading &&
             <>
                 <Grid container item xs={10} spacing={2}>
@@ -75,8 +76,8 @@ function ObservationRow({control, watch, errors, fieldID, index, propertyTypes, 
 }
 
 export default function ObservationSelection({control, errors, watch, setValue}: any) {
-    const propertyTypes = useGetPropertyTypes()
-
+    const propertyTypes:any = useGetPropertyTypes()
+    
     // React hook formarray
     const { fields, append, remove } = useFieldArray({
         control, name: "observations"
@@ -90,13 +91,14 @@ export default function ObservationSelection({control, errors, watch, setValue}:
             unit: null
         })
     }
-
+  
     return (
             <Box sx={{mt: 6}}>
             <h4 className="custom-card-header-small">Observations</h4>
                 <Grid container item xs={12} sx={{mt: 3}}>
 
                     {fields.map((field, index) => {
+                        
                         return <ObservationRow
                                     control={control}
                                     watch={watch}

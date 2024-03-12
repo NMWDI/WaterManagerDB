@@ -164,18 +164,6 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 time: dayjs.utc(),
                 reading: '',
                 property_type: {
-                    id: 3,
-                    units: [
-                    {
-                        id: 5, name: 'Percent', name_short: '...', description: '...'
-                    }
-                ]},
-                unit: {id: 5}
-            },
-            {
-                time: dayjs.utc(),
-                reading: '',
-                property_type: {
                     id: 7,
                     units: [
                     {
@@ -184,6 +172,19 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
                 ]},
                 unit: {id: 7}
             },
+            {
+                time: dayjs.utc(),
+                reading: '',
+                property_type: {
+                    id: 3,
+                    units: [
+                    {
+                        id: 5, name: 'Percent', name_short: '...', description: '...'
+                    }
+                ]},
+                unit: {id: 5}
+            }
+            
         ],
         notes: {
             working_on_arrival_slug: 'not-checked',

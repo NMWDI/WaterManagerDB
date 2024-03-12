@@ -15,10 +15,11 @@ const disabledInputStyle = {
 // Handles errors, expects childprops to pass error as the error message string
 
 export function ControlledSelect({
-    control,
+ control,
     name,
     ...childProps
 }: any) {
+
 
     return (
         <Controller
