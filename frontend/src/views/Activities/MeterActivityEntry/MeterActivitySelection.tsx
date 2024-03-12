@@ -41,7 +41,8 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         name="activity_details.user"
                         control={control}
                         errors={errors}
-                        hideAndSelectCurrentUser={!hasAdminScope}
+                        //hideAndSelectCurrentUser={!hasAdminScope}
+                        hideAndSelectCurrentUser={false}  //Temporary disable of this admin feature
                         setValue={setValue}
                         error={errors?.activity_details?.user?.message}
                     />
