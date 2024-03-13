@@ -214,6 +214,16 @@ def get_meter(
 def get_meter_types(db: Session = Depends(get_db)):
     return db.scalars(select(MeterTypeLU)).all()
 
+# A route to return status types from the MeterStatusLU table
+@meter_router.get(
+    "/meter_status",
+    response_model=List[meter_schemas.MeterStatusLU],
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"],
+)
+def get_meter_status(db: Session = Depends(get_db)):
+    return db.scalars(select(MeterStatusLU)).all()
+
 
 @meter_router.patch(
     "/meter_types",
