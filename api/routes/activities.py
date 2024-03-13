@@ -39,11 +39,14 @@ activity_router = APIRouter()
     tags=["Activities"],
 )
 def post_activity(
-    activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db)
+    activity_form: meter_schemas.ActivityForm, db: Session = Depends(get_db), user: Users = Depends(get_current_user)
 ):
     """
     Handles submission of an activity.
     """
+    # Set some variables that will be used to determine how the meter is updated
+    update_meter_state = True
+    user_level = user.user_role.name
 
     # First check that the date and time of the activity are newer than the last activity
     last_activity = db.scalars(
@@ -63,10 +66,13 @@ def post_activity(
 
     if last_activity:
         if last_activity.timestamp_end > end_datetime:
-            raise HTTPException(
-                status_code=409,
-                detail="Submitted activity is older than the last activity.",
-            )
+            update_meter_state = False
+
+            if user_level != "Admin":
+                raise HTTPException(
+                    status_code=409,
+                    detail="Submitted activity is older than the last activity.",
+                )
 
     activity_meter = db.scalars(
         select(Meters).where(activity_form.activity_details.meter_id == Meters.id)
@@ -92,55 +98,6 @@ def post_activity(
     else:
         activity_location = hq_location.id
 
-    # ---- Update the meter based on the activity type ----
-    if activity_type.name == "Uninstall":  # This needs to be a slug
-        warehouse_status = db.scalars(
-            select(MeterStatusLU).where(MeterStatusLU.status_name == "Warehouse")
-        ).first()
-
-        activity_meter.location_id = hq_location.id
-        activity_meter.well_id = None
-        activity_meter.status_id = warehouse_status.id
-        activity_meter.water_users = None
-
-    if activity_type.name == "Install":
-        installed_status = db.scalars(
-            select(MeterStatusLU).where(MeterStatusLU.status_name == "Installed")
-        ).first()
-        activity_meter.well_id = activity_well.id
-        activity_meter.location_id = activity_location
-        activity_meter.status_id = installed_status.id
-        activity_meter.water_users = activity_form.current_installation.water_users
-
-    if activity_type.name == "Scrap":
-        scrapped_status = db.scalars(
-            select(MeterStatusLU).where(MeterStatusLU.status_name == "Scrapped")
-        ).first()
-        activity_meter.well_id = None
-        activity_meter.location_id = None
-        activity_meter.status_id = scrapped_status.id
-        activity_meter.water_users = None
-        activity_meter.meter_owner = None
-
-    if activity_type.name == "Sell":
-        sold_status = db.scalars(
-            select(MeterStatusLU).where(MeterStatusLU.status_name == "Sold")
-        ).first()
-        activity_meter.well_id = None
-        activity_meter.location_id = None
-        activity_meter.status_id = sold_status.id
-        activity_meter.water_users = None
-        activity_meter.meter_owner = activity_form.current_installation.meter_owner
-
-    if activity_type.name == "Change Water Users":
-        activity_meter.water_users = activity_form.current_installation.water_users
-
-    # Make updates to the meter based on user's entry in the current installation section
-    if activity_type.name != "Uninstall":
-        activity_meter.contact_name = activity_form.current_installation.contact_name
-        activity_meter.contact_phone = activity_form.current_installation.contact_phone
-        activity_meter.notes = activity_form.current_installation.notes
-
     # ---- Create the activity itself ----
     meter_activity = MeterActivities(
         timestamp_start=start_datetime,
@@ -154,6 +111,7 @@ def post_activity(
         water_users=activity_form.current_installation.water_users,
     )
 
+    # Add the activity to the database and if it already exists raise an error
     try:
         db.add(meter_activity)
         db.commit()
@@ -218,6 +176,58 @@ def post_activity(
         )
     ).all()
     meter_activity.services_performed = services
+
+    db.commit()
+
+    # ---- Update the current state of the meter based on the activity type ----
+    if update_meter_state:
+        if activity_type.name == "Uninstall":  # This needs to be a slug
+            warehouse_status = db.scalars(
+                select(MeterStatusLU).where(MeterStatusLU.status_name == "Warehouse")
+            ).first()
+
+            activity_meter.location_id = hq_location.id
+            activity_meter.well_id = None
+            activity_meter.status_id = warehouse_status.id
+            activity_meter.water_users = None
+
+        if activity_type.name == "Install":
+            installed_status = db.scalars(
+                select(MeterStatusLU).where(MeterStatusLU.status_name == "Installed")
+            ).first()
+            activity_meter.well_id = activity_well.id
+            activity_meter.location_id = activity_location
+            activity_meter.status_id = installed_status.id
+            activity_meter.water_users = activity_form.current_installation.water_users
+
+        if activity_type.name == "Scrap":
+            scrapped_status = db.scalars(
+                select(MeterStatusLU).where(MeterStatusLU.status_name == "Scrapped")
+            ).first()
+            activity_meter.well_id = None
+            activity_meter.location_id = None
+            activity_meter.status_id = scrapped_status.id
+            activity_meter.water_users = None
+            activity_meter.meter_owner = None
+
+        if activity_type.name == "Sell":
+            sold_status = db.scalars(
+                select(MeterStatusLU).where(MeterStatusLU.status_name == "Sold")
+            ).first()
+            activity_meter.well_id = None
+            activity_meter.location_id = None
+            activity_meter.status_id = sold_status.id
+            activity_meter.water_users = None
+            activity_meter.meter_owner = activity_form.current_installation.meter_owner
+
+        if activity_type.name == "Change Water Users":
+            activity_meter.water_users = activity_form.current_installation.water_users
+
+        # Make updates to the meter based on user's entry in the current installation section
+        if activity_type.name != "Uninstall":
+            activity_meter.contact_name = activity_form.current_installation.contact_name
+            activity_meter.contact_phone = activity_form.current_installation.contact_phone
+            activity_meter.notes = activity_form.current_installation.notes
 
     db.commit()
 
