@@ -290,8 +290,7 @@ def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
 ):
     """
-    Update a meter. This is only used by Meter Details on the frontend, so status should not
-    be changed when the well is cleared.
+    Update the current state of a meter. This is only used by Meter Details on the frontend.
 
     Returns http error if meter SN changed to existing SN.
     """
@@ -317,6 +316,10 @@ def patch_meter(
         # If there is no well set, clear the well and location
         meter_db.location_id = None
         meter_db.well_id = None
+
+    # Update the meter status, if it isn't set don't update it
+    if updated_meter.status:
+        meter_db.status_id = updated_meter.status.id
 
     try:
         db.add(meter_db)

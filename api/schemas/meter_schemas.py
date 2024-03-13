@@ -82,6 +82,8 @@ class SubmitMeterUpdate(ORMBase):
     meter_type: MeterTypeLU
     status: MeterStatusLU | None = None
     well: Well | None = None
+    water_users: str | None = None
+    meter_owner: str | None = None
 
 
 class Meter(ORMBase):
