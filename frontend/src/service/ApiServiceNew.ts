@@ -35,7 +35,8 @@ import {
     WellUseLU,
     SubmitWellCreate,
     SubmitWellUpdate,
-    Meter
+    Meter,
+    MeterStatus
 } from '../interfaces.js'
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
@@ -204,6 +205,17 @@ export function useGetMeterTypeList() {
     const signOut = useSignOut()
 
     return useQuery<MeterTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+    )
+}
+
+export function useGetMeterStatusTypeList() {
+    const route = 'meter_status_types'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<MeterStatus[], Error>([route], () =>
         GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
