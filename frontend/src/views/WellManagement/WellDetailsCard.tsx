@@ -66,7 +66,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
 
     // Populate the form with the selected well's details
     useEffect(() => {
-        console.log(selectedWell)
+       
         if (selectedWell != undefined) {
             reset()
             Object.entries(selectedWell).forEach(([field, value]) => {
