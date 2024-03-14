@@ -68,6 +68,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     const createMeter = useCreateMeter(onSuccessfulCreate)
 
     const onSaveChanges: SubmitHandler<any> = data => {
+        console.log(data)
         updateMeter.mutate(data)
     }
     const onAddMeter: SubmitHandler<any> = data => {
@@ -78,6 +79,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
 
     // Populate the form with the selected meter's details
     useEffect(() => {
+        console.log(meterDetails.data)
         if (meterDetails.data != undefined) {
             reset()
             setIsInitialLoad(false)
@@ -150,7 +152,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     <Grid container item xs={12}>
                         <Grid item xs={12} lg={5}>
                             <ControlledMeterStatusTypeSelect
-                                name="meter_status"
+                                name="status"
                                 control={control}
                                 disabled={!hasAdminScope || isInitialLoad}
                             />

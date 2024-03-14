@@ -1,6 +1,6 @@
 import React from 'react'
 import { useGetMeterStatusTypeList } from '../../service/ApiServiceNew'
-import { MeterTypeLU } from '../../interfaces'
+import { MeterStatus } from '../../interfaces'
 import { ControlledSelect } from './ControlledSelect'
 
 export default function ControlledMeterStatusTypeSelect({name, control, ...childProps}: any) {
@@ -12,7 +12,7 @@ export default function ControlledMeterStatusTypeSelect({name, control, ...child
             name={name}
             label="Meter Status"
             options={statusTypeList.data ?? []}
-            getOptionLabel={(type: MeterTypeLU) => `${type.brand} - ${type.model}`}
+            getOptionLabel={(type: MeterStatus) => `${type.status_name}`}
             disabled={statusTypeList.isLoading}
             {...childProps}
             value={statusTypeList.isLoading ? 'Loading...' : childProps.value}
