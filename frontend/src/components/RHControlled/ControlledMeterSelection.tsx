@@ -13,7 +13,7 @@ export default function ControlledMeterSelection({name, control, ...childProps}:
 
     const meterList = useGetMeterList({
         search_string: meterSearchQueryDebounced != '' ? meterSearchQueryDebounced : undefined,
-        exclude_inactive: true
+        exclude_inactive: false
     })
 
     function getMeterListOptions() {

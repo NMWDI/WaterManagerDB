@@ -253,7 +253,9 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={meterDetails.data?.status?.status_name == 'Sold' || meterDetails.data?.status?.status_name == 'Scrapped' || isInitialLoad}
+                                disabled={
+                                    // meterDetails.data?.status?.status_name == 'Sold' ||
+                                     meterDetails.data?.status?.status_name == 'Scrapped' || isInitialLoad}
                                 onClick={navigateToNewActivity}
                             >New Activity</Button>
                         </Grid>
