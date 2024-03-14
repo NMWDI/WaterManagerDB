@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes
 - V0.1.26 - Add functional merge button for admin
 - V0.1.25 - Fix datesort on meter history, give techs limited well management
 - V0.1.24 - Add non-functional merge button for initial testing
