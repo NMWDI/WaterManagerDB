@@ -60,13 +60,27 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             width: 200
         },
         {
-            field: 'location',
-            headerName: 'Location',
+            field: 'well',
+            headerName: 'Well',
             valueGetter: (params: any) => {
-                return params.value.name
+                //return params.value.ra_number if not null otherwise ''
+                if (params.value === null) {
+                    return ''
+                }
+                else
+                    return params.value.ra_number
+            },
+            width: 100
+        },
+        {
+            field: 'history_item',
+            headerName: 'Water Users',
+            valueGetter: (params: any) => {
+                return params.value.water_users
             },
             width: 200
         },
+
     ];
 
 
