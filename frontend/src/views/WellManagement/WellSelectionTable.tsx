@@ -42,7 +42,6 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
             valueGetter: (params: any) => params.value?.trss,
         },
     ]
-
     // Filter rows based on query params
     useEffect(() => {
         const newParams = {
@@ -66,7 +65,7 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
     return (
         <Box sx={{height: '87%'}}>
         <DataGrid
-            sx={{border: 'none'}}
+            sx={{ border: 'none'}}
                     rows={wellsList.data?.items ?? []}
                     loading={wellsList.isPreviousData || wellsList.isLoading}
                     columns={cols}

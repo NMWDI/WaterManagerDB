@@ -7,8 +7,8 @@ import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useGetWells } from '../../service/ApiServiceNew';
-import { WellListQueryParams } from '../../interfaces';
+import { useGetWellLocations, useGetWells } from '../../service/ApiServiceNew';
+import { Well, WellListQueryParams } from '../../interfaces';
 import { SortDirection, WellSortByField } from '../../enums';
 
 // The leaflet map needs this for some reason
@@ -19,13 +19,13 @@ const DefaultIcon = L.icon({iconUrl: icon, shadowUrl: iconShadow})
 L.Marker.prototype.options.icon = DefaultIcon
 
 interface WellSelectionMapProps {
-    wellSearch: string
+    wellSearchQueryProp: string
     setSelectedWell: Function
 }
 
-export default function WellSelectionMap({setSelectedWell, wellSearch}: WellSelectionMapProps) {
+export default function WellSelectionMap({setSelectedWell, wellSearchQueryProp}: WellSelectionMapProps) {
      
-    const [wellSearchDebounced] = useDebounce(wellSearch, 250);
+    const [wellSearchDebounced] = useDebounce(wellSearchQueryProp, 250);
     const [wellListQueryParams, setWellListQueryParams] = useState<WellListQueryParams>()
     const [wellMarkersMap, setwellMarkersMap] = useState<any>([]);
 
@@ -34,27 +34,25 @@ export default function WellSelectionMap({setSelectedWell, wellSearch}: WellSele
         width: '100%'
     }
 
-    const wellMarkers = useGetWells(wellListQueryParams)
+    const wellMarkers:any = useGetWellLocations(wellSearchDebounced)
 
+ 
     useEffect(() => {
-        const newParams = {
-            search_string: wellSearchDebounced,
-        }
-        setWellListQueryParams(newParams)
+
         setwellMarkersMap(
-            wellMarkers.data?.items?.map((well) => {
+            wellMarkers.data?.map((well:Well) => {
                 return (
                     <Marker
                         key={well.id}
                         position={[well.location?.latitude, well.location?.longitude]}
                         eventHandlers={{
-                            click: () => {setSelectedWell(well.id)}
+                            click: () => {setSelectedWell(wellMarkers.data?.find((well: Well) => well.id == well.id))}
                         }}
                     ></Marker>
                 )
             })
         )
-    }, [wellMarkers.data?.items])
+    }, [wellMarkers.data])
 
     return (
             <MapContainer

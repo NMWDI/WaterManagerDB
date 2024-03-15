@@ -41,8 +41,8 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
                 <Grid container >
                 <Grid item xs={9}>
                         <Tabs value={currentTabIndex} onChange={handleTabChange} >
-                            <Tab label="Meter List" />
-                            <Tab label="Meter Map" />
+                            <Tab label="Well List" />
+                            <Tab label="Well Map" />
                         </Tabs>
                         </Grid>
                         <Grid item xs={3}>
@@ -63,7 +63,7 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
                     </TabPanel>
 
                     <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
-                        <WellSelectionMap setSelectedWell={setSelectedWell} wellSearch={wellSearchQuery}/>
+                        <WellSelectionMap setSelectedWell={setSelectedWell} wellSearchQueryProp={wellSearchQuery}/>
                     </TabPanel>
                 </Box>
                

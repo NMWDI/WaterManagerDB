@@ -93,6 +93,7 @@ def get_wells(
     return paginate(db, query_statement)
 
 
+
 @well_router.patch(
     "/wells",
     dependencies=[Depends(ScopedUser.WellWrite)],
@@ -184,6 +185,54 @@ def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(g
 
     return new_well_model
 
+
+
+# Get List of well for MapView
+# Get search for well similar to /well but no pagination and only for installed well
+# Returns all installed well with a location when search is None
+@well_router.get(
+    "/well_locations",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.Well],
+    tags=["Wells"],
+)
+def get_wells_locations(
+    search_string: str = None,
+    db: Session = Depends(get_db),
+):
+    # Build the query statement based on query params
+    # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
+    query_statement = (
+        select(Wells)
+        .join(Locations, isouter=True)
+        .join(WellUseLU, isouter=True)
+    )
+
+    #  # Ensure there are coordinates and meter is installed
+    # query_statement = query_statement.where(
+    #     and_(
+    #         Locations.latitude.is_not(None),
+    #         Locations.longitude.is_not(None)
+    #     )
+    # )
+
+    if search_string:
+        query_statement = query_statement.where(
+            or_(
+                Wells.name.ilike(f"%{search_string}%"),
+                Wells.ra_number.ilike(f"%{search_string}%"),
+                Wells.owners.ilike(f"%{search_string}%"),
+                Wells.osetag.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%"),
+                WellUseLU.use_type.ilike(f"%{search_string}%"),
+            )
+        )
+
+
+    return db.scalars(query_statement).all()
+
+
+# End
 
 @well_router.get(
     "/well",
