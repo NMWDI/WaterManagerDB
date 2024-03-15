@@ -20,6 +20,8 @@ interface MeterHistoryTableProps {
 
 export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
 
+    console.log(selectedMeterHistory)
+
     function handleRowSelect(rowDetails: any) {
         onHistoryItemSelection(rowDetails.row)
     }
@@ -48,7 +50,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
         },
         {
             field: 'history_type',
-            headerName: 'History Type',
+            headerName: 'Activity Type',
             valueGetter: (params: any) => {
                 if (params.row.history_type == MeterHistoryType.Activity) {
                     return params.row.history_item.activity_type.name

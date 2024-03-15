@@ -387,10 +387,15 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     for activity in activities:
         activity.location.geom = None  # FastAPI errors when returning this
+
+        #Find if there is a well associated with the location
+        well = db.scalars(select(Wells).where(Wells.location_id == activity.location_id)).first()
+
         formattedHistoryItems.append(
             {
                 "id": itemID,
                 "history_type": HistoryType.Activity,
+                "well": well,
                 "location": activity.location,
                 "activity_type": activity.activity_type_id,
                 "date": activity.timestamp_start,
@@ -405,6 +410,7 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
             {
                 "id": itemID,
                 "history_type": HistoryType.Observation,
+                "well": well,
                 "location": observation.location,
                 "date": observation.timestamp,
                 "history_item": observation,
