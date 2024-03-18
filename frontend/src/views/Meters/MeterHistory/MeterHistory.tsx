@@ -4,6 +4,7 @@ import { Box, Grid } from '@mui/material'
 
 import MeterHistoryTable from './MeterHistoryTable'
 import SelectedHistoryDetails from './SelectedHistoryDetails'
+import SelectedActivityDetails from './SelectedHistoryDetailsV2'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 
 interface MeterHistoryProps {
@@ -23,6 +24,11 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
                     </Grid>
                     <Grid item xs={6}>
                         <SelectedHistoryDetails selectedHistoryItem={selectedHistoryItem} />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2} sx={{height: '50vh', minHeight: '300px'}}>
+                    <Grid item xs={6}>
+                        <SelectedActivityDetails selectedActivity={'test'} />
                     </Grid>
                 </Grid>
             </Box>

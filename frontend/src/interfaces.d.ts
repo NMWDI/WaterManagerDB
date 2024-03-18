@@ -88,6 +88,22 @@ export interface MeterActivity {
     parts_used?: []
 }
 
+export interface PatchMeterActivity {
+    activity_id: int
+    meter_id: int
+    timestamp_start: Date
+    timestamp_end: Date
+    activity_type_id: int
+    submitting_user_id: int
+
+    well_id?: int
+    water_users?: string
+
+    notes?: []
+    services?: []
+    parts_used?: []
+}
+
 export interface ObservationForm {
     time: Dayjs
     reading: '' | number
