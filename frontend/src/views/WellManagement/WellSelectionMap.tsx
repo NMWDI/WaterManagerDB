@@ -35,8 +35,12 @@ export default function WellSelectionMap({setSelectedWell, wellSearchQueryProp}:
     }
 
     const wellMarkers:any = useGetWellLocations(wellSearchDebounced)
-
- 
+    const onClickMarker =(well:Well) =>{
+        // console.log(well,wellMarkers.data?.find((well: Well) => well.id == well.id))
+        // wellMarkers.data?.fin
+        setSelectedWell(well)
+    }
+    
     useEffect(() => {
 
         setwellMarkersMap(
@@ -46,7 +50,10 @@ export default function WellSelectionMap({setSelectedWell, wellSearchQueryProp}:
                         key={well.id}
                         position={[well.location?.latitude, well.location?.longitude]}
                         eventHandlers={{
-                            click: () => {setSelectedWell(wellMarkers.data?.find((well: Well) => well.id == well.id))}
+                            click: () => {
+                                onClickMarker(well)
+                                // setSelectedWell(wellMarkers.data?.find((well: Well) => well.id == well.id))
+                            }
                         }}
                     ></Marker>
                 )
