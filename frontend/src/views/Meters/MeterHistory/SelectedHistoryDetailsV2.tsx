@@ -3,7 +3,8 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { useAuthUser } from 'react-auth-kit'
-import { Box, TextField, Grid, Card, CardContent, CardHeader } from '@mui/material'
+import { Box, TextField, Grid, Card, CardContent, CardHeader, Stack, Button } from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { MeterHistoryType } from '../../../enums'
 import { NoteTypeLU, PatchMeterActivity, SecurityScope } from '../../../interfaces'
@@ -167,6 +168,13 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                             fullWidth
                             value={''}
                         />
+                    </Grid>
+
+                    <Grid container item xs={12} sx={{mt: 2}}>
+                        <Stack direction="row" spacing={2}>
+                            <Button color="success" variant="contained"><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
+                            <Button variant="contained">Delete</Button>
+                        </Stack>
                     </Grid>
                   
                 </Grid>
