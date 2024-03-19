@@ -342,6 +342,20 @@ export function useGetWells(params: WellListQueryParams | undefined) {
     )
 }
 
+// Start Get Well List for Map View
+export function useGetWellLocations(searchstring: string | undefined) {
+    const route = 'well_locations'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<Page<Well>, Error>([route, searchstring], () =>
+        GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
+    )
+}
+
+// End
+
 export function useGetWell(params: WellDetailsQueryParams | undefined) {
     const route = 'well'
     const authHeader = useAuthHeader()
@@ -357,6 +371,16 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
     )
 }
 
+// export function useGetWellLocations(searchstring: string | undefined) {
+//     const route = 'well_locations'
+//     const authHeader = useAuthHeader()
+//     const navigate = useNavigate()
+//     const signOut = useSignOut()
+
+//     return useQuery<Page<Well>, Error>([route, searchstring], () =>
+//         GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
+//     )
+// }
 export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
     const route = 'meter'
     const authHeader = useAuthHeader()
