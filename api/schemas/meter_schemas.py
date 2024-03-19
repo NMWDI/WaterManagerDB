@@ -180,6 +180,10 @@ class PatchActivity(ORMBase):
     ose_share: bool
     water_users: str | None = None
 
+    note_ids: list[int] | None = None
+    service_ids: list[int] | None = None
+    part_ids: list[int] | None = None
+
 
 class ObservedPropertyTypeLU(ORMBase):
     name: str | None = None

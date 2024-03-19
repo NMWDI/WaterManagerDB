@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
+from sqlalchemy import select, text
 from datetime import datetime
 from typing import List
 
@@ -256,19 +256,67 @@ def patch_activity(patch_activity_form: meter_schemas.PatchActivity, db: Session
     activity.water_users = patch_activity_form.water_users
 
     # Update the notes
-    # TODO
+    # Easiest approach is to just delete existing and then re-add if there are any
+    delete_sql = text('DELETE FROM "Notes" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.note_ids:
+        insert_sql = text('INSERT INTO "Notes" (meter_activity_id, note_type_id) VALUES (:activity_id, :note_id)')
+        for note_id in patch_activity_form.note_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'note_id': note_id})
 
     # Update the parts used
-    # TODO
+    delete_sql = text('DELETE FROM "PartsUsed" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.part_ids:
+        insert_sql = text('INSERT INTO "PartsUsed" (meter_activity_id, part_id) VALUES (:activity_id, :part_id)')
+        for part_id in patch_activity_form.part_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'part_id': part_id})
 
     # Update the services performed
-    # TODO
+    delete_sql = text('DELETE FROM "ServicesPerformed" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.service_ids:
+        insert_sql = text('INSERT INTO "ServicesPerformed" (meter_activity_id, service_type_id) VALUES (:activity_id, :service_id)')
+        for service_id in patch_activity_form.service_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'service_id': service_id})
 
     # Commit the changes
     db.commit()
 
-    return activity
+    return {'status': 'success'}
 
+@activity_router.delete(
+    "/activities",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Activities"],
+)
+def delete_activity(activity_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes an activity.
+    '''
+    # Get the activity
+    activity = db.scalars(select(MeterActivities).where(MeterActivities.id == activity_id)).first()
+
+    # Delete any notes associated with the activity
+    sql = text('DELETE FROM "Notes" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+            
+    # Delete any services performed associated with the activity
+    sql = text('DELETE FROM "ServicesPerformed" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+
+    # Delete any parts used associated with the activity
+    sql = text('DELETE FROM "PartsUsed" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+
+    # Delete the activity
+    db.delete(activity)
+    db.commit()
+
+    return {'status': 'success'}
 
 @activity_router.get(
     "/activity_types",
