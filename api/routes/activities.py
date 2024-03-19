@@ -25,6 +25,7 @@ from api.models.main_models import (
 from api.session import get_db
 from api.security import get_current_user
 from api.enums import ScopedUser
+from api.route_util import _patch
 
 activity_router = APIRouter()
 
@@ -232,6 +233,41 @@ def post_activity(
     db.commit()
 
     return meter_activity
+
+@activity_router.patch(
+        "/activities",
+        dependencies=[Depends(ScopedUser.Admin)],
+        tags=["Activities"],
+)
+def patch_activity(patch_activity_form: meter_schemas.PatchActivity, db: Session = Depends(get_db)):
+    '''
+    Patch an activity.
+    All input times should be UTC
+    '''
+    # Get the activity
+    activity = db.scalars(select(MeterActivities).where(MeterActivities.id == patch_activity_form.activity_id)).first()
+
+    # Update the activity
+    activity.timestamp_start = patch_activity_form.timestamp_start
+    activity.timestamp_end = patch_activity_form.timestamp_end
+    activity.description = patch_activity_form.description
+    activity.location_id = patch_activity_form.location_id
+    activity.ose_share = patch_activity_form.ose_share
+    activity.water_users = patch_activity_form.water_users
+
+    # Update the notes
+    # TODO
+
+    # Update the parts used
+    # TODO
+
+    # Update the services performed
+    # TODO
+
+    # Commit the changes
+    db.commit()
+
+    return activity
 
 
 @activity_router.get(

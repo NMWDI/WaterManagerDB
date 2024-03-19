@@ -167,6 +167,19 @@ class MeterActivity(ORMBase):
     ose_share: bool
     water_users: str | None = None
 
+class PatchActivity(ORMBase):
+    activity_id: int
+    timestamp_start: datetime
+    timestamp_end: datetime
+    description: str | None = None
+
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int
+    ose_share: bool
+    water_users: str | None = None
+
 
 class ObservedPropertyTypeLU(ORMBase):
     name: str | None = None
