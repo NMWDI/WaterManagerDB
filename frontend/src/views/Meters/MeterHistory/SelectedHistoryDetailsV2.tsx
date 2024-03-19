@@ -7,17 +7,18 @@ import { Box, TextField, Grid, Card, CardContent, CardHeader, Stack, Button } fr
 import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { MeterHistoryType } from '../../../enums'
-import { NoteTypeLU, PatchMeterActivity, SecurityScope } from '../../../interfaces'
-import dayjs from 'dayjs'
+import { PatchMeterActivity, SecurityScope } from '../../../interfaces'
+
 
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
 import ControlledActivitySelect from '../../../components/RHControlled/ControlledActivitySelect'
 import ControlledUserSelect from '../../../components/RHControlled/ControlledUserSelect'
 import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
+import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 
 interface SelectedActivityProps {
-    selectedActivity: any
+    selectedActivity: PatchMeterActivity
 }
 
 const disabledInputStyle = {
@@ -30,29 +31,18 @@ const disabledInputStyle = {
 //There will be separate components for activity and observation history items
 export default function SelectedActivityDetails({selectedActivity}: SelectedActivityProps) {
 
-    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchMeterActivity>()
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchMeterActivity>(
+        {values: selectedActivity}
+    )
     const onSaveChanges: SubmitHandler<any> = data => console.log(data)
 
     console.log(selectedActivity)
 
+    //User must have admin scope to edit history items
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
-    function formatDate(dateIN: any) {
-        if (!dateIN) return null 
-        return dayjs
-                .utc(dateIN)
-                .tz('America/Denver')
-                .format('MM/DD/YYYY')
-    }
-
-    function formatTime(dateIN: any) {
-        if (!dateIN) return null
-        return dayjs
-                .utc(dateIN)
-                .tz('America/Denver')
-                .format('hh:mm A')
-    }
+    
 
     return (
             <Card>
@@ -70,9 +60,19 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
 
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={4}>
+                            <ControlledUserSelect
+                                name="submitting_user_id"
+                                control={control}
+                                errors={''}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
+                        <Grid item xs={4}>
                             <ControlledDatepicker
                                 label="Date"
-                                name="activity_details.date"
+                                name="activity_date"
                                 control={control}
                                 error={''}
                                 sx={{width: '100%'}}
@@ -81,7 +81,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                         <Grid item xs={4}>
                             <ControlledTimepicker
                                 label="Start Time"
-                                name="activity_details.start_time"
+                                name="activity_start_time"
                                 control={control}
                                 error={''}
                                 sx={{width: '100%'}}
@@ -90,7 +90,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                         <Grid item xs={4}>
                             <ControlledTimepicker
                                 label="End Time"
-                                name="activity_details.end_time"
+                                name="activity_end_time"
                                 control={control}
                                 error={''}
                                 sx={{width: '100%'}}
@@ -101,21 +101,21 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
                         <Grid item xs={4}>
                             <ControlledActivitySelect
-                                name="activity_details.activity_type"
+                                name="activity_type_id"
                                 control={control}
                                 error={''}
                             />
                         </Grid>
                         <Grid item xs={4}>
                             <ControlledWellSelection
-                                name="current_installation.well"
+                                name="well_id"
                                 control={control}
                                 error={''}
                             />
                         </Grid>
                         <Grid item xs={4}>
-                            <ControlledUserSelect
-                                name="activity_details.user"
+                            <ControlledTextbox
+                                name="water_users"
                                 control={control}
                                 errors={''}
                             />

@@ -1,6 +1,8 @@
 import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
 import { ActivityType } from './enums'
+import { DateCalendarClassKey } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
 
 export interface ActivityForm {
 
@@ -91,9 +93,10 @@ export interface MeterActivity {
 export interface PatchMeterActivity {
     activity_id: int
     meter_id: int
-    timestamp_start: Date
-    timestamp_end: Date
-    activity_type_id: int
+    activity_date: dayjs.Dayjs
+    activity_start_time: dayjs.Dayjs
+    activity_end_time: dayjs.Dayjs
+    activity_type_id: string
     submitting_user_id: int
 
     well_id?: int

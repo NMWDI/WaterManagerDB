@@ -1,3 +1,5 @@
+//Parent component for Meter History Table and Selected History Details
+
 import React from 'react'
 import { useState } from 'react'
 import { Box, Grid } from '@mui/material'
@@ -7,6 +9,7 @@ import SelectedHistoryDetails from './SelectedHistoryDetails'
 import SelectedActivityDetails from './SelectedHistoryDetailsV2'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 import { MeterHistoryDTO, PatchMeterActivity } from '../../../interfaces'
+import dayjs from 'dayjs'
 
 interface MeterHistoryProps {
     selectedMeterID: number | undefined
@@ -17,6 +20,20 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
     //console.log(meterHistory.data)
 
+    function formatDate(dateIN: Date) { 
+        return dayjs
+                .utc(dateIN)
+                .tz('America/Denver')
+                .format('MM/DD/YYYY')
+    }
+
+    function formatTime(dateIN: Date) {
+        return dayjs
+                .utc(dateIN)
+                .tz('America/Denver')
+                .format('hh:mm A')
+    }
+
     // Temporary function until I get the API working more intuitively
     // Convert from MeterHistoryDTO to PatchMeterActivity
     function convertHistoryData(historyItem: MeterHistoryDTO): PatchMeterActivity {
@@ -24,9 +41,10 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
         let test: PatchMeterActivity = {
             activity_id: 1,
             meter_id: 1,
-            timestamp_start: new Date(),
-            timestamp_end: new Date(),
-            activity_type_id: 1,
+            activity_date: dayjs('2022-01-01'),
+            activity_start_time: dayjs('2022-01-01 12:00'),
+            activity_end_time:  dayjs('2022-01-01 13:00'),
+            activity_type_id: 'Install',
             submitting_user_id: 1,
             well_id: 1,
             water_users: 'test'
