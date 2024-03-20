@@ -37,32 +37,32 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     // Temporary function until I get the API working more intuitively
     // Convert from MeterHistoryDTO to PatchMeterActivity
     function convertHistoryData(historyItem: MeterHistoryDTO): PatchMeterActivity {
-        //Testing just return hard coded values
-        let test: PatchMeterActivity = {
-            activity_id: 1,
-            meter_id: 1,
-            activity_date: dayjs('2022-01-01'),
-            activity_start_time: dayjs('2022-01-01 12:00'),
-            activity_end_time:  dayjs('2022-01-01 13:00'),
-            activity_type_id: 'Install',
-            submitting_user_id: 1,
-            well_id: 1,
-            water_users: 'test'
+        
+        let activity_details: PatchMeterActivity = {
+            activity_id: historyItem.history_item.id,
+            meter_id: 0,
+            activity_date: dayjs(historyItem.history_item.timestamp_start),
+            activity_start_time: dayjs(historyItem.history_item.timestamp_start),
+            activity_end_time:  dayjs(historyItem.history_item.timestamp_end),
+            activity_type: historyItem.history_item.activity_type,
+            submitting_user: historyItem.history_item.submitting_user,
+            well: historyItem.well,
+            water_users: historyItem.history_item.water_users,
         }
-        return test
+        return activity_details
     }
 
     return (
-            <Box sx={{width: '100%'}}>
-                <Grid container spacing={2} sx={{height: '50vh', minHeight: '300px'}}>
-                    <Grid item xs={6}>
-                        <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <SelectedActivityDetails selectedActivity={convertHistoryData(selectedHistoryItem)} />
-                    </Grid>
+        <Box sx={{width: '100%'}}>
+            <Grid container spacing={2} sx={{height: '50vh', minHeight: '300px'}}>
+                <Grid item xs={6}>
+                    <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
-            </Box>
-        )
+                <Grid item xs={6}>
+                    <SelectedActivityDetails selectedActivity={selectedHistoryItem ? convertHistoryData(selectedHistoryItem):selectedHistoryItem} />
+                </Grid>
+            </Grid>
+        </Box>
+    )
 }
 
