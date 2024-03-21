@@ -136,14 +136,12 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <TextField 
-                            label="Description" 
-                            variant="outlined" 
-                            size="small" 
-                            multiline 
-                            rows={2} 
-                            fullWidth 
-                            value={''}
+                        <ControlledTextbox
+                            name="description"
+                            control={control}
+                            label="Description"
+                            rows={2}
+                            multiline
                         />
                     </Grid>
 

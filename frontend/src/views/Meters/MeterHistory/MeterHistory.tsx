@@ -46,6 +46,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             activity_end_time:  dayjs(historyItem.history_item.timestamp_end),
             activity_type: historyItem.history_item.activity_type,
             submitting_user: historyItem.history_item.submitting_user,
+            description: historyItem.history_item.description,
             well: historyItem.well,
             water_users: historyItem.history_item.water_users,
         }

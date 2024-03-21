@@ -98,6 +98,7 @@ export interface PatchMeterActivity {
     activity_end_time: dayjs.Dayjs
     activity_type: ActivityTypeLU
     submitting_user: User
+    description: string
 
     well: Well | null
     water_users?: string
