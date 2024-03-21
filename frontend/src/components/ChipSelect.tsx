@@ -25,7 +25,7 @@ export default function ChipSelect({selected_values, options, label, onChange}: 
                 <Select
                     multiple
                     value={selected_values ?? []}
-                    onChange={(event: any) => console.log(event.target.value)}
+                    onChange={(event: any) => console.log(event)}
                     input={<OutlinedInput label={label} />}
                     renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -39,7 +39,7 @@ export default function ChipSelect({selected_values, options, label, onChange}: 
                                             onMouseDown={(event: any) => event.stopPropagation()}
                                         />
                                     }
-                                    //onDelete={() => removeMeterType(index)}
+                                    onDelete={() => console.log('delete')}
                                 />
                             ))}
                         </Box>

@@ -18,6 +18,8 @@ import ControlledUserSelect from '../../../components/RHControlled/ControlledUse
 import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 
+import ChipSelect from '../../../components/ChipSelect'
+
 interface SelectedActivityProps {
     selectedActivity: PatchMeterActivity
 }
@@ -34,8 +36,6 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
 
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchMeterActivity>()
     const onSaveChanges: SubmitHandler<any> = data => console.log(data)
-
-    console.log(selectedActivity)
 
     //Update the form when selectedActivity changes
     useEffect(() => {
@@ -146,14 +146,11 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <TextField
+                        <ChipSelect
                             label="Services Performed"
-                            variant="outlined"
-                            size="small"
-                            multiline
-                            rows={2}
-                            fullWidth
-                            value={''}
+                            selected_values={[{id: 1, name: 'test'}]}
+                            options={[{id: 1, name: 'test'}, {id: 2, name: 'test2'}]}
+                            onChange={() => console.log('change')}
                         />
                     </Grid>
 

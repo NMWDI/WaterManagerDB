@@ -80,7 +80,6 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     // Populate the form with the selected meter's details
     useEffect(() => {
         if (meterDetails.data != undefined) {
-            console.log(meterDetails.data)
             reset()
             setIsInitialLoad(false)
             Object.entries(meterDetails.data).forEach(([field, value]) => {

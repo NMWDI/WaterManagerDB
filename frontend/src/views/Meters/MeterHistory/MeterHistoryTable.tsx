@@ -20,8 +20,6 @@ interface MeterHistoryTableProps {
 
 export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
 
-    console.log(selectedMeterHistory)
-
     function handleRowSelect(rowDetails: any) {
         onHistoryItemSelection(rowDetails.row)
     }
