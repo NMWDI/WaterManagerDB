@@ -90,6 +90,7 @@ export interface MeterActivity {
     parts_used?: []
 }
 
+//This is designed to match the HistoryDetails form rather than the patch meter API
 export interface PatchMeterActivity {
     activity_id: int
     meter_id: int
@@ -106,6 +107,23 @@ export interface PatchMeterActivity {
     notes?: []
     services?: []
     parts_used?: []
+}
+
+//This interface is designed to match the backend API patch endpoint
+export interface PatchActivitySubmit {
+    //TODO
+}
+
+//Designed for the HistoryDetails component, not the patch endpoint
+export interface PatchObservationForm {
+    observation_id: int
+    submitting_user: User
+    observation_date: dayjs.Dayjs
+    observation_time: dayjs.Dayjs
+    property_type: ObservedPropertyTypeLU
+    unit: Unit
+    value: number
+    notes?: string
 }
 
 export interface ObservationForm {

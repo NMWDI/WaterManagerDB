@@ -12,7 +12,7 @@ export default function ControlledTimepicker({name, control, ...childProps}: any
                     {...field}
                     timezone="America/Denver"
                     slotProps={{textField: {size: "small"}}}
-                    defaultValue={null}
+                    //defaultValue={null}
                     {...childProps}
                 />
             )}

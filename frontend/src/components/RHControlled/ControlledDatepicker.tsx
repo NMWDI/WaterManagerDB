@@ -11,7 +11,7 @@ export default function ControlledDatepicker({name, control, ...childProps}: any
                 <DatePicker
                     {...field}
                     slotProps={{textField: {size: "small"}}}
-                    defaultValue={null}
+                    //defaultValue={null}
                     {...childProps}
                 />
             )}

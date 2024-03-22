@@ -5,10 +5,11 @@ import { useState } from 'react'
 import { Box, Grid } from '@mui/material'
 
 import MeterHistoryTable from './MeterHistoryTable'
-import SelectedHistoryDetails from './SelectedHistoryDetails'
-import SelectedActivityDetails from './SelectedHistoryDetailsV2'
+import SelectedActivityDetails from './SelectedActivityDetails'
+import SelectedObservationDetails from './SelectedObservationDetails'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 import { MeterHistoryDTO, PatchMeterActivity } from '../../../interfaces'
+import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
 
 interface MeterHistoryProps {
@@ -60,7 +61,10 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
                     <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
                 <Grid item xs={6}>
-                    <SelectedActivityDetails selectedActivity={selectedHistoryItem ? convertHistoryData(selectedHistoryItem):selectedHistoryItem} />
+                    {(selectedHistoryItem?.history_type == MeterHistoryType.Activity)
+                        ? <SelectedActivityDetails selectedActivity={convertHistoryData(selectedHistoryItem)} />
+                        :<SelectedObservationDetails selectedObservation={selectedHistoryItem} />
+                    }
                 </Grid>
             </Grid>
         </Box>
