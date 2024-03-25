@@ -318,6 +318,57 @@ def delete_activity(activity_id: int, db: Session = Depends(get_db)):
 
     return {'status': 'success'}
 
+
+@activity_router.patch(
+        "/observations",
+        dependencies=[Depends(ScopedUser.Admin)],
+        tags=["Activities"],
+)
+def patch_observation(patch_observation_form: meter_schemas.PatchObservation, db: Session = Depends(get_db)):
+    '''
+    Patch an observation.
+    All input times should be UTC
+    '''
+    # Get the observation
+    observation = db.scalars(select(MeterObservations).where(MeterObservations.id == patch_observation_form.observation_id)).first()
+
+    # Update the observation
+    observation.timestamp = patch_observation_form.timestamp
+    observation.value = patch_observation_form.value
+    observation.notes = patch_observation_form.notes
+    observation.observed_property_type_id = patch_observation_form.observed_property_type_id
+    observation.unit_id = patch_observation_form.unit_id
+    observation.meter_id = patch_observation_form.meter_id
+    observation.location_id = patch_observation_form.location_id
+    observation.submitting_user_id = patch_observation_form.submitting_user_id
+    observation.ose_share = patch_observation_form.ose_share
+
+    db.commit()
+
+    return {'status': 'success'}
+
+@activity_router.delete(
+    "/observations",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Activities"],
+)
+def delete_observation(observation_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes an observation.
+    '''
+    # Get the observation
+    observation = db.scalars(select(MeterObservations).where(MeterObservations.id == observation_id)).first()
+
+    # Return error if the observation doesn't exist
+    if not observation:
+        raise HTTPException(status_code=404, detail="Observation not found.")
+
+    # Delete the observation
+    db.delete(observation)
+    db.commit()
+
+    return {'status': 'success'}
+
 @activity_router.get(
     "/activity_types",
     response_model=List[meter_schemas.ActivityTypeLU],

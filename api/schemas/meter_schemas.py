@@ -203,12 +203,26 @@ class MeterObservation(ORMBase):
     observed_property_type_id: int
     unit_id: int
     location_id: int
+    ose_share: bool = False
 
     submitting_user: User | None = None
     meter: Meter | None = None
     observed_property_type: ObservedPropertyTypeLU | None = None
     unit: Unit | None = None
     location: Location | None = None
+
+class PatchObservation(ORMBase):
+    observation_id: int
+    timestamp: datetime
+    value: float
+    notes: str | None = None
+
+    submitting_user_id: int
+    meter_id: int
+    observed_property_type_id: int
+    unit_id: int
+    location_id: int
+    ose_share: bool = False
 
 
 class ServiceTypeLU(ORMBase):
