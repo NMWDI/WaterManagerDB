@@ -8,7 +8,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 export default function SelectedBlankCard() {
     
     return (
-            <Card>
+            <Card sx={{ height:'100%' }}>
             <CardHeader
                 title={
                     <div className="custom-card-header">
@@ -20,11 +20,7 @@ export default function SelectedBlankCard() {
             />
             <CardContent>
                 <Grid container item xs={10}>
-
-                    <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                        Select a history item to view details
-                    </Grid>
-                  
+                    Select a history item to view details
                 </Grid>
             </CardContent>
             </Card>

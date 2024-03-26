@@ -125,7 +125,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                         </Grid>
                     </Grid> */}
 
-                    <Grid container item xs={12} spacing={2}>
+                    <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
                         <Grid item xs={4}>
                             <ControlledUserSelect
                                 name="submitting_user"
@@ -152,7 +152,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                         />
                     </Grid>
 
-                    <Grid item xs={4}>
+                    <Grid item xs={5}>
                         <ControlledCheckbox
                             name="activity_details.share_ose"
                             control={control}
