@@ -12,7 +12,10 @@ import { PatchObservationForm, SecurityScope } from '../../../interfaces'
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
 import ControlledUserSelect from '../../../components/RHControlled/ControlledUserSelect'
+import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
+import { ControlledSelect } from '../../../components/RHControlled/ControlledSelect';
+import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox';
 
 
 
@@ -69,6 +72,59 @@ export default function SelectedObservationDetails({selectedObservation}: Select
             <CardContent>
                 <Grid container item xs={10}>
 
+                    <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
+                        <Grid item xs={4}>
+                            <ControlledDatepicker
+                                label="Date"
+                                name="observation_date"
+                                control={control}
+                                error={''}
+                                sx={{width: '100%'}}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <ControlledTimepicker
+                                label="Time"
+                                name="observation_time"
+                                control={control}
+                                error={''}
+                                sx={{width: '100%'}}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    {/* <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
+                        <Grid item xs={3}>
+                            <ControlledSelect
+                                name={'property_type'}
+                                control={control}
+                                label={"Reading Type"}
+                                options={''}//{propertyTypes.data ?? []}
+                                //getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
+                                //error={errors?.observations?.at(index)?.property_type?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <ControlledTextbox
+                                name={'value'}
+                                control={control}
+                                label={"Value"}
+                                //error={errors?.observations?.at(index)?.reading?.message != undefined}
+                                //helperText={errors?.observations?.at(index)?.reading?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={3}>
+                            <ControlledSelect
+                                name={'unit'}
+                                control={control}
+                                label={"Unit"}
+                                options={''}//{watch(`observations.${index}.property_type`)?.units ?? []}
+                                //getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
+                                //error={errors?.observations?.at(index)?.unit?.message}
+                            />
+                        </Grid>
+                    </Grid> */}
+
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={4}>
                             <ControlledUserSelect
@@ -78,41 +134,12 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                             />
                         </Grid>
                         <Grid item xs={4}>
-                            <ControlledUserSelect
-                                name="submitting_user"
+                            <ControlledWellSelection
+                                name="well"
                                 control={control}
                                 errors={''}
                             />
                         </Grid>
-                    </Grid>
-
-                    <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                        <Grid item xs={4}>
-                            <ControlledDatepicker
-                                label="Date"
-                                name="activity_date"
-                                control={control}
-                                error={''}
-                                sx={{width: '100%'}}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <ControlledTimepicker
-                                label="Start Time"
-                                name="activity_start_time"
-                                control={control}
-                                error={''}
-                                sx={{width: '100%'}}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <ControlledTextbox
-                                name="water_users"
-                                control={control}
-                                errors={''}
-                            />
-                        </Grid>
-                        
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
@@ -122,6 +149,15 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                             label="Notes"
                             rows={2}
                             multiline
+                        />
+                    </Grid>
+
+                    <Grid item xs={4}>
+                        <ControlledCheckbox
+                            name="activity_details.share_ose"
+                            control={control}
+                            label="Share activity with OSE"
+                            labelPlacement="start"
                         />
                     </Grid>
 

@@ -7,8 +7,9 @@ import { Box, Grid } from '@mui/material'
 import MeterHistoryTable from './MeterHistoryTable'
 import SelectedActivityDetails from './SelectedActivityDetails'
 import SelectedObservationDetails from './SelectedObservationDetails'
+import SelectedBlankCard from './SelectedBlankCard'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
-import { MeterHistoryDTO, PatchMeterActivity } from '../../../interfaces'
+import { MeterHistoryDTO, PatchMeterActivity, PatchObservationForm } from '../../../interfaces'
 import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
 
@@ -35,9 +36,8 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
                 .format('hh:mm A')
     }
 
-    // Temporary function until I get the API working more intuitively
-    // Convert from MeterHistoryDTO to PatchMeterActivity
-    function convertHistoryData(historyItem: MeterHistoryDTO): PatchMeterActivity {
+    // Function to convert MeterHistoryDTO to PatchMeterActivity
+    function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchMeterActivity {
         
         let activity_details: PatchMeterActivity = {
             activity_id: historyItem.history_item.id,
@@ -54,6 +54,50 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
         return activity_details
     }
 
+    // Function to convert MeterHistoryDTO to PatchObservationForm
+    function convertHistoryObservation(historyItem: MeterHistoryDTO): PatchObservationForm {
+
+        // let observation_details: PatchObservationForm = {
+        //     observation_id: historyItem.history_item.id,
+        //     meter_id: 0,
+        //     observation_date: dayjs(historyItem.history_item.timestamp_start),
+        //     observation_time: dayjs(historyItem.history_item.timestamp_start),
+        //     submitting_user: historyItem.history_item.submitting_user,
+        //     description: historyItem.history_item.description,
+        //     well: historyItem.well,
+        //     water_users: historyItem.history_item.water_users,
+        // }
+        
+        //Test with dummy data
+        let observation_details: PatchObservationForm = {
+            observation_id: 1,
+            submitting_user: historyItem.history_item.submitting_user,
+            well: historyItem.well,
+            observation_date: dayjs('2022-01-01'),
+            observation_time: dayjs('2022-01-01 12:00:00'),
+            property_type: {id: 1, name:'Meter reading', description: 'Meter reading', context: 'meter'},
+            unit: {id: 1, name: 'Gallons', name_short: 'gal', description: 'Gallons'},
+            value: 100,
+            ose_share: true,
+            notes: 'Test notes',
+        }
+
+        return observation_details
+    }
+
+    //Function to determine what type of details card to output
+    function getDetailsCard(historyItem: MeterHistoryDTO | undefined) {
+        if(historyItem == undefined) {
+            return <SelectedBlankCard />
+        }
+        else if(historyItem.history_type == MeterHistoryType.Activity) {
+            return <SelectedActivityDetails selectedActivity={convertHistoryActivity(historyItem)} />
+        }
+        else {
+            return <SelectedObservationDetails selectedObservation={convertHistoryObservation(historyItem)} />
+        }
+    }
+
     return (
         <Box sx={{width: '100%'}}>
             <Grid container spacing={2} sx={{height: '50vh', minHeight: '300px'}}>
@@ -61,10 +105,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
                     <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
                 <Grid item xs={6}>
-                    {(selectedHistoryItem?.history_type == MeterHistoryType.Activity)
-                        ? <SelectedActivityDetails selectedActivity={convertHistoryData(selectedHistoryItem)} />
-                        :<SelectedObservationDetails selectedObservation={selectedHistoryItem} />
-                    }
+                    {getDetailsCard(selectedHistoryItem)}
                 </Grid>
             </Grid>
         </Box>

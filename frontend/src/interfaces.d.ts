@@ -118,11 +118,13 @@ export interface PatchActivitySubmit {
 export interface PatchObservationForm {
     observation_id: int
     submitting_user: User
+    well: Well | null
     observation_date: dayjs.Dayjs
     observation_time: dayjs.Dayjs
     property_type: ObservedPropertyTypeLU
     unit: Unit
     value: number
+    ose_share: boolean
     notes?: string
 }
 
@@ -231,7 +233,6 @@ export interface Well {
     id: int
     name?: string | null
     location_id?: number | null
-    well_distance_ft?: number | null
     use_type_id?: number | null
     ra_number: string
     owners?: string | null
