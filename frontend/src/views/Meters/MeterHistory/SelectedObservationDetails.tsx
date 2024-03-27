@@ -16,7 +16,8 @@ import ControlledWellSelection from '../../../components/RHControlled/Controlled
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 import { ControlledSelect } from '../../../components/RHControlled/ControlledSelect';
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox';
-
+import { useGetPropertyTypes } from '../../../service/ApiServiceNew'
+import { ObservedPropertyTypeLU } from '../../../interfaces'
 
 
 interface SelectedObservationProps {
@@ -36,27 +37,22 @@ export default function SelectedObservationDetails({selectedObservation}: Select
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
         {defaultValues: selectedObservation}
     )
+    const propertyTypes:any = useGetPropertyTypes()
+
     const onSaveChanges: SubmitHandler<any> = data => console.log(data)
 
-    //Update the form when selectedActivity changes
-    // useEffect(() => {
-    //     if(selectedActivity != undefined){
-    //         reset()
-    //         setValue('activity_date', selectedActivity.activity_date)
-    //         setValue('activity_start_time', selectedActivity.activity_start_time)
-    //         setValue('activity_end_time', selectedActivity.activity_end_time)
-    //         setValue('activity_type', selectedActivity.activity_type)
-    //         setValue('submitting_user', selectedActivity.submitting_user)
-    //         setValue('well', selectedActivity.well)
-    //         setValue('water_users', selectedActivity.water_users)
-    //     }
-        
-    // }, [selectedActivity])
+    function getUnitsFromPropertyType(propertyTypeID: number) {
+        return propertyTypes.data.find((p: ObservedPropertyTypeLU) => p.id == propertyTypeID)?.units ?? []
+    }
+
+    //Update the form when selectedObservation changes
+    useEffect(() => {
+        reset(selectedObservation)
+    }, [selectedObservation])
 
     //User must have admin scope to edit history items
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
-    
 
     return (
             <Card>
@@ -93,18 +89,18 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                         </Grid>
                     </Grid>
 
-                    {/* <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
-                        <Grid item xs={3}>
+                    <Grid container item xs={12} spacing={2} sx={{mt: 1}}>
+                        <Grid item xs={4}>
                             <ControlledSelect
                                 name={'property_type'}
                                 control={control}
                                 label={"Reading Type"}
-                                options={''}//{propertyTypes.data ?? []}
-                                //getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
+                                options={propertyTypes.data ?? []}
+                                getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
                                 //error={errors?.observations?.at(index)?.property_type?.message}
                             />
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={2}>
                             <ControlledTextbox
                                 name={'value'}
                                 control={control}
@@ -113,17 +109,17 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                                 //helperText={errors?.observations?.at(index)?.reading?.message}
                             />
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={4}>
                             <ControlledSelect
                                 name={'unit'}
                                 control={control}
                                 label={"Unit"}
-                                options={''}//{watch(`observations.${index}.property_type`)?.units ?? []}
-                                //getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
+                                options={watch(`property_type`).id ? getUnitsFromPropertyType(watch(`property_type`).id) : []}
+                                getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
                                 //error={errors?.observations?.at(index)?.unit?.message}
                             />
                         </Grid>
-                    </Grid> */}
+                    </Grid>
 
                     <Grid container item xs={12} spacing={2} sx={{mt: 2}}>
                         <Grid item xs={4}>

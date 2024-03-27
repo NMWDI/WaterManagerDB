@@ -57,29 +57,17 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     // Function to convert MeterHistoryDTO to PatchObservationForm
     function convertHistoryObservation(historyItem: MeterHistoryDTO): PatchObservationForm {
 
-        // let observation_details: PatchObservationForm = {
-        //     observation_id: historyItem.history_item.id,
-        //     meter_id: 0,
-        //     observation_date: dayjs(historyItem.history_item.timestamp_start),
-        //     observation_time: dayjs(historyItem.history_item.timestamp_start),
-        //     submitting_user: historyItem.history_item.submitting_user,
-        //     description: historyItem.history_item.description,
-        //     well: historyItem.well,
-        //     water_users: historyItem.history_item.water_users,
-        // }
-        
-        //Test with dummy data
         let observation_details: PatchObservationForm = {
-            observation_id: 1,
+            observation_id: historyItem.history_item.id,
             submitting_user: historyItem.history_item.submitting_user,
             well: historyItem.well,
-            observation_date: dayjs('2022-01-01'),
-            observation_time: dayjs('2022-01-01 12:00:00'),
-            property_type: {id: 1, name:'Meter reading', description: 'Meter reading', context: 'meter'},
-            unit: {id: 1, name: 'Gallons', name_short: 'gal', description: 'Gallons'},
-            value: 100,
-            ose_share: true,
-            notes: 'Test notes',
+            observation_date: dayjs(historyItem.date),
+            observation_time: dayjs(historyItem.date),
+            property_type: historyItem.history_item.observed_property,
+            unit: historyItem.history_item.unit,
+            value: historyItem.history_item.value,
+            ose_share: historyItem.history_item.ose_share,
+            notes: historyItem.history_item.notes,
         }
 
         return observation_details
