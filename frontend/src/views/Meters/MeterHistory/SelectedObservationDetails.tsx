@@ -4,10 +4,12 @@ import React from 'react'
 import { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { useAuthUser } from 'react-auth-kit'
-import { Box, TextField, Grid, Card, CardContent, CardHeader, Stack, Button } from '@mui/material'
+import { enqueueSnackbar } from 'notistack'
+import { Grid, Card, CardContent, CardHeader, Stack, Button } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { PatchObservationForm, SecurityScope } from '../../../interfaces'
+import { PatchObservationForm, PatchObservationSubmit, SecurityScope, ObservedPropertyTypeLU } from '../../../interfaces'
+import dayjs from 'dayjs'
 
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
@@ -16,8 +18,7 @@ import ControlledWellSelection from '../../../components/RHControlled/Controlled
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 import { ControlledSelect } from '../../../components/RHControlled/ControlledSelect';
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox';
-import { useGetPropertyTypes } from '../../../service/ApiServiceNew'
-import { ObservedPropertyTypeLU } from '../../../interfaces'
+import { useGetPropertyTypes, useUpdateObservation } from '../../../service/ApiServiceNew'
 
 
 interface SelectedObservationProps {
@@ -34,12 +35,38 @@ const disabledInputStyle = {
 //There will be separate components for activity and observation history items
 export default function SelectedObservationDetails({selectedObservation}: SelectedObservationProps) {
 
-    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
-        {defaultValues: selectedObservation}
+    const { handleSubmit, control, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
+        { defaultValues: selectedObservation }
     )
     const propertyTypes:any = useGetPropertyTypes()
 
-    const onSaveChanges: SubmitHandler<any> = data => console.log(data)
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}) }
+    const updateObservation = useUpdateObservation(onSuccessfulUpdate)
+    const onSaveChanges: SubmitHandler<any> = data => {
+
+        //Timestamp conversion function - Input date and time are 'America/Denver' and should be combined into a UTC timestamp
+        function convertTimestamp(date: dayjs.Dayjs, time: dayjs.Dayjs) {
+            let dateUTC = date.tz('America/Denver').utc().format('YYYY-MM-DD')
+            let timeUTC = time.tz('America/Denver').utc().format('HH:mm')
+            return dateUTC + 'T' + timeUTC
+        }
+        
+        //Convert the form data to the PatchObservationSubmit type
+        let observation_data: PatchObservationSubmit = {
+            observation_id: selectedObservation.observation_id,
+            timestamp: convertTimestamp(data.observation_date, data.observation_time),
+            observed_property_id: data.property_type.id,
+            value: data.value,
+            unit_id: data.unit.id,
+            submitting_user_id: data.submitting_user.id,
+            location_id: data.well?.location_id,
+            notes: data.notes,
+            ose_share: data.ose_share,
+            meter_id: selectedObservation.meter_id
+        }
+        console.log(observation_data)
+
+    }
 
     function getUnitsFromPropertyType(propertyTypeID: number) {
         return propertyTypes.data.find((p: ObservedPropertyTypeLU) => p.id == propertyTypeID)?.units ?? []
@@ -48,6 +75,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
     //Update the form when selectedObservation changes
     useEffect(() => {
         reset(selectedObservation)
+        console.log(watch('ose_share'))
     }, [selectedObservation])
 
     //User must have admin scope to edit history items
@@ -114,7 +142,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                                 name={'unit'}
                                 control={control}
                                 label={"Unit"}
-                                options={watch(`property_type`).id ? getUnitsFromPropertyType(watch(`property_type`).id) : []}
+                                options={propertyTypes.isLoading ? [] : getUnitsFromPropertyType(watch(`property_type`).id)}
                                 getOptionLabel={(p: ObservedPropertyTypeLU) => p.name}
                                 //error={errors?.observations?.at(index)?.unit?.message}
                             />
@@ -150,7 +178,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
 
                     <Grid item xs={5}>
                         <ControlledCheckbox
-                            name="activity_details.share_ose"
+                            name="ose_share"
                             control={control}
                             label="Share activity with OSE"
                             labelPlacement="start"

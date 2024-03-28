@@ -126,6 +126,21 @@ export interface PatchObservationForm {
     value: number
     ose_share: boolean
     notes?: string
+    meter_id: int
+}
+
+export interface PatchObservationSubmit {
+    //Matches the backend API patch endpoint
+    observation_id: int
+    timestamp: string
+    value: number
+    notes: string | null
+    submitting_user_id: int
+    meter_id: int
+    observed_property_id: int
+    unit_id: int
+    location_id: int
+    ose_share: boolean
 }
 
 export interface ObservationForm {

@@ -56,6 +56,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
     // Function to convert MeterHistoryDTO to PatchObservationForm
     function convertHistoryObservation(historyItem: MeterHistoryDTO): PatchObservationForm {
+        //console.log(historyItem)
 
         let observation_details: PatchObservationForm = {
             observation_id: historyItem.history_item.id,
@@ -68,6 +69,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             value: historyItem.history_item.value,
             ose_share: historyItem.history_item.ose_share,
             notes: historyItem.history_item.notes,
+            meter_id: historyItem.history_item.meter_id
         }
 
         return observation_details
