@@ -137,7 +137,7 @@ export interface PatchObservationSubmit {
     notes: string | null
     submitting_user_id: int
     meter_id: int
-    observed_property_id: int
+    observed_property_type_id: int
     unit_id: int
     location_id: int
     ose_share: boolean

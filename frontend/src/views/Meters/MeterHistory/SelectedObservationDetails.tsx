@@ -55,7 +55,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
         let observation_data: PatchObservationSubmit = {
             observation_id: selectedObservation.observation_id,
             timestamp: convertTimestamp(data.observation_date, data.observation_time),
-            observed_property_id: data.property_type.id,
+            observed_property_type_id: data.property_type.id,
             value: data.value,
             unit_id: data.unit.id,
             submitting_user_id: data.submitting_user.id,
@@ -65,7 +65,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
             meter_id: selectedObservation.meter_id
         }
         console.log(observation_data)
-
+        updateObservation.mutate(observation_data)
     }
 
     function getUnitsFromPropertyType(propertyTypeID: number) {
