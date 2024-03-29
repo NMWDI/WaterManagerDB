@@ -9,7 +9,7 @@ import SelectedActivityDetails from './SelectedActivityDetails'
 import SelectedObservationDetails from './SelectedObservationDetails'
 import SelectedBlankCard from './SelectedBlankCard'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
-import { MeterHistoryDTO, PatchMeterActivity, PatchObservationForm } from '../../../interfaces'
+import { MeterHistoryDTO, PatchActivityForm, PatchObservationForm } from '../../../interfaces'
 import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
 
@@ -37,9 +37,9 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     }
 
     // Function to convert MeterHistoryDTO to PatchMeterActivity
-    function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchMeterActivity {
+    function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchActivityForm {
         
-        let activity_details: PatchMeterActivity = {
+        let activity_details: PatchActivityForm = {
             activity_id: historyItem.history_item.id,
             meter_id: 0,
             activity_date: dayjs(historyItem.history_item.timestamp_start),
