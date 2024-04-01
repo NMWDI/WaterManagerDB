@@ -14,10 +14,11 @@ interface chipselectprops {
     selected_values?: chipselectitem[]
     options?: chipselectitem[]
     label: string
-    onChange: () => void
+    onSelect: (select_item: chipselectitem) => void
+    onDelete: (delete_id: number) => void
 }
 
-export default function ChipSelect({selected_values, options, label, onChange}: chipselectprops) {
+export default function ChipSelect({selected_values, options, label, onSelect, onDelete}: chipselectprops) {
         
         return(
             <FormControl fullWidth>
@@ -25,7 +26,7 @@ export default function ChipSelect({selected_values, options, label, onChange}: 
                 <Select
                     multiple
                     value={selected_values ?? []}
-                    onChange={(event: any) => console.log(event)}
+                    onChange={(event: any) => onSelect(event.target.value)}
                     input={<OutlinedInput label={label} />}
                     renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -39,7 +40,7 @@ export default function ChipSelect({selected_values, options, label, onChange}: 
                                             onMouseDown={(event: any) => event.stopPropagation()}
                                         />
                                     }
-                                    onDelete={() => console.log('delete')}
+                                    onDelete={() => onDelete(value.id)}
                                 />
                             ))}
                         </Box>

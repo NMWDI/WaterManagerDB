@@ -19,7 +19,7 @@ import ControlledUserSelect from '../../../components/RHControlled/ControlledUse
 import ControlledWellSelection from '../../../components/RHControlled/ControlledWellSelection'
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 
-import ChipSelect from '../../../components/ChipSelect'
+import NotesChipSelect from '../../../components/RHControlled/NotesChipSelect'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
 
 interface SelectedActivityProps {
@@ -172,11 +172,11 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <ChipSelect
-                            label="Services Performed"
-                            selected_values={[{id: 1, name: 'test'}]}
-                            options={[{id: 1, name: 'test'}, {id: 2, name: 'test2'}]}
-                            onChange={() => console.log('change')}
+                        <NotesChipSelect
+                            control={control}
+                            errors={errors}
+                            watch={watch}
+                            setValue={setValue}
                         />
                     </Grid>
 
