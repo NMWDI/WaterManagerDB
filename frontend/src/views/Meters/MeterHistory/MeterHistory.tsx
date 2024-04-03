@@ -41,7 +41,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
         
         let activity_details: PatchActivityForm = {
             activity_id: historyItem.history_item.id,
-            meter_id: 0,
+            meter_id: selectedMeterID,
             activity_date: dayjs(historyItem.history_item.timestamp_start),
             activity_start_time: dayjs(historyItem.history_item.timestamp_start),
             activity_end_time:  dayjs(historyItem.history_item.timestamp_end),
@@ -50,6 +50,8 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             description: historyItem.history_item.description,
             well: historyItem.well,
             water_users: historyItem.history_item.water_users,
+
+            notes: historyItem.history_item.notes
         }
         return activity_details
     }

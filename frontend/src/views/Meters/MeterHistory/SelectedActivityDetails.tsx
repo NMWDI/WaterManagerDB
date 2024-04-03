@@ -36,6 +36,8 @@ const disabledInputStyle = {
 //There will be separate components for activity and observation history items
 export default function SelectedActivityDetails({selectedActivity}: SelectedActivityProps) {
 
+    console.log(selectedActivity)
+    
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchActivityForm>(
         { defaultValues: selectedActivity }
     )

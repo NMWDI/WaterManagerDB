@@ -18,7 +18,7 @@ export default function NotesChipSelect({control, errors, watch, setValue}: any)
         <Controller
             name="note_ids"
             control={control}
-            defaultValue={[]}
+            //defaultValue={[]}
             render={({ field }) => (
                 <ChipSelect
                     selected_values={field.value}

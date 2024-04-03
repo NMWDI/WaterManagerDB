@@ -104,7 +104,7 @@ export interface PatchActivityForm {
     well: Well | null
     water_users?: string
 
-    notes?: []
+    notes?: NoteTypeLU[]
     services?: []
     parts_used?: []
 }

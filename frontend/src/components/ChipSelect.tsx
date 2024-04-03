@@ -49,7 +49,7 @@ export default function ChipSelect({selected_values, options, label, onSelect, o
 
                 {/* Option list (with selected values filtered out)  */}
                 {options?.map((option: chipselectitem) => 
-                    <MenuItem value={option.id}>{option.name}</MenuItem>
+                    <MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
                 )}
                 {/* {meterTypeList.data?.
                     filter(x => !watch("meter_types")?.map(scope => scope.id).includes(x.id))
