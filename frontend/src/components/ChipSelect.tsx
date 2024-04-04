@@ -14,7 +14,7 @@ interface chipselectprops {
     selected_values?: chipselectitem[]
     options?: chipselectitem[]
     label: string
-    onSelect: (select_item: chipselectitem) => void
+    onSelect: (selected_id: number) => void
     onDelete: (delete_id: number) => void
 }
 
@@ -26,7 +26,7 @@ export default function ChipSelect({selected_values, options, label, onSelect, o
                 <Select
                     multiple
                     value={selected_values ?? []}
-                    onChange={(event: any) => onSelect(event.target.value)}
+                    onChange={(event: any) => onSelect(event.target.value[event.target.value.length - 1])}
                     input={<OutlinedInput label={label} />}
                     renderValue={(selected) => (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -47,7 +47,7 @@ export default function ChipSelect({selected_values, options, label, onSelect, o
                     )}
                 >
 
-                {/* Option list (with selected values filtered out)  */}
+                {/* Option list */}
                 {options?.map((option: chipselectitem) => 
                     <MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>
                 )}

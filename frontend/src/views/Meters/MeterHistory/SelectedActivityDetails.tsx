@@ -175,6 +175,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
 
                     <Grid container item xs={12} sx={{mt:2}}>
                         <NotesChipSelect
+                            name="notes"
                             control={control}
                             errors={errors}
                             watch={watch}
