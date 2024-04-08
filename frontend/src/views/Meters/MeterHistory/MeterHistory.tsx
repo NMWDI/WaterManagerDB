@@ -51,8 +51,10 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             well: historyItem.well,
             water_users: historyItem.history_item.water_users,
 
-            //notes: historyItem.history_item.notes
-            notes: [{id: 2, note: 'Vibration'}]
+            notes: historyItem.history_item.notes,
+            services: historyItem.history_item.services,
+            parts_used: historyItem.history_item.parts_used,
+            
         }
         return activity_details
     }

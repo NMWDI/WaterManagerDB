@@ -20,6 +20,7 @@ import ControlledWellSelection from '../../../components/RHControlled/Controlled
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 
 import NotesChipSelect from '../../../components/RHControlled/NotesChipSelect'
+import NSPChipSelect from '../../../components/RHControlled/NSPChipSelect'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
 
 interface SelectedActivityProps {
@@ -184,26 +185,24 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <TextField
-                            label="Notes"
-                            variant="outlined"
-                            size="small"
-                            multiline
-                            rows={2}
-                            fullWidth
-                            value={''}
+                        <NSPChipSelect
+                            name="services"
+                            select_type="Services"
+                            control={control}
+                            //errors={errors}
+                            //watch={watch}
+                            //setValue={setValue}
                         />
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <TextField
-                            label="Parts Used"
-                            variant="outlined"
-                            size="small"
-                            multiline
-                            rows={2}
-                            fullWidth
-                            value={''}
+                        <NSPChipSelect
+                            name="parts_used"
+                            select_type="Parts"
+                            control={control}
+                            //errors={errors}
+                            //watch={watch}
+                            //setValue={setValue}
                         />
                     </Grid>
 
