@@ -14,6 +14,7 @@ from api.models.main_models import (
     Meters,
     LandOwners,
     MeterActivities,
+    Parts,
     MeterObservations,
     Locations,
     MeterTypeLU,
@@ -361,8 +362,9 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 joinedload(MeterActivities.location),
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
-                joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.parts_used).joinedload(Parts.part_type),
                 joinedload(MeterActivities.notes),
+                joinedload(MeterActivities.services_performed)
             )
             .filter(MeterActivities.meter_id == meter_id)
         )

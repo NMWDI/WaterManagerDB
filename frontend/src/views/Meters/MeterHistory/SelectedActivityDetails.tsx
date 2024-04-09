@@ -20,6 +20,8 @@ import ControlledWellSelection from '../../../components/RHControlled/Controlled
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 
 import NotesChipSelect from '../../../components/RHControlled/NotesChipSelect'
+import ServicesChipSelect from '../../../components/RHControlled/ServicesChipSelect'
+import PartsChipSelect from '../../../components/RHControlled/PartsChipSelect'
 import NSPChipSelect from '../../../components/RHControlled/NSPChipSelect'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
 
@@ -175,6 +177,16 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
+                        <ServicesChipSelect
+                            name="services"
+                            control={control}
+                            // errors={errors}
+                            // watch={watch}
+                            // setValue={setValue}
+                        />
+                    </Grid>
+
+                    <Grid container item xs={12} sx={{mt:2}}>
                         <NotesChipSelect
                             name="notes"
                             control={control}
@@ -185,24 +197,13 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     </Grid>
 
                     <Grid container item xs={12} sx={{mt:2}}>
-                        <NSPChipSelect
-                            name="services"
-                            select_type="Services"
-                            control={control}
-                            //errors={errors}
-                            //watch={watch}
-                            //setValue={setValue}
-                        />
-                    </Grid>
-
-                    <Grid container item xs={12} sx={{mt:2}}>
-                        <NSPChipSelect
+                        <PartsChipSelect
                             name="parts_used"
-                            select_type="Parts"
                             control={control}
-                            //errors={errors}
-                            //watch={watch}
-                            //setValue={setValue}
+                            meterid={selectedActivity.meter_id}
+                            // errors={errors}
+                            // watch={watch}
+                            // setValue={setValue}
                         />
                     </Grid>
 

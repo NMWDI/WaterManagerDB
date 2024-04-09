@@ -105,8 +105,8 @@ export interface PatchActivityForm {
     water_users?: string
 
     notes?: NoteTypeLU[]
-    services?: []
-    parts_used?: []
+    services?: ServiceTypeLU[]
+    parts_used?: Part[]
 }
 
 //This interface is designed to match the backend API patch endpoint

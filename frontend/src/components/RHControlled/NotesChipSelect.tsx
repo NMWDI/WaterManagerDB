@@ -11,7 +11,7 @@ import { NoteTypeLU } from '../../interfaces'
 import { useGetNoteTypes } from '../../service/ApiServiceNew'
 import { Controller } from 'react-hook-form'
 
-export default function NotesChipSelect({name, control, errors, watch, setValue}: any) {
+export default function NotesChipSelect({name, control}: any) {
     const notesList = useGetNoteTypes()
 
     return (
@@ -20,7 +20,6 @@ export default function NotesChipSelect({name, control, errors, watch, setValue}
             control={control}
             //defaultValue={[]}
             render={({ field }) => {
-                console.log(field)
                 return (
                     <ChipSelect
                         selected_values={field.value?.map((note: NoteTypeLU) => ({id: note.id, name: note.note})) ?? []}
