@@ -44,6 +44,67 @@ def add_waterlevel(
     return well_measurement
 
 
+@well_measurement_router.get(
+    "/waterlevels",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.WellMeasurementDTO],
+    tags=["WaterLevels"],
+)
+def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
+    return db.scalars(
+        select(WellMeasurements)
+        .options(joinedload(WellMeasurements.submitting_user))
+        .join(ObservedPropertyTypeLU)
+        .where(
+            and_(
+                ObservedPropertyTypeLU.name == "Depth to water",
+                WellMeasurements.well_id == well_id,
+            )
+        )
+    ).all()
+
+@well_measurement_router.patch(
+    "/waterlevels",
+    dependencies=[Depends(ScopedUser.Admin)],
+    response_model=well_schemas.WellMeasurement,
+    tags=["WaterLevels"],
+)
+def patch_waterlevel(waterlevel_patch: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)):
+    # Find the measurement
+    well_measurement = (
+        db.scalars(select(WellMeasurements).where(WellMeasurements.id == waterlevel_patch.levelmeasurement_id)).first()
+    )
+
+    # Update the fields, all are mandatory
+    well_measurement.submitting_user_id = waterlevel_patch.submitting_user_id
+    well_measurement.timestamp = waterlevel_patch.timestamp
+    well_measurement.value = waterlevel_patch.value
+
+    db.commit()
+
+    return well_measurement
+
+@well_measurement_router.delete(
+    "/waterlevels",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["WaterLevels"],
+)
+def delete_waterlevel(waterlevel_id: int, db: Session = Depends(get_db)):
+    # Find the measurement
+    well_measurement = (
+        db.scalars(select(WellMeasurements).where(WellMeasurements.id == waterlevel_id)).first()
+    )
+
+    db.delete(well_measurement)
+    db.commit()
+
+    return True
+
+
+
+
+#----------------- Chloride Concentration -----------------#
+
 @well_measurement_router.post(
     "/chlorides",
     dependencies=[Depends(ScopedUser.WellMeasurementWrite)],
@@ -76,27 +137,6 @@ def add_chloride_measurement(
     db.commit()
 
     return well_measurement
-
-
-@well_measurement_router.get(
-    "/waterlevels",
-    dependencies=[Depends(ScopedUser.Read)],
-    response_model=List[well_schemas.WellMeasurementDTO],
-    tags=["WaterLevels"],
-)
-def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
-    return db.scalars(
-        select(WellMeasurements)
-        .options(joinedload(WellMeasurements.submitting_user))
-        .join(ObservedPropertyTypeLU)
-        .where(
-            and_(
-                ObservedPropertyTypeLU.name == "Depth to water",
-                WellMeasurements.well_id == well_id,
-            )
-        )
-    ).all()
-
 
 @well_measurement_router.get(
     "/chlorides",

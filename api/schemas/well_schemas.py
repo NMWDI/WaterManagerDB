@@ -147,8 +147,10 @@ class NewWaterLevelMeasurement(ORMBase):
     value: float
     submitting_user_id: int
 
-
+# Well and units should stay the same, so are not included in the patch
 class WaterLevelPatch(ORMBase):
-    timestamp: Optional[datetime] = None
+    levelmeasurement_id: int
+    submitting_user_id: int
+    timestamp: datetime
     value: float | None = None
-    well_id: int | None = None
+
