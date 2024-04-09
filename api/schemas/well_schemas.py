@@ -148,7 +148,7 @@ class NewWaterLevelMeasurement(ORMBase):
     submitting_user_id: int
 
 # Well and units should stay the same, so are not included in the patch
-class WaterLevelPatch(ORMBase):
+class WaterLevelPatch(BaseModel):
     levelmeasurement_id: int
     submitting_user_id: int
     timestamp: datetime

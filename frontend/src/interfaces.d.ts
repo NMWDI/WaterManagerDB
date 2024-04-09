@@ -439,6 +439,13 @@ export interface NewWellMeasurement {
     submitting_user_id: number
 }
 
+export interface PatchWellMeasurement {
+    wellmeasurement_id: number
+    submitting_user_id: number
+    timestamp: Date
+    value: number
+}
+
 export interface CreateUser {
     username: string
     full_name: string

@@ -35,7 +35,8 @@ import {
     WellUseLU,
     SubmitWellCreate,
     SubmitWellUpdate,
-    Meter
+    Meter,
+    PatchWellMeasurement
 } from '../interfaces.js'
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
@@ -1110,6 +1111,66 @@ export function useCreateWaterLevel() {
 
                 queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
                 return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateWaterLevel() {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'waterlevels'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (updatedWaterLevel: PatchWellMeasurement) => {
+            const response = await PATCHFetch(route, updatedWaterLevel, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                enqueueSnackbar('Successfully Updated Measurement!', {variant: 'success'})
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteWaterLevel() {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (waterLevelID: number) => {
+            const response = await fetch(API_URL + `/waterlevels/`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader(),
+                    "Content-type": 'application/json'
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                enqueueSnackbar('Successfully Deleted Measurement!', {variant: 'success'})
+
+                return true
             }
         },
         retry: 0
