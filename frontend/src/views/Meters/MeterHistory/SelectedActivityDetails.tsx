@@ -93,7 +93,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
             <CardHeader
                 title={
                     <div className="custom-card-header">
-                        <span>Selected History Details V2 Testing</span>
+                        <span>Activity ID: {selectedActivity.activity_id}</span>
                         <InfoOutlinedIcon/>
                     </div>
                 }

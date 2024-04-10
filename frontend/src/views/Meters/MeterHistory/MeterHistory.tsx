@@ -14,10 +14,11 @@ import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
 
 interface MeterHistoryProps {
+    selectMeterSerialNumber: string | undefined
     selectedMeterID: number | undefined
 }
 
-export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
+export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}: MeterHistoryProps) {
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
     //console.log(meterHistory.data)
@@ -101,7 +102,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
         <Box sx={{width: '100%'}}>
             <Grid container spacing={2} sx={{height: '50vh', minHeight: '400px'}}>
                 <Grid item xs={6}>
-                    <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
+                    <MeterHistoryTable meter_serialnumber={selectMeterSerialNumber}  onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
                 <Grid item xs={6}>
                     {getDetailsCard(selectedHistoryItem)}

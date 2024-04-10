@@ -76,7 +76,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
     useEffect(() => {
         reset(selectedObservation)
         console.log(watch('ose_share'))
-    }, [selectedObservation])
+    }, [selectedObservation.observation_id])
 
     //User must have admin scope to edit history items
     const authUser = useAuthUser()
@@ -87,7 +87,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
             <CardHeader
                 title={
                     <div className="custom-card-header">
-                        <span>Selected Observation Details</span>
+                        <span>Observation ID: {selectedObservation.observation_id}</span>
                         <InfoOutlinedIcon/>
                     </div>
                 }

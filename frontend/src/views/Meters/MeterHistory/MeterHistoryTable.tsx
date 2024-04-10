@@ -14,11 +14,12 @@ import { MeterHistoryType } from '../../../enums'
 import { MeterHistoryDTO } from '../../../interfaces'
 
 interface MeterHistoryTableProps {
+    meter_serialnumber: string | undefined
     onHistoryItemSelection: Function
     selectedMeterHistory: MeterHistoryDTO[] | undefined
 }
 
-export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
+export default function MeterHistoryTable({meter_serialnumber, onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
 
     function handleRowSelect(rowDetails: any) {
         onHistoryItemSelection(rowDetails.row)
@@ -87,7 +88,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
                 <CardHeader
                     title={
                         <div className="custom-card-header">
-                            <span>Selected Meter History</span>
+                            <span>{meter_serialnumber} Meter History</span>
                             <HistoryIcon/>
                         </div>
                     }

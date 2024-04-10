@@ -84,7 +84,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
                     columns={meterTableColumns}
                     sortingMode='server'
                     onSortModelChange={setGridSortModel}
-                    onRowClick={(selectedRow) => {onMeterSelection(selectedRow.row.id)}}
+                    onRowClick={(selectedRow) => {onMeterSelection({meter_id: selectedRow.row.id, meter_serialnumber: selectedRow.row.serial_number})}}
                     keepNonExistentRowsSelected
                     paginationMode='server'
                     page={gridPage}
