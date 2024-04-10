@@ -8,7 +8,7 @@ import { Box, TextField, Grid, Card, CardContent, CardHeader, Stack, Button } fr
 import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { PatchActivityForm, PatchActivitySubmit, SecurityScope } from '../../../interfaces'
-import { useUpdateActivity } from '../../../service/ApiServiceNew'
+import { useUpdateActivity, useDeleteActivity } from '../../../service/ApiServiceNew'
 import dayjs from 'dayjs'
 import { enqueueSnackbar } from 'notistack'
 
@@ -26,6 +26,7 @@ import ControlledCheckbox from '../../../components/RHControlled/ControlledCheck
 
 interface SelectedActivityProps {
     selectedActivity: PatchActivityForm
+    onDeletion: () => void
 }
 
 const disabledInputStyle = {
@@ -36,7 +37,7 @@ const disabledInputStyle = {
 }
 
 //There will be separate components for activity and observation history items
-export default function SelectedActivityDetails({selectedActivity}: SelectedActivityProps) {
+export default function SelectedActivityDetails({selectedActivity, onDeletion}: SelectedActivityProps) {
 
     //console.log(selectedActivity)
     
@@ -45,7 +46,9 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
     )
     
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}) }
+    function onSuccessfulDelete() { enqueueSnackbar('Successfully Deleted Observation!', {variant: 'success'}); onDeletion()}
     const updateActivity = useUpdateActivity(onSuccessfulUpdate)
+    const deleteActivity = useDeleteActivity(onSuccessfulDelete)
 
     const onSaveChanges: SubmitHandler<any> = data => {
 
@@ -77,6 +80,13 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
         }
         console.log(activity_data)
         updateActivity.mutate(activity_data)
+    }
+
+    function handleDelete() {
+        //Warn user before deleting
+        if (window.confirm("Are you sure you want to delete this activity?")) {
+            deleteActivity.mutate(selectedActivity.activity_id)
+        }
     }
 
     //Update the form when selectedActivity changes
@@ -220,7 +230,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
                     <Grid container item xs={12} sx={{mt: 2}}>
                         <Stack direction="row" spacing={2}>
                             <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
-                            <Button variant="contained">Delete</Button>
+                            <Button variant="contained" onClick={handleDelete} >Delete</Button>
                         </Stack>
                     </Grid>
                   

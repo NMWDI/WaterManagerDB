@@ -27,6 +27,9 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
     //console.log(meterHistory.data)
     //console.log(selectedHistoryItem)
+    function handleDeleteItem() {
+        setSelectedHistoryItem(undefined)
+    }
 
     // Function to convert MeterHistoryDTO to PatchMeterActivity
     function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchActivityForm {
@@ -80,10 +83,10 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
             return <SelectedBlankCard />
         }
         else if(historyItem.history_type == MeterHistoryType.Activity) {
-            return <SelectedActivityDetails selectedActivity={convertHistoryActivity(historyItem)} />
+            return <SelectedActivityDetails onDeletion={handleDeleteItem} selectedActivity={convertHistoryActivity(historyItem)} />
         }
         else {
-            return <SelectedObservationDetails selectedObservation={convertHistoryObservation(historyItem)} />
+            return <SelectedObservationDetails onDeletion={handleDeleteItem} selectedObservation={convertHistoryObservation(historyItem)} />
         }
     }
 

@@ -22,11 +22,12 @@ import ControlledWellSelection from '../../../components/RHControlled/Controlled
 import ControlledTextbox from '../../../components/RHControlled/ControlledTextbox';
 import { ControlledSelect } from '../../../components/RHControlled/ControlledSelect';
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox';
-import { useGetPropertyTypes, useUpdateObservation } from '../../../service/ApiServiceNew'
+import { useGetPropertyTypes, useUpdateObservation, useDeleteObservation } from '../../../service/ApiServiceNew'
 
 
 interface SelectedObservationProps {
     selectedObservation: PatchObservationForm
+    onDeletion: () => void
 }
 
 const disabledInputStyle = {
@@ -37,7 +38,7 @@ const disabledInputStyle = {
 }
 
 //There will be separate components for activity and observation history items
-export default function SelectedObservationDetails({selectedObservation}: SelectedObservationProps) {
+export default function SelectedObservationDetails({selectedObservation, onDeletion}: SelectedObservationProps) {
 
     const { handleSubmit, control, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
         { defaultValues: selectedObservation }
@@ -45,7 +46,9 @@ export default function SelectedObservationDetails({selectedObservation}: Select
     const propertyTypes:any = useGetPropertyTypes()
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}) }
+    function onSuccessfulDelete() { enqueueSnackbar('Successfully Deleted Observation!', {variant: 'success'}); onDeletion() }
     const updateObservation = useUpdateObservation(onSuccessfulUpdate)
+    const deleteObservation = useDeleteObservation(onSuccessfulDelete)
     const onSaveChanges: SubmitHandler<any> = data => {
 
         //Timestamp conversion function - Input date and time are 'America/Denver' and should be combined into a UTC timestamp
@@ -70,6 +73,13 @@ export default function SelectedObservationDetails({selectedObservation}: Select
         }
         console.log(observation_data)
         updateObservation.mutate(observation_data)
+    }
+
+    function handleDelete() {
+        //Warn user before deleting
+        if (window.confirm('Are you sure you want to delete this observation?')) {
+            deleteObservation.mutate(selectedObservation.observation_id)
+        }
     }
 
     function getUnitsFromPropertyType(propertyTypeID: number) {
@@ -192,7 +202,7 @@ export default function SelectedObservationDetails({selectedObservation}: Select
                     <Grid container item xs={12} sx={{mt: 2}}>
                         <Stack direction="row" spacing={2}>
                             <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
-                            <Button variant="contained">Delete</Button>
+                            <Button variant="contained" onClick={handleDelete}>Delete</Button>
                         </Stack>
                     </Grid>
                   

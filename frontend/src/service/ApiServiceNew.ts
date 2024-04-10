@@ -1024,6 +1024,33 @@ export function useUpdateObservation(onSuccess: Function) {
 
 }
 
+export function useDeleteObservation(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'observations'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (observation_id: number) => {
+            const response = await fetch(API_URL + `/observations?observation_id=${observation_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useUpdateActivity(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const route = 'activities'
@@ -1055,6 +1082,33 @@ export function useUpdateActivity(onSuccess: Function) {
 
                 const responseJson = await response.json()
                 return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activity_id: number) => {
+            const response = await fetch(API_URL + `/activities?activity_id=${activity_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
             }
         },
         retry: 0
