@@ -22,7 +22,6 @@ import ControlledTextbox from '../../../components/RHControlled/ControlledTextbo
 import NotesChipSelect from '../../../components/RHControlled/NotesChipSelect'
 import ServicesChipSelect from '../../../components/RHControlled/ServicesChipSelect'
 import PartsChipSelect from '../../../components/RHControlled/PartsChipSelect'
-import NSPChipSelect from '../../../components/RHControlled/NSPChipSelect'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
 
 interface SelectedActivityProps {
@@ -39,7 +38,7 @@ const disabledInputStyle = {
 //There will be separate components for activity and observation history items
 export default function SelectedActivityDetails({selectedActivity}: SelectedActivityProps) {
 
-    console.log(selectedActivity)
+    //console.log(selectedActivity)
     
     const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<PatchActivityForm>(
         { defaultValues: selectedActivity }
@@ -49,6 +48,8 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
     const updateActivity = useUpdateActivity(onSuccessfulUpdate)
 
     const onSaveChanges: SubmitHandler<any> = data => {
+
+        //console.log(data)
 
         //Timestamp conversion function - Input date and time are 'America/Denver' and should be combined into a UTC timestamp
         function convertTimestamp(date: dayjs.Dayjs, time: dayjs.Dayjs) {
@@ -70,18 +71,18 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
             ose_share: data.ose_share,
             water_users: data.water_users,
 
-            note_ids: [],
-            service_ids: [],
-            part_ids: [],
+            note_ids: data.notes.map((note: any) => note.id),
+            service_ids: data.services.map((service: any) => service.id),
+            part_ids: data.parts_used.map((part: any) => part.id),
         }
         console.log(activity_data)
-        updateActivity.mutate(activity_data)
+        //updateActivity.mutate(activity_data)
     }
 
     //Update the form when selectedActivity changes
     useEffect(() => {
         reset(selectedActivity)
-    }, [selectedActivity])
+    }, [selectedActivity.activity_id])
 
     //User must have admin scope to edit history items
     const authUser = useAuthUser()

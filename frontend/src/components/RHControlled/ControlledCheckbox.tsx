@@ -15,18 +15,22 @@ export default function ControlledCheckbox({name, control, ...childProps}: any) 
             name={name}
             control={control}
             defaultValue={false}
-            render={({ field }) => (
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            {...field}
-                            size="small"
-                            sx={disabledInputStyle}
-                        />
-                    }
-                    {...childProps}
-                />
-            )}
+            render={({ field }) => {
+                //console.log(field)
+                return (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                onChange={field.onChange}
+                                checked={field.value}
+                                size="small"
+                                sx={disabledInputStyle}
+                            />
+                        }
+                        {...childProps}
+                    />
+                )}
+            }
         />
     )
 }

@@ -26,7 +26,6 @@ export default function NotesChipSelect({name, control}: any) {
                         options={notesList.data?.map((note: NoteTypeLU) => ({id: note.id, name: note.note})) ?? []}
                         label="Notes"
                         onSelect={(selected_id) => {
-                            console.log(selected_id)
                             field.onChange([...field.value, notesList.data?.find((note: NoteTypeLU) => note.id === selected_id)])
                         }}
                         onDelete={(delete_id) => {

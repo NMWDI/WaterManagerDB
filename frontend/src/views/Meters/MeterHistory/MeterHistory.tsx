@@ -20,7 +20,8 @@ interface MeterHistoryProps {
 export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
-    console.log(meterHistory.data)
+    //console.log(meterHistory.data)
+    //console.log(selectedHistoryItem)
 
     function formatDate(dateIN: Date) { 
         return dayjs
@@ -46,6 +47,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             activity_start_time: dayjs(historyItem.history_item.timestamp_start),
             activity_end_time:  dayjs(historyItem.history_item.timestamp_end),
             activity_type: historyItem.history_item.activity_type,
+
             submitting_user: historyItem.history_item.submitting_user,
             description: historyItem.history_item.description,
             well: historyItem.well,
@@ -54,6 +56,8 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             notes: historyItem.history_item.notes,
             services: historyItem.history_item.services_performed,
             parts_used: historyItem.history_item.parts_used,
+
+            ose_share: historyItem.history_item.ose_share,
             
         }
         return activity_details

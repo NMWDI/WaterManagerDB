@@ -19,14 +19,12 @@ export default function PartsChipSelect({name, control, meterid}: any) {
             control={control}
             //defaultValue={[]}
             render={({ field }) => {
-                console.log(field)
                 return (
                     <ChipSelect
                         selected_values={field.value?.map((part: Part) => ({id: part.id, name: part.part_type?.name + ' ' + part.part_number})) ?? []}
                         options={partsList.data?.map((part: Part) => ({id: part.id, name: part.part_type?.name + ' ' + part.part_number})) ?? []}
                         label="Parts Used"
                         onSelect={(selected_id) => {
-                            console.log(selected_id)
                             field.onChange([...field.value, partsList.data?.find((part: Part) => part.id === selected_id)])
                         }}
                         onDelete={(delete_id) => {

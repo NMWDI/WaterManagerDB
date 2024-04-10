@@ -107,6 +107,8 @@ export interface PatchActivityForm {
     notes?: NoteTypeLU[]
     services?: ServiceTypeLU[]
     parts_used?: Part[]
+
+    ose_share: boolean
 }
 
 //This interface is designed to match the backend API patch endpoint

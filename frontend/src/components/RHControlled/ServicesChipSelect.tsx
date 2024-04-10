@@ -20,14 +20,12 @@ export default function ServicesChipSelect({name, control}: any) {
             control={control}
             //defaultValue={[]}
             render={({ field }) => {
-                console.log(field)
                 return (
                     <ChipSelect
                         selected_values={field.value?.map((service: ServiceTypeLU) => ({id: service.id, name: service.service_name})) ?? []}
                         options={servicesList.data?.map((service: ServiceTypeLU) => ({id: service.id, name: service.service_name})) ?? []}
                         label="Services"
                         onSelect={(selected_id) => {
-                            console.log(selected_id)
                             field.onChange([...field.value, servicesList.data?.find((service: ServiceTypeLU) => service.id === selected_id)])
                         }}
                         onDelete={(delete_id) => {
