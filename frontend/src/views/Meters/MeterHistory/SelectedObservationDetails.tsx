@@ -10,6 +10,10 @@ import SaveIcon from '@mui/icons-material/Save';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { PatchObservationForm, PatchObservationSubmit, SecurityScope, ObservedPropertyTypeLU } from '../../../interfaces'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'

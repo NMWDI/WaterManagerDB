@@ -12,6 +12,10 @@ import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 import { MeterHistoryDTO, PatchActivityForm, PatchObservationForm } from '../../../interfaces'
 import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 interface MeterHistoryProps {
     selectMeterSerialNumber: string | undefined
@@ -24,29 +28,15 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
     //console.log(meterHistory.data)
     //console.log(selectedHistoryItem)
 
-    function formatDate(dateIN: Date) { 
-        return dayjs
-                .utc(dateIN)
-                .tz('America/Denver')
-                .format('MM/DD/YYYY')
-    }
-
-    function formatTime(dateIN: Date) {
-        return dayjs
-                .utc(dateIN)
-                .tz('America/Denver')
-                .format('hh:mm A')
-    }
-
     // Function to convert MeterHistoryDTO to PatchMeterActivity
     function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchActivityForm {
         
         let activity_details: PatchActivityForm = {
             activity_id: historyItem.history_item.id,
             meter_id: selectedMeterID,
-            activity_date: dayjs(historyItem.history_item.timestamp_start),
-            activity_start_time: dayjs(historyItem.history_item.timestamp_start),
-            activity_end_time:  dayjs(historyItem.history_item.timestamp_end),
+            activity_date: dayjs.utc(historyItem.history_item.timestamp_start).tz('America/Denver'),
+            activity_start_time: dayjs.utc(historyItem.history_item.timestamp_start).tz('America/Denver'),
+            activity_end_time:  dayjs.utc(historyItem.history_item.timestamp_end).tz('America/Denver'),
             activity_type: historyItem.history_item.activity_type,
 
             submitting_user: historyItem.history_item.submitting_user,
@@ -66,14 +56,13 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
 
     // Function to convert MeterHistoryDTO to PatchObservationForm
     function convertHistoryObservation(historyItem: MeterHistoryDTO): PatchObservationForm {
-        //console.log(historyItem)
 
         let observation_details: PatchObservationForm = {
             observation_id: historyItem.history_item.id,
             submitting_user: historyItem.history_item.submitting_user,
             well: historyItem.well,
-            observation_date: dayjs(historyItem.date),
-            observation_time: dayjs(historyItem.date),
+            observation_date: dayjs.utc(historyItem.date).tz('America/Denver'),  //Convert to America/Denver
+            observation_time: dayjs.utc(historyItem.date).tz('America/Denver'),  //Convert to America/Denver
             property_type: historyItem.history_item.observed_property,
             unit: historyItem.history_item.unit,
             value: historyItem.history_item.value,

@@ -76,7 +76,7 @@ export default function SelectedActivityDetails({selectedActivity}: SelectedActi
             part_ids: data.parts_used.map((part: any) => part.id),
         }
         console.log(activity_data)
-        //updateActivity.mutate(activity_data)
+        updateActivity.mutate(activity_data)
     }
 
     //Update the form when selectedActivity changes
