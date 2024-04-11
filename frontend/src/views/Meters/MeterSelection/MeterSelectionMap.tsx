@@ -40,8 +40,9 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <Marker
                         key={meter.id}
                         position={[meter.location?.latitude, meter.location?.longitude]}
+                        title={meter.serial_number}
                         eventHandlers={{
-                            click: () => {onMeterSelection(meter.id)}
+                            click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
                         }}
                     ></Marker>
                 )

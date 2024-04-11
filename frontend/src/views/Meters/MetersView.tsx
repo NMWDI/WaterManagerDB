@@ -18,6 +18,7 @@ export default function MetersView() {
 
     useEffect(() => {
         if (selectedMeter) setMeterAddMode(false)
+        console.log(selectedMeter)
     }, [selectedMeter])
 
     return (
