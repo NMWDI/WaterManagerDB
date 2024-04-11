@@ -28,6 +28,7 @@ import { useGetPropertyTypes, useUpdateObservation, useDeleteObservation } from 
 interface SelectedObservationProps {
     selectedObservation: PatchObservationForm
     onDeletion: () => void
+    afterSave: () => void
 }
 
 const disabledInputStyle = {
@@ -38,14 +39,14 @@ const disabledInputStyle = {
 }
 
 //There will be separate components for activity and observation history items
-export default function SelectedObservationDetails({selectedObservation, onDeletion}: SelectedObservationProps) {
+export default function SelectedObservationDetails({selectedObservation, onDeletion, afterSave}: SelectedObservationProps) {
 
     const { handleSubmit, control, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
         { defaultValues: selectedObservation }
     )
     const propertyTypes:any = useGetPropertyTypes()
 
-    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}) }
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}); afterSave()}
     function onSuccessfulDelete() { enqueueSnackbar('Successfully Deleted Observation!', {variant: 'success'}); onDeletion() }
     const updateObservation = useUpdateObservation(onSuccessfulUpdate)
     const deleteObservation = useDeleteObservation(onSuccessfulDelete)
@@ -89,7 +90,6 @@ export default function SelectedObservationDetails({selectedObservation, onDelet
     //Update the form when selectedObservation changes
     useEffect(() => {
         reset(selectedObservation)
-        console.log(watch('ose_share'))
     }, [selectedObservation.observation_id])
 
     //User must have admin scope to edit history items

@@ -26,7 +26,8 @@ import ControlledCheckbox from '../../../components/RHControlled/ControlledCheck
 
 interface SelectedActivityProps {
     selectedActivity: PatchActivityForm
-    onDeletion: () => void
+    onDeletion: () => void  //Function to call when the activity is deleted, use to update the history table
+    afterSave: () => void
 }
 
 const disabledInputStyle = {
@@ -37,7 +38,7 @@ const disabledInputStyle = {
 }
 
 //There will be separate components for activity and observation history items
-export default function SelectedActivityDetails({selectedActivity, onDeletion}: SelectedActivityProps) {
+export default function SelectedActivityDetails({selectedActivity, onDeletion, afterSave}: SelectedActivityProps) {
 
     //console.log(selectedActivity)
     
@@ -45,7 +46,7 @@ export default function SelectedActivityDetails({selectedActivity, onDeletion}: 
         { defaultValues: selectedActivity }
     )
     
-    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}) }
+    function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Observation!', {variant: 'success'}); afterSave() }
     function onSuccessfulDelete() { enqueueSnackbar('Successfully Deleted Observation!', {variant: 'success'}); onDeletion()}
     const updateActivity = useUpdateActivity(onSuccessfulUpdate)
     const deleteActivity = useDeleteActivity(onSuccessfulDelete)

@@ -68,7 +68,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     const createMeter = useCreateMeter(onSuccessfulCreate)
 
     const onSaveChanges: SubmitHandler<any> = data => {
-        console.log(data)
+        //console.log(data)
         updateMeter.mutate(data)
     }
     const onAddMeter: SubmitHandler<any> = data => {

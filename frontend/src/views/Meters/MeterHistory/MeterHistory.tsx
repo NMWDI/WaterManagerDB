@@ -31,6 +31,11 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
         setSelectedHistoryItem(undefined)
     }
 
+    function handleSaveItem() {
+        //Update the meter history
+        meterHistory.refetch()
+    }
+
     // Function to convert MeterHistoryDTO to PatchMeterActivity
     function convertHistoryActivity(historyItem: MeterHistoryDTO): PatchActivityForm {
         
@@ -83,16 +88,24 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
             return <SelectedBlankCard />
         }
         else if(historyItem.history_type == MeterHistoryType.Activity) {
-            return <SelectedActivityDetails onDeletion={handleDeleteItem} selectedActivity={convertHistoryActivity(historyItem)} />
+            return <SelectedActivityDetails 
+                        onDeletion={handleDeleteItem} 
+                        selectedActivity={convertHistoryActivity(historyItem)} 
+                        afterSave={handleSaveItem} 
+                    />
         }
         else {
-            return <SelectedObservationDetails onDeletion={handleDeleteItem} selectedObservation={convertHistoryObservation(historyItem)} />
+            return <SelectedObservationDetails 
+                        onDeletion={handleDeleteItem} 
+                        selectedObservation={convertHistoryObservation(historyItem)} 
+                        afterSave={handleSaveItem}
+                    />
         }
     }
 
     return (
         <Box sx={{width: '100%'}}>
-            <Grid container spacing={2} sx={{height: '50vh', minHeight: '400px'}}>
+            <Grid container spacing={2} sx={{minHeight: '700px'}}>
                 <Grid item xs={6}>
                     <MeterHistoryTable meter_serialnumber={selectMeterSerialNumber}  onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
