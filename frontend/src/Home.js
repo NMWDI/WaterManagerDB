@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.28 - Full admin UI on meter page",
             "V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes",
             "V0.1.26 - Add functional merge button for admin",
             "V0.1.25 - Fix datesort on meter history, give techs limited well management",
