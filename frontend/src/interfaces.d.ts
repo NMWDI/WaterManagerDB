@@ -120,7 +120,7 @@ export interface PatchActivitySubmit {
     submitting_user_id: int
     meter_id: int
     activity_type_id: int
-    location_id: int
+    location_id: int | null
     ose_share: boolean
     water_users: string
 
@@ -154,7 +154,7 @@ export interface PatchObservationSubmit {
     meter_id: int
     observed_property_type_id: int
     unit_id: int
-    location_id: int
+    location_id: int | null
     ose_share: boolean
 }
 

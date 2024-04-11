@@ -71,7 +71,7 @@ export default function SelectedActivityDetails({selectedActivity, onDeletion, a
             submitting_user_id: data.submitting_user.id,
             meter_id: selectedActivity.meter_id,
             activity_type_id: data.activity_type.id,
-            location_id: data.well.location_id,
+            location_id: data.well?.location_id,
             ose_share: data.ose_share,
             water_users: data.water_users,
 
@@ -79,7 +79,7 @@ export default function SelectedActivityDetails({selectedActivity, onDeletion, a
             service_ids: data.services.map((service: any) => service.id),
             part_ids: data.parts_used.map((part: any) => part.id),
         }
-        console.log(activity_data)
+        //console.log(activity_data)
         updateActivity.mutate(activity_data)
     }
 

@@ -176,7 +176,7 @@ class PatchActivity(ORMBase):
     submitting_user_id: int
     meter_id: int
     activity_type_id: int
-    location_id: int
+    location_id: int | None = None # This will be null when activity took place at warehouse
     ose_share: bool
     water_users: str | None = None
 
@@ -221,7 +221,7 @@ class PatchObservation(ORMBase):
     meter_id: int
     observed_property_type_id: int
     unit_id: int
-    location_id: int
+    location_id: int | None = None
     ose_share: bool = False
 
 

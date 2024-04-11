@@ -40,7 +40,7 @@ const disabledInputStyle = {
 
 //There will be separate components for activity and observation history items
 export default function SelectedObservationDetails({selectedObservation, onDeletion, afterSave}: SelectedObservationProps) {
-
+    
     const { handleSubmit, control, reset, watch, formState: { errors }} = useForm<PatchObservationForm>(
         { defaultValues: selectedObservation }
     )
@@ -72,7 +72,7 @@ export default function SelectedObservationDetails({selectedObservation, onDelet
             ose_share: data.ose_share,
             meter_id: selectedObservation.meter_id
         }
-        console.log(observation_data)
+        //console.log(observation_data)
         updateObservation.mutate(observation_data)
     }
 

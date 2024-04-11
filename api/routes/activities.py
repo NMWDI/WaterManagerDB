@@ -251,9 +251,15 @@ def patch_activity(patch_activity_form: meter_schemas.PatchActivity, db: Session
     activity.timestamp_start = patch_activity_form.timestamp_start
     activity.timestamp_end = patch_activity_form.timestamp_end
     activity.description = patch_activity_form.description
-    activity.location_id = patch_activity_form.location_id
     activity.ose_share = patch_activity_form.ose_share
     activity.water_users = patch_activity_form.water_users
+
+    # When updating location, if location_id is null assume the activity took place at the "Warehouse"
+    if patch_activity_form.location_id is None:
+        hq_location = db.scalars(select(Locations).where(Locations.type_id == 1)).first()
+        activity.location_id = hq_location.id
+    else:
+        activity.location_id = patch_activity_form.location_id
 
     # Update the notes
     # Easiest approach is to just delete existing and then re-add if there are any
@@ -339,9 +345,15 @@ def patch_observation(patch_observation_form: meter_schemas.PatchObservation, db
     observation.observed_property_type_id = patch_observation_form.observed_property_type_id
     observation.unit_id = patch_observation_form.unit_id
     observation.meter_id = patch_observation_form.meter_id
-    observation.location_id = patch_observation_form.location_id
     observation.submitting_user_id = patch_observation_form.submitting_user_id
     observation.ose_share = patch_observation_form.ose_share
+
+    # When updating location, if location_id is null assume the observation took place at the "Warehouse"
+    if patch_observation_form.location_id is None:
+        hq_location = db.scalars(select(Locations).where(Locations.type_id == 1)).first()
+        observation.location_id = hq_location.id
+    else:
+        observation.location_id = patch_observation_form.location_id
 
     db.commit()
 
