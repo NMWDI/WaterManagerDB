@@ -230,8 +230,13 @@ export default function SelectedActivityDetails({selectedActivity, onDeletion, a
 
                     <Grid container item xs={12} sx={{mt: 2}}>
                         <Stack direction="row" spacing={2}>
-                            <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
-                            <Button variant="contained" onClick={handleDelete} >Delete</Button>
+                            <Button 
+                                color="success" 
+                                variant="contained" 
+                                onClick={handleSubmit(onSaveChanges)}
+                                disabled={!hasAdminScope}
+                            ><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
+                            <Button variant="contained" onClick={handleDelete} disabled={!hasAdminScope} >Delete</Button>
                         </Stack>
                     </Grid>
                   
