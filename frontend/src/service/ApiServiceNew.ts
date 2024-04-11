@@ -35,7 +35,10 @@ import {
     WellUseLU,
     SubmitWellCreate,
     SubmitWellUpdate,
-    Meter
+    Meter,
+    MeterStatus,
+    PatchObservationSubmit,
+    PatchActivitySubmit
 } from '../interfaces.js'
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
@@ -204,6 +207,17 @@ export function useGetMeterTypeList() {
     const signOut = useSignOut()
 
     return useQuery<MeterTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+    )
+}
+
+export function useGetMeterStatusTypeList() {
+    const route = 'meter_status_types'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<MeterStatus[], Error>([route], () =>
         GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
@@ -994,6 +1008,131 @@ export function useUpdateMeter(onSuccess: Function) {
                     })
                 })
                 return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateObservation(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'observations'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (observation: PatchObservationSubmit) => {
+            const response = await PATCHFetch(route, observation, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                if(response.status == 409) {
+                    enqueueSnackbar('Cannot use existing serial number!', {variant: 'error'})
+                    throw Error("Observation serial number already in database")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+
+}
+
+export function useDeleteObservation(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'observations'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (observation_id: number) => {
+            const response = await fetch(API_URL + `/observations?observation_id=${observation_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activityForm: PatchActivitySubmit) => {
+            const response = await PATCHFetch(route, activityForm, authHeader())
+
+            // This responsibility will eventually move to callsite when special error codes arent relied on
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                if(response.status == 409) {
+                    //There could be a couple reasons for this... out of order activity or duplicate activity
+                    let errorText = await response.text()
+                    enqueueSnackbar(JSON.parse(errorText).detail, {variant: 'error'})
+                    throw Error(errorText)
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activity_id: number) => {
+            const response = await fetch(API_URL + `/activities?activity_id=${activity_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
             }
         },
         retry: 0

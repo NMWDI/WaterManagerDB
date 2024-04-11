@@ -82,6 +82,8 @@ class SubmitMeterUpdate(ORMBase):
     meter_type: MeterTypeLU
     status: MeterStatusLU | None = None
     well: Well | None = None
+    water_users: str | None = None
+    meter_owner: str | None = None
 
 
 class Meter(ORMBase):
@@ -165,6 +167,23 @@ class MeterActivity(ORMBase):
     ose_share: bool
     water_users: str | None = None
 
+class PatchActivity(ORMBase):
+    activity_id: int
+    timestamp_start: datetime
+    timestamp_end: datetime
+    description: str | None = None
+
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int
+    ose_share: bool
+    water_users: str | None = None
+
+    note_ids: list[int] | None = None
+    service_ids: list[int] | None = None
+    part_ids: list[int] | None = None
+
 
 class ObservedPropertyTypeLU(ORMBase):
     name: str | None = None
@@ -184,12 +203,26 @@ class MeterObservation(ORMBase):
     observed_property_type_id: int
     unit_id: int
     location_id: int
+    ose_share: bool = False
 
     submitting_user: User | None = None
     meter: Meter | None = None
     observed_property_type: ObservedPropertyTypeLU | None = None
     unit: Unit | None = None
     location: Location | None = None
+
+class PatchObservation(ORMBase):
+    observation_id: int
+    timestamp: datetime
+    value: float
+    notes: str | None = None
+
+    submitting_user_id: int
+    meter_id: int
+    observed_property_type_id: int
+    unit_id: int
+    location_id: int
+    ose_share: bool = False
 
 
 class ServiceTypeLU(ORMBase):
