@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.29 - Fixed bug preventing meter type change",
             "V0.1.28 - Full admin UI on meter page",
             "V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes",
             "V0.1.26 - Add functional merge button for admin",
@@ -21,16 +22,7 @@ class Home extends Component{
             "V0.1.19 - Updated OSE endpoint to have activity_id",
             "V0.1.18 - Only require well on install activity, display OSE tag",
             "V0.1.17 - Restructure security code to prevent database connection problems",
-            "V0.1.16 - Fixed bug where status is changed when clearing well from meter",
-            "V0.1.15 - Updated backend to use SQLAlchemy 2 (resolve connection issue?)",
-            "V0.1.14 - Display RA number instead of well name, well distance is now observation, new default observations",
-            "V0.1.13 - Add checkbox for sharing activities with OSE.",
-            "V0.1.12 - Change lat/long to DMS, reorder observation inputs, block out of order activities",
-            "V0.1.11 - Remove all async code to see if it fixes deadlock issue",
-            "V0.1.10 - Fix owners and osetag on Wells page",
-            "V0.1.9 - Add owners to Meters table, fix various bugs",
-            "V0.1.8 - Fix bug in meter selection autocomplete",
-            "V0.1.7 - Fixed bugs in Add Meter"
+            "V0.1.16 - Fixed bug where status is changed when clearing well from meter"
         ]
 
         return (

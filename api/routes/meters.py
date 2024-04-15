@@ -297,13 +297,20 @@ def patch_meter(
     """
     meter_db = _get(db, Meters, updated_meter.id)
 
-    # Update the meter (this won't include Well or Location due to schema structure)
-    for k, v in updated_meter.model_dump(exclude_unset=True).items():
-        try:
-            setattr(meter_db, k, v)
-        except AttributeError as e:
-            print(e)
-            continue
+    # Update the meter
+    meter_db.serial_number = updated_meter.serial_number
+    meter_db.contact_name = updated_meter.contact_name
+    meter_db.contact_phone = updated_meter.contact_phone
+    meter_db.notes = updated_meter.notes
+    meter_db.meter_type_id = updated_meter.meter_type.id
+    meter_db.water_users = updated_meter.water_users
+    meter_db.meter_owner = updated_meter.meter_owner
+    # for k, v in updated_meter.model_dump(exclude_unset=True).items():
+    #     try:
+    #         setattr(meter_db, k, v)
+    #     except AttributeError as e:
+    #         print(e)
+    #         continue
 
     # If there is a well set, update status, well and location
     if updated_meter.well:
