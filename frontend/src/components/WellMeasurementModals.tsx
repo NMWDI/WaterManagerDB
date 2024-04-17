@@ -174,9 +174,9 @@ export function UpdateMeasurementModal({
                 borderRadius: 15,
                 paddingLeft: 25}}
             >
-                <Grid item xs={6}>
-                    <h1>Update Measurement</h1>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                <Grid item xs={'auto'}>
+                    <h2>Update Measurement</h2>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <FormControl size="small" fullWidth required>
                             <InputLabel>User</InputLabel>
                             <Select
@@ -189,7 +189,7 @@ export function UpdateMeasurementModal({
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <DatePicker
                             label="Date"
                             value={measurement.timestamp}
@@ -197,7 +197,7 @@ export function UpdateMeasurementModal({
                             slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
                         />
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <TimePicker
                             label="Time"
                             timezone="America/Denver"
@@ -206,7 +206,7 @@ export function UpdateMeasurementModal({
                             onChange={(event: any) => console.log(event.target.value)}
                         />
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <TextField
                             required
                             fullWidth
@@ -217,8 +217,8 @@ export function UpdateMeasurementModal({
                             onChange={(event) => console.log(event.target.value)}
                         />
                     </Grid>
-                    <Grid container item xs={3} sx={{mr: 'auto', ml: 'auto'}}>
-                        <Button type="submit" variant="contained" >Update</Button>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto'}}>
+                        <Button sx={{mr: '5px'}} type="submit" variant="contained" >Update</Button>
                         <Button type="button" variant="contained" onClick={handleDeleteMeasurement} >Delete</Button>
                     </Grid>
                 </Grid>
