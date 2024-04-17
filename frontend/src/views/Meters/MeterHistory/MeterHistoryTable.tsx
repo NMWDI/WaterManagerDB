@@ -14,11 +14,12 @@ import { MeterHistoryType } from '../../../enums'
 import { MeterHistoryDTO } from '../../../interfaces'
 
 interface MeterHistoryTableProps {
+    meter_serialnumber: string | undefined
     onHistoryItemSelection: Function
     selectedMeterHistory: MeterHistoryDTO[] | undefined
 }
 
-export default function MeterHistoryTable({onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
+export default function MeterHistoryTable({meter_serialnumber, onHistoryItemSelection, selectedMeterHistory}: MeterHistoryTableProps) {
 
     function handleRowSelect(rowDetails: any) {
         onHistoryItemSelection(rowDetails.row)
@@ -48,7 +49,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
         },
         {
             field: 'history_type',
-            headerName: 'History Type',
+            headerName: 'Activity Type',
             valueGetter: (params: any) => {
                 if (params.row.history_type == MeterHistoryType.Activity) {
                     return params.row.history_item.activity_type.name
@@ -58,13 +59,27 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
             width: 200
         },
         {
-            field: 'location',
-            headerName: 'Location',
+            field: 'well',
+            headerName: 'Well',
             valueGetter: (params: any) => {
-                return params.value.name
+                //return params.value.ra_number if not null otherwise ''
+                if (params.value === null) {
+                    return ''
+                }
+                else
+                    return params.value.ra_number
+            },
+            width: 100
+        },
+        {
+            field: 'history_item',
+            headerName: 'Water Users',
+            valueGetter: (params: any) => {
+                return params.value.water_users
             },
             width: 200
         },
+
     ];
 
 
@@ -73,7 +88,7 @@ export default function MeterHistoryTable({onHistoryItemSelection, selectedMeter
                 <CardHeader
                     title={
                         <div className="custom-card-header">
-                            <span>Selected Meter History</span>
+                            <span>{meter_serialnumber} Meter History</span>
                             <HistoryIcon/>
                         </div>
                     }

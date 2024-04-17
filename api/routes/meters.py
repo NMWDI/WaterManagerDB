@@ -14,6 +14,7 @@ from api.models.main_models import (
     Meters,
     LandOwners,
     MeterActivities,
+    Parts,
     MeterObservations,
     Locations,
     MeterTypeLU,
@@ -214,6 +215,16 @@ def get_meter(
 def get_meter_types(db: Session = Depends(get_db)):
     return db.scalars(select(MeterTypeLU)).all()
 
+# A route to return status types from the MeterStatusLU table
+@meter_router.get(
+    "/meter_status_types",
+    response_model=List[meter_schemas.MeterStatusLU],
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"],
+)
+def get_meter_status(db: Session = Depends(get_db)):
+    return db.scalars(select(MeterStatusLU)).all()
+
 
 @meter_router.patch(
     "/meter_types",
@@ -280,20 +291,26 @@ def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
 ):
     """
-    Update a meter. This is only used by Meter Details on the frontend, so status should not
-    be changed when the well is cleared.
+    Update the current state of a meter. This is only used by Meter Details on the frontend.
 
     Returns http error if meter SN changed to existing SN.
     """
     meter_db = _get(db, Meters, updated_meter.id)
 
-    # Update the meter (this won't include Well or Location due to schema structure)
-    for k, v in updated_meter.model_dump(exclude_unset=True).items():
-        try:
-            setattr(meter_db, k, v)
-        except AttributeError as e:
-            print(e)
-            continue
+    # Update the meter
+    meter_db.serial_number = updated_meter.serial_number
+    meter_db.contact_name = updated_meter.contact_name
+    meter_db.contact_phone = updated_meter.contact_phone
+    meter_db.notes = updated_meter.notes
+    meter_db.meter_type_id = updated_meter.meter_type.id
+    meter_db.water_users = updated_meter.water_users
+    meter_db.meter_owner = updated_meter.meter_owner
+    # for k, v in updated_meter.model_dump(exclude_unset=True).items():
+    #     try:
+    #         setattr(meter_db, k, v)
+    #     except AttributeError as e:
+    #         print(e)
+    #         continue
 
     # If there is a well set, update status, well and location
     if updated_meter.well:
@@ -307,6 +324,10 @@ def patch_meter(
         # If there is no well set, clear the well and location
         meter_db.location_id = None
         meter_db.well_id = None
+
+    # Update the meter status, if it isn't set don't update it
+    if updated_meter.status:
+        meter_db.status_id = updated_meter.status.id
 
     try:
         db.add(meter_db)
@@ -348,8 +369,9 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 joinedload(MeterActivities.location),
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
-                joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.parts_used).joinedload(Parts.part_type),
                 joinedload(MeterActivities.notes),
+                joinedload(MeterActivities.services_performed)
             )
             .filter(MeterActivities.meter_id == meter_id)
         )
@@ -374,10 +396,15 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     for activity in activities:
         activity.location.geom = None  # FastAPI errors when returning this
+
+        #Find if there is a well associated with the location
+        activity_well = db.scalars(select(Wells).where(Wells.location_id == activity.location_id)).first()
+
         formattedHistoryItems.append(
             {
                 "id": itemID,
                 "history_type": HistoryType.Activity,
+                "well": activity_well,
                 "location": activity.location,
                 "activity_type": activity.activity_type_id,
                 "date": activity.timestamp_start,
@@ -388,10 +415,15 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     for observation in observations:
         observation.location.geom = None
+
+        #Find if there is a well associated with the location
+        observation_well = db.scalars(select(Wells).where(Wells.location_id == observation.location_id)).first()
+
         formattedHistoryItems.append(
             {
                 "id": itemID,
                 "history_type": HistoryType.Observation,
+                "well": observation_well,
                 "location": observation.location,
                 "date": observation.timestamp,
                 "history_item": observation,

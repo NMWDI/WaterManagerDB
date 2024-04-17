@@ -7,13 +7,19 @@ import MeterHistory from './MeterHistory/MeterHistory'
 
 import { Grid, Box } from '@mui/material'
 
+type MeterInfo = {
+    meter_serialnumber: string
+    meter_id: number
+}
+
 export default function MetersView() {
-    const [selectedMeterID, setSelectedMeterID] = useState<number>()
+    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>()
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
 
     useEffect(() => {
-        if (selectedMeterID) setMeterAddMode(false)
-    }, [selectedMeterID])
+        if (selectedMeter) setMeterAddMode(false)
+        console.log(selectedMeter)
+    }, [selectedMeter])
 
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>
@@ -22,16 +28,16 @@ export default function MetersView() {
                 {/* Top half of page: MeterSelection, MeterDetails */}
                 <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '60vh'}}}>
                     <Grid item xs={6}>
-                        <MeterSelection onMeterSelection={setSelectedMeterID} setMeterAddMode={setMeterAddMode}/>
+                        <MeterSelection onMeterSelection={setSelectedMeter} setMeterAddMode={setMeterAddMode}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <MeterDetailsFields selectedMeterID={selectedMeterID} meterAddMode={meterAddMode}/>
+                        <MeterDetailsFields selectedMeterID={selectedMeter?.meter_id} meterAddMode={meterAddMode}/>
                     </Grid>
                 </Grid>
 
                 {/* Bottom half of page: MeterHistory */}
                 <Grid container item xs={12} sx={{pt: 2}}>
-                    <MeterHistory selectedMeterID={selectedMeterID}/>
+                    <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_serialnumber} selectedMeterID={selectedMeter?.meter_id}/>
                 </Grid>
             </Box>
 

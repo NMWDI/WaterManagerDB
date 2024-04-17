@@ -1,6 +1,8 @@
 import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
 import { ActivityType } from './enums'
+import { DateCalendarClassKey } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
 
 export interface ActivityForm {
 
@@ -86,6 +88,74 @@ export interface MeterActivity {
     activity_type?: ActivityTypeLU
     location?: Location
     parts_used?: []
+}
+
+//This is designed to match the HistoryDetails form rather than the patch meter API
+export interface PatchActivityForm {
+    activity_id: int
+    meter_id: int
+    activity_date: dayjs.Dayjs
+    activity_start_time: dayjs.Dayjs
+    activity_end_time: dayjs.Dayjs
+    activity_type: ActivityTypeLU
+    submitting_user: User
+    description: string
+
+    well: Well | null
+    water_users?: string
+
+    notes?: NoteTypeLU[]
+    services?: ServiceTypeLU[]
+    parts_used?: Part[]
+
+    ose_share: boolean
+}
+
+//This interface is designed to match the backend API patch endpoint
+export interface PatchActivitySubmit {
+    activity_id: int
+    timestamp_start: string
+    timestamp_end: string
+    description: string
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int | null
+    ose_share: boolean
+    water_users: string
+
+    note_ids: int[] | null
+    service_ids: int[] | null
+    part_ids: int[] | null
+}
+
+//Designed for the HistoryDetails component, not the patch endpoint
+export interface PatchObservationForm {
+    observation_id: int
+    submitting_user: User
+    well: Well | null
+    observation_date: dayjs.Dayjs
+    observation_time: dayjs.Dayjs
+    property_type: ObservedPropertyTypeLU
+    unit: Unit
+    value: number
+    ose_share: boolean
+    notes?: string
+    meter_id: int
+}
+
+export interface PatchObservationSubmit {
+    //Matches the backend API patch endpoint
+    observation_id: int
+    timestamp: string
+    value: number
+    notes: string | null
+    submitting_user_id: int
+    meter_id: int
+    observed_property_type_id: int
+    unit_id: int
+    location_id: int | null
+    ose_share: boolean
 }
 
 export interface ObservationForm {
@@ -193,7 +263,6 @@ export interface Well {
     id: int
     name?: string | null
     location_id?: number | null
-    well_distance_ft?: number | null
     use_type_id?: number | null
     ra_number: string
     owners?: string | null
@@ -256,9 +325,11 @@ export interface Unit {
 export interface MeterHistoryDTO {
     id: int
     history_type: string
-    activity_type?: string
+    activity_type: string
     date: Date
     history_item: any
+    location: Location
+    well: Well | null
 }
 
 export interface MeterType {
@@ -271,6 +342,7 @@ export interface MeterType {
 }
 
 export interface MeterStatus {
+    id: number
     status_name?: string
     description?: string
 }

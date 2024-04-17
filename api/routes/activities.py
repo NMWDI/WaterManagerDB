@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
+from sqlalchemy import select, text
 from datetime import datetime
 from typing import List
 
@@ -25,6 +25,7 @@ from api.models.main_models import (
 from api.session import get_db
 from api.security import get_current_user
 from api.enums import ScopedUser
+from api.route_util import _patch
 
 activity_router = APIRouter()
 
@@ -233,6 +234,152 @@ def post_activity(
 
     return meter_activity
 
+@activity_router.patch(
+        "/activities",
+        dependencies=[Depends(ScopedUser.Admin)],
+        tags=["Activities"],
+)
+def patch_activity(patch_activity_form: meter_schemas.PatchActivity, db: Session = Depends(get_db)):
+    '''
+    Patch an activity.
+    All input times should be UTC
+    '''
+    # Get the activity
+    activity = db.scalars(select(MeterActivities).where(MeterActivities.id == patch_activity_form.activity_id)).first()
+
+    # Update the activity
+    activity.timestamp_start = patch_activity_form.timestamp_start
+    activity.timestamp_end = patch_activity_form.timestamp_end
+    activity.description = patch_activity_form.description
+    activity.ose_share = patch_activity_form.ose_share
+    activity.water_users = patch_activity_form.water_users
+
+    # When updating location, if location_id is null assume the activity took place at the "Warehouse"
+    if patch_activity_form.location_id is None:
+        hq_location = db.scalars(select(Locations).where(Locations.type_id == 1)).first()
+        activity.location_id = hq_location.id
+    else:
+        activity.location_id = patch_activity_form.location_id
+
+    # Update the notes
+    # Easiest approach is to just delete existing and then re-add if there are any
+    delete_sql = text('DELETE FROM "Notes" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.note_ids:
+        insert_sql = text('INSERT INTO "Notes" (meter_activity_id, note_type_id) VALUES (:activity_id, :note_id)')
+        for note_id in patch_activity_form.note_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'note_id': note_id})
+
+    # Update the parts used
+    delete_sql = text('DELETE FROM "PartsUsed" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.part_ids:
+        insert_sql = text('INSERT INTO "PartsUsed" (meter_activity_id, part_id) VALUES (:activity_id, :part_id)')
+        for part_id in patch_activity_form.part_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'part_id': part_id})
+
+    # Update the services performed
+    delete_sql = text('DELETE FROM "ServicesPerformed" WHERE meter_activity_id = :activity_id')
+    db.execute(delete_sql, {'activity_id': patch_activity_form.activity_id})
+
+    if patch_activity_form.service_ids:
+        insert_sql = text('INSERT INTO "ServicesPerformed" (meter_activity_id, service_type_id) VALUES (:activity_id, :service_id)')
+        for service_id in patch_activity_form.service_ids:
+            db.execute(insert_sql, {'activity_id': patch_activity_form.activity_id, 'service_id': service_id})
+
+    # Commit the changes
+    db.commit()
+
+    return {'status': 'success'}
+
+@activity_router.delete(
+    "/activities",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Activities"],
+)
+def delete_activity(activity_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes an activity.
+    '''
+    # Get the activity
+    activity = db.scalars(select(MeterActivities).where(MeterActivities.id == activity_id)).first()
+
+    # Delete any notes associated with the activity
+    sql = text('DELETE FROM "Notes" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+            
+    # Delete any services performed associated with the activity
+    sql = text('DELETE FROM "ServicesPerformed" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+
+    # Delete any parts used associated with the activity
+    sql = text('DELETE FROM "PartsUsed" WHERE meter_activity_id = :activity_id')
+    db.execute(sql, {'activity_id': activity_id})
+
+    # Delete the activity
+    db.delete(activity)
+    db.commit()
+
+    return {'status': 'success'}
+
+
+@activity_router.patch(
+        "/observations",
+        dependencies=[Depends(ScopedUser.Admin)],
+        tags=["Activities"],
+)
+def patch_observation(patch_observation_form: meter_schemas.PatchObservation, db: Session = Depends(get_db)):
+    '''
+    Patch an observation.
+    All input times should be UTC
+    '''
+    # Get the observation
+    observation = db.scalars(select(MeterObservations).where(MeterObservations.id == patch_observation_form.observation_id)).first()
+
+    # Update the observation
+    observation.timestamp = patch_observation_form.timestamp
+    observation.value = patch_observation_form.value
+    observation.notes = patch_observation_form.notes
+    observation.observed_property_type_id = patch_observation_form.observed_property_type_id
+    observation.unit_id = patch_observation_form.unit_id
+    observation.meter_id = patch_observation_form.meter_id
+    observation.submitting_user_id = patch_observation_form.submitting_user_id
+    observation.ose_share = patch_observation_form.ose_share
+
+    # When updating location, if location_id is null assume the observation took place at the "Warehouse"
+    if patch_observation_form.location_id is None:
+        hq_location = db.scalars(select(Locations).where(Locations.type_id == 1)).first()
+        observation.location_id = hq_location.id
+    else:
+        observation.location_id = patch_observation_form.location_id
+
+    db.commit()
+
+    return {'status': 'success'}
+
+@activity_router.delete(
+    "/observations",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Activities"],
+)
+def delete_observation(observation_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes an observation.
+    '''
+    # Get the observation
+    observation = db.scalars(select(MeterObservations).where(MeterObservations.id == observation_id)).first()
+
+    # Return error if the observation doesn't exist
+    if not observation:
+        raise HTTPException(status_code=404, detail="Observation not found.")
+
+    # Delete the observation
+    db.delete(observation)
+    db.commit()
+
+    return {'status': 'success'}
 
 @activity_router.get(
     "/activity_types",
