@@ -35,14 +35,14 @@ interface MeasurementModalProps {
   handleDeleteMeasurement: () => void
 }
 
-export function NewMeasurementModal({
+export function UpdateMeasurementModal({
     isMeasurementModalOpen, 
     handleCloseMeasurementModal, 
     measurement, 
     handleUpdateMeasurement,
     handleSubmitUpdate, 
-    handleDeleteMeasurement}: MeasurementModalProps
-    ) {
+    handleDeleteMeasurement
+    }: MeasurementModalProps) {
 
     const userList = useGetUserList()
 

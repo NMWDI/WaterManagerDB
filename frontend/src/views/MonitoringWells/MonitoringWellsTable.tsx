@@ -12,6 +12,7 @@ interface MonitoringWellsTableProps {
     rows: WellMeasurementDTO[]
     onOpenModal: () => void
     isWellSelected: boolean
+    onMeasurementSelect: (data: any) => void
 }
 
 interface CustomWellsFooterProps {
@@ -30,7 +31,7 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
     )
 }
 
-export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: MonitoringWellsTableProps){
+export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasurementSelect}: MonitoringWellsTableProps){
     const columns = [
         {
             field: 'timestamp',
@@ -72,6 +73,7 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
                 componentsProps={{
                   footer: { onOpenModal: onOpenModal, isWellSelected: isWellSelected }
                 }}
+                onRowClick={onMeasurementSelect}
             />
         </Box>
     )

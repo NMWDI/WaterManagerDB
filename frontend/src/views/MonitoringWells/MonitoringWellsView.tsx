@@ -4,9 +4,10 @@ import { useState } from "react";
 
 import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
-import { NewMeasurementModal } from '../../components/NewMeasurementModal'
+import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
 import { NewWellMeasurement } from '../../interfaces.js';
 import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels } from '../../service/ApiServiceNew';
+import dayjs from 'dayjs'
 
 interface MonitoredWell {
     id: number
@@ -42,13 +43,20 @@ export default function MonitoringWellsView(){
     const createWaterLevel = useCreateWaterLevel()
 
     const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
+    const [isUpdateMeasurementModalOpen, setIsUpdateMeasurementModalOpen] = useState<boolean>(false)
     const handleOpenNewMeasurementModal = () => setIsNewMeasurementModalOpen(true)
     const handleCloseNewMeasurementModal = () => setIsNewMeasurementModalOpen(false)
+    const handleCloseUpdateMeasurementModal = () => setIsUpdateMeasurementModalOpen(false)
 
     function handleSubmitNewMeasurement(measurementData: NewWellMeasurement) {
         if (wellID) measurementData.well_id = wellID
         createWaterLevel.mutate(measurementData)
         handleCloseNewMeasurementModal()
+    }
+
+    function handleMeasurementSelect(params: any) {
+        console.log(params)
+        setIsUpdateMeasurementModalOpen(true)
     }
 
     return(
@@ -70,7 +78,12 @@ export default function MonitoringWellsView(){
                     </Select>
                 </FormControl>
                 <Box sx={{ mt: '10px', display: 'flex' }}>
-                    <MonitoringWellsTable rows={manualWaterLevelMeasurements.data ?? []} isWellSelected={wellID != undefined ? true : false} onOpenModal={handleOpenNewMeasurementModal} />
+                    <MonitoringWellsTable 
+                        rows={manualWaterLevelMeasurements.data ?? []} 
+                        isWellSelected={wellID != undefined ? true : false} 
+                        onOpenModal={handleOpenNewMeasurementModal} 
+                        onMeasurementSelect={handleMeasurementSelect}
+                    />
 
                     <MonitoringWellsPlot
                         isLoading={manualWaterLevelMeasurements.isLoading || st2WaterLevelMeasurements.isLoading}
@@ -85,6 +98,15 @@ export default function MonitoringWellsView(){
                     isNewMeasurementModalOpen={isNewMeasurementModalOpen}
                     handleCloseNewMeasurementModal={handleCloseNewMeasurementModal}
                     handleSubmitNewMeasurement={handleSubmitNewMeasurement} />
+
+                <UpdateMeasurementModal
+                    isMeasurementModalOpen={isUpdateMeasurementModalOpen}
+                    handleCloseMeasurementModal={handleCloseUpdateMeasurementModal}
+                    measurement={{timestamp: dayjs(), wellmeasurement_id: 0, value: 0, submitting_user_id: 0}}
+                    handleUpdateMeasurement={() => {}}
+                    handleSubmitUpdate={() => {}}
+                    handleDeleteMeasurement={() => {}} />
+
             </CardContent>
             </Card>
         </Box>

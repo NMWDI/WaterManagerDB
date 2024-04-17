@@ -514,7 +514,7 @@ export interface NewWellMeasurement {
 export interface PatchWellMeasurement {
     wellmeasurement_id: number
     submitting_user_id: number
-    timestamp: Date
+    timestamp: dayjs.Dayjs
     value: number
 }
 
