@@ -5,7 +5,7 @@ import { useState } from "react";
 import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
 import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
-import { NewWellMeasurement } from '../../interfaces.js';
+import { NewWellMeasurement, PatchWellMeasurement } from '../../interfaces.js';
 import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels } from '../../service/ApiServiceNew';
 import dayjs from 'dayjs'
 
@@ -41,6 +41,9 @@ export default function MonitoringWellsView(){
     const manualWaterLevelMeasurements = useGetWaterLevels({well_id: wellID})
     const st2WaterLevelMeasurements = useGetST2WaterLevels(getDatastreamID(wellID))
     const createWaterLevel = useCreateWaterLevel()
+    const [selectedMeasurement, setSelectedMeasurement] = useState<PatchWellMeasurement>(
+        {id: 0, timestamp: dayjs(), value: 0, submitting_user: {id: 0, full_name: '', disabled: false}}
+    )
 
     const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
     const [isUpdateMeasurementModalOpen, setIsUpdateMeasurementModalOpen] = useState<boolean>(false)
@@ -54,8 +57,15 @@ export default function MonitoringWellsView(){
         handleCloseNewMeasurementModal()
     }
 
-    function handleMeasurementSelect(params: any) {
-        console.log(params)
+    function handleMeasurementSelect(rowdata: any) {
+        console.log(rowdata)
+        let measure_data: PatchWellMeasurement = {
+            id: rowdata.row.id,
+            timestamp: dayjs.utc(rowdata.row.timestamp).tz('America/Denver'),
+            value: rowdata.row.value,
+            submitting_user: {...rowdata.row.submitting_user, disabled: false}
+        }
+        setSelectedMeasurement(measure_data)
         setIsUpdateMeasurementModalOpen(true)
     }
 
@@ -102,7 +112,7 @@ export default function MonitoringWellsView(){
                 <UpdateMeasurementModal
                     isMeasurementModalOpen={isUpdateMeasurementModalOpen}
                     handleCloseMeasurementModal={handleCloseUpdateMeasurementModal}
-                    measurement={{timestamp: dayjs(), wellmeasurement_id: 0, value: 0, submitting_user_id: 0}}
+                    measurement={selectedMeasurement}
                     handleUpdateMeasurement={() => {}}
                     handleSubmitUpdate={() => {}}
                     handleDeleteMeasurement={() => {}} />

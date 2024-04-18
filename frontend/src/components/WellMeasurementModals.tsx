@@ -180,7 +180,7 @@ export function UpdateMeasurementModal({
                         <FormControl size="small" fullWidth required>
                             <InputLabel>User</InputLabel>
                             <Select
-                                value={userList.isLoading ? 'loading' : measurement.submitting_user_id}
+                                value={userList.isLoading ? 'loading' : measurement.submitting_user.id}
                                 onChange={(event: any) => console.log(event.target.value)}
                                 label="User">
 
