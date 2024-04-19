@@ -6,7 +6,7 @@ import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
 import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
 import { NewWellMeasurement, PatchWellMeasurement } from '../../interfaces.js';
-import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels } from '../../service/ApiServiceNew';
+import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels, useUpdateWaterLevel } from '../../service/ApiServiceNew';
 import dayjs from 'dayjs'
 
 interface MonitoredWell {
@@ -41,8 +41,9 @@ export default function MonitoringWellsView(){
     const manualWaterLevelMeasurements = useGetWaterLevels({well_id: wellID})
     const st2WaterLevelMeasurements = useGetST2WaterLevels(getDatastreamID(wellID))
     const createWaterLevel = useCreateWaterLevel()
+    const updateWaterLevel = useUpdateWaterLevel()
     const [selectedMeasurement, setSelectedMeasurement] = useState<PatchWellMeasurement>(
-        {id: 0, timestamp: dayjs(), value: 0, submitting_user: {id: 0, full_name: '', disabled: false}}
+        {levelmeasurement_id: 0, timestamp: dayjs(), value: 0, submitting_user_id: 0}
     )
 
     const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] = useState<boolean>(false)
@@ -60,13 +61,26 @@ export default function MonitoringWellsView(){
     function handleMeasurementSelect(rowdata: any) {
         console.log(rowdata)
         let measure_data: PatchWellMeasurement = {
-            id: rowdata.row.id,
+            levelmeasurement_id: rowdata.row.id,
             timestamp: dayjs.utc(rowdata.row.timestamp).tz('America/Denver'),
             value: rowdata.row.value,
-            submitting_user: {...rowdata.row.submitting_user, disabled: false}
+            submitting_user_id: rowdata.row.submitting_user.id
         }
         setSelectedMeasurement(measure_data)
         setIsUpdateMeasurementModalOpen(true)
+    }
+
+    // Function for updating selected measurement values
+    function handleUpdateMeasurement(updateValue: Partial<PatchWellMeasurement>){
+        setSelectedMeasurement({...selectedMeasurement, ...updateValue})
+    }
+
+    function handleSubmitMeasurementUpdate() {
+        updateWaterLevel.mutate(selectedMeasurement)
+        setIsUpdateMeasurementModalOpen(false)
+
+        //Refresh data in the table
+        setWellID(wellID)
     }
 
     return(
@@ -113,9 +127,9 @@ export default function MonitoringWellsView(){
                     isMeasurementModalOpen={isUpdateMeasurementModalOpen}
                     handleCloseMeasurementModal={handleCloseUpdateMeasurementModal}
                     measurement={selectedMeasurement}
-                    handleUpdateMeasurement={() => {}}
-                    handleSubmitUpdate={() => {}}
-                    handleDeleteMeasurement={() => {}} />
+                    onUpdateMeasurement={handleUpdateMeasurement}
+                    onSubmitUpdate={handleSubmitMeasurementUpdate}
+                    onDeleteMeasurement={() => {}} />
 
             </CardContent>
             </Card>

@@ -69,7 +69,7 @@ def read_waterlevels(well_id: int = None, db: Session = Depends(get_db)):
     response_model=well_schemas.WellMeasurement,
     tags=["WaterLevels"],
 )
-def patch_waterlevel(waterlevel_patch: well_schemas.WaterLevelPatch, db: Session = Depends(get_db)):
+def patch_waterlevel(waterlevel_patch: well_schemas.PatchWaterLevel, db: Session = Depends(get_db)):
     # Find the measurement
     well_measurement = (
         db.scalars(select(WellMeasurements).where(WellMeasurements.id == waterlevel_patch.levelmeasurement_id)).first()

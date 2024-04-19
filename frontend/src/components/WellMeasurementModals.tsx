@@ -141,18 +141,18 @@ interface UpdateMeasurementModalProps {
     isMeasurementModalOpen: boolean
     handleCloseMeasurementModal: () => void
     measurement: PatchWellMeasurement
-    handleUpdateMeasurement: (Measurement: PatchWellMeasurement) => void
-    handleSubmitUpdate: (Measurement: PatchWellMeasurement) => void
-    handleDeleteMeasurement: () => void
+    onUpdateMeasurement: (value: Partial<PatchWellMeasurement>) => void
+    onSubmitUpdate: () => void
+    onDeleteMeasurement: () => void
   }
 
 export function UpdateMeasurementModal({
     isMeasurementModalOpen, 
     handleCloseMeasurementModal, 
     measurement, 
-    handleUpdateMeasurement,
-    handleSubmitUpdate, 
-    handleDeleteMeasurement
+    onUpdateMeasurement,
+    onSubmitUpdate, 
+    onDeleteMeasurement
     }: UpdateMeasurementModalProps) {
 
     const userList = useGetUserList()
@@ -180,8 +180,8 @@ export function UpdateMeasurementModal({
                         <FormControl size="small" fullWidth required>
                             <InputLabel>User</InputLabel>
                             <Select
-                                value={userList.isLoading ? 'loading' : measurement.submitting_user.id}
-                                onChange={(event: any) => console.log(event.target.value)}
+                                value={userList.isLoading ? 'loading' : measurement.submitting_user_id}
+                                onChange={(event: any) => onUpdateMeasurement({submitting_user_id: event.target.value})}
                                 label="User">
 
                                 {userList.data?.map((user: any) => <MenuItem key={user.id} value={user.id}>{user.full_name}</MenuItem>)}
@@ -193,7 +193,7 @@ export function UpdateMeasurementModal({
                         <DatePicker
                             label="Date"
                             value={measurement.timestamp}
-                            onChange={(event: any) => console.log(event.target.value)}
+                            onChange={(dateval) => (dateval ? onUpdateMeasurement({timestamp: dateval}) : null)}
                             slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
                         />
                     </Grid>
@@ -203,7 +203,7 @@ export function UpdateMeasurementModal({
                             timezone="America/Denver"
                             slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
                             value={measurement.timestamp}
-                            onChange={(event: any) => console.log(event.target.value)}
+                            onChange={(dateval) => (dateval ? onUpdateMeasurement({timestamp: dateval}) : null)}
                         />
                     </Grid>
                     <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
@@ -214,12 +214,12 @@ export function UpdateMeasurementModal({
                             type="number"
                             value={measurement.value}
                             label="Value"
-                            onChange={(event) => console.log(event.target.value)}
+                            onChange={(event) => onUpdateMeasurement({value: event.target.value as unknown as number})}
                         />
                     </Grid>
                     <Grid container item sx={{mr: 'auto', ml: 'auto'}}>
-                        <Button sx={{mr: '5px'}} type="submit" variant="contained" >Update</Button>
-                        <Button type="button" variant="contained" onClick={handleDeleteMeasurement} >Delete</Button>
+                        <Button sx={{mr: '5px'}} type="submit" variant="contained" onClick={onSubmitUpdate}>Update</Button>
+                        <Button type="button" variant="contained" onClick={onDeleteMeasurement} >Delete</Button>
                     </Grid>
                 </Grid>
             </Box>
