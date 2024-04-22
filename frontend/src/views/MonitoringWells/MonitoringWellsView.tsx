@@ -6,7 +6,7 @@ import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
 import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
 import { NewWellMeasurement, PatchWellMeasurement } from '../../interfaces.js';
-import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels, useUpdateWaterLevel } from '../../service/ApiServiceNew';
+import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels, useUpdateWaterLevel, useDeleteWaterLevel } from '../../service/ApiServiceNew';
 import dayjs from 'dayjs'
 
 interface MonitoredWell {
@@ -42,6 +42,7 @@ export default function MonitoringWellsView(){
     const st2WaterLevelMeasurements = useGetST2WaterLevels(getDatastreamID(wellID))
     const createWaterLevel = useCreateWaterLevel()
     const updateWaterLevel = useUpdateWaterLevel()
+    const deleteWaterLevel = useDeleteWaterLevel()
     const [selectedMeasurement, setSelectedMeasurement] = useState<PatchWellMeasurement>(
         {levelmeasurement_id: 0, timestamp: dayjs(), value: 0, submitting_user_id: 0}
     )
@@ -80,7 +81,16 @@ export default function MonitoringWellsView(){
         setIsUpdateMeasurementModalOpen(false)
 
         //Refresh data in the table
-        setWellID(wellID)
+        //setWellID(wellID)
+    }
+
+    function handleDeleteMeasurement() {
+        setIsUpdateMeasurementModalOpen(false)
+
+        //Confirm deletion before proceeding
+        if (window.confirm("Are you sure you want to delete this measurement?")){
+            deleteWaterLevel.mutate(selectedMeasurement.levelmeasurement_id)
+        }
     }
 
     return(
@@ -129,7 +139,7 @@ export default function MonitoringWellsView(){
                     measurement={selectedMeasurement}
                     onUpdateMeasurement={handleUpdateMeasurement}
                     onSubmitUpdate={handleSubmitMeasurementUpdate}
-                    onDeleteMeasurement={() => {}} />
+                    onDeleteMeasurement={handleDeleteMeasurement} />
 
             </CardContent>
             </Card>

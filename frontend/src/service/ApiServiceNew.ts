@@ -1280,6 +1280,22 @@ export function useUpdateWaterLevel() {
                 enqueueSnackbar('Successfully Updated Measurement!', {variant: 'success'})
 
                 const responseJson = await response.json()
+
+                //Update the water levels previously queried using queryClient **Under development!!
+                // queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {
+                //     if (old != undefined) {
+                //         let newWaterLevels = [...old]
+                //         const waterLevelIndex = old.findIndex(waterLevel => waterLevel.id === responseJson["id"])
+
+                //         if (waterLevelIndex != undefined && waterLevelIndex != -1) {
+                //             newWaterLevels[waterLevelIndex] = responseJson
+                //         }
+
+                //         return newWaterLevels
+                //     }
+                //     return []
+                // })
+
                 return responseJson
             }
         },
@@ -1294,7 +1310,7 @@ export function useDeleteWaterLevel() {
 
     return useMutation({
         mutationFn: async (waterLevelID: number) => {
-            const response = await fetch(API_URL + `/waterlevels/`, {
+            const response = await fetch(API_URL + `/waterlevels?waterlevel_id=${waterLevelID}`, {
                 method: 'DELETE',
                 headers: {
                     "Authorization": authHeader(),
