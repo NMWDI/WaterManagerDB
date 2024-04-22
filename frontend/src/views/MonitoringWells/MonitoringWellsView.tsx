@@ -1,11 +1,12 @@
 import React from 'react'
 import { Box, FormControl, Select, MenuItem, InputLabel, Card, CardContent, CardHeader } from "@mui/material";
 import { useState } from "react";
+import { useAuthUser } from 'react-auth-kit'
 
 import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
 import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
-import { NewWellMeasurement, PatchWellMeasurement } from '../../interfaces.js';
+import { NewWellMeasurement, PatchWellMeasurement, SecurityScope } from '../../interfaces.js';
 import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels, useUpdateWaterLevel, useDeleteWaterLevel } from '../../service/ApiServiceNew';
 import dayjs from 'dayjs'
 
@@ -53,6 +54,10 @@ export default function MonitoringWellsView(){
     const handleCloseNewMeasurementModal = () => setIsNewMeasurementModalOpen(false)
     const handleCloseUpdateMeasurementModal = () => setIsUpdateMeasurementModalOpen(false)
 
+    //Limit update and delete access to admin users
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+
     function handleSubmitNewMeasurement(measurementData: NewWellMeasurement) {
         if (wellID) measurementData.well_id = wellID
         createWaterLevel.mutate(measurementData)
@@ -60,6 +65,10 @@ export default function MonitoringWellsView(){
     }
 
     function handleMeasurementSelect(rowdata: any) {
+
+        if (!hasAdminScope) {
+            return
+        }
         console.log(rowdata)
         let measure_data: PatchWellMeasurement = {
             levelmeasurement_id: rowdata.row.id,
