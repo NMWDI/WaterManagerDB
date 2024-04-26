@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.30 - Admin can edit monitoring well data (note that monitoring well table still not updating automatically)
 - V0.1.29 - Fixed bug preventing meter type change
 - V0.1.28 - Full admin UI on meter page
 - V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes
