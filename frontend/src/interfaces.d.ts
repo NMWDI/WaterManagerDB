@@ -213,6 +213,7 @@ export interface NoteTypeLU {
     note: string
     details?: string
     slug?: string
+    commonly_used: boolean
 }
 
 export interface WellUseLU {

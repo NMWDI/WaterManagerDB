@@ -122,6 +122,9 @@ class NoteTypeLU(Base):
     # working | not-working | not-checked | null
     slug: Mapped[str]
 
+    # Commonly Used determines what is displayed by default
+    commonly_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
 
 # Association table that links notes and the meter activity they were added to
 Notes = Table(
