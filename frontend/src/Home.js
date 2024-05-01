@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.31 - Added note \"verified register ratio\" and made it appear by default",
             "V0.1.30 - Admin can edit monitoring well data (note that monitoring well table still not updating automatically)",
             "V0.1.29 - Fixed bug preventing meter type change",
             "V0.1.28 - Full admin UI on meter page",
