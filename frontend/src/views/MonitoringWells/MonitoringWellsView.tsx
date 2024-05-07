@@ -42,7 +42,10 @@ export default function MonitoringWellsView(){
     const manualWaterLevelMeasurements = useGetWaterLevels({well_id: wellID})
     const st2WaterLevelMeasurements = useGetST2WaterLevels(getDatastreamID(wellID))
     const createWaterLevel = useCreateWaterLevel()
-    const updateWaterLevel = useUpdateWaterLevel()
+
+    function afterUpdateWaterLevel() { manualWaterLevelMeasurements.refetch() }
+
+    const updateWaterLevel = useUpdateWaterLevel(afterUpdateWaterLevel)
     const deleteWaterLevel = useDeleteWaterLevel()
     const [selectedMeasurement, setSelectedMeasurement] = useState<PatchWellMeasurement>(
         {levelmeasurement_id: 0, timestamp: dayjs(), value: 0, submitting_user_id: 0}
@@ -88,9 +91,6 @@ export default function MonitoringWellsView(){
     function handleSubmitMeasurementUpdate() {
         updateWaterLevel.mutate(selectedMeasurement)
         setIsUpdateMeasurementModalOpen(false)
-
-        //Refresh data in the table
-        //setWellID(wellID)
     }
 
     function handleDeleteMeasurement() {

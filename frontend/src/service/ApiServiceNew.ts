@@ -1256,7 +1256,7 @@ export function useCreateWaterLevel() {
     })
 }
 
-export function useUpdateWaterLevel() {
+export function useUpdateWaterLevel(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const queryClient = useQueryClient()
     const route = 'waterlevels'
@@ -1278,6 +1278,7 @@ export function useUpdateWaterLevel() {
             }
             else {
                 enqueueSnackbar('Successfully Updated Measurement!', {variant: 'success'})
+                onSuccess()  //Success function should be used to update measurement table
 
                 const responseJson = await response.json()
 
