@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.32 - Fix Monitoring Wells so that table updates after change",
             "V0.1.31 - Added note \"verified register ratio\" and made it appear by default",
             "V0.1.30 - Admin can edit monitoring well data (note that monitoring well table still not updating automatically)",
             "V0.1.29 - Fixed bug preventing meter type change",
@@ -20,11 +21,7 @@ class Home extends Component{
             "V0.1.23 - Prevent duplicate activities from being added",
             "V0.1.22 - Change ownership so there is now water_users and meter_owner",
             "V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long",
-            "V0.1.20 - Fix monitoring wells sort",
-            "V0.1.19 - Updated OSE endpoint to have activity_id",
-            "V0.1.18 - Only require well on install activity, display OSE tag",
-            "V0.1.17 - Restructure security code to prevent database connection problems",
-            "V0.1.16 - Fixed bug where status is changed when clearing well from meter"
+            "V0.1.20 - Fix monitoring wells sort"
         ]
 
         return (
