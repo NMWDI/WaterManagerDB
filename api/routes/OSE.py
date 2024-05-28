@@ -136,76 +136,64 @@ def get_ose_history(
     activities_list = list(activities)
     observations_list = list(observations)
 
-    # Get all dates that have activities or observations
-    activity_dates = list(
-        map(lambda activity: activity.timestamp_end.date(), activities_list)
-    )
+    # Reorganize the data into dictionaries mapping date and meter serial number to activities history{date: {meter: [activities]}}
+    history = {}
+    for activity in activities_list:
+        date = activity.timestamp_start.strftime("%Y-%m-%d")
+        meter = activity.meter.serial_number
 
-    # For each date, build the list of meters and their activities that occured
+        if date not in history:
+            history[date] = {}
+
+        if meter not in history[date]:
+            history[date][meter] = []
+
+        history[date][meter].append(activity)
+
+    # Build the output list of DateHistoryDTO objects from the history dictionary
     history_list = []
-    for date_with_history in activity_dates:
-        # Get activities/observations that occur on this day (current loop value's date), use that to get meters that have activities/observations on the date
-        activities_on_date = list(
-            filter(
-                lambda activity: activity.timestamp_end.date() == date_with_history,
-                activities_list,
-            )
-        )
-
-        meters_with_activities_on_date: list[activities] = list(
-            map(lambda activity: activity.meter, activities_on_date)
-        )
-
-        # For each meter that has history on this day, build its history object
+    for date, meters in history.items():
         meter_history_list = []
-        for meter_with_history in meters_with_activities_on_date:
-            meter_activities_on_date = list(
-                filter(
-                    lambda activity: activity.meter.id == meter_with_history.id,
-                    activities_on_date,
-                )
-            )
-
-            # For each activity that occurred on this day, on this meter, build its information object
+        for meter, activities in meters.items():
             meter_activity_list = []
-            for meter_activity in meter_activities_on_date:
-                notes_strings = list(map(lambda note: note.note, meter_activity.notes))
+            for activity in activities:
+                notes_strings = list(map(lambda note: note.note, activity.notes))
                 parts_used_strings = list(
                     map(
                         lambda part: f"{part.part_type.name} ({part.part_number})",
-                        meter_activity.parts_used,
+                        activity.parts_used,
                     )
                 )
                 services_performed_strings = list(
                     map(
                         lambda service: service.service_name,
-                        meter_activity.services_performed,
+                        activity.services_performed,
                     )
                 )
                 activity_observations = getObservations(
-                    meter_activity.timestamp_start,
-                    meter_activity.timestamp_end,
-                    meter_activity.meter_id,
+                    activity.timestamp_start,
+                    activity.timestamp_end,
+                    activity.meter_id,
                     observations_list,
                 )
 
                 # Some activities are not associated with a well
                 # If well is none, set the well's RA number and OSE tag to None
-                if not meter_activity.meter.well:
+                if not activity.meter.well:
                     ra_number = None
                     ose_tag = None
                 else:
-                    ra_number = meter_activity.meter.well.ra_number
-                    ose_tag = meter_activity.meter.well.osetag
+                    ra_number = activity.meter.well.ra_number
+                    ose_tag = activity.meter.well.osetag
 
                 activity = ActivityDTO(
-                    activity_id=meter_activity.id,
-                    activity_type=meter_activity.activity_type.name,
-                    activity_start=meter_activity.timestamp_start,
-                    activity_end=meter_activity.timestamp_end,
+                    activity_id=activity.id,
+                    activity_type=activity.activity_type.name,
+                    activity_start=activity.timestamp_start,
+                    activity_end=activity.timestamp_end,
                     well_ra_number=ra_number,
                     well_ose_tag=ose_tag,
-                    description=meter_activity.description,
+                    description=activity.description,
                     services=services_performed_strings,
                     notes=notes_strings,
                     parts_used=parts_used_strings,
@@ -213,15 +201,12 @@ def get_ose_history(
                 )
                 meter_activity_list.append(activity)
 
-            # Use the meter's info and it's history that occurred on this day to build its information object
             meter_history = MeterHistoryDTO(
-                serial_number=meter_with_history.serial_number,
-                activities=meter_activity_list,
+                serial_number=meter, activities=meter_activity_list
             )
             meter_history_list.append(meter_history)
 
-        date_history = DateHistoryDTO(date=date_with_history, meters=meter_history_list)
-
+        date_history = DateHistoryDTO(date=date, meters=meter_history_list)
         history_list.append(date_history)
 
     return history_list
