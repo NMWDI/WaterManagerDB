@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react'
 import { Box, Card, CardContent, CardHeader } from '@mui/material'
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 
+import WorkOrdersTable from './WorkOrdersTable'
+
 export default function WorkOrdersView() {
     return (
         <Box sx={{m: 2, mt: 0, width: '95%'}}>
@@ -21,7 +23,7 @@ export default function WorkOrdersView() {
                 sx={{mb: 0, pb: 0}}
             />
             <CardContent>
-                This will be something
+                <WorkOrdersTable />
             </CardContent>
             </Card>
         </Box>
