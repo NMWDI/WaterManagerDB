@@ -228,3 +228,16 @@ class PatchObservation(ORMBase):
 class ServiceTypeLU(ORMBase):
     service_name: str | None = None
     description: str | None = None
+
+class WorkOrder(ORMBase):
+    work_order_id: int
+    date_created: datetime
+    creator: str | None = None
+    meter_serial: str
+    title: str
+    description: str
+    status: str
+    notes: str | None = None
+    assigned_user_id: int | None = None # Might need this for editing user
+    assigned_user: str | None = None
+    

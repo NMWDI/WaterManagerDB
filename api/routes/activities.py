@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Query
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
@@ -21,10 +21,12 @@ from api.models.main_models import (
     Locations,
     MeterStatusLU,
     Users,
+    workOrders,
+    workOrderStatusLU
 )
 from api.session import get_db
 from api.security import get_current_user
-from api.enums import ScopedUser
+from api.enums import ScopedUser, WorkOrderStatus
 from api.route_util import _patch
 
 activity_router = APIRouter()
@@ -461,3 +463,41 @@ def get_service_types(db: Session = Depends(get_db)):
 )
 def get_note_types(db: Session = Depends(get_db)):
     return db.scalars(select(NoteTypeLU)).all()
+
+# Get work orders endpoint
+@activity_router.get(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[meter_schemas.WorkOrder],
+    tags=["Work Orders"],
+)
+def get_work_orders(
+    filter_by_status: list[WorkOrderStatus] = Query('Open'),
+    db: Session = Depends(get_db)
+    ):
+    query_stmt = (
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .join(workOrderStatusLU)
+        .where(workOrderStatusLU.name.in_(filter_by_status))
+    )
+    work_orders: list[workOrders] = db.scalars(query_stmt).all()
+    
+    # Create a WorkOrder schema for each work order returned
+    output_work_orders = []
+    for wo in work_orders:
+        work_order_schema = meter_schemas.WorkOrder(
+            work_order_id = wo.id,
+            date_created = wo.date_created,
+            creator = wo.creator,
+            meter_serial = wo.meter.serial_number,
+            title = wo.title,
+            description = wo.description,
+            status = wo.status.name,
+            notes = wo.notes,
+            assigned_user_id = wo.assigned_user_id,
+            assigned_user= wo.assigned_user.username if wo.assigned_user else None
+        )
+        output_work_orders.append(work_order_schema)
+
+    return output_work_orders
