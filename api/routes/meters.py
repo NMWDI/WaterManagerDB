@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Query
 from sqlalchemy import or_, select, desc, and_
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
@@ -23,7 +23,7 @@ from api.models.main_models import (
 )
 from api.route_util import _patch, _get
 from api.session import get_db
-from api.enums import ScopedUser, MeterSortByField, SortDirection
+from api.enums import ScopedUser, MeterSortByField, MeterStatus, SortDirection
 
 meter_router = APIRouter()
 
@@ -38,9 +38,9 @@ meter_router = APIRouter()
 def get_meters(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
+    filter_by_status: List[MeterStatus] = Query('Installed'),
     sort_by: MeterSortByField = MeterSortByField.SerialNumber,
     sort_direction: SortDirection = SortDirection.Ascending,
-    exclude_inactive: bool = False,
     db: Session = Depends(get_db),
 ):
     def sort_by_field_to_schema_field(name: MeterSortByField):
@@ -56,7 +56,7 @@ def get_meters(
 
             case MeterSortByField.TRSS:
                 return Locations.trss
-
+    
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
@@ -64,12 +64,9 @@ def get_meters(
         .options(joinedload(Meters.well), joinedload(Meters.status))
         .join(Wells, isouter=True)
         .join(Locations, isouter=True)
+        .join(MeterStatusLU, isouter=True)
+        .where(MeterStatusLU.status_name.in_(filter_by_status))
     )
-
-    if exclude_inactive:
-        query_statement = query_statement.where(
-            and_(Meters.status_id != 3, Meters.status_id != 4, Meters.status_id != 5)
-        )
 
     if search_string:
         query_statement = query_statement.where(
