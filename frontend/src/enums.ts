@@ -45,3 +45,9 @@ export enum WorkingOnArrivalValue {
     NotWorking = 'not-working',
     Working = 'working'
 }
+
+export enum WorkOrderStatus {
+    Open = 'Open',
+    Closed = 'Closed',
+    Review = 'Review'
+}

@@ -39,8 +39,10 @@ import {
     MeterStatus,
     PatchObservationSubmit,
     PatchActivitySubmit,
-    PatchWellMeasurement
+    PatchWellMeasurement,
+    WorkOrder,
 } from '../interfaces.js'
+import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
 
@@ -58,16 +60,27 @@ export function toGMT6String(date: Date) {
 function formattedQueryParams(queryParams: any) {
     if (!queryParams) return ''
 
-    let queryParamString = '?';
+    let queryParamString = new URLSearchParams();
     let params = {...queryParams}
 
     for (let param in params) {
         if (params[param] === '' || params[param] == undefined) {
-            delete params[param]
+            continue
+        }
+        //Handle situation where we have an array of values
+        if (Array.isArray(params[param])) {
+            for (let value of params[param]) {
+                queryParamString.append(param, value)
+            }
+        }
+        else {
+            queryParamString.append(param, params[param])
         }
     }
-    queryParamString += new URLSearchParams(params)
-    return queryParamString
+    // Convert the URLSearchParams object to a string
+    let formattedString = '?' + queryParamString.toString()
+
+    return formattedString 
 }
 
 // Fetch function that handles incoming errors from the response. Used as the queryFn in useQuery hooks
@@ -474,6 +487,19 @@ export function useGetST2WaterLevels(datastreamID: number | undefined) {
     return useQuery<ST2Measurement[], Error>([route, datastreamID], () =>
         GETST2Fetch(route),
         {enabled: !!datastreamID}
+    )
+}
+
+export function useGetWorkOrders(status_filter: WorkOrderStatus[]){
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    //Convert status filter array to 
+
+    return useQuery<WorkOrder[], Error>([route, status_filter], () =>
+        GETFetch(route, {filter_by_status: status_filter}, authHeader(), signOut, navigate),
     )
 }
 
