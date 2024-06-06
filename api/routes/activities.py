@@ -501,3 +501,58 @@ def get_work_orders(
         output_work_orders.append(work_order_schema)
 
     return output_work_orders
+
+# Patch work order endpoint
+@activity_router.patch(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Work Orders"],
+)
+def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Session = Depends(get_db)):
+    '''
+    Patch a work order.
+    The input schema limits the fields that can be updated to the title, description, status, notes, and assigned user.
+    This is to prevent confusion with other open work orders.
+    '''
+    # Get the work order
+    work_order = db.scalars(select(workOrders).where(workOrders.id == patch_work_order_form.work_order_id)).first()
+
+    # Update the work order if the field exists
+    if patch_work_order_form.title:
+        work_order.title = patch_work_order_form.title
+    if patch_work_order_form.description:
+        work_order.description = patch_work_order_form.description
+    if patch_work_order_form.status:
+        work_order.status_id = patch_work_order_form.status
+    if patch_work_order_form.notes:
+        work_order.notes = patch_work_order_form.notes
+    if patch_work_order_form.assigned_user_id:
+        work_order.assigned_user_id = patch_work_order_form.assigned_user_id
+    
+    # Commit the changes
+    db.commit()
+
+    return {'status': 'success'}
+
+# Delete work order endpoint
+@activity_router.delete(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Work Orders"],
+)
+def delete_work_order(work_order_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes a work order.
+    '''
+    # Get the work order
+    work_order = db.scalars(select(workOrders).where(workOrders.id == work_order_id)).first()
+
+    # Return error if the work order doesn't exist
+    if not work_order:
+        raise HTTPException(status_code=404, detail="Work order not found.")
+
+    # Delete the work order
+    db.delete(work_order)
+    db.commit()
+
+    return {'status': 'success'}
