@@ -1388,3 +1388,59 @@ export function useMergeWells(onSuccess: Function) {
         retry: 0
     })
 }
+
+export function useUpdateWorkOrder(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrder: WorkOrder) => {
+            const response = await PATCHFetch(route, workOrder, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 409) {
+                    enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
+                    throw Error("Work Order serial number already in database")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteWorkOrder(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrderID: number) => {
+            const response = await fetch(API_URL + `/work_orders?work_order_id=${workOrderID}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}

@@ -579,3 +579,13 @@ export interface WorkOrder {
     assigned_user_id?: number
     assigned_user?: String
 }
+
+export interface PatchWorkOrder {
+    // This is designed to match the backend API patch endpoint and is limited to the fields that can be updated
+    work_order_id: number
+    title?: string
+    description?: string
+    status?: string
+    notes?: string
+    assigned_user_id?: number
+}

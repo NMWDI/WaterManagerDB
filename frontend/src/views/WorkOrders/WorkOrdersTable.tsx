@@ -5,7 +5,7 @@ I anticipate this component will be self-contained including the ability to add 
 
 import React from 'react';
 import { useState } from 'react';
-import { DataGrid, GridColDef, GridColumnVisibilityModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
 import { useGetWorkOrders } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 
@@ -13,16 +13,22 @@ export default function WorkOrdersTable() {
     const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
     const workOrderList = useGetWorkOrders(workOrderFilters);
 
+    function handleRowUpdate(updatedRow: GridRowModel, originalRow: GridRowModel): GridRowModel {
+        console.log(updatedRow);
+        console.log(originalRow);
+        return updatedRow;
+    }
+
     // Define the columns for the table
     const columns: GridColDef[] = [
         { field: 'work_order_id', headerName: 'ID', width: 100 },
         { field: 'date_created', headerName: 'Date', width: 150 },
         { field: 'meter_serial', headerName: 'Meter', width: 100 },
-        { field: 'title', headerName: 'Title', width: 200 },
-        { field: 'description', headerName: 'Description', width: 300 },
+        { field: 'title', headerName: 'Title', width: 200, editable: true},
+        { field: 'description', headerName: 'Description', width: 300, editable: true},
         { field: 'creator', headerName: 'Created By', width: 150 },
         { field: 'status', headerName: 'Status', width: 100 },
-        { field: 'notes', headerName: 'Notes', width: 300 },
+        { field: 'notes', headerName: 'Notes', width: 300, editable: true},
         //{ field: 'activityIds', headerName: 'Activity IDs', width: 200 },
         { field: 'assigned_user_id', headerName: 'Technician Assigned', width: 200 },
         { field: 'actions', headerName: 'Actions', width: 150 },
@@ -39,7 +45,8 @@ export default function WorkOrdersTable() {
                     {
                         columns: {columnVisibilityModel: {work_order_id: false, creator: false, activityIds: false}}
                     }
-                } 
+                }
+                processRowUpdate={handleRowUpdate}
             />
         </div>
     );
