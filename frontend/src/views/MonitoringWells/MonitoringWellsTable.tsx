@@ -20,6 +20,14 @@ interface CustomWellsFooterProps {
     isWellSelected: boolean
 }
 
+//This is needed for typescript to recognize the slotProps... see https://v6.mui.com/x/react-data-grid/components/#custom-slot-props-with-typescript
+declare module '@mui/x-data-grid' {
+    interface FooterPropsOverrides {
+        onOpenModal: () => void
+        isWellSelected: boolean
+    }
+}
+
 function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps) {
     return (
         <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
@@ -67,10 +75,10 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasu
             <DataGrid
                 rows={rows}
                 columns={columns}
-                components={{
-                    Footer: CustomWellsFooter
+                slots={{
+                    footer: CustomWellsFooter
                 }}
-                componentsProps={{
+                slotProps={{
                   footer: { onOpenModal: onOpenModal, isWellSelected: isWellSelected }
                 }}
                 onRowClick={onMeasurementSelect}

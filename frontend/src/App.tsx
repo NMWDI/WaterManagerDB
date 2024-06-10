@@ -11,7 +11,7 @@ import { Grid } from '@mui/material';
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
 import MetersView from './views/Meters/MetersView'
-import ChloridesView from "./views/Chlorides/ChloridesView";
+//import ChloridesView from "./views/Chlorides/ChloridesView";
 import PartsView from "./views/Parts/PartsView";
 import UserManagementView from './views/UserManagement/UserManagementView';
 import WellManagementView from './views/WellManagement/WellManagementView';
@@ -115,13 +115,13 @@ export default function App() {
                     setErrorMessage={setErrorMessage}
                 />
             }/>
-            <Route path="/chlorides" element={
+            {/* <Route path="/chlorides" element={
                 <AppLayout
                     pageComponent={<ChloridesView/>}
                     requiredScopes={["read"]}
                     setErrorMessage={setErrorMessage}
                 />
-            }/>
+            }/> */}
             <Route path="/parts" element={
                 <AppLayout
                     pageComponent={<PartsView/>}

@@ -23,8 +23,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
-    const [gridPage, setGridPage] = useState<number>(0)
-    const [gridPageSize, setGridPageSize] = useState<number>(25)
+    const [paginationModel, setPaginationModel] = useState({pageSize: 25, page: 0})
     const [gridRowCount, setGridRowCount] = useState<number>(100)
 
     const authUser = useAuthUser()
@@ -65,11 +64,11 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             search_string: meterSearchQueryDebounced,
             sort_by: gridSortModel ? gridSortModel[0]?.field : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
-            limit: gridPageSize,
-            offset: gridPage * gridPageSize
+            limit: paginationModel.pageSize,
+            offset: paginationModel.page * paginationModel.pageSize
         }
         setMeterListQueryParams(newParams)
-    }, [meterSearchQueryDebounced, gridSortModel, gridPage, gridPageSize])
+    }, [meterSearchQueryDebounced, gridSortModel, paginationModel])
 
     useEffect(() => {
         setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API
@@ -87,14 +86,12 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
                     onRowClick={(selectedRow) => {onMeterSelection({meter_id: selectedRow.row.id, meter_serialnumber: selectedRow.row.serial_number})}}
                     keepNonExistentRowsSelected
                     paginationMode='server'
-                    page={gridPage}
-                    onPageChange={setGridPage}
-                    pageSize={gridPageSize}
-                    onPageSizeChange={(newSize) => {setGridPageSize(newSize); setGridPage(0) }}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
                     rowCount={gridRowCount}
                     disableColumnMenu={true}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             hasAdminScope &&
                                 <Button sx={{mt: 1}} variant="contained" size="small" onClick={() => setMeterAddMode(true)}>

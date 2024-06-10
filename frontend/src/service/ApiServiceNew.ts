@@ -1241,12 +1241,12 @@ export function useCreateChlorideMeasurement() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
                 return responseJson
             }
         },
         retry: 0
-    })
+    });
 }
 
 export function useCreateWaterLevel() {
@@ -1274,12 +1274,12 @@ export function useCreateWaterLevel() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
                 return responseJson
             }
         },
         retry: 0
-    })
+    });
 }
 
 export function useUpdateWaterLevel(onSuccess: Function) {
