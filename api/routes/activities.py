@@ -506,6 +506,7 @@ def get_work_orders(
 @activity_router.patch(
     "/work_orders",
     dependencies=[Depends(ScopedUser.Admin)],
+    response_model=meter_schemas.WorkOrder,
     tags=["Work Orders"],
 )
 def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Session = Depends(get_db)):
@@ -517,6 +518,13 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Se
     # Get the work order
     work_order = db.scalars(select(workOrders).where(workOrders.id == patch_work_order_form.work_order_id)).first()
 
+    # An empty string for a title will silently fail due to the if statement below. Detect here and return an error to the user.
+    if patch_work_order_form.title == "":
+        raise HTTPException(
+            status_code=422,
+            detail="Title cannot be empty."
+        )
+    
     # Update the work order if the field exists
     if patch_work_order_form.title:
         work_order.title = patch_work_order_form.title
@@ -528,11 +536,38 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Se
         work_order.notes = patch_work_order_form.notes
     if patch_work_order_form.assigned_user_id:
         work_order.assigned_user_id = patch_work_order_form.assigned_user_id
-    
-    # Commit the changes
-    db.commit()
 
-    return {'status': 'success'}
+    # Commit the changes
+    # Database should block empty title and non-unique (date, title, meter_id) combinations
+    try:
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=409,
+            detail="Title already exists for this meter."
+        )
+    
+    # Get the updated work order (needed by the frontend)
+    work_order = db.scalars(
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .join(workOrderStatusLU).where(workOrders.id == patch_work_order_form.work_order_id)).first()
+    
+    # Create a WorkOrder schema for the updated work order
+    work_order_schema = meter_schemas.WorkOrder(
+        work_order_id = work_order.id,
+        date_created = work_order.date_created,
+        creator = work_order.creator,
+        meter_serial = work_order.meter.serial_number,
+        title = work_order.title,
+        description = work_order.description,
+        status = work_order.status.name,
+        notes = work_order.notes,
+        assigned_user_id = work_order.assigned_user_id,
+        assigned_user= work_order.assigned_user.username if work_order.assigned_user else None
+    )
+
+    return work_order_schema
 
 # Delete work order endpoint
 @activity_router.delete(

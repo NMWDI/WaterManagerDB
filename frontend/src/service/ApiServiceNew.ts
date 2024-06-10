@@ -41,6 +41,7 @@ import {
     PatchActivitySubmit,
     PatchWellMeasurement,
     WorkOrder,
+    PatchWorkOrder,
 } from '../interfaces.js'
 import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
@@ -1389,19 +1390,23 @@ export function useMergeWells(onSuccess: Function) {
     })
 }
 
-export function useUpdateWorkOrder(onSuccess: Function) {
+export function useUpdateWorkOrder() {
     const { enqueueSnackbar } = useSnackbar()
     const route = 'work_orders'
     const authHeader = useAuthHeader()
 
     return useMutation({
-        mutationFn: async (workOrder: WorkOrder) => {
+        mutationFn: async (workOrder: PatchWorkOrder) => {
             const response = await PATCHFetch(route, workOrder, authHeader())
 
             if (!response.ok) {
                 if(response.status == 409) {
                     enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
-                    throw Error("Work Order serial number already in database")
+                    throw Error("Failure of date, meter, and title uniqueness constraint")
+                }
+                if(response.status == 422) {
+                    enqueueSnackbar('Title cannot be blank', {variant: 'error'})
+                    throw Error("Title is empty string")
                 }
                 else {
                     enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
@@ -1409,7 +1414,6 @@ export function useUpdateWorkOrder(onSuccess: Function) {
                 }
             }
             else {
-                onSuccess()
                 const responseJson = await response.json()
                 return responseJson
             }

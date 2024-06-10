@@ -6,18 +6,27 @@ I anticipate this component will be self-contained including the ability to add 
 import React from 'react';
 import { useState } from 'react';
 import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
-import { useGetWorkOrders } from '../../service/ApiServiceNew';
+import { useGetWorkOrders, useUpdateWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 
 export default function WorkOrdersTable() {
     const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
     const workOrderList = useGetWorkOrders(workOrderFilters);
+    const updateWorkOrder = useUpdateWorkOrder();  
 
-    function handleRowUpdate(updatedRow: GridRowModel, originalRow: GridRowModel): GridRowModel {
-        console.log(updatedRow);
-        console.log(originalRow);
-        return updatedRow;
+    function handleRowUpdate(updatedRow: GridRowModel, originalRow: GridRowModel): Promise<GridRowModel> {
+        //Determine what field has changed and update the work order
+        const updatedField = Object.keys(updatedRow).find(key => updatedRow[key] !== originalRow[key]); 
+        const work_order_update = {work_order_id: updatedRow.work_order_id, [updatedField as string]: updatedRow[updatedField as string]};
+
+        //Create a promise to update the work order
+        return updateWorkOrder.mutateAsync(work_order_update)
     }
+
+    function handleProcessRowUpdateError(error: Error): void {
+        console.error("Error updating work order", error);
+    }
+        
 
     // Define the columns for the table
     const columns: GridColDef[] = [
@@ -47,6 +56,7 @@ export default function WorkOrdersTable() {
                     }
                 }
                 processRowUpdate={handleRowUpdate}
+                onProcessRowUpdateError={handleProcessRowUpdateError}
             />
         </div>
     );
