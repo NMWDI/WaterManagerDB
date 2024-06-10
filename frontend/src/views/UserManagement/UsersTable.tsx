@@ -105,8 +105,8 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedUser(usersList.data?.find((user: User) => user.id == selectedRow.row.id))}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setUserAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New User
@@ -116,5 +116,5 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

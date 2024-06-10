@@ -87,8 +87,8 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedMeterType(selectedRow.row)}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setMeterTypeAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter Type
@@ -98,5 +98,5 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

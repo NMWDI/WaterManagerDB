@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridPagination, gridDateComparator } from '@mui/x-data-grid';
+import { DataGrid, GridPagination, gridDateComparator, GridColDef } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
 import dayjs from 'dayjs'
@@ -40,7 +40,7 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
 }
 
 export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasurementSelect}: MonitoringWellsTableProps){
-    const columns = [
+    const columns: GridColDef[] = [
         {
             field: 'timestamp',
             headerName: 'Date/Time',

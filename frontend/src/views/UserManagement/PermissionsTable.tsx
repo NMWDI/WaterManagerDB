@@ -57,8 +57,8 @@ export default function PermissionsTable() {
                     loading={securityScopesList.isLoading}
                     columns={cols}
                     disableColumnMenu
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button disabled variant="contained" size="small">
                                 <AddIcon style={{fontSize: '1rem'}}/>Permissions must be configured by a developer
@@ -68,5 +68,5 @@ export default function PermissionsTable() {
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

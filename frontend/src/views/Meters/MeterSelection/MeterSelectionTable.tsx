@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
 import { Box, Button } from '@mui/material'
-import { DataGrid, GridSortModel } from '@mui/x-data-grid'
+import { DataGrid, GridSortModel, GridColDef } from '@mui/x-data-grid'
 import AddIcon from '@mui/icons-material/Add'
 
 import { MeterListQueryParams, SecurityScope } from '../../../interfaces'
@@ -31,7 +31,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
 
     const meterList = useGetMeterList(meterListQueryParams)
 
-    const meterTableColumns = [
+    const meterTableColumns: GridColDef[] = [
         {
             field: 'serial_number',
             headerName: 'Serial Number',
@@ -41,18 +41,18 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
             field: 'trss',
             headerName: 'TRSS',
             width: 150,
-            valueGetter: (params: any) => params.row.location?.trss
+            valueGetter: (value, row) => row.location?.trss
         },
         {
             field: 'water_users',
             headerName: 'Water Users',
-            valueGetter: (params: any) => params.row.water_users,
+            valueGetter: (value, row) => row.water_users,
             width: 200
         },
         {
             field: 'ra_number',
             headerName: 'RA Number',
-            valueGetter: (params: any) => params.row.well?.ra_number,
+            valueGetter: (value, row) => row.well?.ra_number,
             width: 200
         },
     ];
@@ -75,7 +75,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     }, [meterList])
 
     return (
-            <Box sx={{height: '87%'}}>
+            <Box sx={{height: '500px'}}>
                 <DataGrid
                     sx={{border: 'none'}}
                     rows={meterList.data?.items ?? []}
