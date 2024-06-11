@@ -516,7 +516,11 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Se
     This is to prevent confusion with other open work orders.
     '''
     # Get the work order
-    work_order = db.scalars(select(workOrders).where(workOrders.id == patch_work_order_form.work_order_id)).first()
+    work_order = db.scalars(
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .where(workOrders.id == patch_work_order_form.work_order_id)
+        ).first()
 
     # An empty string for a title will silently fail due to the if statement below. Detect here and return an error to the user.
     if patch_work_order_form.title == "":
@@ -531,7 +535,7 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Se
     if patch_work_order_form.description:
         work_order.description = patch_work_order_form.description
     if patch_work_order_form.status:
-        work_order.status_id = patch_work_order_form.status
+        work_order.status.name = patch_work_order_form.status
     if patch_work_order_form.notes:
         work_order.notes = patch_work_order_form.notes
     if patch_work_order_form.assigned_user_id:

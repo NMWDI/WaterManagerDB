@@ -18,6 +18,7 @@ export default function WorkOrdersTable() {
         //Determine what field has changed and update the work order
         const updatedField = Object.keys(updatedRow).find(key => updatedRow[key] !== originalRow[key]); 
         const work_order_update = {work_order_id: updatedRow.work_order_id, [updatedField as string]: updatedRow[updatedField as string]};
+        console.log("Updating work order", work_order_update);
 
         //Create a promise to update the work order
         return updateWorkOrder.mutateAsync(work_order_update)
@@ -36,7 +37,7 @@ export default function WorkOrdersTable() {
         { field: 'title', headerName: 'Title', width: 200, editable: true},
         { field: 'description', headerName: 'Description', width: 300, editable: true},
         { field: 'creator', headerName: 'Created By', width: 150 },
-        { field: 'status', headerName: 'Status', width: 100 },
+        { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: ['Open', 'Review', 'Closed'], editable: true},
         { field: 'notes', headerName: 'Notes', width: 300, editable: true},
         //{ field: 'activityIds', headerName: 'Activity IDs', width: 200 },
         { field: 'assigned_user_id', headerName: 'Technician Assigned', width: 200 },
