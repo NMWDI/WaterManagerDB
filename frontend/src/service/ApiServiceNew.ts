@@ -39,8 +39,11 @@ import {
     MeterStatus,
     PatchObservationSubmit,
     PatchActivitySubmit,
-    PatchWellMeasurement
+    PatchWellMeasurement,
+    WorkOrder,
+    PatchWorkOrder,
 } from '../interfaces.js'
+import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
 
@@ -58,16 +61,27 @@ export function toGMT6String(date: Date) {
 function formattedQueryParams(queryParams: any) {
     if (!queryParams) return ''
 
-    let queryParamString = '?';
+    let queryParamString = new URLSearchParams();
     let params = {...queryParams}
 
     for (let param in params) {
         if (params[param] === '' || params[param] == undefined) {
-            delete params[param]
+            continue
+        }
+        //Handle situation where we have an array of values
+        if (Array.isArray(params[param])) {
+            for (let value of params[param]) {
+                queryParamString.append(param, value)
+            }
+        }
+        else {
+            queryParamString.append(param, params[param])
         }
     }
-    queryParamString += new URLSearchParams(params)
-    return queryParamString
+    // Convert the URLSearchParams object to a string
+    let formattedString = '?' + queryParamString.toString()
+
+    return formattedString 
 }
 
 // Fetch function that handles incoming errors from the response. Used as the queryFn in useQuery hooks
@@ -474,6 +488,19 @@ export function useGetST2WaterLevels(datastreamID: number | undefined) {
     return useQuery<ST2Measurement[], Error>([route, datastreamID], () =>
         GETST2Fetch(route),
         {enabled: !!datastreamID}
+    )
+}
+
+export function useGetWorkOrders(status_filter: WorkOrderStatus[]){
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    //Convert status filter array to 
+
+    return useQuery<WorkOrder[], Error>([route, status_filter], () =>
+        GETFetch(route, {filter_by_status: status_filter}, authHeader(), signOut, navigate),
     )
 }
 
@@ -1215,12 +1242,12 @@ export function useCreateChlorideMeasurement() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
                 return responseJson
             }
         },
         retry: 0
-    })
+    });
 }
 
 export function useCreateWaterLevel() {
@@ -1248,12 +1275,12 @@ export function useCreateWaterLevel() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
                 return responseJson
             }
         },
         retry: 0
-    })
+    });
 }
 
 export function useUpdateWaterLevel(onSuccess: Function) {
@@ -1357,6 +1384,65 @@ export function useMergeWells(onSuccess: Function) {
                 onSuccess()
                 const responseJson = await response.json()
                 return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateWorkOrder() {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrder: PatchWorkOrder) => {
+            const response = await PATCHFetch(route, workOrder, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 409) {
+                    enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
+                    throw Error("Failure of date, meter, and title uniqueness constraint")
+                }
+                if(response.status == 422) {
+                    enqueueSnackbar('Title cannot be blank', {variant: 'error'})
+                    throw Error("Title is empty string")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteWorkOrder(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrderID: number) => {
+            const response = await fetch(API_URL + `/work_orders?work_order_id=${workOrderID}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
             }
         },
         retry: 0

@@ -94,8 +94,8 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedPartID(selectedRow.row.id)}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setPartAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Part
@@ -105,5 +105,5 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

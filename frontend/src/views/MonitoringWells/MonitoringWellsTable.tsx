@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridPagination, gridDateComparator } from '@mui/x-data-grid';
+import { DataGrid, GridPagination, gridDateComparator, GridColDef } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
 import dayjs from 'dayjs'
@@ -20,6 +20,14 @@ interface CustomWellsFooterProps {
     isWellSelected: boolean
 }
 
+//This is needed for typescript to recognize the slotProps... see https://v6.mui.com/x/react-data-grid/components/#custom-slot-props-with-typescript
+declare module '@mui/x-data-grid' {
+    interface FooterPropsOverrides {
+        onOpenModal: () => void
+        isWellSelected: boolean
+    }
+}
+
 function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps) {
     return (
         <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
@@ -32,7 +40,7 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
 }
 
 export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasurementSelect}: MonitoringWellsTableProps){
-    const columns = [
+    const columns: GridColDef[] = [
         {
             field: 'timestamp',
             headerName: 'Date/Time',
@@ -67,10 +75,10 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasu
             <DataGrid
                 rows={rows}
                 columns={columns}
-                components={{
-                    Footer: CustomWellsFooter
+                slots={{
+                    footer: CustomWellsFooter
                 }}
-                componentsProps={{
+                slotProps={{
                   footer: { onOpenModal: onOpenModal, isWellSelected: isWellSelected }
                 }}
                 onRowClick={onMeasurementSelect}

@@ -529,3 +529,34 @@ class WellMeasurements(Base):
     well: Mapped["Wells"] = relationship()
 
     submitting_user: Mapped["Users"] = relationship()
+
+class workOrderStatusLU(Base):
+    '''
+    Models the status of a work order
+    '''
+    __tablename__ = "work_order_status_lu"
+    name = mapped_column(String, nullable=False)
+    description = mapped_column(String, nullable=False)
+
+class workOrders(Base):
+    '''
+    Models work orders and associated information
+    '''
+    __tablename__ = "work_orders"
+    date_created: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
+    creator: Mapped[str] = mapped_column(String, nullable=True) # There is no consistent list of persons for this, so it is nullable
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    meter_id: Mapped[int] = mapped_column(Integer, ForeignKey("Meters.id"), nullable=False)
+    status_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_order_status_lu.id"), nullable=False)
+    notes: Mapped[str] = mapped_column(String, nullable=True)
+    assigned_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=True)
+
+    # Associated Activities
+    # TODO
+
+    meter: Mapped['Meters']= relationship()
+    status: Mapped['workOrderStatusLU']= relationship()
+    assigned_user: Mapped['Users'] = relationship()
+
+

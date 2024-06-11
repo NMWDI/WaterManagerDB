@@ -16,13 +16,19 @@ interface WellsTableProps {
     wellSearchQueryProp:string
 }
 
+//This is needed for typescript to recognize the slotProps... see https://v6.mui.com/x/react-data-grid/components/#custom-slot-props-with-typescript
+declare module '@mui/x-data-grid' {
+    interface FooterPropsOverrides {
+        button: React.ReactNode
+    }
+}
+
 export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp, setWellAddMode}: WellsTableProps) {
  
     const [wellSearchQueryDebounced] = useDebounce(wellSearchQueryProp, 250)
     const [wellListQueryParams, setWellListQueryParams] = useState<WellListQueryParams>()
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
-    const [gridPage, setGridPage] = useState<number>(0)
-    const [gridPageSize, setGridPageSize] = useState<number>(25)
+    const [paginationModel, setPaginationModel] = useState({pageSize: 25, page: 0})
     const [gridRowCount, setGridRowCount] = useState<number>(100)
 
     const wellsList = useGetWells(wellListQueryParams)
@@ -48,11 +54,11 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
             search_string: wellSearchQueryDebounced,
             sort_by: gridSortModel?.at(0)?.field ?? WellSortByField.Name,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
-            limit: gridPageSize,
-            offset: gridPage * gridPageSize
+            limit: paginationModel.pageSize,
+            offset: paginationModel.page * paginationModel.pageSize
         }
         setWellListQueryParams(newParams)
-    }, [wellSearchQueryDebounced, gridSortModel, gridPage, gridPageSize])
+    }, [wellSearchQueryDebounced, gridSortModel, paginationModel])
 
     useEffect(() => {
         setGridRowCount(wellsList.data?.total ?? 0) // Update the well count when new list is recieved from API
@@ -75,14 +81,12 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
                     keepNonExistentRowsSelected
                     onRowClick={(selectedRow) => {setSelectedWell(wellsList.data?.items.find((well: Well) => well.id == selectedRow.row.id))}}
                     onSortModelChange={setGridSortModel}
-                    page={gridPage}
-                    onPageChange={setGridPage}
-                    pageSize={gridPageSize}
-                    onPageSizeChange={(newSize) => {setGridPageSize(newSize); setGridPage(0) }}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
                     rowCount={gridRowCount}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
-                        button:
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{
+                        footer: { button:
                             <Button variant="contained" size="small" onClick={() => setWellAddMode(true)} disabled={!hasAdminScope}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Well
                             </Button>

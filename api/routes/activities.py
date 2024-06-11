@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Query
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
@@ -21,10 +21,12 @@ from api.models.main_models import (
     Locations,
     MeterStatusLU,
     Users,
+    workOrders,
+    workOrderStatusLU
 )
 from api.session import get_db
 from api.security import get_current_user
-from api.enums import ScopedUser
+from api.enums import ScopedUser, WorkOrderStatus
 from api.route_util import _patch
 
 activity_router = APIRouter()
@@ -461,3 +463,135 @@ def get_service_types(db: Session = Depends(get_db)):
 )
 def get_note_types(db: Session = Depends(get_db)):
     return db.scalars(select(NoteTypeLU)).all()
+
+# Get work orders endpoint
+@activity_router.get(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[meter_schemas.WorkOrder],
+    tags=["Work Orders"],
+)
+def get_work_orders(
+    filter_by_status: list[WorkOrderStatus] = Query('Open'),
+    db: Session = Depends(get_db)
+    ):
+    query_stmt = (
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .join(workOrderStatusLU)
+        .where(workOrderStatusLU.name.in_(filter_by_status))
+    )
+    work_orders: list[workOrders] = db.scalars(query_stmt).all()
+    
+    # Create a WorkOrder schema for each work order returned
+    output_work_orders = []
+    for wo in work_orders:
+        work_order_schema = meter_schemas.WorkOrder(
+            work_order_id = wo.id,
+            date_created = wo.date_created,
+            creator = wo.creator,
+            meter_serial = wo.meter.serial_number,
+            title = wo.title,
+            description = wo.description,
+            status = wo.status.name,
+            notes = wo.notes,
+            assigned_user_id = wo.assigned_user_id,
+            assigned_user= wo.assigned_user.username if wo.assigned_user else None
+        )
+        output_work_orders.append(work_order_schema)
+
+    return output_work_orders
+
+# Patch work order endpoint
+@activity_router.patch(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Admin)],
+    response_model=meter_schemas.WorkOrder,
+    tags=["Work Orders"],
+)
+def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Session = Depends(get_db)):
+    '''
+    Patch a work order.
+    The input schema limits the fields that can be updated to the title, description, status, notes, and assigned user.
+    This is to prevent confusion with other open work orders.
+    '''
+    # Get the work order
+    work_order = db.scalars(
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .where(workOrders.id == patch_work_order_form.work_order_id)
+        ).first()
+
+    # An empty string for a title will silently fail due to the if statement below. Detect here and return an error to the user.
+    if patch_work_order_form.title == "":
+        raise HTTPException(
+            status_code=422,
+            detail="Title cannot be empty."
+        )
+    
+    # Update the work order if the field exists
+    if patch_work_order_form.title:
+        work_order.title = patch_work_order_form.title
+    if patch_work_order_form.description:
+        work_order.description = patch_work_order_form.description
+    if patch_work_order_form.status:
+        work_order.status.name = patch_work_order_form.status
+    if patch_work_order_form.notes:
+        work_order.notes = patch_work_order_form.notes
+    if patch_work_order_form.assigned_user_id:
+        work_order.assigned_user_id = patch_work_order_form.assigned_user_id
+
+    # Commit the changes
+    # Database should block empty title and non-unique (date, title, meter_id) combinations
+    try:
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=409,
+            detail="Title already exists for this meter."
+        )
+    
+    # Get the updated work order (needed by the frontend)
+    work_order = db.scalars(
+        select(workOrders)
+        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .join(workOrderStatusLU).where(workOrders.id == patch_work_order_form.work_order_id)).first()
+    
+    # Create a WorkOrder schema for the updated work order
+    work_order_schema = meter_schemas.WorkOrder(
+        work_order_id = work_order.id,
+        date_created = work_order.date_created,
+        creator = work_order.creator,
+        meter_serial = work_order.meter.serial_number,
+        title = work_order.title,
+        description = work_order.description,
+        status = work_order.status.name,
+        notes = work_order.notes,
+        assigned_user_id = work_order.assigned_user_id,
+        assigned_user= work_order.assigned_user.username if work_order.assigned_user else None
+    )
+
+    return work_order_schema
+
+# Delete work order endpoint
+@activity_router.delete(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Work Orders"],
+)
+def delete_work_order(work_order_id: int, db: Session = Depends(get_db)):
+    '''
+    Deletes a work order.
+    '''
+    # Get the work order
+    work_order = db.scalars(select(workOrders).where(workOrders.id == work_order_id)).first()
+
+    # Return error if the work order doesn't exist
+    if not work_order:
+        raise HTTPException(status_code=404, detail="Work order not found.")
+
+    # Delete the work order
+    db.delete(work_order)
+    db.commit()
+
+    return {'status': 'success'}

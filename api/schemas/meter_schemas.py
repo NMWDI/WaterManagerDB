@@ -2,6 +2,7 @@ from datetime import datetime
 from api.schemas.base import ORMBase
 from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
+from pydantic import BaseModel
 
 
 class MeterTypeLU(ORMBase):
@@ -228,3 +229,29 @@ class PatchObservation(ORMBase):
 class ServiceTypeLU(ORMBase):
     service_name: str | None = None
     description: str | None = None
+
+class WorkOrder(ORMBase):
+    work_order_id: int
+    date_created: datetime
+    creator: str | None = None
+    meter_serial: str
+    title: str
+    description: str
+    status: str
+    notes: str | None = None
+    assigned_user_id: int | None = None # Might need this for editing user
+    assigned_user: str | None = None
+
+class PatchWorkOrder(BaseModel):
+    '''
+    It could be confusing to change the date and serial number of an existing work order because
+    one might lose track of what the work order was originally for. So, the inputs here are more limited than
+    for work orders that are being created.
+    '''
+    work_order_id: int
+    title: str | None = None
+    description: str | None = None
+    status: str | None = None
+    notes: str | None = None
+    assigned_user_id: int | None = None
+    
