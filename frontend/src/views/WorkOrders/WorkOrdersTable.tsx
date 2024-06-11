@@ -5,14 +5,16 @@ I anticipate this component will be self-contained including the ability to add 
 
 import React from 'react';
 import { useState } from 'react';
-import { DataGrid, GridColDef, GridRowModel } from '@mui/x-data-grid';
-import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList } from '../../service/ApiServiceNew';
+import DeletedIcon from '@mui/icons-material/Delete';
+import { DataGrid, GridColDef, GridRowModel, GridActionsCellItem, GridRowParams, GridRowId } from '@mui/x-data-grid';
+import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 
 export default function WorkOrdersTable() {
     const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
     const workOrderList = useGetWorkOrders(workOrderFilters);
     const updateWorkOrder = useUpdateWorkOrder();
+    const deleteWorkOrder = useDeleteWorkOrder(()=>console.log("Work order deleted"));
     const userList = useGetUserList();  
 
     function getUserFromID(id: number|undefined) {
@@ -45,7 +47,16 @@ export default function WorkOrdersTable() {
     function handleProcessRowUpdateError(error: Error): void {
         console.error("Error updating work order", error);
     }
-        
+    
+    function handleDeleteClick(id: GridRowId) {
+        console.log(`Deleting row with id: ${id}. Warning: currently shut off for testing`);
+        // let deletepromise = deleteWorkOrder.mutateAsync(id as number);
+        // deletepromise.then(() => {
+        //     //Get the updated rows
+        //     workOrderList.refetch();
+        //     console.log("Work order deleted");
+        // });
+    }
 
     // Define the columns for the table
     const columns: GridColDef[] = [
@@ -67,7 +78,21 @@ export default function WorkOrdersTable() {
             valueOptions: userList.data?.map(user => user.full_name) ?? [], 
             editable: true
         },
-        { field: 'actions', headerName: 'Actions', width: 150 },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            type: 'actions',
+            getActions: (params: GridRowParams<any>) => {
+                return [
+                    <GridActionsCellItem
+                        icon={<DeletedIcon />}
+                        label="Delete"
+                        onClick={() => handleDeleteClick(params.id)}
+                    />,
+                ];
+            }
+        },
     ];
 
     return (
