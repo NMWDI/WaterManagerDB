@@ -7,7 +7,7 @@ import { DataGrid, GridSortModel, GridColDef } from '@mui/x-data-grid'
 import AddIcon from '@mui/icons-material/Add'
 
 import { MeterListQueryParams, SecurityScope } from '../../../interfaces'
-import { SortDirection, MeterSortByField } from '../../../enums'
+import { SortDirection, MeterSortByField, MeterStatusNames } from '../../../enums'
 import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
 import { useAuthUser } from 'react-auth-kit'
@@ -25,6 +25,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
     const [paginationModel, setPaginationModel] = useState({pageSize: 25, page: 0})
     const [gridRowCount, setGridRowCount] = useState<number>(100)
+    const [statusFilter, setStatusFilter] = useState<MeterStatusNames[]>([MeterStatusNames.Installed])
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -62,6 +63,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
+            filter_by_status: statusFilter,
             sort_by: gridSortModel ? gridSortModel[0]?.field : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: paginationModel.pageSize,
