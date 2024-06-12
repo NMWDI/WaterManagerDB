@@ -6,9 +6,58 @@ I anticipate this component will be self-contained including the ability to add 
 import React from 'react';
 import { useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
-import { DataGrid, GridColDef, GridRowModel, GridActionsCellItem, GridRowParams, GridRowId } from '@mui/x-data-grid';
+import { 
+    DataGrid,
+    GridColDef,
+    GridRowModel,
+    GridActionsCellItem,
+    GridActionsCellItemProps,
+    GridRowParams,
+    GridRowId 
+} from '@mui/x-data-grid';
 import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+
+function DeleteWorkOrder({
+    deleteUser,
+    deleteMessage,
+    ...props
+  }: GridActionsCellItemProps & { deleteUser: () => void, deleteMessage?: string}) {
+    const [open, setOpen] = React.useState(false);
+  
+    return (
+      <React.Fragment>
+        <GridActionsCellItem {...props} onClick={() => setOpen(true)} />
+        <Dialog
+          open={open}
+          onClose={() => setOpen(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{deleteMessage}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              This action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setOpen(false);
+                deleteUser();
+              }}
+              color="warning"
+              autoFocus
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </React.Fragment>
+    );
+  }
 
 export default function WorkOrdersTable() {
     const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
@@ -85,10 +134,12 @@ export default function WorkOrdersTable() {
             type: 'actions',
             getActions: (params: GridRowParams<any>) => {
                 return [
-                    <GridActionsCellItem
+                    <DeleteWorkOrder
                         icon={<DeletedIcon />}
+                        deleteMessage={`Delete work order ${params.id}?`}
                         label="Delete"
-                        onClick={() => handleDeleteClick(params.id)}
+                        deleteUser={() => handleDeleteClick(params.id)}
+                        showInMenu={false}
                     />,
                 ];
             }
