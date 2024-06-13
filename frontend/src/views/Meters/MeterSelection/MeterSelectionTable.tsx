@@ -16,16 +16,16 @@ import { parseMutationArgs } from 'react-query/types/core/utils'
 interface MeterSelectionTableProps {
     onMeterSelection: Function
     meterSearchQuery: string
+    meterStatusFilter: MeterStatusNames[]
     setMeterAddMode: Function
 }
 
-export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode}: MeterSelectionTableProps) {
+export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode, meterStatusFilter}: MeterSelectionTableProps) {
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
     const [paginationModel, setPaginationModel] = useState({pageSize: 25, page: 0})
     const [gridRowCount, setGridRowCount] = useState<number>(100)
-    const [statusFilter, setStatusFilter] = useState<MeterStatusNames[]>([MeterStatusNames.Installed])
 
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
@@ -63,14 +63,14 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
-            filter_by_status: statusFilter,
+            filter_by_status: meterStatusFilter,
             sort_by: gridSortModel ? gridSortModel[0]?.field : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: paginationModel.pageSize,
             offset: paginationModel.page * paginationModel.pageSize
         }
         setMeterListQueryParams(newParams)
-    }, [meterSearchQueryDebounced, gridSortModel, paginationModel])
+    }, [meterSearchQueryDebounced, gridSortModel, paginationModel, meterStatusFilter])
 
     useEffect(() => {
         setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API

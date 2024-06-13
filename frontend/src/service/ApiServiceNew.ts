@@ -198,7 +198,6 @@ export function useGetMeterList(params: MeterListQueryParams | undefined) {
     const authHeader = useAuthHeader()
     const navigate = useNavigate()
     const signOut = useSignOut()
-    console.log(params)
 
     return useQuery<Page<MeterListDTO>, Error>([route, params], () =>
         GETFetch(route, params, authHeader(), signOut, navigate),
