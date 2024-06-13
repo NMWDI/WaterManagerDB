@@ -6,6 +6,7 @@ I anticipate this component will be self-contained including the ability to add 
 import React from 'react';
 import { useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import { 
     DataGrid,
     GridColDef,
@@ -18,6 +19,7 @@ import {
 import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import GridFooterWithButton from '../../components/GridFooterWithButton';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -65,6 +67,8 @@ export default function WorkOrdersTable() {
     const updateWorkOrder = useUpdateWorkOrder();
     const deleteWorkOrder = useDeleteWorkOrder(()=>console.log("Work order deleted"));
     const userList = useGetUserList();  
+
+    const hasAdminScope = true; //TODO: Implement this
 
     function getUserFromID(id: number|undefined) {
         return userList.data?.find(user => user.id === id)?.full_name ?? "";
@@ -160,6 +164,14 @@ export default function WorkOrdersTable() {
                 }
                 processRowUpdate={handleRowUpdate}
                 onProcessRowUpdateError={handleProcessRowUpdateError}
+                slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
+                        button:
+                            hasAdminScope &&
+                                <Button sx={{ml: 1}} variant="contained" size="small" onClick={() => console.log('click')}>
+                                    <AddIcon style={{fontSize: '1rem'}}/>Add a New Work Order
+                                </Button>
+                    }}}
             />
         </div>
     );
