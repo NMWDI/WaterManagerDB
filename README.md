@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.33 - Add Meter Status Filter to Meters Table
 - V0.1.32 - Fix Monitoring Wells so that table updates after change
 - V0.1.31 - Added note "verified register ratio" and made it appear by default
 - V0.1.30 - Admin can edit monitoring well data (note that monitoring well table still not updating automatically)
