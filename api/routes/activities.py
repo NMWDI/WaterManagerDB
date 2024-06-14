@@ -502,6 +502,22 @@ def get_work_orders(
 
     return output_work_orders
 
+# Create work order endpoint
+@activity_router.post(
+    "/work_orders",
+    dependencies=[Depends(ScopedUser.Admin)],
+    response_model=meter_schemas.WorkOrder,
+    tags=["Work Orders"],
+)
+def create_work_order(new_work_order: meter_schemas.CreateWorkOrder, db: Session = Depends(get_db)):
+    '''
+    Create a new work order dated to the current time.
+    The only mandatory inputs are the meter ID and the title of the work order.
+    '''
+    pass
+
+
+
 # Patch work order endpoint
 @activity_router.patch(
     "/work_orders",

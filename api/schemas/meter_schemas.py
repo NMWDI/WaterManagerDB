@@ -242,6 +242,20 @@ class WorkOrder(ORMBase):
     assigned_user_id: int | None = None # Might need this for editing user
     assigned_user: str | None = None
 
+class CreateWorkOrder(BaseModel):
+    '''
+    Only mandatory fields are the date_created, meter_id, and title. The rest can be filled in later.
+    I want the frontend to submit the date in case the server is in another timezone.
+    '''
+    date_created: datetime
+    meter_id: int
+    title: str
+    description: str | None = None
+    status: str | None = None
+    notes: str | None = None
+    creator: str | None = None
+    assigned_user_id: int | None = None
+
 class PatchWorkOrder(BaseModel):
     '''
     It could be confusing to change the date and serial number of an existing work order because
