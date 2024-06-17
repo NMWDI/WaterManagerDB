@@ -405,7 +405,6 @@ export interface MeterListQueryParams {
     sort_direction?: SortDirection
     limit?: number
     offset?: number
-    exclude_inactive?: boolean
 }
 
 export interface MeterMapDTO {

@@ -4,6 +4,7 @@ import { Autocomplete, TextField } from '@mui/material'
 import { useGetMeterList } from '../service/ApiServiceNew'
 import { useDebounce } from 'use-debounce'
 import { MeterListDTO } from '../interfaces'
+import { MeterStatusNames } from '../enums'
 
 interface MeterSelectionProps {
     selectedMeter: MeterListDTO | undefined
@@ -17,7 +18,7 @@ export default function MeterSelection({selectedMeter, onMeterChange, error = fa
 
     const meterList = useGetMeterList({
         search_string: meterSearchQueryDebounced != '' ? meterSearchQueryDebounced : undefined,
-        exclude_inactive: true
+        filter_by_status: [MeterStatusNames.Installed,MeterStatusNames.Warehouse,MeterStatusNames.Sold]
     })
 
     return (
