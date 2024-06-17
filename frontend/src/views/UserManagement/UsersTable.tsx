@@ -26,7 +26,7 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
         {field: 'email', headerName: 'Email', width: 250},
         {field: 'username', headerName: 'Username', width: 150},
         {field: 'user_role', headerName: 'Role', width: 200,
-            valueGetter: (params: any) => params.value?.name,
+            valueGetter: (value, row) => row.user_role.name,
             renderCell: (params: any) => {
                 switch (params.value) {
                     case 'Admin': {

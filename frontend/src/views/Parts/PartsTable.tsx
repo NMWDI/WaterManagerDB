@@ -62,7 +62,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                 sx={{mb: 0, pb: 0}}
             />
             <CardContent sx={{height: '100%'}}>
-                <Grid container xs={12}>
+                <Grid container>
                     <Grid item xs={5}>
                         <TextField
                             label={<div style={{display: 'inline-flex', alignItems: 'center'}}><SearchIcon sx={{fontSize: '1.2rem'}}/> <span style={{marginTop: 1}}>&nbsp;Search Parts</span></div>}
