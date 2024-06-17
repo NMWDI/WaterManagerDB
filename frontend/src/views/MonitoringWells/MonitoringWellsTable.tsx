@@ -45,15 +45,15 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasu
             field: 'timestamp',
             headerName: 'Date/Time',
             width: 200,
-            valueGetter: (params: any) => {
+            valueGetter: (value) => {
                 return dayjs
-                        .utc(params?.value)
+                        .utc(value)
                         .tz('America/Denver')
                         //.format('MM/DD/YYYY hh:mm A')
             },
-            valueFormatter: (params: any) => {
+            valueFormatter: (value) => {
                 return dayjs
-                        .utc(params?.value)
+                        .utc(value)
                         .tz('America/Denver')
                         .format('MM/DD/YYYY hh:mm A')
             },
@@ -64,8 +64,8 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasu
             field: 'submitting_user',
             headerName: 'User',
             width: 200 ,
-            valueGetter: (params: any) => {
-                return (params.value.full_name)
+            valueGetter: (value: WellMeasurementDTO["submitting_user"]) => {
+                return (value.full_name)
             }
         }
     ];
