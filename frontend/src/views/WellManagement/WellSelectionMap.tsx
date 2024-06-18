@@ -30,8 +30,8 @@ export default function WellSelectionMap({setSelectedWell, wellSearchQueryProp}:
     const [wellMarkersMap, setwellMarkersMap] = useState<any>([]);
 
     const mapStyle = {
-        height: '100%',
-        width: '100%'
+        height: '500px',
+        //width: '100%'
     }
 
     const wellMarkers:any = useGetWellLocations(wellSearchDebounced)
