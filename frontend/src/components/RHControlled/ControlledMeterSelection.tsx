@@ -6,6 +6,7 @@ import { useDebounce } from 'use-debounce'
 import { useGetMeterList } from '../../service/ApiServiceNew'
 import { MeterListDTO } from '../../interfaces'
 import ControlledAutocomplete from './ControlledAutocomplete'
+import { MeterStatusNames } from '../../enums'
 
 export default function ControlledMeterSelection({name, control, ...childProps}: any) {
     const [meterSearchQuery, setMeterSearchQuery] = useState<string>('')
@@ -13,7 +14,7 @@ export default function ControlledMeterSelection({name, control, ...childProps}:
 
     const meterList = useGetMeterList({
         search_string: meterSearchQueryDebounced != '' ? meterSearchQueryDebounced : undefined,
-        exclude_inactive: false
+        filter_by_status: [MeterStatusNames.Installed,MeterStatusNames.Warehouse,MeterStatusNames.Sold]
     })
 
     function getMeterListOptions() {

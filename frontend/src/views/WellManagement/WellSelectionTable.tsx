@@ -69,7 +69,7 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
     // Ternaries in sorting make sure that the view defaults to showing the backend's defaults
   
     return (
-        <Box sx={{height: '87%'}}>
+        <Box sx={{height: '500px'}}>
         <DataGrid
             sx={{ border: 'none'}}
                     rows={wellsList.data?.items ?? []}

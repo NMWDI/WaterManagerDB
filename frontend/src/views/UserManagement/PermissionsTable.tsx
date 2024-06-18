@@ -52,7 +52,7 @@ export default function PermissionsTable() {
                     />
                 </Grid>
                 <DataGrid
-                    sx={{height: '76%', border: 'none'}}
+                    sx={{height: '400px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={securityScopesList.isLoading}
                     columns={cols}

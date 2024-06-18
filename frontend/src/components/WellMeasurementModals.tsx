@@ -95,12 +95,12 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                 borderRadius: 15,
                 paddingLeft: 25}}
             >
-                <Grid item xs={6}>
+                <Grid item xs={'auto'}>
                     <h1>Record a New Measurement</h1>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <UserSelection />
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <DatePicker
                             label="Date"
                             value={date}
@@ -108,7 +108,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                             slotProps={{textField: {size: "small", fullWidth: true, required: true}}}
                         />
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <TimePicker
                             label="Time"
                             timezone="America/Denver"
@@ -117,7 +117,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                             onChange={setTime}
                         />
                     </Grid>
-                    <Grid container item xs={9} sx={{mr: 'auto', ml: 'auto', mb: 2}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto', mb: 2}}>
                         <TextField
                             required
                             fullWidth
@@ -128,7 +128,7 @@ export function NewMeasurementModal({isNewMeasurementModalOpen, handleCloseNewMe
                             onChange={(event) => setValue(event.target.value as unknown as number)}
                         />
                     </Grid>
-                    <Grid container item xs={3} sx={{mr: 'auto', ml: 'auto'}}>
+                    <Grid container item sx={{mr: 'auto', ml: 'auto'}}>
                         <Button type="submit" variant="contained" onClick={onMeasurementSubmitted} >Submit</Button>
                     </Grid>
                 </Grid>

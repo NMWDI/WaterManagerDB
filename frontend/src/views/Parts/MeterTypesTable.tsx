@@ -81,7 +81,7 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '75%', border: 'none'}}
+                    sx={{height: '400px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={meterTypes.isLoading}
                     columns={cols}

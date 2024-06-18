@@ -66,7 +66,7 @@ export default function RolesTable({setSelectedRole, setRoleAddMode}: RolesTable
                     />
                 </Grid>
                 <DataGrid
-                    sx={{height: '76%', border: 'none'}}
+                    sx={{height: '350px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={rolesList.isLoading}
                     columns={cols}

@@ -1,6 +1,6 @@
 import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
-import { ActivityType } from './enums'
+import { ActivityType, MeterStatusNames } from './enums'
 import { DateCalendarClassKey } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 
@@ -400,11 +400,11 @@ export interface MeterDetails {
 
 export interface MeterListQueryParams {
     search_string?: string
+    filter_by_status?: MeterStatusNames[]
     sort_by?: MeterSortByField
     sort_direction?: SortDirection
     limit?: number
     offset?: number
-    exclude_inactive?: boolean
 }
 
 export interface MeterMapDTO {

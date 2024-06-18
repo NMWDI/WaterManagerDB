@@ -7,7 +7,7 @@ import { DataGrid, GridSortModel, GridColDef } from '@mui/x-data-grid'
 import AddIcon from '@mui/icons-material/Add'
 
 import { MeterListQueryParams, SecurityScope } from '../../../interfaces'
-import { SortDirection, MeterSortByField } from '../../../enums'
+import { SortDirection, MeterSortByField, MeterStatusNames } from '../../../enums'
 import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
 import { useAuthUser } from 'react-auth-kit'
@@ -16,10 +16,11 @@ import { parseMutationArgs } from 'react-query/types/core/utils'
 interface MeterSelectionTableProps {
     onMeterSelection: Function
     meterSearchQuery: string
+    meterStatusFilter: MeterStatusNames[]
     setMeterAddMode: Function
 }
 
-export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode}: MeterSelectionTableProps) {
+export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode, meterStatusFilter}: MeterSelectionTableProps) {
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
     const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
@@ -62,13 +63,14 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     useEffect(() => {
         const newParams = {
             search_string: meterSearchQueryDebounced,
+            filter_by_status: meterStatusFilter,
             sort_by: gridSortModel ? gridSortModel[0]?.field : MeterSortByField.SerialNumber,
             sort_direction: gridSortModel ? gridSortModel[0]?.sort : SortDirection.Ascending,
             limit: paginationModel.pageSize,
             offset: paginationModel.page * paginationModel.pageSize
         }
         setMeterListQueryParams(newParams)
-    }, [meterSearchQueryDebounced, gridSortModel, paginationModel])
+    }, [meterSearchQueryDebounced, gridSortModel, paginationModel, meterStatusFilter])
 
     useEffect(() => {
         setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API
