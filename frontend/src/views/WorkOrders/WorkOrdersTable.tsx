@@ -18,8 +18,11 @@ import {
 } from '@mui/x-data-grid';
 import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import MeterSelection from '../../components/MeterSelection';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
+import { MeterListDTO } from '../../interfaces';
+import { error } from 'console';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -59,7 +62,53 @@ function DeleteWorkOrder({
         </Dialog>
       </React.Fragment>
     );
-  }
+}
+
+interface NewWorkOrderModalProps {
+    openNewWorkOrderModal: boolean,
+    handleCloseNewWorkOrderModal: () => void,
+    handleSubmitNewWorkOrder: () => void
+}
+
+function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal, handleSubmitNewWorkOrder}: NewWorkOrderModalProps) {
+    const [workOrderTitle, setWorkOrderTitle] = useState<string>('');
+    const [workOrderMeter, setWorkOrderMeter] = useState<MeterListDTO>();
+
+    function handleSubmit() {
+        if (workOrderMeter && workOrderTitle) {
+            handleSubmitNewWorkOrder();
+            handleCloseNewWorkOrderModal();
+        } else {
+            console.error("Work order creation failed: Meter and title are required");
+        }
+    }
+    
+    return (
+        <Dialog open={openNewWorkOrderModal} onClose={handleCloseNewWorkOrderModal}>
+            <DialogTitle>Create a New Work Order</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    To create a new work order, please select a meter and title. Other fields can be edited as needed after creation.
+                </DialogContentText>
+                <MeterSelection selectedMeter={workOrderMeter} onMeterChange={(selected: MeterListDTO) => setWorkOrderMeter(selected)} />
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="title"
+                    label="Title"
+                    type="text"
+                    fullWidth
+                    value={workOrderTitle}
+                    onChange={(event: any) => setWorkOrderTitle(event.target.value)}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleCloseNewWorkOrderModal}>Cancel</Button>
+                <Button onClick={handleSubmit}>Submit</Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
 
 export default function WorkOrdersTable() {
     const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
@@ -67,6 +116,8 @@ export default function WorkOrdersTable() {
     const updateWorkOrder = useUpdateWorkOrder();
     const deleteWorkOrder = useDeleteWorkOrder(()=>console.log("Work order deleted"));
     const userList = useGetUserList();  
+
+    const [isNewWorkOrderModalOpen, setIsNewWorkOrderModalOpen] = useState<boolean>(false);
 
     const hasAdminScope = true; //TODO: Implement this
 
@@ -109,6 +160,10 @@ export default function WorkOrdersTable() {
         //     workOrderList.refetch();
         //     console.log("Work order deleted");
         // });
+    }
+
+    function handleNewWorkOrder() {
+        console.log("Opening new work order modal");
     }
 
     // Define the columns for the table
@@ -168,10 +223,15 @@ export default function WorkOrdersTable() {
                     slotProps={{footer: {
                         button:
                             hasAdminScope &&
-                                <Button sx={{ml: 1}} variant="contained" size="small" onClick={() => console.log('click')}>
+                                <Button sx={{ml: 1}} variant="contained" size="small" onClick={()=>setIsNewWorkOrderModalOpen(true)}>
                                     <AddIcon style={{fontSize: '1rem'}}/>Add a New Work Order
                                 </Button>
                     }}}
+            />
+            <NewWorkOrderModal 
+                openNewWorkOrderModal={isNewWorkOrderModalOpen} 
+                handleCloseNewWorkOrderModal={() => setIsNewWorkOrderModalOpen(false)} 
+                handleSubmitNewWorkOrder={() => console.log('submit')} 
             />
         </div>
     );
