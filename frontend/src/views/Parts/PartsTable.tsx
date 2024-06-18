@@ -88,7 +88,7 @@ export default function PartsTable({setSelectedPartID, setPartAddMode}: PartsTab
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '78%', border: 'none'}}
+                    sx={{height: '400px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={partsList.isLoading}
                     columns={cols}
