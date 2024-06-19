@@ -21,7 +21,7 @@ import { WorkOrderStatus } from '../../enums';
 import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
-import { MeterListDTO } from '../../interfaces';
+import { MeterListDTO, NewWorkOrder } from '../../interfaces';
 import { error } from 'console';
 
 function DeleteWorkOrder({
@@ -67,20 +67,35 @@ function DeleteWorkOrder({
 interface NewWorkOrderModalProps {
     openNewWorkOrderModal: boolean,
     handleCloseNewWorkOrderModal: () => void,
-    handleSubmitNewWorkOrder: () => void
+    handleSubmitNewWorkOrder: (newWorkOrder: NewWorkOrder) => void
 }
 
 function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal, handleSubmitNewWorkOrder}: NewWorkOrderModalProps) {
     const [workOrderTitle, setWorkOrderTitle] = useState<string>('');
-    const [workOrderMeter, setWorkOrderMeter] = useState<MeterListDTO>();
+    const [workOrderMeter, setWorkOrderMeter] = useState<MeterListDTO | undefined>();
 
     function handleSubmit() {
         if (workOrderMeter && workOrderTitle) {
-            handleSubmitNewWorkOrder();
+            //Create a new work order object
+            const newWorkOrder: NewWorkOrder = {
+                meter_id: workOrderMeter.id,
+                title: workOrderTitle
+            }
+            handleSubmitNewWorkOrder(newWorkOrder);
             handleCloseNewWorkOrderModal();
+
+            //Reset the form
+            setWorkOrderMeter(undefined);
+            setWorkOrderTitle('');
         } else {
             console.error("Work order creation failed: Meter and title are required");
         }
+    }
+
+    function handleCancel() {
+        handleCloseNewWorkOrderModal();
+        setWorkOrderMeter(undefined);
+        setWorkOrderTitle('');
     }
     
     return (
@@ -90,7 +105,7 @@ function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal,
                 <DialogContentText>
                     To create a new work order, please select a meter and title. Other fields can be edited as needed after creation.
                 </DialogContentText>
-                <MeterSelection selectedMeter={workOrderMeter} onMeterChange={(selected: MeterListDTO) => setWorkOrderMeter(selected)} />
+                <MeterSelection selectedMeter={workOrderMeter} onMeterChange={setWorkOrderMeter} />
                 <TextField
                     autoFocus
                     margin="dense"
@@ -103,7 +118,7 @@ function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal,
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleCloseNewWorkOrderModal}>Cancel</Button>
+                <Button onClick={handleCancel}>Cancel</Button>
                 <Button onClick={handleSubmit}>Submit</Button>
             </DialogActions>
         </Dialog>
