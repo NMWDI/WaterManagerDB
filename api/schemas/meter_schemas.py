@@ -236,7 +236,7 @@ class WorkOrder(ORMBase):
     creator: str | None = None
     meter_serial: str
     title: str
-    description: str
+    description: str | None = None
     status: str
     notes: str | None = None
     assigned_user_id: int | None = None # Might need this for editing user
@@ -246,12 +246,12 @@ class CreateWorkOrder(BaseModel):
     '''
     Only mandatory fields are the date_created, meter_id, and title. The rest can be filled in later.
     I want the frontend to submit the date in case the server is in another timezone.
+    Status will always be set to Open when a work order is created.
     '''
     date_created: datetime
     meter_id: int
     title: str
     description: str | None = None
-    status: str | None = None
     notes: str | None = None
     creator: str | None = None
     assigned_user_id: int | None = None

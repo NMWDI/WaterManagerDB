@@ -12,7 +12,7 @@ interface MeterSelectionProps {
     error?: boolean
 }
 
-export default function MeterSelection({selectedMeter, onMeterChange, error = false}: MeterSelectionProps) {
+export default function MeterSelection({selectedMeter, onMeterChange, error}: MeterSelectionProps) {
     const [meterSearchQuery, setMeterSearchQuery] = useState<string>('')
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
 
@@ -36,7 +36,6 @@ export default function MeterSelection({selectedMeter, onMeterChange, error = fa
             return `${option.serial_number}` + (option.status ? `(${option.status?.status_name})` : '')
         }
     }
-    console.log(selectedMeter)
 
     return (
         <Autocomplete

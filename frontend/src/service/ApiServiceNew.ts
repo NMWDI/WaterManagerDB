@@ -42,6 +42,7 @@ import {
     PatchWellMeasurement,
     WorkOrder,
     PatchWorkOrder,
+    NewWorkOrder,
 } from '../interfaces.js'
 import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
@@ -1443,6 +1444,38 @@ export function useDeleteWorkOrder(onSuccess: Function) {
             else {
                 onSuccess()
                 return true
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useCreateWorkOrder(){
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrder: NewWorkOrder) => {
+            const response = await POSTFetch(route, workOrder, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 409) {
+                    enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
+                    throw Error("Failure of date, meter, and title uniqueness constraint")
+                }
+                if(response.status == 422) {
+                    enqueueSnackbar('Title cannot be blank', {variant: 'error'})
+                    throw Error("Title is empty string")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                const responseJson = await response.json()
+                return responseJson
             }
         },
         retry: 0

@@ -546,7 +546,7 @@ class workOrders(Base):
     date_created: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     creator: Mapped[str] = mapped_column(String, nullable=True) # There is no consistent list of persons for this, so it is nullable
     title: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
     meter_id: Mapped[int] = mapped_column(Integer, ForeignKey("Meters.id"), nullable=False)
     status_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_order_status_lu.id"), nullable=False)
     notes: Mapped[str] = mapped_column(String, nullable=True)

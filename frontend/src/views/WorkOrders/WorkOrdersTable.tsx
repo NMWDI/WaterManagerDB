@@ -16,7 +16,7 @@ import {
     GridRowParams,
     GridRowId 
 } from '@mui/x-data-grid';
-import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder } from '../../service/ApiServiceNew';
+import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder, useCreateWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
@@ -66,46 +66,55 @@ function DeleteWorkOrder({
 
 interface NewWorkOrderModalProps {
     openNewWorkOrderModal: boolean,
-    handleCloseNewWorkOrderModal: () => void,
-    handleSubmitNewWorkOrder: (newWorkOrder: NewWorkOrder) => void
+    closeNewWorkOrderModal: () => void,
+    submitNewWorkOrder: (newWorkOrder: NewWorkOrder) => void
 }
 
-function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal, handleSubmitNewWorkOrder}: NewWorkOrderModalProps) {
+function NewWorkOrderModal({openNewWorkOrderModal, closeNewWorkOrderModal, submitNewWorkOrder}: NewWorkOrderModalProps) {
     const [workOrderTitle, setWorkOrderTitle] = useState<string>('');
     const [workOrderMeter, setWorkOrderMeter] = useState<MeterListDTO | undefined>();
+    const [meterSelectionError, setMeterSelectionError] = useState<boolean>(false);
+    const [titleError, setTitleError] = useState<boolean>(false);
 
     function handleSubmit() {
-        if (workOrderMeter && workOrderTitle) {
-            //Create a new work order object
-            const newWorkOrder: NewWorkOrder = {
-                meter_id: workOrderMeter.id,
-                title: workOrderTitle
-            }
-            handleSubmitNewWorkOrder(newWorkOrder);
-            handleCloseNewWorkOrderModal();
-
-            //Reset the form
-            setWorkOrderMeter(undefined);
-            setWorkOrderTitle('');
-        } else {
-            console.error("Work order creation failed: Meter and title are required");
+        if (!workOrderMeter) {
+            setMeterSelectionError(true);
+            return
         }
+        if (!workOrderTitle) {
+            setTitleError(true);
+            return 
+        }
+
+        //If both fields are filled, submit the work order
+        //Create a new work order object
+        const newWorkOrder: NewWorkOrder = {
+            date_created: new Date(),
+            meter_id: workOrderMeter.id,
+            title: workOrderTitle
+        }
+        submitNewWorkOrder(newWorkOrder);
+        closeNewWorkOrderModal();
+
+        //Reset the form
+        setWorkOrderMeter(undefined);
+        setWorkOrderTitle('');
     }
 
     function handleCancel() {
-        handleCloseNewWorkOrderModal();
+        closeNewWorkOrderModal();
         setWorkOrderMeter(undefined);
         setWorkOrderTitle('');
     }
     
     return (
-        <Dialog open={openNewWorkOrderModal} onClose={handleCloseNewWorkOrderModal}>
+        <Dialog open={openNewWorkOrderModal} onClose={closeNewWorkOrderModal}>
             <DialogTitle>Create a New Work Order</DialogTitle>
             <DialogContent>
                 <DialogContentText>
                     To create a new work order, please select a meter and title. Other fields can be edited as needed after creation.
                 </DialogContentText>
-                <MeterSelection selectedMeter={workOrderMeter} onMeterChange={setWorkOrderMeter} />
+                <MeterSelection selectedMeter={workOrderMeter} onMeterChange={setWorkOrderMeter} error={meterSelectionError} />
                 <TextField
                     autoFocus
                     margin="dense"
@@ -115,6 +124,8 @@ function NewWorkOrderModal({openNewWorkOrderModal, handleCloseNewWorkOrderModal,
                     fullWidth
                     value={workOrderTitle}
                     onChange={(event: any) => setWorkOrderTitle(event.target.value)}
+                    error={titleError}
+                    helperText={titleError ? "Title cannot be empty" : ""}
                 />
             </DialogContent>
             <DialogActions>
@@ -130,6 +141,7 @@ export default function WorkOrdersTable() {
     const workOrderList = useGetWorkOrders(workOrderFilters);
     const updateWorkOrder = useUpdateWorkOrder();
     const deleteWorkOrder = useDeleteWorkOrder(()=>console.log("Work order deleted"));
+    const createWorkOrder = useCreateWorkOrder();
     const userList = useGetUserList();  
 
     const [isNewWorkOrderModalOpen, setIsNewWorkOrderModalOpen] = useState<boolean>(false);
@@ -168,17 +180,21 @@ export default function WorkOrdersTable() {
     }
     
     function handleDeleteClick(id: GridRowId) {
-        console.log(`Deleting row with id: ${id}. Warning: currently shut off for testing`);
-        // let deletepromise = deleteWorkOrder.mutateAsync(id as number);
-        // deletepromise.then(() => {
-        //     //Get the updated rows
-        //     workOrderList.refetch();
-        //     console.log("Work order deleted");
-        // });
+        let deletepromise = deleteWorkOrder.mutateAsync(id as number);
+        deletepromise.then(() => {
+            //Get the updated rows
+            workOrderList.refetch();
+            console.log("Work order deleted");
+        });
     }
 
-    function handleNewWorkOrder() {
-        console.log("Opening new work order modal");
+    function handleNewWorkOrder(newWorkOrder: NewWorkOrder) {
+        console.log("Creating new work order", newWorkOrder);
+        createWorkOrder.mutateAsync(newWorkOrder).then(() => {
+            //Get the updated rows
+            workOrderList.refetch();
+            console.log("Work order created");
+        });
     }
 
     // Define the columns for the table
@@ -245,8 +261,8 @@ export default function WorkOrdersTable() {
             />
             <NewWorkOrderModal 
                 openNewWorkOrderModal={isNewWorkOrderModalOpen} 
-                handleCloseNewWorkOrderModal={() => setIsNewWorkOrderModalOpen(false)} 
-                handleSubmitNewWorkOrder={() => console.log('submit')} 
+                closeNewWorkOrderModal={() => setIsNewWorkOrderModalOpen(false)} 
+                submitNewWorkOrder={handleNewWorkOrder} 
             />
         </div>
     );

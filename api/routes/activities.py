@@ -512,12 +512,56 @@ def get_work_orders(
 def create_work_order(new_work_order: meter_schemas.CreateWorkOrder, db: Session = Depends(get_db)):
     '''
     Create a new work order dated to the current time.
-    The only mandatory inputs are the meter ID and the title of the work order.
+    The only mandatory inputs are the date, meter ID, and the title of the work order.
     '''
-    pass
+    # Get status ID Open
+    open_status = db.scalars(select(workOrderStatusLU).where(workOrderStatusLU.name == 'Open')).first()
 
+    # Create a new work order
+    work_order = workOrders(
+        date_created = new_work_order.date_created,
+        meter_id = new_work_order.meter_id,
+        title = new_work_order.title,
+        status_id = open_status.id
+    )
 
+    # Add optional fields if they exist
+    if new_work_order.description:
+        work_order.description = new_work_order.description
+    if new_work_order.notes:
+        work_order.notes = new_work_order.notes
+    if new_work_order.assigned_user_id:
+        work_order.assigned_user_id = new_work_order.assigned_user_id
+    if new_work_order.creator:
+        work_order.creator = new_work_order.creator
 
+    # Commit the work order
+    # Database should block empty title and non-unique (date, title, meter_id) combinations
+    try:
+        db.add(work_order)
+        db.commit()
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=409,
+            detail="Title empty or already exists for this meter."
+        )
+    
+    # Create a WorkOrder schema for the updated work order
+    work_order_schema = meter_schemas.WorkOrder(
+        work_order_id = work_order.id,
+        date_created = work_order.date_created,
+        creator = work_order.creator,
+        meter_serial = work_order.meter.serial_number,
+        title = work_order.title,
+        description = work_order.description,
+        status = work_order.status.name,
+        notes = work_order.notes,
+        assigned_user_id = work_order.assigned_user_id,
+        assigned_user= work_order.assigned_user.username if work_order.assigned_user else None
+    )
+
+    return work_order_schema
+    
 # Patch work order endpoint
 @activity_router.patch(
     "/work_orders",
