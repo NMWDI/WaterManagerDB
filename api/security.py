@@ -94,7 +94,7 @@ def get_user(username: str, db: Session) -> Users:
 def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[Session, Depends(get_db)],
-):
+    ) -> Users:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 

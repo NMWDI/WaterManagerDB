@@ -6,6 +6,7 @@ from sqlalchemy import select, text
 from datetime import datetime
 from typing import List
 
+from api import security
 from api.schemas import meter_schemas
 from api.models.main_models import (
     Meters,
@@ -561,20 +562,39 @@ def create_work_order(new_work_order: meter_schemas.CreateWorkOrder, db: Session
     )
 
     return work_order_schema
+
     
 # Patch work order endpoint
 @activity_router.patch(
     "/work_orders",
-    dependencies=[Depends(ScopedUser.Admin)],
     response_model=meter_schemas.WorkOrder,
     tags=["Work Orders"],
 )
-def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Session = Depends(get_db)):
+def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: Users = Depends(security.get_current_user), db: Session = Depends(get_db)):
     '''
     Patch a work order.
     The input schema limits the fields that can be updated to the title, description, status, notes, and assigned user.
     This is to prevent confusion with other open work orders.
     '''
+    # Determine if update can be made by Tech
+    comparison_work_order = meter_schemas.PatchWorkOrder(
+        work_order_id = patch_work_order_form.work_order_id,
+        status=patch_work_order_form.status,
+        notes=patch_work_order_form.notes
+    )
+
+    if comparison_work_order == patch_work_order_form:
+        update_scope = 'Technician'
+    else:
+        update_scope = 'Admin'
+
+    # Check if the user has the correct permissions to update the work order
+    if user.user_role.name not in [update_scope, 'Admin']:
+        raise HTTPException(
+            status_code=403,
+            detail="User does not have permission to update this work order."
+        )
+
     # Get the work order
     work_order = db.scalars(
         select(workOrders)
@@ -595,7 +615,9 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, db: Se
     if patch_work_order_form.description:
         work_order.description = patch_work_order_form.description
     if patch_work_order_form.status:
-        work_order.status.name = patch_work_order_form.status
+        # Get the status ID of the new status name
+        new_status = db.scalars(select(workOrderStatusLU).where(workOrderStatusLU.name == patch_work_order_form.status)).first()
+        work_order.status_id = new_status.id
     if patch_work_order_form.notes:
         work_order.notes = patch_work_order_form.notes
     if patch_work_order_form.assigned_user_id:
