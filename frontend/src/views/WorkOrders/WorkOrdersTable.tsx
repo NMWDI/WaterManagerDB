@@ -3,7 +3,7 @@ This is the work orders table.
 I anticipate this component will be self-contained including the ability to add a new row.
 */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -14,15 +14,18 @@ import {
     GridActionsCellItem,
     GridActionsCellItemProps,
     GridRowParams,
-    GridRowId 
+    GridRowId, 
+    GridFilterItem
 } from '@mui/x-data-grid';
 import { useGetWorkOrders, useUpdateWorkOrder, useGetUserList, useDeleteWorkOrder, useCreateWorkOrder } from '../../service/ApiServiceNew';
 import { WorkOrderStatus } from '../../enums';
 import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
-import { MeterListDTO, NewWorkOrder } from '../../interfaces';
+import { MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
 import { error } from 'console';
+import { useAuthUser } from 'react-auth-kit';
+import { get } from 'http';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -137,7 +140,7 @@ function NewWorkOrderModal({openNewWorkOrderModal, closeNewWorkOrderModal, submi
 }
 
 export default function WorkOrdersTable() {
-    const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
+    const [workOrderFilters, setWorkOrderFilters] = useState<WorkOrderStatus[]>([WorkOrderStatus.Open, WorkOrderStatus.Review]);
     const workOrderList = useGetWorkOrders(workOrderFilters);
     const updateWorkOrder = useUpdateWorkOrder();
     const deleteWorkOrder = useDeleteWorkOrder(()=>console.log("Work order deleted"));
@@ -146,7 +149,28 @@ export default function WorkOrdersTable() {
 
     const [isNewWorkOrderModalOpen, setIsNewWorkOrderModalOpen] = useState<boolean>(false);
 
-    const hasAdminScope = true; //TODO: Implement this
+    //Current user needed for various changes to UI based on user role
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+    const current_user_name = getUserFromID(authUser()?.id)
+    var initialFilter: GridFilterItem[] = [] //No filter if admin
+    var status_options = ['Open', 'Review', 'Closed'];
+
+    //Change a few defaults if not an admin
+    if (!hasAdminScope){
+        initialFilter = [{field: 'assigned_user_id', operator: 'is', value: current_user_name}];
+        status_options = ['Open', 'Review'];
+    }
+
+    //Update list of work orders if technician level to only show open and review.
+    //useEffect prevents this from running on every render
+    useEffect(() => {
+        if (hasAdminScope) {
+            setWorkOrderFilters([WorkOrderStatus.Open, WorkOrderStatus.Review, WorkOrderStatus.Closed]);
+        } else {
+            setWorkOrderFilters([WorkOrderStatus.Open, WorkOrderStatus.Review]);
+        }
+    }, [hasAdminScope]); // Dependency array ensures this runs only when hasAdminScope changes
 
     function getUserFromID(id: number|undefined) {
         return userList.data?.find(user => user.id === id)?.full_name ?? "";
@@ -200,12 +224,12 @@ export default function WorkOrdersTable() {
     // Define the columns for the table
     const columns: GridColDef[] = [
         { field: 'work_order_id', headerName: 'ID', width: 100 },
-        { field: 'date_created', headerName: 'Date', width: 150 },
+        { field: 'date_created', headerName: 'Date', width: 150, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
         { field: 'meter_serial', headerName: 'Meter', width: 100 },
-        { field: 'title', headerName: 'Title', width: 200, editable: true},
-        { field: 'description', headerName: 'Description', width: 300, editable: true},
+        { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
+        { field: 'description', headerName: 'Description', width: 300, editable: hasAdminScope},
         { field: 'creator', headerName: 'Created By', width: 150 },
-        { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: ['Open', 'Review', 'Closed'], editable: true},
+        { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: status_options, editable: true},
         { field: 'notes', headerName: 'Notes', width: 300, editable: true},
         //{ field: 'activityIds', headerName: 'Activity IDs', width: 200 },
         { 
@@ -215,7 +239,7 @@ export default function WorkOrdersTable() {
             valueGetter: (id) => getUserFromID(id as number),
             type: 'singleSelect',
             valueOptions: userList.data?.map(user => user.full_name) ?? [], 
-            editable: true
+            editable: hasAdminScope
         },
         {
             field: 'actions',
@@ -230,6 +254,7 @@ export default function WorkOrdersTable() {
                         label="Delete"
                         deleteUser={() => handleDeleteClick(params.id)}
                         showInMenu={false}
+                        disabled={hasAdminScope ? false : true}
                     />,
                 ];
             }
@@ -245,7 +270,8 @@ export default function WorkOrdersTable() {
                 columns={columns}
                 initialState={
                     {
-                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, activityIds: false}}
+                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, activityIds: false}},
+                        filter: {filterModel: {items: initialFilter}},
                     }
                 }
                 processRowUpdate={handleRowUpdate}

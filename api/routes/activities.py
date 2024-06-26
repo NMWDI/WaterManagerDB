@@ -601,6 +601,14 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
         .where(workOrders.id == patch_work_order_form.work_order_id)
         ).first()
+    
+    # Ensure the current user is assigned the work order if they are a technician
+    if user.user_role.name == 'Technician':
+        if work_order.assigned_user_id != user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="User does not have permission to update this work order."
+            )
 
     # An empty string for a title will silently fail due to the if statement below. Detect here and return an error to the user.
     if patch_work_order_form.title == "":
