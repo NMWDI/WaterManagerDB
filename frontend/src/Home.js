@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells",
             "V0.1.33 - Add Meter Status Filter to Meters Table",
             "V0.1.32 - Fix Monitoring Wells so that table updates after change",
             "V0.1.31 - Added note \"verified register ratio\" and made it appear by default",
