@@ -223,7 +223,7 @@ export default function WorkOrdersTable() {
 
     // Define the columns for the table
     const columns: GridColDef[] = [
-        { field: 'work_order_id', headerName: 'ID', width: 100 },
+        { field: 'work_order_id', headerName: 'ID', width: 100 },  //Note next line... for some reason this value comes in from the API as a string, not a date
         { field: 'date_created', headerName: 'Date', width: 150, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
         { field: 'meter_serial', headerName: 'Meter', width: 100 },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
