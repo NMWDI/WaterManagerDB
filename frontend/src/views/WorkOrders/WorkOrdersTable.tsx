@@ -3,8 +3,7 @@ This is the work orders table.
 I anticipate this component will be self-contained including the ability to add a new row.
 */
 
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { 
@@ -23,9 +22,8 @@ import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
 import { MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
-import { error } from 'console';
 import { useAuthUser } from 'react-auth-kit';
-import { get } from 'http';
+import { Link } from 'react-router-dom';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -225,7 +223,14 @@ export default function WorkOrdersTable() {
     const columns: GridColDef[] = [
         { field: 'work_order_id', headerName: 'ID', width: 100 },  //Note next line... for some reason this value comes in from the API as a string, not a date
         { field: 'date_created', headerName: 'Date', width: 150, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
-        { field: 'meter_serial', headerName: 'Meter', width: 100 },
+        { 
+            field: 'meter_serial',
+            headerName: 'Meter',
+            width: 100,
+            renderCell: (params) => {
+                return <Link to={`/meters#history_section`}>{params.value}</Link>
+            }
+        },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
         { field: 'description', headerName: 'Description', width: 300, editable: hasAdminScope},
         { field: 'creator', headerName: 'Created By', width: 150 },

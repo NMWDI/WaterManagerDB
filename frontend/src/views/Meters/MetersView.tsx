@@ -36,7 +36,7 @@ export default function MetersView() {
                 </Grid>
 
                 {/* Bottom half of page: MeterHistory */}
-                <Grid container item xs={12} sx={{pt: 2}}>
+                <Grid id="history_section" container item xs={12} sx={{pt: 2}}>
                     <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_serialnumber} selectedMeterID={selectedMeter?.meter_id}/>
                 </Grid>
             </Box>
