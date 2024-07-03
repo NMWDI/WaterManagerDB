@@ -9,6 +9,7 @@ import ControlledUserSelect from '../../../components/RHControlled/ControlledUse
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
+import WorkOrderSelect from '../../../components/WorkOrderSelect'
 
 {/* Controls the selection of the meter, activity, user, and other fields from 'Activity Details' */}
 export function MeterActivitySelection({control, errors, watch, setValue}: any) {
@@ -75,6 +76,15 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         control={control}
                         error={errors?.activity_details?.end_time?.message}
                         sx={{width: '100%'}}
+                    />
+                </Grid>
+            </Grid>
+            <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
+                <Grid item xs={4}>
+                    <WorkOrderSelect
+                        selectedWorkOrderID={watch('activity_details.work_order_id')}
+                        setSelectedWorkOrderID={(workOrderID: number | null) => console.log(workOrderID)}
+                        meter_serial={watch('activity_details.selected_meter.serial')}
                     />
                 </Grid>
             </Grid>

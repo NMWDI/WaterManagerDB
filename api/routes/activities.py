@@ -112,8 +112,12 @@ def post_activity(
         activity_type_id=activity_form.activity_details.activity_type_id,
         location_id=activity_location,
         ose_share=activity_form.activity_details.share_ose,
-        water_users=activity_form.current_installation.water_users,
+        water_users=activity_form.current_installation.water_users
     )
+
+    # If a work order is associated with the activity, add it to the activity
+    if activity_form.activity_details.work_order_id:
+        meter_activity.work_order_id = activity_form.activity_details.work_order_id
 
     # Add the activity to the database and if it already exists raise an error
     try:

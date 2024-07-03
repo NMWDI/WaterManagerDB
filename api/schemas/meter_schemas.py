@@ -114,6 +114,7 @@ class ActivityForm(ORMBase):
         start_time: datetime
         end_time: datetime
         share_ose: bool = False
+        work_order_id: int | None = None
 
     class CurrentInstallation(ORMBase):
         contact_name: str | None = None

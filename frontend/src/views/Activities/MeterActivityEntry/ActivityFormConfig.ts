@@ -72,6 +72,7 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
         })
     })
 
+    console.log('testing work order id with hardcoded value')
     const activityForm: ActivityForm = {
         activity_details: {
             meter_id: activityFormControl?.activity_details?.selected_meter?.id,
@@ -80,7 +81,8 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             date: activityFormControl?.activity_details?.date,
             start_time: activityFormControl?.activity_details?.start_time,
             end_time: activityFormControl?.activity_details?.end_time,
-            share_ose: activityFormControl?.activity_details?.share_ose
+            share_ose: activityFormControl?.activity_details?.share_ose,
+            work_order_id: activityFormControl?.activity_details?.work_order_id == null ? 15 : activityFormControl?.activity_details?.work_order_id 
         },
         current_installation: {
             contact_name: activityFormControl?.current_installation?.meter?.contact_name as string,
@@ -120,7 +122,8 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
             date: Dayjs(),
             start_time: start_time,
             end_time: end_time,
-            share_ose: false
+            share_ose: false,
+            work_order_id: null
         },
 
         current_installation: {
