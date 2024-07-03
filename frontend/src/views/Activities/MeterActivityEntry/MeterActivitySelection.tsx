@@ -84,7 +84,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                     <WorkOrderSelect
                         selectedWorkOrderID={watch('activity_details.work_order_id')}
                         setSelectedWorkOrderID={(workOrderID: number | null) => console.log(workOrderID)}
-                        meter_serial={watch('activity_details.selected_meter.serial')}
+                        meter_serial={watch('activity_details.selected_meter.serial_number')}
                     />
                 </Grid>
             </Grid>
