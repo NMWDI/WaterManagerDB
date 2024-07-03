@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.35 - Update continuous data stream IDs for monitoring wells
 - V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells
 - V0.1.33 - Add Meter Status Filter to Meters Table
 - V0.1.32 - Fix Monitoring Wells so that table updates after change
