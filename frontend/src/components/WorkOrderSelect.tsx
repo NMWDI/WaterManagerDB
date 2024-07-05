@@ -31,6 +31,7 @@ export default function WorkOrderSelect({selectedWorkOrderID, setSelectedWorkOrd
                 label="Work Order"
                 onChange={(event: any) => setSelectedWorkOrderID(event.target.value)}
             >
+                <MenuItem value=''>None</MenuItem>
                 {meterWorkOrders.map((workOrder: WorkOrder) => { 
                     return <MenuItem key={workOrder.work_order_id} value={workOrder.work_order_id}>{workOrder.title}</MenuItem>
                 })}
@@ -38,23 +39,3 @@ export default function WorkOrderSelect({selectedWorkOrderID, setSelectedWorkOrd
         </FormControl>
     )
 }
-
-    /*
-    return (
-        <FormControl size="small" fullWidth>
-            <InputLabel>Meter Type</InputLabel>
-            <Select
-                value={meterTypeList.isLoading ? 'loading' : selectedMeterTypeID ?? ''}
-                label="Meter Type"
-                onChange={(event: any) => setSelectedMeterTypeID(event.target.value)}
-                {...childProps}
-            >
-                {meterTypeList.data?.map((meterType: MeterTypeLU) => {
-                    return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model}</MenuItem>
-                })}
-
-                {meterTypeList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
-            </Select>
-        </FormControl>
-    )
-}*/
