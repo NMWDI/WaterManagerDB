@@ -72,7 +72,6 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
         })
     })
 
-    console.log('testing work order id with hardcoded value')
     const activityForm: ActivityForm = {
         activity_details: {
             meter_id: activityFormControl?.activity_details?.selected_meter?.id,
@@ -82,7 +81,7 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             start_time: activityFormControl?.activity_details?.start_time,
             end_time: activityFormControl?.activity_details?.end_time,
             share_ose: activityFormControl?.activity_details?.share_ose,
-            work_order_id: activityFormControl?.activity_details?.work_order_id == null ? 15 : activityFormControl?.activity_details?.work_order_id 
+            work_order_id: activityFormControl?.activity_details?.work_order_id == null ? undefined : activityFormControl?.activity_details?.work_order_id 
         },
         current_installation: {
             contact_name: activityFormControl?.current_installation?.meter?.contact_name as string,
