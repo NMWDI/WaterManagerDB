@@ -581,6 +581,7 @@ export interface WorkOrder {
     notes?: String
     assigned_user_id?: number
     assigned_user?: String
+    associated_activities?: number[]
 }
 
 export interface NewWorkOrder {

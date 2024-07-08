@@ -242,6 +242,7 @@ class WorkOrder(ORMBase):
     notes: str | None = None
     assigned_user_id: int | None = None # Might need this for editing user
     assigned_user: str | None = None
+    associated_activities: list[int] | None = None
 
 class CreateWorkOrder(BaseModel):
     '''

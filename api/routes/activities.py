@@ -489,6 +489,7 @@ def get_work_orders(
     work_orders: list[workOrders] = db.scalars(query_stmt).all()
     
     # Create a WorkOrder schema for each work order returned
+    print('Warning: Hard coded activities for testing')
     output_work_orders = []
     for wo in work_orders:
         work_order_schema = meter_schemas.WorkOrder(
@@ -501,7 +502,8 @@ def get_work_orders(
             status = wo.status.name,
             notes = wo.notes,
             assigned_user_id = wo.assigned_user_id,
-            assigned_user= wo.assigned_user.username if wo.assigned_user else None
+            assigned_user= wo.assigned_user.username if wo.assigned_user else None,
+            associated_activities=[28532,28507]
         )
         output_work_orders.append(work_order_schema)
 

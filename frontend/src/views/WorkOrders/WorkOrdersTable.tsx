@@ -221,8 +221,8 @@ export default function WorkOrdersTable() {
 
     // Define the columns for the table
     const columns: GridColDef[] = [
-        { field: 'work_order_id', headerName: 'ID', width: 100 },  //Note next line... for some reason this value comes in from the API as a string, not a date
-        { field: 'date_created', headerName: 'Date', width: 150, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
+        { field: 'work_order_id', headerName: 'ID', width: 50 },  //Note next line... for some reason this value comes in from the API as a string, not a date
+        { field: 'date_created', headerName: 'Date', width: 100, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
         { 
             field: 'meter_serial',
             headerName: 'Meter',
@@ -236,7 +236,15 @@ export default function WorkOrdersTable() {
         { field: 'creator', headerName: 'Created By', width: 150 },
         { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: status_options, editable: true},
         { field: 'notes', headerName: 'Notes', width: 300, editable: true},
-        //{ field: 'activityIds', headerName: 'Activity IDs', width: 200 },
+        { 
+            field: 'associated_activities',
+            headerName: 'Activity IDs',
+            width: 150,
+            valueGetter: (activityIds: number[]|undefined) => {
+                return activityIds?.join(", ") ?? "";
+            },
+            editable: false
+        },
         { 
             field: 'assigned_user_id', 
             headerName: 'Technician Assigned', 
@@ -275,7 +283,7 @@ export default function WorkOrdersTable() {
                 columns={columns}
                 initialState={
                     {
-                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, activityIds: false}},
+                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, associated_activities: false}},
                         filter: {filterModel: {items: initialFilter}},
                     }
                 }
