@@ -182,25 +182,40 @@ def get_meters_locations(
 
     return db.scalars(query_statement).all()
 
+def require_meter_id_or_serial_number(meter_id: int = None, serial_number: str = None):
+    if not meter_id and not serial_number:
+        raise HTTPException(
+            status_code=400, detail="Must provide either meter_id or serial_number"
+        )
+
+    return meter_id, serial_number
 
 # Get single, fully qualified meter
+# Can use either meter_id or serial_number
 @meter_router.get(
     "/meter",
     tags=["Meters"],
 )
 def get_meter(
-    meter_id: int,
+    meter_identifier: tuple = Depends(require_meter_id_or_serial_number),
     db: Session = Depends(get_db),
 ):
-    return db.scalars(
-        select(Meters)
-        .options(
+    meter_id, serial_number = meter_identifier
+
+    # Create the basic query
+    query = select(Meters).options(
             joinedload(Meters.meter_type),
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
         )
-        .filter(Meters.id == meter_id)
-    ).first()
+
+    # Filter by either meter by id or serial number
+    if meter_id:
+        query = query.filter(Meters.id == meter_id)
+    else:
+        query = query.filter(Meters.serial_number == serial_number)
+
+    return db.scalars(query).first()
 
 
 @meter_router.get(
