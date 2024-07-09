@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-
+import { useLocation } from 'react-router-dom'
 import MeterSelection from './MeterSelection/MeterSelection'
 import MeterDetailsFields from './MeterDetailsFields'
 import MeterHistory from './MeterHistory/MeterHistory'
@@ -12,9 +12,17 @@ type MeterInfo = {
     meter_id: number
 }
 
+// Main view for the Meters page
+// Can pass state to this view to pre-select a meter and meter history using React Router useLocation
 export default function MetersView() {
+    const location = useLocation()  
     const [selectedMeter, setSelectedMeter] = useState<MeterInfo>()
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
+
+    // If the page is loaded with state from WorkOrder, I need to get the meter ID using the serial number provided in the state
+    useEffect(() => {
+        console.log(location.state)
+    }, [location.state])
 
     useEffect(() => {
         if (selectedMeter) setMeterAddMode(false)
