@@ -228,7 +228,7 @@ export default function WorkOrdersTable() {
             headerName: 'Meter',
             width: 100,
             renderCell: (params) => {
-                return <Link to={`/meters#history_section`}>{params.value}</Link>
+                return <Link to={'/meters'} state={{meter_sn: params.value, meter_id: params.row.meter_id}}>{params.value}</Link>
             }
         },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
@@ -240,8 +240,17 @@ export default function WorkOrdersTable() {
             field: 'associated_activities',
             headerName: 'Activity IDs',
             width: 150,
-            valueGetter: (activityIds: number[]|undefined) => {
-                return activityIds?.join(", ") ?? "";
+            renderCell: (params) => {
+                const activityIDs = params.value as number[] ?? [];
+                const links = activityIDs.map((activityId, index) => (
+                    <span key={activityId}>
+                        <Link to={'/meters#history_section'} state={{ meter_sn: params.row.meter_serial, meter_id: params.row.meter_id, activity_id: activityId }}>
+                            {activityId}
+                        </Link>
+                        {index < params.value.length - 1 ? ', ' : ''}
+                    </span>
+                ));
+                return <>{links}</>;
             },
             editable: false
         },

@@ -8,7 +8,7 @@ import MeterHistory from './MeterHistory/MeterHistory'
 import { Grid, Box } from '@mui/material'
 
 type MeterInfo = {
-    meter_serialnumber: string
+    meter_sn: string
     meter_id: number
 }
 
@@ -16,18 +16,25 @@ type MeterInfo = {
 // Can pass state to this view to pre-select a meter and meter history using React Router useLocation
 export default function MetersView() {
     const location = useLocation()  
-    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>()
+    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>(location.state)
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
 
-    // If the page is loaded with state from WorkOrder, I need to get the meter ID using the serial number provided in the state
     useEffect(() => {
-        console.log(location.state)
-    }, [location.state])
-
-    useEffect(() => {
-        if (selectedMeter) setMeterAddMode(false)
-        console.log(selectedMeter)
-    }, [selectedMeter])
+        // Check if there is a hash in the URL
+        if (location.hash) {
+        console.log('should be scrolling to history section')
+          // Remove the '#' from the hash
+          const id = location.hash.replace('#', '');
+          // Find the element with the corresponding 'id'
+          const element = document.getElementById(id);
+          if (element) {
+            // Scroll to the element
+            element.scrollIntoView({ behavior: 'smooth' });
+          }else{
+            console.log('element not found')
+          }
+        }
+      }, []); // Re-run the effect if the location changes
 
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>
@@ -45,7 +52,7 @@ export default function MetersView() {
 
                 {/* Bottom half of page: MeterHistory */}
                 <Grid id="history_section" container item xs={12} sx={{pt: 2}}>
-                    <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_serialnumber} selectedMeterID={selectedMeter?.meter_id}/>
+                    <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_sn} selectedMeterID={selectedMeter?.meter_id}/>
                 </Grid>
             </Box>
 

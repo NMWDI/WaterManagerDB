@@ -500,6 +500,7 @@ def get_work_orders(
             work_order_id = wo.id,
             date_created = wo.date_created,
             creator = wo.creator,
+            meter_id = wo.meter.id,
             meter_serial = wo.meter.serial_number,
             title = wo.title,
             description = wo.description,

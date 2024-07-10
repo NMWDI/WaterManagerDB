@@ -235,6 +235,7 @@ class WorkOrder(ORMBase):
     work_order_id: int
     date_created: datetime
     creator: str | None = None
+    meter_id: int  # Might be needed in certain situations
     meter_serial: str
     title: str
     description: str | None = None
