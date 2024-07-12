@@ -19,23 +19,6 @@ export default function MetersView() {
     const [selectedMeter, setSelectedMeter] = useState<MeterInfo>(location.state)
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
 
-    useEffect(() => {
-        // Check if there is a hash in the URL
-        if (location.hash) {
-        console.log('should be scrolling to history section')
-          // Remove the '#' from the hash
-          const id = location.hash.replace('#', '');
-          // Find the element with the corresponding 'id'
-          const element = document.getElementById(id);
-          if (element) {
-            // Scroll to the element
-            element.scrollIntoView({ behavior: 'smooth' });
-          }else{
-            console.log('element not found')
-          }
-        }
-      }, []); // Re-run the effect if the location changes
-
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>
                 <h2 style={{color: "#292929", fontWeight: '500'}}>Meter Information</h2>

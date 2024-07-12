@@ -22,7 +22,14 @@ interface MeterSelectionTableProps {
 
 export default function MeterSelectionTable({onMeterSelection, meterSearchQuery, setMeterAddMode, meterStatusFilter}: MeterSelectionTableProps) {
     const [meterSearchQueryDebounced] = useDebounce(meterSearchQuery, 250)
-    const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>()
+    const [meterListQueryParams, setMeterListQueryParams] = useState<MeterListQueryParams>({
+        search_string: '',
+        filter_by_status: [MeterStatusNames.Installed],
+        sort_by: 'serial_number',
+        sort_direction: 'asc',
+        limit: 25,
+        offset: 0
+    })
     const [gridSortModel, setGridSortModel] = useState<GridSortModel>()
     const [paginationModel, setPaginationModel] = useState({pageSize: 25, page: 0})
     const [gridRowCount, setGridRowCount] = useState<number>(100)
