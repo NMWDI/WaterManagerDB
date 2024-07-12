@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.35.1 - Fix bug with well search failing on certain inputs",
             "V0.1.35 - Update continuous data stream IDs for monitoring wells",
             "V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells",
             "V0.1.33 - Add Meter Status Filter to Meters Table",

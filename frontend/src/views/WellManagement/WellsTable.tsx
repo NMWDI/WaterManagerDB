@@ -22,10 +22,6 @@ export default function WellsTable({setSelectedWell, setWellAddMode}: WellsTable
     const handleTabChange = (event: React.SyntheticEvent, newTabIndex: number) => setCurrentTabIndex(newTabIndex)
     // End 
 
-   
-
-    
-
     return (
         <Card sx={{height: '100%'}}>
             <CardHeader

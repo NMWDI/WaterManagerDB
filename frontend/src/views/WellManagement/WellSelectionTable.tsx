@@ -42,10 +42,10 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
         {field: 'owners', headerName: 'Owners', width: 150},
         {field: 'osetag', headerName: 'OSE Tag', width: 100},
         {field: 'use_type', headerName: 'Use Type', width: 150,
-            valueGetter: (params: any) => params.value?.use_type,
+            valueGetter: (value, row) => row.use_type?.use_type,
         },
         {field: 'location', headerName: 'TRSS', width: 150,
-            valueGetter: (params: any) => params.value?.trss,
+            valueGetter: (value, row) => row.location?.trss,
         },
     ]
     // Filter rows based on query params
