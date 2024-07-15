@@ -554,7 +554,7 @@ class workOrders(Base):
     assigned_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=True)
 
     # Associated Activities
-    associated_activities: Mapped['MeterActivities'] = relationship("MeterActivities")
+    associated_activities: Mapped[List['MeterActivities']] = relationship("MeterActivities")
 
     meter: Mapped['Meters']= relationship()
     status: Mapped['workOrderStatusLU']= relationship()

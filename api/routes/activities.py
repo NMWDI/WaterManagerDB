@@ -485,13 +485,23 @@ def get_work_orders(
         .options(
             joinedload(workOrders.status),
             joinedload(workOrders.meter),
-            joinedload(workOrders.assigned_user),
-            joinedload(workOrders.associated_activities)
+            joinedload(workOrders.assigned_user)
         )
         .join(workOrderStatusLU)
         .where(workOrderStatusLU.name.in_(filter_by_status))
     )
     work_orders: list[workOrders] = db.scalars(query_stmt).all()
+
+    # I was unable to get associated_activities to work with joinedload, so I'm doing it manually here
+    relevant_activities = db.scalars(select(MeterActivities).where(MeterActivities.work_order_id.in_([wo.id for wo in work_orders]))).all()
+
+    # Create a dictionary where the key is the work order ID and the value is a list of associated activity IDs
+    associated_activities_ids = {}
+    for activity in relevant_activities:
+        if activity.work_order_id in associated_activities_ids:
+            associated_activities_ids[activity.work_order_id].append(activity.id)
+        else:
+            associated_activities_ids[activity.work_order_id] = [activity.id]
     
     # Create a WorkOrder schema for each work order returned
     output_work_orders = []
@@ -508,7 +518,7 @@ def get_work_orders(
             notes = wo.notes,
             assigned_user_id = wo.assigned_user_id,
             assigned_user= wo.assigned_user.username if wo.assigned_user else None,
-            associated_activities=[wo.associated_activities.id] if wo.associated_activities else None
+            associated_activities=associated_activities_ids[wo.id] if wo.id in associated_activities_ids else []
         )
         output_work_orders.append(work_order_schema)
 
