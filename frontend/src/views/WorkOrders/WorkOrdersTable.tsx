@@ -6,6 +6,7 @@ I anticipate this component will be self-contained including the ability to add 
 import React, { useEffect, useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import HandymanIcon from '@mui/icons-material/Handyman';
 import { 
     DataGrid,
     GridColDef,
@@ -23,7 +24,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import GridFooterWithButton from '../../components/GridFooterWithButton';
 import { MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
 import { useAuthUser } from 'react-auth-kit';
-import { Link } from 'react-router-dom';
+import { Link, createSearchParams } from 'react-router-dom';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -269,7 +270,25 @@ export default function WorkOrdersTable() {
             width: 100,
             type: 'actions',
             getActions: (params: GridRowParams<any>) => {
-                return [
+                return params.row.status === 'Open' ? [
+                    <Link 
+                        to={
+                            '/activities?' + createSearchParams({
+                                meter_id: params.row.meter_id,
+                                serial_number: params.row.meter_serial,
+                                work_order_id: params.row.work_order_id,
+                            }).toString()
+                        }
+                    ><HandymanIcon /></Link>,
+                    <DeleteWorkOrder
+                        icon={<DeletedIcon />}
+                        deleteMessage={`Delete work order ${params.id}?`}
+                        label="Delete"
+                        deleteUser={() => handleDeleteClick(params.id)}
+                        showInMenu={false}
+                        disabled={hasAdminScope ? false : true}
+                    />,
+                ]:[
                     <DeleteWorkOrder
                         icon={<DeletedIcon />}
                         deleteMessage={`Delete work order ${params.id}?`}

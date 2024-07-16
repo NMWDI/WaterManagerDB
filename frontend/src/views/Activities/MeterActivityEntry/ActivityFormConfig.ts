@@ -107,7 +107,7 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
 }
 
 // Provides the default values of the activity form
-export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
+export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null, initialWorkOrderID: number | null = null): ActivityFormControl {
 
     //Generate start and end times using current time and end time 15min later
     const start_time = Dayjs()
@@ -122,7 +122,7 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
             start_time: start_time,
             end_time: end_time,
             share_ose: false,
-            work_order_id: null
+            work_order_id: initialWorkOrderID
         },
 
         current_installation: {

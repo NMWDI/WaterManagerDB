@@ -41,20 +41,21 @@ export default function MeterActivityEntry() {
     let initialMeter: Partial<MeterListDTO> | null = null
     const qpMeterID = searchParams.get('meter_id')
     const qpSerialNumber = searchParams.get('serial_number')
-    const qpStatus = searchParams.get('meter_status')
+    //const qpStatus = searchParams.get('meter_status')
+    const qpWorkOrderID = searchParams.get('work_order_id')
 
-    if (qpMeterID && qpSerialNumber && qpStatus) {
+    if (qpMeterID && qpSerialNumber) {
         initialMeter = {
             id: qpMeterID as unknown as number,
             serial_number: qpSerialNumber,
-            status: {status_name: qpStatus},
+            //status: {status_name: qpStatus},
         }
     }
 
     // React hook form
     const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
         resolver: yupResolver(ActivityResolverSchema),
-        defaultValues: getDefaultForm(initialMeter)
+        defaultValues: getDefaultForm(initialMeter, qpWorkOrderID ? parseInt(qpWorkOrderID) : null)
     })
 
     const onSubmit: SubmitHandler<ActivityFormControl> = data => createActivity.mutate(toSubmissionForm(data))

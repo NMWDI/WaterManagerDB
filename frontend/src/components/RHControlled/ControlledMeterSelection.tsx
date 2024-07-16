@@ -29,7 +29,7 @@ export default function ControlledMeterSelection({name, control, ...childProps}:
         if (meterList.isLoading) {
             return "Loading..." // Label the empty object literal in the options as "Loading..." if meterList is loading
         } else {
-            return `${option.serial_number}` + (option.status ? `(${option.status?.status_name})` : '')
+            return `${option.serial_number}`
         }
     }
 
