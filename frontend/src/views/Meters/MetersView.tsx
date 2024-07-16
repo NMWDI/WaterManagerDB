@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-
+import { useLocation } from 'react-router-dom'
 import MeterSelection from './MeterSelection/MeterSelection'
 import MeterDetailsFields from './MeterDetailsFields'
 import MeterHistory from './MeterHistory/MeterHistory'
@@ -8,18 +8,16 @@ import MeterHistory from './MeterHistory/MeterHistory'
 import { Grid, Box } from '@mui/material'
 
 type MeterInfo = {
-    meter_serialnumber: string
+    meter_sn: string
     meter_id: number
 }
 
+// Main view for the Meters page
+// Can pass state to this view to pre-select a meter and meter history using React Router useLocation
 export default function MetersView() {
-    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>()
+    const location = useLocation()  
+    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>(location.state)
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
-
-    useEffect(() => {
-        if (selectedMeter) setMeterAddMode(false)
-        console.log(selectedMeter)
-    }, [selectedMeter])
 
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>
@@ -36,8 +34,8 @@ export default function MetersView() {
                 </Grid>
 
                 {/* Bottom half of page: MeterHistory */}
-                <Grid container item xs={12} sx={{pt: 2}}>
-                    <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_serialnumber} selectedMeterID={selectedMeter?.meter_id}/>
+                <Grid id="history_section" container item xs={12} sx={{pt: 2}}>
+                    <MeterHistory selectMeterSerialNumber={selectedMeter?.meter_sn} selectedMeterID={selectedMeter?.meter_id}/>
                 </Grid>
             </Box>
 

@@ -15,6 +15,7 @@ export interface ActivityForm {
         start_time?: Dayjs
         end_time?: Dayjs
         share_ose: boolean
+        work_order_id?: number
     }
 
     current_installation?: {
@@ -52,6 +53,7 @@ export interface ActivityFormControl {
         start_time: Dayjs
         end_time: Dayjs
         share_ose: boolean = false
+        work_order_id: number | null
     },
     current_installation: {
         meter: Partial<MeterDetails> | null
@@ -579,6 +581,7 @@ export interface WorkOrder {
     notes?: String
     assigned_user_id?: number
     assigned_user?: String
+    associated_activities?: number[]
 }
 
 export interface NewWorkOrder {

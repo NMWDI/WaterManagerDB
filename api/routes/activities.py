@@ -112,8 +112,12 @@ def post_activity(
         activity_type_id=activity_form.activity_details.activity_type_id,
         location_id=activity_location,
         ose_share=activity_form.activity_details.share_ose,
-        water_users=activity_form.current_installation.water_users,
+        water_users=activity_form.current_installation.water_users
     )
+
+    # If a work order is associated with the activity, add it to the activity
+    if activity_form.activity_details.work_order_id:
+        meter_activity.work_order_id = activity_form.activity_details.work_order_id
 
     # Add the activity to the database and if it already exists raise an error
     try:
@@ -478,11 +482,26 @@ def get_work_orders(
     ):
     query_stmt = (
         select(workOrders)
-        .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
+        .options(
+            joinedload(workOrders.status),
+            joinedload(workOrders.meter),
+            joinedload(workOrders.assigned_user)
+        )
         .join(workOrderStatusLU)
         .where(workOrderStatusLU.name.in_(filter_by_status))
     )
     work_orders: list[workOrders] = db.scalars(query_stmt).all()
+
+    # I was unable to get associated_activities to work with joinedload, so I'm doing it manually here
+    relevant_activities = db.scalars(select(MeterActivities).where(MeterActivities.work_order_id.in_([wo.id for wo in work_orders]))).all()
+
+    # Create a dictionary where the key is the work order ID and the value is a list of associated activity IDs
+    associated_activities_ids = {}
+    for activity in relevant_activities:
+        if activity.work_order_id in associated_activities_ids:
+            associated_activities_ids[activity.work_order_id].append(activity.id)
+        else:
+            associated_activities_ids[activity.work_order_id] = [activity.id]
     
     # Create a WorkOrder schema for each work order returned
     output_work_orders = []
@@ -491,13 +510,15 @@ def get_work_orders(
             work_order_id = wo.id,
             date_created = wo.date_created,
             creator = wo.creator,
+            meter_id = wo.meter.id,
             meter_serial = wo.meter.serial_number,
             title = wo.title,
             description = wo.description,
             status = wo.status.name,
             notes = wo.notes,
             assigned_user_id = wo.assigned_user_id,
-            assigned_user= wo.assigned_user.username if wo.assigned_user else None
+            assigned_user= wo.assigned_user.username if wo.assigned_user else None,
+            associated_activities=associated_activities_ids[wo.id] if wo.id in associated_activities_ids else []
         )
         output_work_orders.append(work_order_schema)
 
@@ -652,6 +673,7 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         work_order_id = work_order.id,
         date_created = work_order.date_created,
         creator = work_order.creator,
+        meter_id = work_order.meter.id,
         meter_serial = work_order.meter.serial_number,
         title = work_order.title,
         description = work_order.description,

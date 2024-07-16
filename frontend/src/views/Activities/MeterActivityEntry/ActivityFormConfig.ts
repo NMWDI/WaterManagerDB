@@ -80,7 +80,8 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
             date: activityFormControl?.activity_details?.date,
             start_time: activityFormControl?.activity_details?.start_time,
             end_time: activityFormControl?.activity_details?.end_time,
-            share_ose: activityFormControl?.activity_details?.share_ose
+            share_ose: activityFormControl?.activity_details?.share_ose,
+            work_order_id: activityFormControl?.activity_details?.work_order_id == null ? undefined : activityFormControl?.activity_details?.work_order_id 
         },
         current_installation: {
             contact_name: activityFormControl?.current_installation?.meter?.contact_name as string,
@@ -106,7 +107,7 @@ export function toSubmissionForm(activityFormControl: ActivityFormControl) {
 }
 
 // Provides the default values of the activity form
-export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
+export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null, initialWorkOrderID: number | null = null): ActivityFormControl {
 
     //Generate start and end times using current time and end time 15min later
     const start_time = Dayjs()
@@ -120,7 +121,8 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null) {
             date: Dayjs(),
             start_time: start_time,
             end_time: end_time,
-            share_ose: false
+            share_ose: false,
+            work_order_id: initialWorkOrderID
         },
 
         current_installation: {

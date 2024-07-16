@@ -3,10 +3,10 @@ This is the work orders table.
 I anticipate this component will be self-contained including the ability to add a new row.
 */
 
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DeletedIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import HandymanIcon from '@mui/icons-material/Handyman';
 import { 
     DataGrid,
     GridColDef,
@@ -23,9 +23,8 @@ import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
 import { MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
-import { error } from 'console';
 import { useAuthUser } from 'react-auth-kit';
-import { get } from 'http';
+import { Link, createSearchParams } from 'react-router-dom';
 
 function DeleteWorkOrder({
     deleteUser,
@@ -223,15 +222,39 @@ export default function WorkOrdersTable() {
 
     // Define the columns for the table
     const columns: GridColDef[] = [
-        { field: 'work_order_id', headerName: 'ID', width: 100 },  //Note next line... for some reason this value comes in from the API as a string, not a date
-        { field: 'date_created', headerName: 'Date', width: 150, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
-        { field: 'meter_serial', headerName: 'Meter', width: 100 },
+        { field: 'work_order_id', headerName: 'ID', width: 50 },  //Note next line... for some reason this value comes in from the API as a string, not a date
+        { field: 'date_created', headerName: 'Date', width: 100, valueGetter: (value) => new Date(value), valueFormatter: (value: Date) => value.toLocaleDateString()},
+        { 
+            field: 'meter_serial',
+            headerName: 'Meter',
+            width: 100,
+            renderCell: (params) => {
+                return <Link to={'/meters'} state={{meter_sn: params.value, meter_id: params.row.meter_id}}>{params.value}</Link>
+            }
+        },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
         { field: 'description', headerName: 'Description', width: 300, editable: hasAdminScope},
         { field: 'creator', headerName: 'Created By', width: 150 },
         { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: status_options, editable: true},
         { field: 'notes', headerName: 'Notes', width: 300, editable: true},
-        //{ field: 'activityIds', headerName: 'Activity IDs', width: 200 },
+        { 
+            field: 'associated_activities',
+            headerName: 'Activity IDs',
+            width: 150,
+            renderCell: (params) => {
+                const activityIDs = params.value as number[] ?? [];
+                const links = activityIDs.map((activityId, index) => (
+                    <span key={activityId}>
+                        <Link to={'/meters#history_section'} state={{ meter_sn: params.row.meter_serial, meter_id: params.row.meter_id, activity_id: activityId }}>
+                            {activityId}
+                        </Link>
+                        {index < params.value.length - 1 ? ', ' : ''}
+                    </span>
+                ));
+                return <>{links}</>;
+            },
+            editable: false
+        },
         { 
             field: 'assigned_user_id', 
             headerName: 'Technician Assigned', 
@@ -247,7 +270,25 @@ export default function WorkOrdersTable() {
             width: 100,
             type: 'actions',
             getActions: (params: GridRowParams<any>) => {
-                return [
+                return params.row.status === 'Open' ? [
+                    <Link 
+                        to={
+                            '/activities?' + createSearchParams({
+                                meter_id: params.row.meter_id,
+                                serial_number: params.row.meter_serial,
+                                work_order_id: params.row.work_order_id,
+                            }).toString()
+                        }
+                    ><HandymanIcon /></Link>,
+                    <DeleteWorkOrder
+                        icon={<DeletedIcon />}
+                        deleteMessage={`Delete work order ${params.id}?`}
+                        label="Delete"
+                        deleteUser={() => handleDeleteClick(params.id)}
+                        showInMenu={false}
+                        disabled={hasAdminScope ? false : true}
+                    />,
+                ]:[
                     <DeleteWorkOrder
                         icon={<DeletedIcon />}
                         deleteMessage={`Delete work order ${params.id}?`}
@@ -270,7 +311,7 @@ export default function WorkOrdersTable() {
                 columns={columns}
                 initialState={
                     {
-                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, activityIds: false}},
+                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, associated_activities: false}},
                         filter: {filterModel: {items: initialFilter}},
                     }
                 }

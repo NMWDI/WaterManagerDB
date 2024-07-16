@@ -221,6 +221,7 @@ class MeterActivities(Base):
     )
     ose_share: Mapped[bool] = mapped_column(Boolean, nullable=False)
     water_users: Mapped[str] = mapped_column(String)
+    work_order_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_orders.id"))
 
     submitting_user: Mapped["Users"] = relationship()
     meter: Mapped["Meters"] = relationship()
@@ -553,7 +554,7 @@ class workOrders(Base):
     assigned_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=True)
 
     # Associated Activities
-    # TODO
+    associated_activities: Mapped[List['MeterActivities']] = relationship("MeterActivities")
 
     meter: Mapped['Meters']= relationship()
     status: Mapped['workOrderStatusLU']= relationship()

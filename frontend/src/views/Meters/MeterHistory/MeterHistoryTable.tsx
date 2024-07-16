@@ -25,9 +25,9 @@ export default function MeterHistoryTable({meter_serialnumber, onHistoryItemSele
         onHistoryItemSelection(rowDetails.row)
     }
 
-    useEffect(() => {
-      onHistoryItemSelection(null) // Clear the selected history details when user has selected another meter
-    }, [selectedMeterHistory])
+    // useEffect(() => {
+    //   onHistoryItemSelection(null) // Clear the selected history details when user has selected another meter
+    // }, [selectedMeterHistory])
 
     const columns: GridColDef[] = [
         {

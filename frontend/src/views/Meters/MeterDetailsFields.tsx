@@ -101,8 +101,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
             pathname: '/activities',
             search: createSearchParams({
                 meter_id: selectedMeterID?.toString() ?? '',
-                serial_number: meterDetails.data?.serial_number ?? '',
-                meter_status: meterDetails.data?.status?.status_name ?? ''
+                serial_number: meterDetails.data?.serial_number ?? ''
             }).toString()
         })
     }

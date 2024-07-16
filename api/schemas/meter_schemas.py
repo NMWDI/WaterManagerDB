@@ -114,6 +114,7 @@ class ActivityForm(ORMBase):
         start_time: datetime
         end_time: datetime
         share_ose: bool = False
+        work_order_id: int | None = None
 
     class CurrentInstallation(ORMBase):
         contact_name: str | None = None
@@ -234,6 +235,7 @@ class WorkOrder(ORMBase):
     work_order_id: int
     date_created: datetime
     creator: str | None = None
+    meter_id: int  # Might be needed in certain situations
     meter_serial: str
     title: str
     description: str | None = None
@@ -241,6 +243,7 @@ class WorkOrder(ORMBase):
     notes: str | None = None
     assigned_user_id: int | None = None # Might need this for editing user
     assigned_user: str | None = None
+    associated_activities: list[int] | None = None
 
 class CreateWorkOrder(BaseModel):
     '''
