@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.36 - Improved work orders, testing still needed
 - V0.1.35.1 - Fix bug with well search failing on certain inputs
 - V0.1.35 - Update continuous data stream IDs for monitoring wells
 - V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells
