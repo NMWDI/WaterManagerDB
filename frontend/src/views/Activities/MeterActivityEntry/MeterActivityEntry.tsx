@@ -48,7 +48,7 @@ export default function MeterActivityEntry() {
         initialMeter = {
             id: qpMeterID as unknown as number,
             serial_number: qpSerialNumber,
-            //status: {status_name: qpStatus},
+            //status: {status_name: qpStatus ?? ''},
         }
     }
 
@@ -61,13 +61,15 @@ export default function MeterActivityEntry() {
     const onSubmit: SubmitHandler<ActivityFormControl> = data => createActivity.mutate(toSubmissionForm(data))
 
     useEffect(() => {
+        console.log(meterDetails.data)
+        console.log(watch("activity_details.activity_type")?.name)
         setHasMeterActivityConflict(
-            ((watch("activity_details.selected_meter")?.status?.status_name == 'Installed'
+            ((meterDetails.data?.status.status_name == 'Installed'
                 && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
-            (watch("activity_details.selected_meter")?.status?.status_name != 'Installed'
+            (meterDetails.data?.status.status_name != 'Installed'
                 && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
         )
-    }, [watch("activity_details.selected_meter")?.status?.status_name, watch("activity_details.activity_type")?.name])
+    }, [meterDetails.data, watch("activity_details.activity_type")?.name])
 
     useEffect(() => {
         setIsMeterAndActivitySelected(

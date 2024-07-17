@@ -573,6 +573,7 @@ def create_work_order(new_work_order: meter_schemas.CreateWorkOrder, db: Session
         work_order_id = work_order.id,
         date_created = work_order.date_created,
         creator = work_order.creator,
+        meter_id = work_order.meter.id,
         meter_serial = work_order.meter.serial_number,
         title = work_order.title,
         description = work_order.description,
