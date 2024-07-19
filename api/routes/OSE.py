@@ -9,6 +9,7 @@ from api.models.main_models import (
     Meters,
     MeterActivities,
     MeterObservations,
+    workOrders,
 )
 
 from api.session import get_db
@@ -26,6 +27,7 @@ class ObservationDTO(BaseModel):
 
 class ActivityDTO(BaseModel):
     activity_id: int
+    ose_request_id: int | None = None
     activity_start: datetime
     activity_end: datetime
     activity_type: str
@@ -36,7 +38,7 @@ class ActivityDTO(BaseModel):
     notes: list[str]
     parts_used: list[str]
     observations: list[ObservationDTO]
-
+    
 
 class MeterHistoryDTO(BaseModel):
     serial_number: str
@@ -98,6 +100,7 @@ def get_ose_history(
                 joinedload(MeterActivities.activity_type),
                 joinedload(MeterActivities.parts_used),
                 joinedload(MeterActivities.meter).joinedload(Meters.well),
+                joinedload(MeterActivities.work_order)
             )
             .filter(
                 and_(
@@ -188,6 +191,7 @@ def get_ose_history(
 
                 activity = ActivityDTO(
                     activity_id=activity.id,
+                    ose_request_id=activity.work_order.ose_request_id if activity.work_order else None,
                     activity_type=activity.activity_type.name,
                     activity_start=activity.timestamp_start,
                     activity_end=activity.timestamp_end,
