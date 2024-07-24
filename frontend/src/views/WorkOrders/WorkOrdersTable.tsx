@@ -161,6 +161,14 @@ export default function WorkOrdersTable() {
         status_options = ['Open', 'Review'];
     }
 
+    //Refresh work order list once a minute
+    useEffect(() => {
+        const interval = setInterval(() => {
+            workOrderList.refetch();
+        }, 60000);
+        return () => clearInterval(interval);
+    }, [workOrderList]);
+    
     //Update list of work orders if technician level to only show open and review.
     //useEffect prevents this from running on every render
     useEffect(() => {
@@ -303,7 +311,7 @@ export default function WorkOrdersTable() {
     ];
 
     return (
-        <div style={{ height: 500, width: '100%' }}>
+        <div style={{ height: 700, width: '100%' }}>
             <DataGrid 
                 rows={workOrderList.data ?? []}
                 getRowHeight={() => 'auto'}
