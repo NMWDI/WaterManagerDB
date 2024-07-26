@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
             "V0.1.36 - Improved work orders, testing still needed",
             "V0.1.35.1 - Fix bug with well search failing on certain inputs",
             "V0.1.35 - Update continuous data stream IDs for monitoring wells",
@@ -20,13 +21,7 @@ class Home extends Component{
             "V0.1.29 - Fixed bug preventing meter type change",
             "V0.1.28 - Full admin UI on meter page",
             "V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes",
-            "V0.1.26 - Add functional merge button for admin",
-            "V0.1.25 - Fix datesort on meter history, give techs limited well management",
-            "V0.1.24 - Add non-functional merge button for initial testing",
-            "V0.1.23 - Prevent duplicate activities from being added",
-            "V0.1.22 - Change ownership so there is now water_users and meter_owner",
-            "V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long",
-            "V0.1.20 - Fix monitoring wells sort"
+            "V0.1.26 - Add functional merge button for admin"
         ]
 
         return (
