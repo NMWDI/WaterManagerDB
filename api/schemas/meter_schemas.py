@@ -233,6 +233,7 @@ class ServiceTypeLU(ORMBase):
 
 class WorkOrder(ORMBase):
     work_order_id: int
+    ose_request_id: int | None = None
     date_created: datetime
     creator: str | None = None
     meter_id: int  # Might be needed in certain situations

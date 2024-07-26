@@ -478,6 +478,7 @@ def get_note_types(db: Session = Depends(get_db)):
 )
 def get_work_orders(
     filter_by_status: list[WorkOrderStatus] = Query('Open'),
+    start_date: datetime = Query(datetime.strptime('2024-06-01', '%Y-%m-%d')),
     db: Session = Depends(get_db)
     ):
     query_stmt = (
@@ -489,6 +490,7 @@ def get_work_orders(
         )
         .join(workOrderStatusLU)
         .where(workOrderStatusLU.name.in_(filter_by_status))
+        .where(workOrders.date_created >= start_date)
     )
     work_orders: list[workOrders] = db.scalars(query_stmt).all()
 
@@ -508,6 +510,7 @@ def get_work_orders(
     for wo in work_orders:
         work_order_schema = meter_schemas.WorkOrder(
             work_order_id = wo.id,
+            ose_request_id=wo.ose_request_id,
             date_created = wo.date_created,
             creator = wo.creator,
             meter_id = wo.meter.id,

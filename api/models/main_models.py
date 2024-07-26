@@ -233,6 +233,7 @@ class MeterActivities(Base):
         "ServiceTypeLU", secondary=ServicesPerformed
     )
     notes: Mapped[List["NoteTypeLU"]] = relationship("NoteTypeLU", secondary=Notes)
+    work_order: Mapped["workOrders"] = relationship()
 
 
 class ActivityTypeLU(Base):
@@ -552,9 +553,10 @@ class workOrders(Base):
     status_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_order_status_lu.id"), nullable=False)
     notes: Mapped[str] = mapped_column(String, nullable=True)
     assigned_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=True)
+    ose_request_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     # Associated Activities
-    associated_activities: Mapped[List['MeterActivities']] = relationship("MeterActivities")
+    # associated_activities: Mapped[List['MeterActivities']] = relationship("MeterActivities")
 
     meter: Mapped['Meters']= relationship()
     status: Mapped['workOrderStatusLU']= relationship()
