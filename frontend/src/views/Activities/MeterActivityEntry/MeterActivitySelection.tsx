@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Grid } from '@mui/material'
 
@@ -15,6 +15,11 @@ import { ControlledWorkOrderSelect } from '../../../components/RHControlled/Cont
 export function MeterActivitySelection({control, errors, watch, setValue}: any) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+
+    // Clear the work order selection when the user changes
+    useEffect(() => {
+        setValue('activity_details.work_order_id', null)
+    }, [watch('activity_details.user')])
 
     return (
         <Grid container item>
