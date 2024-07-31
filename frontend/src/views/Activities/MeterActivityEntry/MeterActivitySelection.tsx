@@ -17,9 +17,9 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     // Clear the work order selection when the user changes
-    useEffect(() => {
-        setValue('activity_details.work_order_id', null)
-    }, [watch('activity_details.user')])
+    // useEffect(() => {
+    //     setValue('activity_details.work_order_id', null)
+    // }, [watch('activity_details.user')])
 
     return (
         <Grid container item>
@@ -89,7 +89,7 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                     <ControlledWorkOrderSelect
                         name="activity_details.work_order_id"
                         control={control}
-                        option_filters={{assigned_user_id: watch('activity_details.user')?.id}}
+                        //option_filters={{assigned_user_id: watch('activity_details.user')?.id}}
                     />
                 </Grid>
             </Grid>
