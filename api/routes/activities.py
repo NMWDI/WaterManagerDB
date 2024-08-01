@@ -559,6 +559,8 @@ def create_work_order(new_work_order: meter_schemas.CreateWorkOrder, db: Session
         work_order.assigned_user_id = new_work_order.assigned_user_id
     if new_work_order.creator:
         work_order.creator = new_work_order.creator
+    if new_work_order.ose_request_id:
+        work_order.ose_request_id = new_work_order.ose_request_id
 
     # Commit the work order
     # Database should block empty title and non-unique (date, title, meter_id) combinations

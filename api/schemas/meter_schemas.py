@@ -259,6 +259,7 @@ class CreateWorkOrder(BaseModel):
     notes: str | None = None
     creator: str | None = None
     assigned_user_id: int | None = None
+    ose_request_id: int | None = None
 
 class PatchWorkOrder(BaseModel):
     '''
