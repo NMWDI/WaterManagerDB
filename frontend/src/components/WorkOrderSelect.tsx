@@ -42,7 +42,7 @@ export default function WorkOrderSelect({selectedWorkOrderID, setSelectedWorkOrd
         if (workOrderList.data) {
             setFilteredWorkOrders(optionsFilter(workOrderList.data, option_filters ?? {}));
         }
-    }, [option_filters]);
+    }, [workOrderList, option_filters]);
 
     return (
         <FormControl size="small" fullWidth>

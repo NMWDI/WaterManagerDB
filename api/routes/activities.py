@@ -674,6 +674,9 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         .options(joinedload(workOrders.status), joinedload(workOrders.meter), joinedload(workOrders.assigned_user))
         .join(workOrderStatusLU).where(workOrders.id == patch_work_order_form.work_order_id)).first()
     
+    # I was unable to get associated_activities to work with joinedload, so I'm doing it manually here
+    associated_activities = db.scalars(select(MeterActivities).where(MeterActivities.work_order_id == work_order.id)).all()
+    
     # Create a WorkOrder schema for the updated work order
     work_order_schema = meter_schemas.WorkOrder(
         work_order_id = work_order.id,
@@ -686,7 +689,8 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         status = work_order.status.name,
         notes = work_order.notes,
         assigned_user_id = work_order.assigned_user_id,
-        assigned_user= work_order.assigned_user.username if work_order.assigned_user else None
+        assigned_user= work_order.assigned_user.username if work_order.assigned_user else None,
+        associated_activities=[activity.id for activity in associated_activities]
     )
 
     return work_order_schema
