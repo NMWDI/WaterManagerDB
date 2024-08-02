@@ -159,6 +159,10 @@ export default function WorkOrdersTable() {
     if (!hasAdminScope){
         initialFilter = [{field: 'assigned_user_id', operator: 'is', value: current_user_name}];
         status_options = ['Open', 'Review'];
+    }else{
+        //Filter by Status
+        //Unlike with the technicians, this filters on the frontend in case the admin wants to see all work orders
+        initialFilter = [{field: 'status', operator: 'not', value: 'Closed'}];
     }
 
     //Refresh work order list once a minute
