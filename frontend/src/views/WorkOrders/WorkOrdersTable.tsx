@@ -155,7 +155,7 @@ export default function WorkOrdersTable() {
     var initialFilter: GridFilterItem[] = [] //No filter if admin
     var status_options = ['Open', 'Review', 'Closed'];
 
-    //Change a few defaults if not an admin
+    //Change a few defaults depending on if admin or not
     if (!hasAdminScope){
         initialFilter = [{field: 'assigned_user_id', operator: 'is', value: current_user_name}];
         status_options = ['Open', 'Review'];
@@ -319,7 +319,12 @@ export default function WorkOrdersTable() {
                 columns={columns}
                 initialState={
                     {
-                        columns: {columnVisibilityModel: {work_order_id: false, creator: false, associated_activities: false}},
+                        columns: {columnVisibilityModel: {
+                            work_order_id: false, 
+                            creator: hasAdminScope, 
+                            associated_activities: hasAdminScope,
+                            assigned_user_id: hasAdminScope
+                        }},
                         filter: {filterModel: {items: initialFilter}},
                     }
                 }
