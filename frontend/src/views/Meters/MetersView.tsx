@@ -16,8 +16,24 @@ type MeterInfo = {
 // Can pass state to this view to pre-select a meter and meter history using React Router useLocation
 export default function MetersView() {
     const location = useLocation()  
-    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>(location.state)
+    const [selectedMeter, setSelectedMeter] = useState<MeterInfo>()
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
+
+    // Load page in different ways depending on if/how location.state is defined
+    // If meter_sn and meter_id are defined, pre-select the meter and load the history
+    // if activity_id is defined... todo
+    useEffect(() => {
+        if (location.state) {
+            const { meter_sn, meter_id } = location.state as MeterInfo
+            if (meter_sn && meter_id) {
+                setSelectedMeter({ meter_sn, meter_id })
+            }
+            // Handle other cases like activity_id here
+            //TODO
+        }
+    }, [location.state])
+
+
 
     return (
             <Box sx={{height: '100%', m: 2, mt: 0}}>

@@ -38,14 +38,14 @@ export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}:
 
             // Find the history item with the corresponding 'id'
             const load_history_item = meterHistory.data.find((item: MeterHistoryDTO) => (item.history_item.id == activityID)&&(item.history_type == MeterHistoryType.Activity))
-            console.log('history item: ', load_history_item)
+            //console.log('history item: ', load_history_item)
             if (load_history_item) {
                 setSelectedHistoryItem(load_history_item)
             }
 
             // Remove the '#' from the hash
             const id = location.hash.replace('#', '');
-            console.log('id: ', id)
+            //console.log('id: ', id)
             // Find the element with the corresponding 'id'
             const element = document.getElementById(id);
             if (element) {
