@@ -272,5 +272,6 @@ class PatchWorkOrder(BaseModel):
     description: str | None = None
     status: str | None = None
     notes: str | None = None
+    creator: str | None = None
     assigned_user_id: int | None = None
     

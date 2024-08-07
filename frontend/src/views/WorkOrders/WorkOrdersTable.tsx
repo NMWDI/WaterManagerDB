@@ -246,7 +246,7 @@ export default function WorkOrdersTable() {
         },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},
         { field: 'description', headerName: 'Description', width: 300, editable: hasAdminScope},
-        { field: 'creator', headerName: 'Created By', width: 150 },
+        { field: 'creator', headerName: 'Created By', width: 150, editable: hasAdminScope},
         { field: 'status', headerName: 'Status', width: 125, type: 'singleSelect', valueOptions: status_options, editable: true},
         { field: 'notes', headerName: 'Notes', width: 300, editable: true},
         { 

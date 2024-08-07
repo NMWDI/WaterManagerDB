@@ -655,6 +655,8 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         work_order.status_id = new_status.id
     if patch_work_order_form.notes:
         work_order.notes = patch_work_order_form.notes
+    if patch_work_order_form.creator:
+        work_order.creator = patch_work_order_form.creator
     if patch_work_order_form.assigned_user_id:
         work_order.assigned_user_id = patch_work_order_form.assigned_user_id
 
