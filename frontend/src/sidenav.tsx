@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './sidenav.css'
 import TableViewIcon from '@mui/icons-material/TableView';
 
 import {Link, useLocation} from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
 import { Grid } from '@mui/material';
+import { useGetWorkOrders } from './service/ApiServiceNew';
+import { WorkOrderStatus } from './enums';
+import { WorkOrder } from './interfaces';
 
 interface NavLinkProps {
     route: string
@@ -15,6 +18,32 @@ export default function Sidenav() {
     let location = useLocation()
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: any) => scope.scope_string).includes('admin')
+    const userID = authUser()?.id
+
+    //Track number of open work orders for display in the sidenav
+    const [workOrderLabel, setWorkOrderLabel] = React.useState('Work Orders');
+    const workOrderList = useGetWorkOrders([WorkOrderStatus.Open]);
+
+    //Update label based on workOrderList
+    useEffect(() => {
+        if (workOrderList.data && userID) {
+            let userWorkOrders = workOrderList.data.filter((workOrder: WorkOrder) => workOrder.assigned_user_id == userID);
+            let numberOfWorkOrders = userWorkOrders.length;
+            if (numberOfWorkOrders > 0) {
+                setWorkOrderLabel(`Work Orders (${numberOfWorkOrders})`);
+            } else {
+                setWorkOrderLabel('Work Orders');
+            }
+        }
+    }, [workOrderList.data, userID]);
+    
+    //Refresh work order list once a minute
+    useEffect(() => {
+        const interval = setInterval(() => {
+            workOrderList.refetch();
+        }, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     function NavLink({route, label}: NavLinkProps) {
         return (
@@ -39,7 +68,7 @@ export default function Sidenav() {
             </Grid>
 
             <NavLink route="/home" label="Home" />
-            <NavLink route="/workorders" label="Work Orders" />
+            <NavLink route="/workorders" label={workOrderLabel} />
             <NavLink route="/meters" label="Meters" />
             <NavLink route="/activities" label="Activities" />
             <NavLink route="/wells" label="Monitoring Wells" />
