@@ -9,13 +9,14 @@ from api.models.main_models import (
     Meters,
     MeterActivities,
     MeterObservations,
+    Wells,
     workOrders,
 )
 
 from api.session import get_db
 from api.enums import ScopedUser
 
-ose_router = APIRouter()
+ose_router = APIRouter(dependencies=[Depends(ScopedUser.OSE)])
 
 
 class ObservationDTO(BaseModel):
@@ -159,7 +160,6 @@ def reorganizeHistory(activities: list[MeterActivities], observations: list[Mete
 
 @ose_router.get(
     "/shared_meter_maintenance_history",
-    dependencies=[Depends(ScopedUser.OSE)],
     response_model=list[DateHistoryDTO],
     tags=["OSE"],
 )
@@ -223,7 +223,6 @@ def get_shared_history(
 
 @ose_router.get(
     "/meter_maintenance_by_ose_request_id",
-    dependencies=[Depends(ScopedUser.OSE)],
     response_model=list[DateHistoryDTO],
     tags=["OSE"],
 )
@@ -291,3 +290,23 @@ def get_ose_maintenance_by_requestID(
     observations_list = list(observations)
 
     return reorganizeHistory(activities_list, observations_list)
+
+@ose_router.get(
+    "/meter_information",
+    tags=["OSE"],
+)
+def get_meter_information(
+    serial_number: str,
+    db: Session = Depends(get_db),
+):
+
+    # Create the basic query
+    query = select(Meters).options(
+            joinedload(Meters.meter_type),
+            joinedload(Meters.well).joinedload(Wells.location),
+            joinedload(Meters.status),
+        )
+    
+    query = query.filter(Meters.serial_number == serial_number)
+
+    return db.scalars(query).first()
