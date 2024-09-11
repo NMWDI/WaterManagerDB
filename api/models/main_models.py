@@ -161,11 +161,13 @@ class Meters(Base):
     location_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("Locations.id"), nullable=False
     )
+    register_id: Mapped[int] = mapped_column(Integer, ForeignKey("meter_registers.id"), nullable=True)
 
     water_users: Mapped[Optional[str]] = mapped_column(String)
     meter_owner: Mapped[Optional[str]] = mapped_column(String)
 
     meter_type: Mapped["MeterTypeLU"] = relationship()
+    meter_register: Mapped["meterRegisters"] = relationship()
     status: Mapped["MeterStatusLU"] = relationship()
     well: Mapped["Wells"] = relationship()
     location: Mapped["Locations"] = relationship()
@@ -561,5 +563,22 @@ class workOrders(Base):
     meter: Mapped['Meters']= relationship()
     status: Mapped['workOrderStatusLU']= relationship()
     assigned_user: Mapped['Users'] = relationship()
+
+class meterRegisters(Base):
+    '''
+    Models the registers of a meter
+    '''
+    __tablename__ = "meter_registers"
+    brand: Mapped[str] = mapped_column(String, nullable=False)
+    meter_size: Mapped[float] = mapped_column(Float, nullable=False)
+    ratio: Mapped[str] = mapped_column(String)
+    dial_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
+    totalizer_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
+    number_of_digits: Mapped[int] = mapped_column(Integer, nullable=False)
+    multiplier: Mapped[float] = mapped_column(Float, nullable=False)
+    notes: Mapped[str] = mapped_column(String)
+
+    dial_units: Mapped['Units'] = relationship(foreign_keys=[dial_units_id])
+    totalizer_units: Mapped['Units'] = relationship(foreign_keys=[totalizer_units_id])
 
 

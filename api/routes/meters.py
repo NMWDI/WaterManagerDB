@@ -20,6 +20,7 @@ from api.models.main_models import (
     MeterTypeLU,
     Wells,
     MeterStatusLU,
+    meterRegisters,
 )
 from api.route_util import _patch, _get
 from api.session import get_db
@@ -195,6 +196,7 @@ def require_meter_id_or_serial_number(meter_id: int = None, serial_number: str =
 @meter_router.get(
     "/meter",
     tags=["Meters"],
+    response_model=meter_schemas.PublicMeter,
 )
 def get_meter(
     meter_identifier: tuple = Depends(require_meter_id_or_serial_number),
@@ -207,6 +209,8 @@ def get_meter(
             joinedload(Meters.meter_type),
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.dial_units),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.totalizer_units),
         )
 
     # Filter by either meter by id or serial number
@@ -215,7 +219,38 @@ def get_meter(
     else:
         query = query.filter(Meters.serial_number == serial_number)
 
-    return db.scalars(query).first()
+    meter = db.scalars(query).first()
+
+    if not meter:
+        raise HTTPException(status_code=404, detail="Meter not found")
+
+    # Manually create the response model because the object and response are organized differently
+    output_meter = meter_schemas.PublicMeter(
+        serial_number=meter.serial_number,
+        status=meter.status.status_name,
+        well=meter_schemas.PublicMeter.PublicWell(
+            ra_number=meter.well.ra_number,
+            osetag=meter.well.osetag,
+            trss=meter.well.location.trss,
+            longitude=meter.well.location.longitude,
+            latitude=meter.well.location.latitude,
+        ) if meter.well else None,
+        notes=meter.notes,
+        meter_type=meter_schemas.PublicMeter.MeterType(
+            brand=meter.meter_type.brand,
+            model=meter.meter_type.model,
+            size=meter.meter_type.size,
+        ),
+        meter_register=meter_schemas.PublicMeter.MeterRegister(
+            ratio=meter.meter_register.ratio,
+            number_of_digits=meter.meter_register.number_of_digits,
+            dial_units=meter.meter_register.dial_units.name,
+            totalizer_units=meter.meter_register.totalizer_units.name,
+            multiplier=meter.meter_register.multiplier,
+        ) if meter.meter_register else None,
+    )
+
+    return output_meter
 
 
 @meter_router.get(

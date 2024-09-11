@@ -103,6 +103,39 @@ class Meter(ORMBase):
     well: Well | None = None
     location: Location | None = None
 
+class PublicMeter(BaseModel):
+    '''
+    Used for displaying meter information to the public, specifically the OSE
+    '''
+    
+    class PublicWell(BaseModel):
+        ra_number: str | None = None
+        osetag: str | None = None
+        trss: str | None = None
+        longitude: float | None = None
+        latitude: float | None = None
+
+    class MeterType(BaseModel):
+        brand: str | None = None
+        model: str
+        size: float | None = None
+
+    class MeterRegister(BaseModel):
+        ratio: str | None = None
+        number_of_digits: int | None = None
+        dial_units: str | None = None
+        totalizer_units: str | None = None
+        multiplier: float | None = None
+
+    serial_number: str
+    status: str | None = None
+    well: PublicWell | None = None
+    notes: str | None = None
+
+    meter_type: MeterType | None = None
+    meter_register: MeterRegister | None = None
+ 
+
 
 # The activity form submitted by the frontend
 class ActivityForm(ORMBase):
@@ -169,6 +202,7 @@ class MeterActivity(ORMBase):
     ose_share: bool
     water_users: str | None = None
 
+
 class PatchActivity(ORMBase):
     activity_id: int
     timestamp_start: datetime
@@ -213,6 +247,7 @@ class MeterObservation(ORMBase):
     unit: Unit | None = None
     location: Location | None = None
 
+
 class PatchObservation(ORMBase):
     observation_id: int
     timestamp: datetime
@@ -231,6 +266,7 @@ class ServiceTypeLU(ORMBase):
     service_name: str | None = None
     description: str | None = None
 
+
 class WorkOrder(ORMBase):
     work_order_id: int
     ose_request_id: int | None = None
@@ -246,6 +282,7 @@ class WorkOrder(ORMBase):
     assigned_user: str | None = None
     associated_activities: list[int] | None = None
 
+
 class CreateWorkOrder(BaseModel):
     '''
     Only mandatory fields are the date_created, meter_id, and title. The rest can be filled in later.
@@ -260,6 +297,7 @@ class CreateWorkOrder(BaseModel):
     creator: str | None = None
     assigned_user_id: int | None = None
     ose_request_id: int | None = None
+
 
 class PatchWorkOrder(BaseModel):
     '''
