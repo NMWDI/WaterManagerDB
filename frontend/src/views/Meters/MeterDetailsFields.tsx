@@ -149,6 +149,16 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} lg={5}>
+                            <ControlledMeterTypeSelect
+                                name="meter_register"
+                                control={control}
+                                errors={errors?.meter_type?.message}
+                                disabled={!hasAdminScope || isInitialLoad}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12}>
+                        <Grid item xs={12} lg={5}>
                             <ControlledMeterStatusTypeSelect
                                 name="status"
                                 control={control}

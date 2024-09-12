@@ -1,7 +1,7 @@
 from datetime import datetime, date, time
 
 from pydantic import BaseModel
-from fastapi import Depends, APIRouter, Query
+from fastapi import Depends, APIRouter, HTTPException, Query
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session, joinedload
 
@@ -10,9 +10,11 @@ from api.models.main_models import (
     MeterActivities,
     MeterObservations,
     Wells,
+    meterRegisters,
     workOrders,
 )
 
+from api.schemas import meter_schemas
 from api.session import get_db
 from api.enums import ScopedUser
 
@@ -294,6 +296,7 @@ def get_ose_maintenance_by_requestID(
 @ose_router.get(
     "/meter_information",
     tags=["OSE"],
+    response_model=meter_schemas.PublicMeter,
 )
 def get_meter_information(
     serial_number: str,
@@ -305,8 +308,42 @@ def get_meter_information(
             joinedload(Meters.meter_type),
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.dial_units),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.totalizer_units),
         )
     
     query = query.filter(Meters.serial_number == serial_number)
 
-    return db.scalars(query).first()
+    # Execute the query
+    meter = db.scalars(query).first()
+
+    if not meter:
+        raise HTTPException(status_code=404, detail="Meter not found")
+
+    # Manually create the response model because the object and response are organized differently
+    output_meter = meter_schemas.PublicMeter(
+        serial_number=meter.serial_number,
+        status=meter.status.status_name,
+        well=meter_schemas.PublicMeter.PublicWell(
+            ra_number=meter.well.ra_number,
+            osetag=meter.well.osetag,
+            trss=meter.well.location.trss,
+            longitude=meter.well.location.longitude,
+            latitude=meter.well.location.latitude,
+        ) if meter.well else None,
+        notes=meter.notes,
+        meter_type=meter_schemas.PublicMeter.MeterType(
+            brand=meter.meter_type.brand,
+            model=meter.meter_type.model,
+            size=meter.meter_type.size,
+        ),
+        meter_register=meter_schemas.PublicMeter.MeterRegister(
+            ratio=meter.meter_register.ratio,
+            number_of_digits=meter.meter_register.number_of_digits,
+            dial_units=meter.meter_register.dial_units.name,
+            totalizer_units=meter.meter_register.totalizer_units.name,
+            multiplier=meter.meter_register.multiplier,
+        ) if meter.meter_register else None,
+    )
+
+    return output_meter
