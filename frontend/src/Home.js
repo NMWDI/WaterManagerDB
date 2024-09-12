@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.39 - Default share ose when workorder, OSE access to register information",
             "V0.1.38 - Change logout time to 8 hours, show work order count in navigation",
             "V0.1.37.1 - Fix various work order bugs",
             "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
