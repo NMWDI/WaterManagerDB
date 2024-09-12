@@ -121,7 +121,7 @@ export function getDefaultForm(initialMeter: Partial<MeterListDTO> | null, initi
             date: Dayjs(),
             start_time: start_time,
             end_time: end_time,
-            share_ose: false,
+            share_ose: initialWorkOrderID ? true : false,
             work_order_id: initialWorkOrderID
         },
 
