@@ -37,6 +37,7 @@ import ControlledWellSelection from '../../components/RHControlled/ControlledWel
 import ControlledMeterStatusTypeSelect from '../../components/RHControlled/ControlledMeterStatusTypeSelect' // This import is missing from the snippet
 
 import { formatLatLong } from '../../conversions'
+import MeterRegisterSelect from '../../components/MeterRegisterSelect'
 
 interface MeterDetailsProps {
     selectedMeterID: number | undefined
@@ -149,11 +150,10 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} lg={5}>
-                            <ControlledMeterTypeSelect
-                                name="meter_register"
-                                control={control}
-                                errors={errors?.meter_type?.message}
-                                disabled={!hasAdminScope || isInitialLoad}
+                            <MeterRegisterSelect
+                                selectedRegisterTypeID={undefined}
+                                setSelectedRegisterTypeID={() => {console.log('dummy')}}
+                                meterTypeID={undefined}
                             />
                         </Grid>
                     </Grid>
