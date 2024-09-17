@@ -3,16 +3,16 @@
 import React from 'react'
 //import { useGetMeterTypeList } from '../service/ApiServiceNew'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-//import { MeterTypeLU } from '../interfaces'
+import { MeterRegister } from '../interfaces'
 
 //Interface for MeterRegisterSelect props
 interface MeterRegisterSelectProps {
-    selectedRegisterTypeID: number | undefined;
-    setSelectedRegisterTypeID: (id: number) => void;
+    selectedRegister: MeterRegister | undefined;
+    setSelectedRegister: () => void;
     meterTypeID: number | undefined;
 }
 
-export default function MeterRegisterSelect({selectedRegisterTypeID, setSelectedRegisterTypeID, meterTypeID}: MeterRegisterSelectProps) {
+export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterTypeID}: MeterRegisterSelectProps) {
     //const meterTypeList = useGetMeterTypeList()
     const meterRegisterList = ['dummy register 1', 'dummy register 2', 'dummy register 3']
 
@@ -21,9 +21,9 @@ export default function MeterRegisterSelect({selectedRegisterTypeID, setSelected
             <InputLabel>Meter Register</InputLabel>
             <Select
                 //value={meterTypeList.isLoading ? 'loading' : selectedMeterTypeID ?? ''}
-                value={ selectedRegisterTypeID ?? '' }
+                value={ selectedRegister ?? '' }
                 label="Meter Register"
-                onChange={(event: any) => setSelectedRegisterTypeID(event.target.value)}
+                onChange={(event: any) => setSelectedRegister(event.target.value)}
             >
                 {meterRegisterList.map((register: string, index: number) => {
                     return <MenuItem key={index} value={index}>{register}</MenuItem>
