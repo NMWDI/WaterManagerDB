@@ -575,6 +575,7 @@ class meterRegisters(Base):
     dial_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
     totalizer_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
     number_of_digits: Mapped[int] = mapped_column(Integer, nullable=False)
+    decimal_digits: Mapped[int] = mapped_column(Integer)
     multiplier: Mapped[float] = mapped_column(Float, nullable=False)
     notes: Mapped[str] = mapped_column(String)
 

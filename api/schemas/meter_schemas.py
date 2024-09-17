@@ -123,6 +123,7 @@ class PublicMeter(BaseModel):
     class MeterRegister(BaseModel):
         ratio: str | None = None
         number_of_digits: int | None = None
+        decimal_digits: int | None = None
         dial_units: str | None = None
         totalizer_units: str | None = None
         multiplier: float | None = None
