@@ -340,6 +340,7 @@ def get_meter_information(
         meter_register=meter_schemas.PublicMeter.MeterRegister(
             ratio=meter.meter_register.ratio,
             number_of_digits=meter.meter_register.number_of_digits,
+            decimal_digits=meter.meter_register.decimal_digits,
             dial_units=meter.meter_register.dial_units.name,
             totalizer_units=meter.meter_register.totalizer_units.name,
             multiplier=meter.meter_register.multiplier,
