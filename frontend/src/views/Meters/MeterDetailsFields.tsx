@@ -151,8 +151,8 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     <Grid container item xs={12}>
                         <Grid item xs={12} lg={5}>
                             <MeterRegisterSelect
-                                selectedRegisterTypeID={undefined}
-                                setSelectedRegisterTypeID={() => {console.log('dummy')}}
+                                selectedRegister={undefined}
+                                setSelectedRegister={() => {console.log('dummy')}}
                                 meterTypeID={undefined}
                             />
                         </Grid>

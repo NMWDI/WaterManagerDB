@@ -348,6 +348,7 @@ export interface MeterType {
 export interface MeterRegister {
     ratio?: string | null
     number_of_digits?: number | null
+    decimal_digits?: number | null
     dial_units?: string
     totalizer_units?: string
     multiplier?: number | null

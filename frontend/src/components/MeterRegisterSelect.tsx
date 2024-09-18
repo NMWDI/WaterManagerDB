@@ -3,16 +3,16 @@
 import React from 'react'
 //import { useGetMeterTypeList } from '../service/ApiServiceNew'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { MeterRegister } from '../interfaces'
+import { MeterRegister, MeterTypeLU } from '../interfaces'
 
 //Interface for MeterRegisterSelect props
 interface MeterRegisterSelectProps {
     selectedRegister: MeterRegister | undefined;
     setSelectedRegister: () => void;
-    meterTypeID: number | undefined;
+    meterTypeID: MeterTypeLU | undefined;
 }
 
-export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterTypeID}: MeterRegisterSelectProps) {
+export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterType}: MeterRegisterSelectProps) {
     //const meterTypeList = useGetMeterTypeList()
     const meterRegisterList = ['dummy register 1', 'dummy register 2', 'dummy register 3']
 

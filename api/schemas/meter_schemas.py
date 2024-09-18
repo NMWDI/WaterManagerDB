@@ -13,6 +13,22 @@ class MeterTypeLU(ORMBase):
     description: str | None = None
     in_use: bool
 
+class MeterRegister(ORMBase):
+    '''
+    This is the complete description of a meter register.
+    In contrast PublicMeter.MeterRegister is more limited.
+    '''
+    brand: str
+    meter_size: float | None = None
+    part_id: int | None = None
+    ratio: str | None = None
+    number_of_digits: int | None = None
+    decimal_digits: int | None = None
+    dial_units: str | None = None
+    totalizer_units: str | None = None
+    multiplier: float | None = None
+    notes: str | None = None
+
 
 # The minimal information used by the meters list
 class MeterListDTO(ORMBase):
