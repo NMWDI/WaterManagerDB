@@ -153,7 +153,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <MeterRegisterSelect
                                 selectedRegister={undefined}
                                 setSelectedRegister={() => {console.log('dummy')}}
-                                meterTypeID={undefined}
+                                meterType={watch("meter_type")}
                             />
                         </Grid>
                     </Grid>

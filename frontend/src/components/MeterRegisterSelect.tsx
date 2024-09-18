@@ -1,38 +1,45 @@
 // Basic component for selecting a register for a given meter type
 //
-import React from 'react'
-//import { useGetMeterTypeList } from '../service/ApiServiceNew'
+import React, { useEffect, useState } from 'react'
+import { useGetMeterRegisterList } from '../service/ApiServiceNew'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { MeterRegister, MeterTypeLU } from '../interfaces'
+import { MeterRegister, MeterType } from '../interfaces'
 
 //Interface for MeterRegisterSelect props
 interface MeterRegisterSelectProps {
     selectedRegister: MeterRegister | undefined;
-    setSelectedRegister: () => void;
-    meterTypeID: MeterTypeLU | undefined;
+    setSelectedRegister: (register: MeterRegister) => void;
+    meterType: MeterType | undefined;
 }
 
 export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterType}: MeterRegisterSelectProps) {
-    //const meterTypeList = useGetMeterTypeList()
-    const meterRegisterList = ['dummy register 1', 'dummy register 2', 'dummy register 3']
+    const meterRegisterList = useGetMeterRegisterList()
+    const [filteredRegisterList, setFilteredRegisterList] = useState<MeterRegister[] | undefined>([])
+
+    //Filter the register list based on the meter type
+    useEffect(() => {
+        if (meterType) {
+            console.log(meterType)
+            setFilteredRegisterList(meterRegisterList.data?.filter((register: MeterRegister) => register.meter_size == meterType.size))
+        } else {
+            setFilteredRegisterList(meterRegisterList.data)
+        }
+    }, [meterType, meterRegisterList.data])
+    
 
     return (
         <FormControl size="small" fullWidth>
             <InputLabel>Meter Register</InputLabel>
             <Select
-                //value={meterTypeList.isLoading ? 'loading' : selectedMeterTypeID ?? ''}
-                value={ selectedRegister ?? '' }
+                value={meterRegisterList.isLoading ? 'loading' : selectedRegister ?? ''}
                 label="Meter Register"
                 onChange={(event: any) => setSelectedRegister(event.target.value)}
             >
-                {meterRegisterList.map((register: string, index: number) => {
-                    return <MenuItem key={index} value={index}>{register}</MenuItem>
-                })}
-                {/* {meterTypeList.data?.map((meterType: MeterTypeLU) => {
-                    return <MenuItem key={meterType.id} value={meterType.id}>{meterType.brand + ' - '  + meterType.model}</MenuItem>
+                {filteredRegisterList?.map((register: MeterRegister) => {
+                    return <MenuItem key={register.id} value={register.id}>{register.dial_units + ' - '  + register.totalizer_units + ', ' + register.ratio}</MenuItem>
                 })}
 
-                {meterTypeList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>} */}
+                {meterRegisterList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
             </Select>
         </FormControl>
     )

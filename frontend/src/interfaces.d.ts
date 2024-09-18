@@ -346,11 +346,14 @@ export interface MeterType {
 }
 
 export interface MeterRegister {
-    ratio?: string | null
-    number_of_digits?: number | null
-    decimal_digits?: number | null
-    dial_units?: string
-    totalizer_units?: string
+    id: number
+    brand: string
+    meter_size: number
+    ratio: string | null
+    number_of_digits: number | null
+    decimal_digits: number | null
+    dial_units: string
+    totalizer_units: string
     multiplier?: number | null
 }
 
@@ -380,6 +383,7 @@ export interface Location {
     land_owner?: LandOwner
 }
 
+//Depricate this??? need to assess
 export interface MeterTypeLU {
     id: number
     brand: string

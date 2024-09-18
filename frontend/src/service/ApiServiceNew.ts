@@ -43,6 +43,7 @@ import {
     WorkOrder,
     PatchWorkOrder,
     NewWorkOrder,
+    MeterRegister,
 } from '../interfaces.js'
 import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
@@ -223,6 +224,17 @@ export function useGetMeterTypeList() {
     const signOut = useSignOut()
 
     return useQuery<MeterTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+    )
+}
+
+export function useGetMeterRegisterList() {
+    const route = 'meter_registers'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<MeterRegister[], Error>([route], () =>
         GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
