@@ -19,7 +19,6 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
     //Filter the register list based on the meter type
     useEffect(() => {
         if (meterType) {
-            console.log(meterType)
             setFilteredRegisterList(meterRegisterList.data?.filter((register: MeterRegister) => register.meter_size == meterType.size))
         } else {
             setFilteredRegisterList(meterRegisterList.data)

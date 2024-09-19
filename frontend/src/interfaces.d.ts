@@ -411,6 +411,7 @@ export interface MeterDetails {
     meter_type: MeterType
     status: MeterStatus
     well: Well | null
+    register: MeterRegister | null
     // Also has parts_associated?: List[Part]
 }
 

@@ -208,6 +208,8 @@ def get_meter(
             joinedload(Meters.meter_type),
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.dial_units),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.totalizer_units),
         )
 
     # Filter by either meter by id or serial number
