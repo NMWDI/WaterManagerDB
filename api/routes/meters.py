@@ -243,7 +243,7 @@ def get_meter_registers(db: Session = Depends(get_db)):
         joinedload(meterRegisters.dial_units),
         joinedload(meterRegisters.totalizer_units)
     )
-    
+
     return db.scalars(query).all()
 
 
@@ -338,6 +338,7 @@ def patch_meter(
     meter_db.meter_type_id = updated_meter.meter_type.id
     meter_db.water_users = updated_meter.water_users
     meter_db.meter_owner = updated_meter.meter_owner
+    meter_db.register_id = updated_meter.meter_register.id
     # for k, v in updated_meter.model_dump(exclude_unset=True).items():
     #     try:
     #         setattr(meter_db, k, v)

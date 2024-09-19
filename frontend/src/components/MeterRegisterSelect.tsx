@@ -8,7 +8,7 @@ import { MeterRegister, MeterType } from '../interfaces'
 //Interface for MeterRegisterSelect props
 interface MeterRegisterSelectProps {
     selectedRegister: MeterRegister | undefined;
-    setSelectedRegister: (register: MeterRegister) => void;
+    setSelectedRegister: (register: MeterRegister | null) => void;
     meterType: MeterType | undefined;
 }
 
@@ -32,10 +32,10 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
             <Select
                 value={meterRegisterList.isLoading ? 'loading' : selectedRegister?.id ?? ''}
                 label="Meter Register"
-                onChange={(event: any) => setSelectedRegister(event.target.value)}
+                onChange={(event: any) => setSelectedRegister(filteredRegisterList?.find(reg => reg.id === event.target.value) ?? null)}
             >
                 {filteredRegisterList?.map((register: MeterRegister) => {
-                    return <MenuItem key={register.id} value={register.id}>{register.dial_units.name_short + ' - '  + register.totalizer_units.name_short + ', ' + register.ratio}</MenuItem>
+                    return <MenuItem key={register.id} value={register.id}>{register.id + '-' + register.dial_units.name_short + ' - '  + register.totalizer_units.name_short + ', ' + register.ratio}</MenuItem>
                 })}
 
                 {meterRegisterList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
