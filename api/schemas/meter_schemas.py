@@ -93,6 +93,7 @@ class SubmitNewMeter(ORMBase):
     contact_phone: str | None = None
     notes: str | None = None
     well: Well | None = None
+    meter_register: MeterRegister | None = None
 
 
 class SubmitMeterUpdate(ORMBase):

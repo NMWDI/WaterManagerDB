@@ -124,6 +124,10 @@ def create_meter(
         meter_owner="PVACD",
     )
 
+    # If there is a register set, add it to the meter
+    if new_meter.meter_register:
+        new_meter_model.register_id = new_meter.meter_register.id
+
     # If there is a well set, update status, well and location
     if new_meter.well:
         new_meter_model.status_id = db.scalars(
