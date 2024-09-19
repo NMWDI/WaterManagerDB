@@ -30,12 +30,12 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
         <FormControl size="small" fullWidth>
             <InputLabel>Meter Register</InputLabel>
             <Select
-                value={meterRegisterList.isLoading ? 'loading' : selectedRegister ?? ''}
+                value={meterRegisterList.isLoading ? 'loading' : selectedRegister?.id ?? ''}
                 label="Meter Register"
                 onChange={(event: any) => setSelectedRegister(event.target.value)}
             >
                 {filteredRegisterList?.map((register: MeterRegister) => {
-                    return <MenuItem key={register.id} value={register.id}>{register.dial_units + ' - '  + register.totalizer_units + ', ' + register.ratio}</MenuItem>
+                    return <MenuItem key={register.id} value={register.id}>{register.dial_units.name_short + ' - '  + register.totalizer_units.name_short + ', ' + register.ratio}</MenuItem>
                 })}
 
                 {meterRegisterList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}

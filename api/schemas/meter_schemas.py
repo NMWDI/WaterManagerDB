@@ -4,6 +4,10 @@ from api.schemas.well_schemas import Well, Location
 from api.schemas.security_schemas import User
 from pydantic import BaseModel
 
+class Unit(ORMBase):
+    name: str | None = None
+    name_short: str | None = None
+    description: str | None = None
 
 class MeterTypeLU(ORMBase):
     brand: str | None = None
@@ -24,8 +28,8 @@ class MeterRegister(ORMBase):
     ratio: str | None = None
     number_of_digits: int | None = None
     decimal_digits: int | None = None
-    dial_units: str | None = None
-    totalizer_units: str | None = None
+    dial_units: Unit
+    totalizer_units: Unit
     multiplier: float | None = None
     notes: str | None = None
 
@@ -195,11 +199,6 @@ class ActivityForm(ORMBase):
     notes: Notes
     part_used_ids: list[int] | None = None
 
-
-class Unit(ORMBase):
-    name: str | None = None
-    name_short: str | None = None
-    description: str | None = None
 
 
 class ActivityTypeLU(ORMBase):

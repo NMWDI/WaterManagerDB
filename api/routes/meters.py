@@ -243,24 +243,9 @@ def get_meter_registers(db: Session = Depends(get_db)):
         joinedload(meterRegisters.dial_units),
         joinedload(meterRegisters.totalizer_units)
     )
-    registers: list[meterRegisters] = db.scalars(query).all()
     
-    # Manually build the output schema objects since they don't match the model
-    return [
-        meter_schemas.MeterRegister(
-            id=register.id,
-            brand=register.brand,
-            meter_size=register.meter_size,
-            ratio=register.ratio,
-            number_of_digits=register.number_of_digits,
-            decimal_digits=register.decimal_digits,
-            dial_units=register.dial_units.name,
-            totalizer_units=register.totalizer_units.name,
-            multiplier=register.multiplier,
-            notes=register.notes
-        )
-        for register in registers
-    ]
+    return db.scalars(query).all()
+
 
 
 # A route to return status types from the MeterStatusLU table

@@ -352,8 +352,8 @@ export interface MeterRegister {
     ratio: string | null
     number_of_digits: number | null
     decimal_digits: number | null
-    dial_units: string
-    totalizer_units: string
+    dial_units: Unit
+    totalizer_units: Unit
     multiplier?: number | null
 }
 
@@ -411,7 +411,7 @@ export interface MeterDetails {
     meter_type: MeterType
     status: MeterStatus
     well: Well | null
-    register: MeterRegister | null
+    meter_register: MeterRegister | null
     // Also has parts_associated?: List[Part]
 }
 
