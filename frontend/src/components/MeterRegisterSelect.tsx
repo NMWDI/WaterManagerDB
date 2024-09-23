@@ -12,9 +12,10 @@ interface MeterRegisterSelectProps {
     meterType: MeterType | undefined;
 }
 
-export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterType}: MeterRegisterSelectProps) {
+export default function MeterRegisterSelect({selectedRegister, setSelectedRegister, meterType, ...childProps}: MeterRegisterSelectProps) {
     const meterRegisterList = useGetMeterRegisterList()
     const [filteredRegisterList, setFilteredRegisterList] = useState<MeterRegister[] | undefined>([])
+    console.log(childProps)
 
     //Filter the register list based on the meter type
     useEffect(() => {
@@ -33,9 +34,10 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
                 value={meterRegisterList.isLoading ? 'loading' : selectedRegister?.id ?? ''}
                 label="Meter Register"
                 onChange={(event: any) => setSelectedRegister(filteredRegisterList?.find(reg => reg.id === event.target.value) ?? null)}
+                {...childProps}
             >
                 {filteredRegisterList?.map((register: MeterRegister) => {
-                    return <MenuItem key={register.id} value={register.id}>{register.id + '-' + register.dial_units.name_short + ' - '  + register.totalizer_units.name_short + ', ' + register.ratio}</MenuItem>
+                    return <MenuItem key={register.id} value={register.id}>{register.dial_units.name_short + ' - '  + register.totalizer_units.name_short + ', ' + register.ratio}</MenuItem>
                 })}
 
                 {meterRegisterList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}

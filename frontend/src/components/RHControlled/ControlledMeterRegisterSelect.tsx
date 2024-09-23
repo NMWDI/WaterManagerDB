@@ -3,7 +3,7 @@ import React from 'react'
 import MeterRegisterSelect from '../MeterRegisterSelect'
 import { Controller } from 'react-hook-form'
 
-export default function ControlledMeterRegisterSelect({control,name,...childProps}: any) {
+export default function ControlledMeterRegisterSelect({control,name, ...childProps}: any) {
     return (
         <Controller
             name={name}
@@ -13,6 +13,7 @@ export default function ControlledMeterRegisterSelect({control,name,...childProp
                     selectedRegister={field.value}
                     setSelectedRegister={field.onChange}
                     meterType={childProps.meterType}
+                    {...childProps}
                 />
             )}
         />
