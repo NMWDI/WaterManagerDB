@@ -33,6 +33,12 @@ export default function MetersView() {
         }
     }, [location.state])
 
+    //Always set the meterAddMode to false when a new meter is selected 
+    useEffect(() => {
+        if (selectedMeter) {
+            setMeterAddMode(false)
+        }
+    }, [selectedMeter])
 
 
     return (
