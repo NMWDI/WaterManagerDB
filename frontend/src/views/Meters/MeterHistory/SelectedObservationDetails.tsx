@@ -142,7 +142,7 @@ export default function SelectedObservationDetails({selectedObservation, onDelet
                                 //error={errors?.observations?.at(index)?.property_type?.message}
                             />
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={4}>
                             <ControlledTextbox
                                 name={'value'}
                                 control={control}
