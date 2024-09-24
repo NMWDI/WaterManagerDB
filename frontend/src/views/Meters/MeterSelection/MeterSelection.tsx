@@ -42,9 +42,11 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
         if (newFilters.includes('sold')) {
             updatedMeterFilters.push(MeterStatusNames.Sold)
         }
-        if (newFilters.includes('other')) {
+        if (newFilters.includes('scrapped')) {
             updatedMeterFilters.push(MeterStatusNames.Scrapped)
             updatedMeterFilters.push(MeterStatusNames.Returned)
+        }
+        if (newFilters.includes('unknown')) {
             updatedMeterFilters.push(MeterStatusNames.Unknown)
         }
         setMeterFilters(updatedMeterFilters)
@@ -98,8 +100,11 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
                             <ToggleButton value="sold" aria-label="Sold">
                                 Sold
                             </ToggleButton>
-                            <ToggleButton value="other" aria-label="Other">
-                                Other
+                            <ToggleButton value="scrapped" aria-label="Scrapped">
+                                Scrapped
+                            </ToggleButton>
+                            <ToggleButton value="unknown" aria-label="Unknown">
+                                Unknown
                             </ToggleButton>
                         </ToggleButtonGroup>
                     </Grid>
