@@ -45,6 +45,9 @@ class WellUseLU(ORMBase):
     code: str | None = None
     description: str | None = None
 
+class WaterSources(ORMBase):
+    name: str
+    description: str | None = None
 
 class Well(ORMBase):
     name: str | None = None
@@ -57,6 +60,7 @@ class Well(ORMBase):
 
     location: Location | None = None
     use_type: WellUseLU | None = None
+    water_source: WaterSources | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
@@ -76,6 +80,7 @@ class SubmitWellCreate(ORMBaseSimple):
 
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
+    water_source: WaterSources | None = None
 
 
 class SubmitWellUpdate(ORMBaseSimple):
@@ -97,6 +102,7 @@ class SubmitWellUpdate(ORMBaseSimple):
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate
+    water_source: WaterSources | None = None
 
 class SubmitWellMerge(ORMBaseSimple):
     merge_well: str

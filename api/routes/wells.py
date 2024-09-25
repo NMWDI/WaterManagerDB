@@ -8,7 +8,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import well_schemas
-from api.models.main_models import Locations, WellUseLU, Wells
+from api.models.main_models import Locations, WaterSources, WellUseLU, Wells
 from api.route_util import _patch, _get
 from api.session import get_db
 from api.enums import ScopedUser, WellSortByField, SortDirection
@@ -26,6 +26,18 @@ def get_use_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(WellUseLU)).all()
+
+# Get water sources
+@well_router.get(
+    "/water_sources",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.WaterSources],
+    tags=["Wells"],
+)
+def get_water_sources(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(WaterSources)).all()
 
 
 @well_router.get(

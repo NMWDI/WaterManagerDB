@@ -482,6 +482,15 @@ class WellUseLU(Base):
     code: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
 
+class WaterSources(Base):
+    """
+    The source of water for a well
+    """
+
+    __tablename__ = "water_sources"
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String)
+
 
 class Wells(Base):
     """
@@ -498,9 +507,11 @@ class Wells(Base):
 
     use_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("WellUseLU.id"))
     location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"))
+    water_source_id: Mapped[int] = mapped_column(Integer, ForeignKey("water_sources.id"))
 
     use_type: Mapped["WellUseLU"] = relationship()
     location: Mapped["Locations"] = relationship()
+    water_source: Mapped["WaterSources"] = relationship()
 
 
 class WellMeasurements(Base):
