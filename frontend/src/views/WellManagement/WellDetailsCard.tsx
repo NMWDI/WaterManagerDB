@@ -9,9 +9,9 @@ import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 
-import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiServiceNew'
+import { useCreateWell, useGetUseTypes, useGetWaterSources, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
@@ -47,6 +47,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const useTypeList = useGetUseTypes()
+    const waterSources = useGetWaterSources()
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Well!', {variant: 'success'}) }
     function onSuccessfulCreate() {
@@ -134,6 +135,18 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Water Source"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.use_type?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
                             <ControlledTextbox
                                 name="osetag"
                                 control={control}
@@ -142,8 +155,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 helperText={errors?.osetag?.message}
                             />
                         </Grid>
-                    </Grid>
-                    <Grid container item xs={12} spacing={2}>
                         <Grid item xs={6}>
                             <ControlledTextbox
                                 name="owners"

@@ -226,12 +226,19 @@ export interface WellUseLU {
     description: string
 }
 
+export interface WaterSource {
+    id: number
+    name: string
+    description: string
+}
+
 export interface SubmitWellUpdate {
     id: number
     name: string
     ra_number: string
     owners: string
     osetag: string
+    water_source: WaterSource | null
 
     use_type: {
         id: number
@@ -250,6 +257,7 @@ export interface SubmitWellCreate {
     ra_number: string
     owners: string
     osetag: string
+    water_source: WaterSource | null
 
     use_type: {
         id: number
@@ -273,6 +281,7 @@ export interface Well {
     osetag?: string | null
 
     use_type: WellUseLU | null
+    water_source: WaterSource | null
     location: Location | null
 }
 
