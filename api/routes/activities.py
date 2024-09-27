@@ -188,43 +188,40 @@ def post_activity(
     db.commit()
 
     # ---- Update the current state of the meter based on the activity type ----
+    meter_statuses = db.scalars(select(MeterStatusLU)).all()
+    meter_statuses = {status.status_name: status.id for status in meter_statuses}
+
     if update_meter_state:
-        if activity_type.name == "Uninstall":  # This needs to be a slug
-            warehouse_status = db.scalars(
-                select(MeterStatusLU).where(MeterStatusLU.status_name == "Warehouse")
-            ).first()
+        if (activity_type.name == "Uninstall") or (activity_type.name == "Uninstall and Hold"):  # This needs to be a slug
 
             activity_meter.location_id = hq_location.id
             activity_meter.well_id = None
-            activity_meter.status_id = warehouse_status.id
             activity_meter.water_users = None
 
+            if activity_type.name == "Uninstall and Hold":
+                # Set status as On Hold
+                activity_meter.status_id = meter_statuses['On Hold']
+            else:
+                # Set status as Uninstalled
+                activity_meter.status_id = meter_statuses['Warehouse']
+
         if activity_type.name == "Install":
-            installed_status = db.scalars(
-                select(MeterStatusLU).where(MeterStatusLU.status_name == "Installed")
-            ).first()
             activity_meter.well_id = activity_well.id
             activity_meter.location_id = activity_location
-            activity_meter.status_id = installed_status.id
+            activity_meter.status_id = meter_statuses['Installed']
             activity_meter.water_users = activity_form.current_installation.water_users
 
         if activity_type.name == "Scrap":
-            scrapped_status = db.scalars(
-                select(MeterStatusLU).where(MeterStatusLU.status_name == "Scrapped")
-            ).first()
             activity_meter.well_id = None
             activity_meter.location_id = None
-            activity_meter.status_id = scrapped_status.id
+            activity_meter.status_id = meter_statuses['Scrapped']
             activity_meter.water_users = None
             activity_meter.meter_owner = None
 
         if activity_type.name == "Sell":
-            sold_status = db.scalars(
-                select(MeterStatusLU).where(MeterStatusLU.status_name == "Sold")
-            ).first()
             activity_meter.well_id = None
             activity_meter.location_id = None
-            activity_meter.status_id = sold_status.id
+            activity_meter.status_id = meter_statuses['Sold']
             activity_meter.water_users = None
             activity_meter.meter_owner = activity_form.current_installation.meter_owner
 
