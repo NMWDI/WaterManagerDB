@@ -238,7 +238,7 @@ export interface SubmitWellUpdate {
     ra_number: string
     owners: string
     osetag: string
-    water_source: WaterSource | null
+    water_source: WaterSource
 
     use_type: {
         id: number

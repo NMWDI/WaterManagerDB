@@ -117,6 +117,8 @@ def update_well(
     # Update location since locations are mostly associated with wells
     _patch(db, Locations, updated_well.location.id, updated_well.location)
 
+    print(updated_well)
+    
     # Update well - RA number must be unique
     updated_well_model = _get(db, Wells, updated_well.id)
 
@@ -133,8 +135,9 @@ def update_well(
     except IntegrityError as e:
         raise HTTPException(status_code=409, detail="RA number already exists")
 
-    # Update use type of well
+    # Update use type of well and water source
     updated_well_model.use_type_id = updated_well.use_type.id
+    updated_well_model.water_source_id = updated_well.water_source.id
     db.commit()
 
     # Get qualified well model

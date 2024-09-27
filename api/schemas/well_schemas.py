@@ -102,7 +102,7 @@ class SubmitWellUpdate(ORMBaseSimple):
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate
-    water_source: WaterSources | None = None
+    water_source: WaterSources
 
 class SubmitWellMerge(ORMBaseSimple):
     merge_well: str

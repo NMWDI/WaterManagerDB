@@ -141,7 +141,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 options={waterSources.data ?? []}
                                 getOptionLabel={(source: WaterSource) => source.name}
                                 control={control}
-                                error={errors?.use_type?.message}
+                                error={errors?.water_source?.message}
                             />
                         </Grid>
                     </Grid>
