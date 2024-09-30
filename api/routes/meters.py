@@ -58,6 +58,13 @@ def get_meters(
             case MeterSortByField.TRSS:
                 return Locations.trss
     
+    # If 'Warehouse' is in the filter, add 'On Hold' to the filter
+    if MeterStatus.OnHold not in filter_by_status and MeterStatus.Warehouse in filter_by_status:
+        filter_by_status.append(MeterStatus.OnHold)
+
+    # Convert enums to strings
+    filter_by_status_str = [status.value for status in filter_by_status]
+    
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
@@ -66,7 +73,7 @@ def get_meters(
         .join(Wells, isouter=True)
         .join(Locations, isouter=True)
         .join(MeterStatusLU, isouter=True)
-        .where(MeterStatusLU.status_name.in_(filter_by_status))
+        .where(MeterStatusLU.status_name.in_(filter_by_status_str))
     )
 
     if search_string:
@@ -88,6 +95,9 @@ def get_meters(
             query_statement = query_statement.order_by(
                 schema_field_name
             )  # SQLAlchemy orders ascending by default
+
+    # Print the SQL query for debugging
+    #print(query_statement)
 
     return paginate(db, query_statement)
 

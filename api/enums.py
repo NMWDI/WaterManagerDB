@@ -25,6 +25,7 @@ class MeterStatus(Enum):
     Returned = "Returned"
     Sold = "Sold"
     Unknown = "Unknown"
+    OnHold = "On Hold"
 
 class SortDirection(Enum):
     Ascending = "asc"
