@@ -40,8 +40,9 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <Marker
                         key={meter.id}
                         position={[meter.location?.latitude, meter.location?.longitude]}
+                        title={meter.serial_number}
                         eventHandlers={{
-                            click: () => {onMeterSelection(meter.id)}
+                            click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
                         }}
                     ></Marker>
                 )
@@ -55,7 +56,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                 zoom={8}
                 style={mapStyle}
                 //maxBounds={L.latLngBounds([30.38, -110.76], [38.56, -101.79])}
-                maxZoom={14}
+                maxZoom={18}
                 >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -41,32 +41,35 @@ export default function MeterActivityEntry() {
     let initialMeter: Partial<MeterListDTO> | null = null
     const qpMeterID = searchParams.get('meter_id')
     const qpSerialNumber = searchParams.get('serial_number')
-    const qpStatus = searchParams.get('meter_status')
+    //const qpStatus = searchParams.get('meter_status')
+    const qpWorkOrderID = searchParams.get('work_order_id')
 
-    if (qpMeterID && qpSerialNumber && qpStatus) {
+    if (qpMeterID && qpSerialNumber) {
         initialMeter = {
             id: qpMeterID as unknown as number,
             serial_number: qpSerialNumber,
-            status: {status_name: qpStatus},
+            //status: {status_name: qpStatus ?? ''},
         }
     }
 
     // React hook form
     const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
         resolver: yupResolver(ActivityResolverSchema),
-        defaultValues: getDefaultForm(initialMeter)
+        defaultValues: getDefaultForm(initialMeter, qpWorkOrderID ? parseInt(qpWorkOrderID) : null)
     })
 
     const onSubmit: SubmitHandler<ActivityFormControl> = data => createActivity.mutate(toSubmissionForm(data))
 
     useEffect(() => {
+        console.log(meterDetails.data)
+        console.log(watch("activity_details.activity_type")?.name)
         setHasMeterActivityConflict(
-            ((watch("activity_details.selected_meter")?.status?.status_name == 'Installed'
+            ((meterDetails.data?.status.status_name == 'Installed'
                 && watch("activity_details.activity_type")?.name == ActivityType.Install) ||
-            (watch("activity_details.selected_meter")?.status?.status_name != 'Installed'
+            (meterDetails.data?.status.status_name != 'Installed'
                 && watch("activity_details.activity_type")?.name == ActivityType.Uninstall))
         )
-    }, [watch("activity_details.selected_meter")?.status?.status_name, watch("activity_details.activity_type")?.name])
+    }, [meterDetails.data, watch("activity_details.activity_type")?.name])
 
     useEffect(() => {
         setIsMeterAndActivitySelected(

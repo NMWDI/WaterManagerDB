@@ -9,24 +9,18 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
-            "V0.1.24 - Add non-functional merge button for initial testing",
-            "V0.1.23 - Prevent duplicate activities from being added",
-            "V0.1.22 - Change ownership so there is now water_users and meter_owner",
-            "V0.1.21 - Implement Degrees Minutes Seconds (DMS) for lat/long",
-            "V0.1.20 - Fix monitoring wells sort",
-            "V0.1.19 - Updated OSE endpoint to have activity_id",
-            "V0.1.18 - Only require well on install activity, display OSE tag",
-            "V0.1.17 - Restructure security code to prevent database connection problems",
-            "V0.1.16 - Fixed bug where status is changed when clearing well from meter",
-            "V0.1.15 - Updated backend to use SQLAlchemy 2 (resolve connection issue?)",
-            "V0.1.14 - Display RA number instead of well name, well distance is now observation, new default observations",
-            "V0.1.13 - Add checkbox for sharing activities with OSE.",
-            "V0.1.12 - Change lat/long to DMS, reorder observation inputs, block out of order activities",
-            "V0.1.11 - Remove all async code to see if it fixes deadlock issue",
-            "V0.1.10 - Fix owners and osetag on Wells page",
-            "V0.1.9 - Add owners to Meters table, fix various bugs",
-            "V0.1.8 - Fix bug in meter selection autocomplete",
-            "V0.1.7 - Fixed bugs in Add Meter"
+            "V0.1.41 - Add UI for water source on wells and some other minor changes",
+            "V0.1.40 - Add register to UI on meter details",
+            "V0.1.39 - Default share ose when workorder, OSE access to register information",
+            "V0.1.38 - Change logout time to 8 hours, show work order count in navigation",
+            "V0.1.37.1 - Fix various work order bugs",
+            "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
+            "V0.1.36 - Improved work orders, testing still needed",
+            "V0.1.35.1 - Fix bug with well search failing on certain inputs",
+            "V0.1.35 - Update continuous data stream IDs for monitoring wells",
+            "V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells",
+            "V0.1.33 - Add Meter Status Filter to Meters Table",
+            "V0.1.32 - Fix Monitoring Wells so that table updates after change"
         ]
 
         return (

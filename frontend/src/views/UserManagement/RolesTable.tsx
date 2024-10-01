@@ -66,14 +66,14 @@ export default function RolesTable({setSelectedRole, setRoleAddMode}: RolesTable
                     />
                 </Grid>
                 <DataGrid
-                    sx={{height: '76%', border: 'none'}}
+                    sx={{height: '350px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={rolesList.isLoading}
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedRole(rolesList.data?.find((role: UserRole) => role.id == selectedRow.row.id))}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setRoleAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Role
@@ -83,5 +83,5 @@ export default function RolesTable({setSelectedRole, setRoleAddMode}: RolesTable
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

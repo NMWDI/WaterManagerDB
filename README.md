@@ -4,6 +4,25 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.41 - Add UI for water source on wells and some other minor changes
+- V0.1.40 - Add register to UI on meter details
+- V0.1.39 - Default share ose when workorder, OSE access to register information
+- V0.1.38 - Change logout time to 8 hours, show work order count in navigation
+- V0.1.37.1 - Fix various work order bugs
+- V0.1.37 - Update OSE API to include ose_request_id and new endpoint
+- V0.1.36 - Improved work orders, testing still needed
+- V0.1.35.1 - Fix bug with well search failing on certain inputs
+- V0.1.35 - Update continuous data stream IDs for monitoring wells
+- V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells
+- V0.1.33 - Add Meter Status Filter to Meters Table
+- V0.1.32 - Fix Monitoring Wells so that table updates after change
+- V0.1.31 - Added note "verified register ratio" and made it appear by default
+- V0.1.30 - Admin can edit monitoring well data (note that monitoring well table still not updating automatically)
+- V0.1.29 - Fixed bug preventing meter type change
+- V0.1.28 - Full admin UI on meter page
+- V0.1.27 - Give admin ability to add out of order activities, fix zoom on map, other minor changes
+- V0.1.26 - Add functional merge button for admin
+- V0.1.25 - Fix datesort on meter history, give techs limited well management
 - V0.1.24 - Add non-functional merge button for initial testing
 - V0.1.23 - Prevent duplicate activities from being added
 - V0.1.22 - Change ownership so there is now water_users and meter_owner

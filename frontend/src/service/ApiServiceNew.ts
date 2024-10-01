@@ -17,6 +17,7 @@ import {
     ServiceTypeLU,
     User,
     WaterLevelQueryParams,
+    WellMergeParams,
     WellMeasurementDTO,
     Well,
     WellListQueryParams,
@@ -34,8 +35,18 @@ import {
     WellUseLU,
     SubmitWellCreate,
     SubmitWellUpdate,
-    Meter
+    Meter,
+    MeterStatus,
+    PatchObservationSubmit,
+    PatchActivitySubmit,
+    PatchWellMeasurement,
+    WorkOrder,
+    PatchWorkOrder,
+    NewWorkOrder,
+    MeterRegister,
+    WaterSource,
 } from '../interfaces.js'
+import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
 
@@ -53,16 +64,27 @@ export function toGMT6String(date: Date) {
 function formattedQueryParams(queryParams: any) {
     if (!queryParams) return ''
 
-    let queryParamString = '?';
+    let queryParamString = new URLSearchParams();
     let params = {...queryParams}
 
     for (let param in params) {
         if (params[param] === '' || params[param] == undefined) {
-            delete params[param]
+            continue
+        }
+        //Handle situation where we have an array of values
+        if (Array.isArray(params[param])) {
+            for (let value of params[param]) {
+                queryParamString.append(param, value)
+            }
+        }
+        else {
+            queryParamString.append(param, params[param])
         }
     }
-    queryParamString += new URLSearchParams(params)
-    return queryParamString
+    // Convert the URLSearchParams object to a string
+    let formattedString = '?' + queryParamString.toString()
+
+    return formattedString 
 }
 
 // Fetch function that handles incoming errors from the response. Used as the queryFn in useQuery hooks
@@ -174,6 +196,18 @@ export function useGetUseTypes() {
     )
 }
 
+export function useGetWaterSources() {
+    const route = 'water_sources'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<WaterSource[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+        {keepPreviousData: true}
+    )
+}
+
 export function useGetMeterList(params: MeterListQueryParams | undefined) {
     const route = 'meters'
     const authHeader = useAuthHeader()
@@ -203,6 +237,28 @@ export function useGetMeterTypeList() {
     const signOut = useSignOut()
 
     return useQuery<MeterTypeLU[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+    )
+}
+
+export function useGetMeterRegisterList() {
+    const route = 'meter_registers'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<MeterRegister[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+    )
+}
+
+export function useGetMeterStatusTypeList() {
+    const route = 'meter_status_types'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<MeterStatus[], Error>([route], () =>
         GETFetch(route, null, authHeader(), signOut, navigate),
     )
 }
@@ -341,6 +397,20 @@ export function useGetWells(params: WellListQueryParams | undefined) {
     )
 }
 
+// Start Get Well List for Map View
+export function useGetWellLocations(searchstring: string | undefined) {
+    const route = 'well_locations'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<Page<Well>, Error>([route, searchstring], () =>
+        GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
+    )
+}
+
+// End
+
 export function useGetWell(params: WellDetailsQueryParams | undefined) {
     const route = 'well'
     const authHeader = useAuthHeader()
@@ -356,6 +426,16 @@ export function useGetWell(params: WellDetailsQueryParams | undefined) {
     )
 }
 
+// export function useGetWellLocations(searchstring: string | undefined) {
+//     const route = 'well_locations'
+//     const authHeader = useAuthHeader()
+//     const navigate = useNavigate()
+//     const signOut = useSignOut()
+
+//     return useQuery<Page<Well>, Error>([route, searchstring], () =>
+//         GETFetch(route, {search_string: searchstring}, authHeader(), signOut, navigate),
+//     )
+// }
 export function useGetMeter(params: MeterDetailsQueryParams | undefined) {
     const route = 'meter'
     const authHeader = useAuthHeader()
@@ -434,6 +514,19 @@ export function useGetST2WaterLevels(datastreamID: number | undefined) {
     return useQuery<ST2Measurement[], Error>([route, datastreamID], () =>
         GETST2Fetch(route),
         {enabled: !!datastreamID}
+    )
+}
+
+export function useGetWorkOrders(status_filter: WorkOrderStatus[]){
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    //Convert status filter array to 
+
+    return useQuery<WorkOrder[], Error>([route, status_filter], () =>
+        GETFetch(route, {filter_by_status: status_filter}, authHeader(), signOut, navigate),
     )
 }
 
@@ -975,6 +1068,131 @@ export function useUpdateMeter(onSuccess: Function) {
     })
 }
 
+export function useUpdateObservation(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'observations'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (observation: PatchObservationSubmit) => {
+            const response = await PATCHFetch(route, observation, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                if(response.status == 409) {
+                    enqueueSnackbar('Cannot use existing serial number!', {variant: 'error'})
+                    throw Error("Observation serial number already in database")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+
+}
+
+export function useDeleteObservation(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'observations'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (observation_id: number) => {
+            const response = await fetch(API_URL + `/observations?observation_id=${observation_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activityForm: PatchActivitySubmit) => {
+            const response = await PATCHFetch(route, activityForm, authHeader())
+
+            // This responsibility will eventually move to callsite when special error codes arent relied on
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                if(response.status == 409) {
+                    //There could be a couple reasons for this... out of order activity or duplicate activity
+                    let errorText = await response.text()
+                    enqueueSnackbar(JSON.parse(errorText).detail, {variant: 'error'})
+                    throw Error(errorText)
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteActivity(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'activities'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (activity_id: number) => {
+            const response = await fetch(API_URL + `/activities?activity_id=${activity_id}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
 export function useCreatePart(onSuccess: Function) {
     const { enqueueSnackbar } = useSnackbar()
     const queryClient = useQueryClient()
@@ -1050,12 +1268,12 @@ export function useCreateChlorideMeasurement() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
                 return responseJson
             }
         },
         retry: 0
-    })
+    });
 }
 
 export function useCreateWaterLevel() {
@@ -1083,7 +1301,205 @@ export function useCreateWaterLevel() {
 
                 const responseJson = await response.json()
 
-                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...old ?? [], responseJson]})
+                queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {return [...(old ?? []), responseJson];})
+                return responseJson
+            }
+        },
+        retry: 0
+    });
+}
+
+export function useUpdateWaterLevel(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const route = 'waterlevels'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (updatedWaterLevel: PatchWellMeasurement) => {
+            const response = await PATCHFetch(route, updatedWaterLevel, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('One or More Required Fields Not Entered!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                enqueueSnackbar('Successfully Updated Measurement!', {variant: 'success'})
+                onSuccess()  //Success function should be used to update measurement table
+
+                const responseJson = await response.json()
+
+                //Update the water levels previously queried using queryClient **Under development!!
+                // queryClient.setQueryData([route, {well_id: responseJson["well_id"]}], (old: WellMeasurementDTO[] | undefined) => {
+                //     if (old != undefined) {
+                //         let newWaterLevels = [...old]
+                //         const waterLevelIndex = old.findIndex(waterLevel => waterLevel.id === responseJson["id"])
+
+                //         if (waterLevelIndex != undefined && waterLevelIndex != -1) {
+                //             newWaterLevels[waterLevelIndex] = responseJson
+                //         }
+
+                //         return newWaterLevels
+                //     }
+                //     return []
+                // })
+
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteWaterLevel() {
+    const { enqueueSnackbar } = useSnackbar()
+    const queryClient = useQueryClient()
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (waterLevelID: number) => {
+            const response = await fetch(API_URL + `/waterlevels?waterlevel_id=${waterLevelID}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader(),
+                    "Content-type": 'application/json'
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                enqueueSnackbar('Successfully Deleted Measurement!', {variant: 'success'})
+
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useMergeWells(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'merge_wells'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (mergeWells: WellMergeParams) => {
+            console.log(mergeWells)
+            const response = await POSTFetch(route, mergeWells, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 422) {
+                    enqueueSnackbar('Testing remove??!', {variant: 'error'})
+                    throw Error("Incomplete form, check network logs for details")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                onSuccess()
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useUpdateWorkOrder() {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrder: PatchWorkOrder) => {
+            const response = await PATCHFetch(route, workOrder, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 409) {
+                    enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
+                    throw Error("Failure of date, meter, and title uniqueness constraint")
+                }
+                if(response.status == 422) {
+                    enqueueSnackbar('Title cannot be blank', {variant: 'error'})
+                    throw Error("Title is empty string")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                const responseJson = await response.json()
+                return responseJson
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useDeleteWorkOrder(onSuccess: Function) {
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrderID: number) => {
+            const response = await fetch(API_URL + `/work_orders?work_order_id=${workOrderID}`, {
+                method: 'DELETE',
+                headers: {
+                    "Authorization": authHeader()
+                }
+            })
+
+            if (!response.ok) {
+                enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                throw Error("Unknown Error: " + response.status)
+            }
+            else {
+                onSuccess()
+                return true
+            }
+        },
+        retry: 0
+    })
+}
+
+export function useCreateWorkOrder(){
+    const { enqueueSnackbar } = useSnackbar()
+    const route = 'work_orders'
+    const authHeader = useAuthHeader()
+
+    return useMutation({
+        mutationFn: async (workOrder: NewWorkOrder) => {
+            const response = await POSTFetch(route, workOrder, authHeader())
+
+            if (!response.ok) {
+                if(response.status == 409) {
+                    enqueueSnackbar('Title must be unique for date and meter', {variant: 'error'})
+                    throw Error("Failure of date, meter, and title uniqueness constraint")
+                }
+                if(response.status == 422) {
+                    enqueueSnackbar('Title cannot be blank', {variant: 'error'})
+                    throw Error("Title is empty string")
+                }
+                else {
+                    enqueueSnackbar('Unknown Error Occurred!', {variant: 'error'})
+                    throw Error("Unknown Error: " + response.status)
+                }
+            }
+            else {
+                const responseJson = await response.json()
                 return responseJson
             }
         },

@@ -56,7 +56,7 @@ export default function UserManagementView() {
                         />
                     </Grid>
                 </Grid>
-                <Grid container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '70vh'}}}>
+                <Grid id="permissions_section" container item spacing={2} sx={{minHeight: {xs: '100vh', lg: '70vh'}}}>
                     <Grid item xs={7}>
                         <PermissionsTable />
                     </Grid>

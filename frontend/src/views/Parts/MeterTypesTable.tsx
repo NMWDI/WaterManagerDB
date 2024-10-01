@@ -81,14 +81,14 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '75%', border: 'none'}}
+                    sx={{height: '400px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={meterTypes.isLoading}
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedMeterType(selectedRow.row)}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setMeterTypeAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New Meter Type
@@ -98,5 +98,5 @@ export default function MeterTypesTable({setSelectedMeterType, setMeterTypeAddMo
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

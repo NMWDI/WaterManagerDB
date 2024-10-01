@@ -1,6 +1,9 @@
 import { SortDirection, MeterSortByField, WellSortByField } from 'enums'
 import internal from 'stream'
-import { ActivityType } from './enums'
+import { ActivityType, MeterStatusNames } from './enums'
+import { DateCalendarClassKey } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
+import exp from 'constants'
 
 export interface ActivityForm {
 
@@ -12,6 +15,7 @@ export interface ActivityForm {
         start_time?: Dayjs
         end_time?: Dayjs
         share_ose: boolean
+        work_order_id?: number
     }
 
     current_installation?: {
@@ -49,6 +53,7 @@ export interface ActivityFormControl {
         start_time: Dayjs
         end_time: Dayjs
         share_ose: boolean = false
+        work_order_id: number | null
     },
     current_installation: {
         meter: Partial<MeterDetails> | null
@@ -86,6 +91,74 @@ export interface MeterActivity {
     activity_type?: ActivityTypeLU
     location?: Location
     parts_used?: []
+}
+
+//This is designed to match the HistoryDetails form rather than the patch meter API
+export interface PatchActivityForm {
+    activity_id: int
+    meter_id: int
+    activity_date: dayjs.Dayjs
+    activity_start_time: dayjs.Dayjs
+    activity_end_time: dayjs.Dayjs
+    activity_type: ActivityTypeLU
+    submitting_user: User
+    description: string
+
+    well: Well | null
+    water_users?: string
+
+    notes?: NoteTypeLU[]
+    services?: ServiceTypeLU[]
+    parts_used?: Part[]
+
+    ose_share: boolean
+}
+
+//This interface is designed to match the backend API patch endpoint
+export interface PatchActivitySubmit {
+    activity_id: int
+    timestamp_start: string
+    timestamp_end: string
+    description: string
+    submitting_user_id: int
+    meter_id: int
+    activity_type_id: int
+    location_id: int | null
+    ose_share: boolean
+    water_users: string
+
+    note_ids: int[] | null
+    service_ids: int[] | null
+    part_ids: int[] | null
+}
+
+//Designed for the HistoryDetails component, not the patch endpoint
+export interface PatchObservationForm {
+    observation_id: int
+    submitting_user: User
+    well: Well | null
+    observation_date: dayjs.Dayjs
+    observation_time: dayjs.Dayjs
+    property_type: ObservedPropertyTypeLU
+    unit: Unit
+    value: number
+    ose_share: boolean
+    notes?: string
+    meter_id: int
+}
+
+export interface PatchObservationSubmit {
+    //Matches the backend API patch endpoint
+    observation_id: int
+    timestamp: string
+    value: number
+    notes: string | null
+    submitting_user_id: int
+    meter_id: int
+    observed_property_type_id: int
+    unit_id: int
+    location_id: int | null
+    ose_share: boolean
 }
 
 export interface ObservationForm {
@@ -143,6 +216,7 @@ export interface NoteTypeLU {
     note: string
     details?: string
     slug?: string
+    commonly_used: boolean
 }
 
 export interface WellUseLU {
@@ -152,12 +226,19 @@ export interface WellUseLU {
     description: string
 }
 
+export interface WaterSource {
+    id: number
+    name: string
+    description: string
+}
+
 export interface SubmitWellUpdate {
     id: number
     name: string
     ra_number: string
     owners: string
     osetag: string
+    water_source: WaterSource
 
     use_type: {
         id: number
@@ -176,6 +257,7 @@ export interface SubmitWellCreate {
     ra_number: string
     owners: string
     osetag: string
+    water_source: WaterSource | null
 
     use_type: {
         id: number
@@ -193,13 +275,13 @@ export interface Well {
     id: int
     name?: string | null
     location_id?: number | null
-    well_distance_ft?: number | null
     use_type_id?: number | null
-    ra_number?: string | null
+    ra_number: string
     owners?: string | null
     osetag?: string | null
 
     use_type: WellUseLU | null
+    water_source: WaterSource | null
     location: Location | null
 }
 
@@ -217,6 +299,11 @@ export interface WellDetailsQueryParams {
 
 export interface WaterLevelQueryParams {
     well_id: number | undefined
+}
+
+export interface WellMergeParams {
+    merge_well: string
+    target_well: string
 }
 
 export interface ST2WaterLevelQueryParams {
@@ -251,9 +338,11 @@ export interface Unit {
 export interface MeterHistoryDTO {
     id: int
     history_type: string
-    activity_type?: string
+    activity_type: string
     date: Date
     history_item: any
+    location: Location
+    well: Well | null
 }
 
 export interface MeterType {
@@ -265,7 +354,20 @@ export interface MeterType {
     description?: string
 }
 
+export interface MeterRegister {
+    id: number
+    brand: string
+    meter_size: number
+    ratio: string | null
+    number_of_digits: number | null
+    decimal_digits: number | null
+    dial_units: Unit
+    totalizer_units: Unit
+    multiplier?: number | null
+}
+
 export interface MeterStatus {
+    id: number
     status_name?: string
     description?: string
 }
@@ -290,6 +392,7 @@ export interface Location {
     land_owner?: LandOwner
 }
 
+//Depricate this??? need to assess
 export interface MeterTypeLU {
     id: number
     brand: string
@@ -317,16 +420,17 @@ export interface MeterDetails {
     meter_type: MeterType
     status: MeterStatus
     well: Well | null
+    meter_register: MeterRegister | null
     // Also has parts_associated?: List[Part]
 }
 
 export interface MeterListQueryParams {
     search_string?: string
+    filter_by_status?: MeterStatusNames[]
     sort_by?: MeterSortByField
     sort_direction?: SortDirection
     limit?: number
     offset?: number
-    exclude_inactive?: boolean
 }
 
 export interface MeterMapDTO {
@@ -434,6 +538,13 @@ export interface NewWellMeasurement {
     submitting_user_id: number
 }
 
+export interface PatchWellMeasurement {
+    levelmeasurement_id: number
+    submitting_user_id: number
+    timestamp: dayjs.Dayjs
+    value: number
+}
+
 export interface CreateUser {
     username: string
     full_name: string
@@ -480,4 +591,36 @@ export interface SecurityScope {
     id: number
     scope_string: string
     description: string
+}
+
+export interface WorkOrder {
+    work_order_id: number
+    date_created: Date
+    creator?: String 
+    meter_serial: String
+    title: String
+    description: String
+    status: String
+    notes?: String
+    assigned_user_id?: number
+    assigned_user?: String
+    associated_activities?: number[]
+}
+
+export interface NewWorkOrder {
+    //Just the bare minimum to create a new work order
+    //No work order ID since it is generated by the backend
+    date_created: Date  //This should be on the frontend to ensure it doesn't reflect server time
+    meter_id: number
+    title: string
+}
+
+export interface PatchWorkOrder {
+    // This is designed to match the backend API patch endpoint and is limited to the fields that can be updated
+    work_order_id: number
+    title?: string
+    description?: string
+    status?: string
+    notes?: string
+    assigned_user_id?: number
 }

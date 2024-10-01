@@ -45,6 +45,9 @@ class WellUseLU(ORMBase):
     code: str | None = None
     description: str | None = None
 
+class WaterSources(ORMBase):
+    name: str
+    description: str | None = None
 
 class Well(ORMBase):
     name: str | None = None
@@ -57,6 +60,7 @@ class Well(ORMBase):
 
     location: Location | None = None
     use_type: WellUseLU | None = None
+    water_source: WaterSources | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
@@ -76,6 +80,7 @@ class SubmitWellCreate(ORMBaseSimple):
 
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
+    water_source: WaterSources | None = None
 
 
 class SubmitWellUpdate(ORMBaseSimple):
@@ -97,10 +102,11 @@ class SubmitWellUpdate(ORMBaseSimple):
 
     location: SubmitLocationUpdate
     use_type: SubmitUseTypeUpdate
+    water_source: WaterSources
 
 class SubmitWellMerge(ORMBaseSimple):
-    merge_well_ranumber: str
-    target_well_ranumber: str
+    merge_well: str
+    target_well: str
 
 class WellListDTO(ORMBase):
     name: str | None = None
@@ -147,8 +153,10 @@ class NewWaterLevelMeasurement(ORMBase):
     value: float
     submitting_user_id: int
 
-
-class WaterLevelPatch(ORMBase):
-    timestamp: Optional[datetime] = None
+# Well and units should stay the same, so are not included in the patch
+class PatchWaterLevel(BaseModel):
+    levelmeasurement_id: int
+    submitting_user_id: int
+    timestamp: datetime
     value: float | None = None
-    well_id: int | None = None
+

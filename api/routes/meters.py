@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Query
 from sqlalchemy import or_, select, desc, and_
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
@@ -14,15 +14,17 @@ from api.models.main_models import (
     Meters,
     LandOwners,
     MeterActivities,
+    Parts,
     MeterObservations,
     Locations,
     MeterTypeLU,
     Wells,
     MeterStatusLU,
+    meterRegisters,
 )
 from api.route_util import _patch, _get
 from api.session import get_db
-from api.enums import ScopedUser, MeterSortByField, SortDirection
+from api.enums import ScopedUser, MeterSortByField, MeterStatus, SortDirection
 
 meter_router = APIRouter()
 
@@ -37,9 +39,9 @@ meter_router = APIRouter()
 def get_meters(
     # offset: int, limit: int - From fastapi_pagination
     search_string: str = None,
+    filter_by_status: List[MeterStatus] = Query('Installed'),
     sort_by: MeterSortByField = MeterSortByField.SerialNumber,
     sort_direction: SortDirection = SortDirection.Ascending,
-    exclude_inactive: bool = False,
     db: Session = Depends(get_db),
 ):
     def sort_by_field_to_schema_field(name: MeterSortByField):
@@ -55,7 +57,7 @@ def get_meters(
 
             case MeterSortByField.TRSS:
                 return Locations.trss
-
+    
     # Build the query statement based on query params
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
@@ -63,12 +65,9 @@ def get_meters(
         .options(joinedload(Meters.well), joinedload(Meters.status))
         .join(Wells, isouter=True)
         .join(Locations, isouter=True)
+        .join(MeterStatusLU, isouter=True)
+        .where(MeterStatusLU.status_name.in_(filter_by_status))
     )
-
-    if exclude_inactive:
-        query_statement = query_statement.where(
-            and_(Meters.status_id != 3, Meters.status_id != 4, Meters.status_id != 5)
-        )
 
     if search_string:
         query_statement = query_statement.where(
@@ -124,6 +123,10 @@ def create_meter(
         location_id=warehouse_location_id,
         meter_owner="PVACD",
     )
+
+    # If there is a register set, add it to the meter
+    if new_meter.meter_register:
+        new_meter_model.register_id = new_meter.meter_register.id
 
     # If there is a well set, update status, well and location
     if new_meter.well:
@@ -184,25 +187,42 @@ def get_meters_locations(
 
     return db.scalars(query_statement).all()
 
+def require_meter_id_or_serial_number(meter_id: int = None, serial_number: str = None):
+    if not meter_id and not serial_number:
+        raise HTTPException(
+            status_code=400, detail="Must provide either meter_id or serial_number"
+        )
+
+    return meter_id, serial_number
 
 # Get single, fully qualified meter
+# Can use either meter_id or serial_number
 @meter_router.get(
     "/meter",
     tags=["Meters"],
 )
 def get_meter(
-    meter_id: int,
+    meter_identifier: tuple = Depends(require_meter_id_or_serial_number),
     db: Session = Depends(get_db),
 ):
-    return db.scalars(
-        select(Meters)
-        .options(
+    meter_id, serial_number = meter_identifier
+
+    # Create the basic query
+    query = select(Meters).options(
             joinedload(Meters.meter_type),
             joinedload(Meters.well).joinedload(Wells.location),
             joinedload(Meters.status),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.dial_units),
+            joinedload(Meters.meter_register).joinedload(meterRegisters.totalizer_units),
         )
-        .filter(Meters.id == meter_id)
-    ).first()
+
+    # Filter by either meter by id or serial number
+    if meter_id:
+        query = query.filter(Meters.id == meter_id)
+    else:
+        query = query.filter(Meters.serial_number == serial_number)
+
+    return db.scalars(query).first()
 
 
 @meter_router.get(
@@ -213,6 +233,34 @@ def get_meter(
 )
 def get_meter_types(db: Session = Depends(get_db)):
     return db.scalars(select(MeterTypeLU)).all()
+
+
+# A route to return register types from meter_register table
+@meter_router.get(
+    "/meter_registers",
+    response_model=List[meter_schemas.MeterRegister],
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"],
+)
+def get_meter_registers(db: Session = Depends(get_db)):
+    query = select(meterRegisters).options(
+        joinedload(meterRegisters.dial_units),
+        joinedload(meterRegisters.totalizer_units)
+    )
+
+    return db.scalars(query).all()
+
+
+
+# A route to return status types from the MeterStatusLU table
+@meter_router.get(
+    "/meter_status_types",
+    response_model=List[meter_schemas.MeterStatusLU],
+    dependencies=[Depends(ScopedUser.Read)],
+    tags=["Meters"],
+)
+def get_meter_status(db: Session = Depends(get_db)):
+    return db.scalars(select(MeterStatusLU)).all()
 
 
 @meter_router.patch(
@@ -280,20 +328,27 @@ def patch_meter(
     updated_meter: meter_schemas.SubmitMeterUpdate, db: Session = Depends(get_db)
 ):
     """
-    Update a meter. This is only used by Meter Details on the frontend, so status should not
-    be changed when the well is cleared.
+    Update the current state of a meter. This is only used by Meter Details on the frontend.
 
     Returns http error if meter SN changed to existing SN.
     """
     meter_db = _get(db, Meters, updated_meter.id)
 
-    # Update the meter (this won't include Well or Location due to schema structure)
-    for k, v in updated_meter.model_dump(exclude_unset=True).items():
-        try:
-            setattr(meter_db, k, v)
-        except AttributeError as e:
-            print(e)
-            continue
+    # Update the meter
+    meter_db.serial_number = updated_meter.serial_number
+    meter_db.contact_name = updated_meter.contact_name
+    meter_db.contact_phone = updated_meter.contact_phone
+    meter_db.notes = updated_meter.notes
+    meter_db.meter_type_id = updated_meter.meter_type.id
+    meter_db.water_users = updated_meter.water_users
+    meter_db.meter_owner = updated_meter.meter_owner
+    meter_db.register_id = updated_meter.meter_register.id
+    # for k, v in updated_meter.model_dump(exclude_unset=True).items():
+    #     try:
+    #         setattr(meter_db, k, v)
+    #     except AttributeError as e:
+    #         print(e)
+    #         continue
 
     # If there is a well set, update status, well and location
     if updated_meter.well:
@@ -307,6 +362,10 @@ def patch_meter(
         # If there is no well set, clear the well and location
         meter_db.location_id = None
         meter_db.well_id = None
+
+    # Update the meter status, if it isn't set don't update it
+    if updated_meter.status:
+        meter_db.status_id = updated_meter.status.id
 
     try:
         db.add(meter_db)
@@ -348,8 +407,9 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
                 joinedload(MeterActivities.location),
                 joinedload(MeterActivities.submitting_user),
                 joinedload(MeterActivities.activity_type),
-                joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.parts_used).joinedload(Parts.part_type),
                 joinedload(MeterActivities.notes),
+                joinedload(MeterActivities.services_performed)
             )
             .filter(MeterActivities.meter_id == meter_id)
         )
@@ -374,10 +434,15 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     for activity in activities:
         activity.location.geom = None  # FastAPI errors when returning this
+
+        #Find if there is a well associated with the location
+        activity_well = db.scalars(select(Wells).where(Wells.location_id == activity.location_id)).first()
+
         formattedHistoryItems.append(
             {
                 "id": itemID,
                 "history_type": HistoryType.Activity,
+                "well": activity_well,
                 "location": activity.location,
                 "activity_type": activity.activity_type_id,
                 "date": activity.timestamp_start,
@@ -388,10 +453,15 @@ def get_meter_history(meter_id: int, db: Session = Depends(get_db)):
 
     for observation in observations:
         observation.location.geom = None
+
+        #Find if there is a well associated with the location
+        observation_well = db.scalars(select(Wells).where(Wells.location_id == observation.location_id)).first()
+
         formattedHistoryItems.append(
             {
                 "id": itemID,
                 "history_type": HistoryType.Observation,
+                "well": observation_well,
                 "location": observation.location,
                 "date": observation.timestamp,
                 "history_item": observation,

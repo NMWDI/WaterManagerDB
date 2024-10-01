@@ -22,9 +22,17 @@ import { Controller, useFieldArray } from 'react-hook-form'
 
 {/* Controls which notes are selected */}
 export default function NotesSelection({control, errors, watch, setValue}: any) {
-    const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([1, 2, 3]) // The default notes, and user-added ones from select dropdown
+    const [visibleNoteIDs, setVisibleNoteIDs] = useState<number[]>([]) // The default notes, and user-added ones from select dropdown
 
     const notesList = useGetNoteTypes()
+
+    // Set the default notes to be visible
+    React.useEffect(() => {
+        if(notesList.data) {
+            const defaultNotes = notesList.data.filter((note: any) => note.commonly_used == true)
+            setVisibleNoteIDs(defaultNotes.map((note: any) => note.id))
+        }
+    }, [notesList.data])
 
     // React hook formarray
     const { append, remove } = useFieldArray({

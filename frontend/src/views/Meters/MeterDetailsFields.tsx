@@ -34,8 +34,10 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
 import ControlledMeterTypeSelect from '../../components/RHControlled/ControlledMeterTypeSelect'
 import ControlledWellSelection from '../../components/RHControlled/ControlledWellSelection'
+import ControlledMeterStatusTypeSelect from '../../components/RHControlled/ControlledMeterStatusTypeSelect' // This import is missing from the snippet
 
 import { formatLatLong } from '../../conversions'
+import ControlledMeterRegisterSelect from '../../components/RHControlled/ControlledMeterRegisterSelect'
 
 interface MeterDetailsProps {
     selectedMeterID: number | undefined
@@ -67,6 +69,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
     const createMeter = useCreateMeter(onSuccessfulCreate)
 
     const onSaveChanges: SubmitHandler<any> = data => {
+        //console.log(data)
         updateMeter.mutate(data)
     }
     const onAddMeter: SubmitHandler<any> = data => {
@@ -99,8 +102,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
             pathname: '/activities',
             search: createSearchParams({
                 meter_id: selectedMeterID?.toString() ?? '',
-                serial_number: meterDetails.data?.serial_number ?? '',
-                meter_status: meterDetails.data?.status?.status_name ?? ''
+                serial_number: meterDetails.data?.serial_number ?? ''
             }).toString()
         })
     }
@@ -148,6 +150,25 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     </Grid>
                     <Grid container item xs={12}>
                         <Grid item xs={12} lg={5}>
+                            <ControlledMeterRegisterSelect
+                                name="meter_register"
+                                control={control}
+                                meterType={watch("meter_type")}
+                                disabled={!hasAdminScope || isInitialLoad}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12}>
+                        <Grid item xs={12} lg={5}>
+                            <ControlledMeterStatusTypeSelect
+                                name="status"
+                                control={control}
+                                disabled={!hasAdminScope || isInitialLoad}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12}>
+                        <Grid item xs={12} lg={5}>
                             <ControlledWellSelection
                                 name="well"
                                 control={control}
@@ -163,7 +184,6 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>
-                                    <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '15%' }}>Status</TableCell>
                                         <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>TRSS</TableCell>
                                         <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '35%' }}>Lat/Long</TableCell>
                                         <TableCell sx={{ fontWeight: 700, fontSize: '1rem', width: '25%' }}>OSE Tag</TableCell>
@@ -171,7 +191,6 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 </TableHead>
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell sx={{ fontSize: '1rem' }}>{ meterDetails.data?.status?.status_name == null ? 'N/A' : meterDetails.data?.status?.status_name }</TableCell>
                                         <TableCell sx={{ fontSize: '1rem' }}>{ watch("well")?.location?.trss == null ? '--' : watch("well")?.location?.trss}</TableCell>
                                         <TableCell sx={{ fontSize: '1rem' }}>
                                             { watch("well")?.location?.latitude == null ? '--': formatLatLong(watch("well")?.location?.latitude, watch("well")?.location?.longitude) }
@@ -191,7 +210,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             name="water_users"
                             control={control}
                             label="Water Users"
-                            disabled={true}
+                            disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -199,7 +218,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             name="meter_owner"
                             control={control}
                             label="Meter Owner"
-                            disabled={true}
+                            disabled={!hasAdminScope || isInitialLoad}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -253,7 +272,9 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={meterDetails.data?.status?.status_name == 'Sold' || meterDetails.data?.status?.status_name == 'Scrapped' || isInitialLoad}
+                                disabled={
+                                    // meterDetails.data?.status?.status_name == 'Sold' ||
+                                     meterDetails.data?.status?.status_name == 'Scrapped' || isInitialLoad}
                                 onClick={navigateToNewActivity}
                             >New Activity</Button>
                         </Grid>

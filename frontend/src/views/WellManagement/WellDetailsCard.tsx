@@ -9,14 +9,17 @@ import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 
-import { useCreateWell, useGetUseTypes, useUpdateWell } from '../../service/ApiServiceNew'
+import { useCreateWell, useGetUseTypes, useGetWaterSources, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SubmitWellCreate, SubmitWellUpdate, Well, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
 import { MergeWellModal } from '../../components/MergeWellModal';
 import { isMainThread } from 'worker_threads';
+
+import { useAuthUser } from 'react-auth-kit';
+import { SecurityScope } from '../../interfaces';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     name: Yup.string().required('Please enter a well name.'),
@@ -40,11 +43,19 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
         }
     })
 
+    const authUser = useAuthUser()
+    const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+
     const useTypeList = useGetUseTypes()
+    const waterSources = useGetWaterSources()
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Well!', {variant: 'success'}) }
     function onSuccessfulCreate() {
         enqueueSnackbar('Successfully Created Well!', {variant: 'success'})
+        reset()
+    }
+    function onSuccessfulMerge() {
+        enqueueSnackbar('Successfully Merged Well!', {variant: 'success'})
         reset()
     }
     const createWell = useCreateWell(onSuccessfulCreate)
@@ -56,7 +67,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
 
     // Populate the form with the selected well's details
     useEffect(() => {
-        console.log(selectedWell)
+       
         if (selectedWell != undefined) {
             reset()
             Object.entries(selectedWell).forEach(([field, value]) => {
@@ -124,6 +135,18 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                         <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Water Source"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
                             <ControlledTextbox
                                 name="osetag"
                                 control={control}
@@ -132,8 +155,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 helperText={errors?.osetag?.message}
                             />
                         </Grid>
-                    </Grid>
-                    <Grid container item xs={12} spacing={2}>
                         <Grid item xs={6}>
                             <ControlledTextbox
                                 name="owners"
@@ -193,7 +214,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>
                             }
                             {// If in edit mode, show the merge button
-                                !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal}>Merge Well</Button> : ''
+                                !wellAddMode ? <Button variant="contained" onClick={handleOpenMergeModal} disabled={!hasAdminScope}>Merge Well</Button> : ''
                             }
                         </Stack>
                     </Grid>
@@ -201,8 +222,9 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
             <MergeWellModal 
                 isWellMergeModalOpen={isWellMergeModalOpen} 
                 handleCloseMergeModal={handleCloseMergeModal} 
-                handleSubmit={() => {console.log('test')}}
-                raNumber='RA123' />
+                handleSuccess={onSuccessfulMerge}
+                mergeWell_raNumber = {selectedWell?.ra_number ?? ''}
+            />
             </CardContent>
         </Card>
     )

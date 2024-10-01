@@ -26,7 +26,7 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
         {field: 'email', headerName: 'Email', width: 250},
         {field: 'username', headerName: 'Username', width: 150},
         {field: 'user_role', headerName: 'Role', width: 200,
-            valueGetter: (params: any) => params.value?.name,
+            valueGetter: (value, row) => row.user_role.name,
             renderCell: (params: any) => {
                 switch (params.value) {
                     case 'Admin': {
@@ -99,14 +99,14 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
                     </Grid>
                 </Grid>
                 <DataGrid
-                    sx={{height: '76%', border: 'none'}}
+                    sx={{height: '400px', border: 'none'}}
                     rows={filteredRows ?? []}
                     loading={usersList.isLoading}
                     columns={cols}
                     disableColumnMenu
                     onRowClick={(selectedRow) => {setSelectedUser(usersList.data?.find((user: User) => user.id == selectedRow.row.id))}}
-                    components={{Footer: GridFooterWithButton}}
-                    componentsProps={{footer: {
+                    slots={{footer: GridFooterWithButton}}
+                    slotProps={{footer: {
                         button:
                             <Button variant="contained" size="small" onClick={() => setUserAddMode(true)}>
                                 <AddIcon style={{fontSize: '1rem'}}/>Add a New User
@@ -116,5 +116,5 @@ export default function UsersTable({setSelectedUser, setUserAddMode}: UsersTable
                 />
             </CardContent>
         </Card>
-    )
+    );
 }

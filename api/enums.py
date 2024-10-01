@@ -17,6 +17,14 @@ class WellSortByField(Enum):
     UseType = "use_type"
     Location = "location"
 
+class MeterStatus(Enum):
+    #Status can be: Installed, Warehouse, Scrapped, Returned, Sold, or Unknown
+    Installed = "Installed"
+    Warehouse = "Warehouse"
+    Scrapped = "Scrapped"
+    Returned = "Returned"
+    Sold = "Sold"
+    Unknown = "Unknown"
 
 class SortDirection(Enum):
     Ascending = "asc"
@@ -30,3 +38,9 @@ class ScopedUser(Enum):
     ActivityWrite = scoped_user(["activities:write"])
     WellMeasurementWrite = scoped_user(["well_measurement:write"])
     MeterWrite = scoped_user(["meters:write"])
+    WellWrite = scoped_user(["well:write"])
+
+class WorkOrderStatus(Enum):
+    Open = "Open"
+    Closed = "Closed"
+    Review = "Review"

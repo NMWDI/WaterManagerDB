@@ -8,7 +8,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import well_schemas
-from api.models.main_models import Locations, WellUseLU, Wells
+from api.models.main_models import Locations, WaterSources, WellUseLU, Wells
 from api.route_util import _patch, _get
 from api.session import get_db
 from api.enums import ScopedUser, WellSortByField, SortDirection
@@ -26,6 +26,18 @@ def get_use_types(
     db: Session = Depends(get_db),
 ):
     return db.scalars(select(WellUseLU)).all()
+
+# Get water sources
+@well_router.get(
+    "/water_sources",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.WaterSources],
+    tags=["Wells"],
+)
+def get_water_sources(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(WaterSources)).all()
 
 
 @well_router.get(
@@ -93,9 +105,10 @@ def get_wells(
     return paginate(db, query_statement)
 
 
+
 @well_router.patch(
     "/wells",
-    dependencies=[Depends(ScopedUser.Admin)],
+    dependencies=[Depends(ScopedUser.WellWrite)],
     tags=["Wells"],
 )
 def update_well(
@@ -103,7 +116,7 @@ def update_well(
 ):
     # Update location since locations are mostly associated with wells
     _patch(db, Locations, updated_well.location.id, updated_well.location)
-
+    
     # Update well - RA number must be unique
     updated_well_model = _get(db, Wells, updated_well.id)
 
@@ -120,8 +133,9 @@ def update_well(
     except IntegrityError as e:
         raise HTTPException(status_code=409, detail="RA number already exists")
 
-    # Update use type of well
+    # Update use type of well and water source
     updated_well_model.use_type_id = updated_well.use_type.id
+    updated_well_model.water_source_id = updated_well.water_source.id
     db.commit()
 
     # Get qualified well model
@@ -185,6 +199,54 @@ def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(g
     return new_well_model
 
 
+
+# Get List of well for MapView
+# Get search for well similar to /well but no pagination and only for installed well
+# Returns all installed well with a location when search is None
+@well_router.get(
+    "/well_locations",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.Well],
+    tags=["Wells"],
+)
+def get_wells_locations(
+    search_string: str = None,
+    db: Session = Depends(get_db),
+):
+    # Build the query statement based on query params
+    # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
+    query_statement = (
+        select(Wells)
+        .join(Locations, isouter=True)
+        .join(WellUseLU, isouter=True)
+    )
+
+    #  # Ensure there are coordinates and meter is installed
+    # query_statement = query_statement.where(
+    #     and_(
+    #         Locations.latitude.is_not(None),
+    #         Locations.longitude.is_not(None)
+    #     )
+    # )
+
+    if search_string:
+        query_statement = query_statement.where(
+            or_(
+                Wells.name.ilike(f"%{search_string}%"),
+                Wells.ra_number.ilike(f"%{search_string}%"),
+                Wells.owners.ilike(f"%{search_string}%"),
+                Wells.osetag.ilike(f"%{search_string}%"),
+                Locations.trss.ilike(f"%{search_string}%"),
+                WellUseLU.use_type.ilike(f"%{search_string}%"),
+            )
+        )
+
+
+    return db.scalars(query_statement).all()
+
+
+# End
+
 @well_router.get(
     "/well",
     dependencies=[Depends(ScopedUser.Read)],
@@ -209,8 +271,8 @@ def merge_well(well: well_schemas.SubmitWellMerge, db: Session = Depends(get_db)
     '''
     Transfers the history of merge well to target well then deletes the merge well
     '''
-    merge_well = db.scalars(select(Wells).where(Wells.ra_number == well.merge_well_ranumber)).first()
-    target_well = db.scalars(select(Wells).where(Wells.ra_number == well.target_well_ranumber)).first()
+    merge_well = db.scalars(select(Wells).where(Wells.ra_number == well.merge_well)).first()
+    target_well = db.scalars(select(Wells).where(Wells.ra_number == well.target_well)).first()
     merge_location = db.scalars(select(Locations).where(Locations.id == merge_well.location_id)).first()
 
     # Transfer history of merge well to target well

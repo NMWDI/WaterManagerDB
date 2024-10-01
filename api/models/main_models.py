@@ -122,6 +122,9 @@ class NoteTypeLU(Base):
     # working | not-working | not-checked | null
     slug: Mapped[str]
 
+    # Commonly Used determines what is displayed by default
+    commonly_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
 
 # Association table that links notes and the meter activity they were added to
 Notes = Table(
@@ -158,11 +161,13 @@ class Meters(Base):
     location_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("Locations.id"), nullable=False
     )
+    register_id: Mapped[int] = mapped_column(Integer, ForeignKey("meter_registers.id"), nullable=True)
 
     water_users: Mapped[Optional[str]] = mapped_column(String)
     meter_owner: Mapped[Optional[str]] = mapped_column(String)
 
     meter_type: Mapped["MeterTypeLU"] = relationship()
+    meter_register: Mapped["meterRegisters"] = relationship()
     status: Mapped["MeterStatusLU"] = relationship()
     well: Mapped["Wells"] = relationship()
     location: Mapped["Locations"] = relationship()
@@ -218,6 +223,7 @@ class MeterActivities(Base):
     )
     ose_share: Mapped[bool] = mapped_column(Boolean, nullable=False)
     water_users: Mapped[str] = mapped_column(String)
+    work_order_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_orders.id"))
 
     submitting_user: Mapped["Users"] = relationship()
     meter: Mapped["Meters"] = relationship()
@@ -229,6 +235,7 @@ class MeterActivities(Base):
         "ServiceTypeLU", secondary=ServicesPerformed
     )
     notes: Mapped[List["NoteTypeLU"]] = relationship("NoteTypeLU", secondary=Notes)
+    work_order: Mapped["workOrders"] = relationship()
 
 
 class ActivityTypeLU(Base):
@@ -475,6 +482,15 @@ class WellUseLU(Base):
     code: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
 
+class WaterSources(Base):
+    """
+    The source of water for a well
+    """
+
+    __tablename__ = "water_sources"
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String)
+
 
 class Wells(Base):
     """
@@ -491,9 +507,11 @@ class Wells(Base):
 
     use_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("WellUseLU.id"))
     location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"))
+    water_source_id: Mapped[int] = mapped_column(Integer, ForeignKey("water_sources.id"))
 
     use_type: Mapped["WellUseLU"] = relationship()
     location: Mapped["Locations"] = relationship()
+    water_source: Mapped["WaterSources"] = relationship()
 
 
 class WellMeasurements(Base):
@@ -526,3 +544,53 @@ class WellMeasurements(Base):
     well: Mapped["Wells"] = relationship()
 
     submitting_user: Mapped["Users"] = relationship()
+
+class workOrderStatusLU(Base):
+    '''
+    Models the status of a work order
+    '''
+    __tablename__ = "work_order_status_lu"
+    name = mapped_column(String, nullable=False)
+    description = mapped_column(String, nullable=False)
+
+class workOrders(Base):
+    '''
+    Models work orders and associated information
+    '''
+    __tablename__ = "work_orders"
+    date_created: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
+    creator: Mapped[str] = mapped_column(String, nullable=True) # There is no consistent list of persons for this, so it is nullable
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    meter_id: Mapped[int] = mapped_column(Integer, ForeignKey("Meters.id"), nullable=False)
+    status_id: Mapped[int] = mapped_column(Integer, ForeignKey("work_order_status_lu.id"), nullable=False)
+    notes: Mapped[str] = mapped_column(String, nullable=True)
+    assigned_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("Users.id"), nullable=True)
+    ose_request_id: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    # Associated Activities
+    # associated_activities: Mapped[List['MeterActivities']] = relationship("MeterActivities")
+
+    meter: Mapped['Meters']= relationship()
+    status: Mapped['workOrderStatusLU']= relationship()
+    assigned_user: Mapped['Users'] = relationship()
+
+class meterRegisters(Base):
+    '''
+    Models the registers of a meter
+    '''
+    __tablename__ = "meter_registers"
+    brand: Mapped[str] = mapped_column(String, nullable=False)
+    meter_size: Mapped[float] = mapped_column(Float, nullable=False)
+    ratio: Mapped[str] = mapped_column(String)
+    dial_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
+    totalizer_units_id: Mapped[int] = mapped_column(Integer, ForeignKey("Units.id"), nullable=False)
+    number_of_digits: Mapped[int] = mapped_column(Integer, nullable=False)
+    decimal_digits: Mapped[int] = mapped_column(Integer)
+    multiplier: Mapped[float] = mapped_column(Float, nullable=False)
+    notes: Mapped[str] = mapped_column(String)
+
+    dial_units: Mapped['Units'] = relationship(foreign_keys=[dial_units_id])
+    totalizer_units: Mapped['Units'] = relationship(foreign_keys=[totalizer_units_id])
+
+

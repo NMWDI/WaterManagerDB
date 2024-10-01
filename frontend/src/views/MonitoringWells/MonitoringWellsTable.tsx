@@ -1,5 +1,5 @@
 import { Box, Button } from "@mui/material";
-import { DataGrid, GridPagination, gridDateComparator } from '@mui/x-data-grid';
+import { DataGrid, GridPagination, gridDateComparator, GridColDef } from '@mui/x-data-grid';
 import React from 'react'
 import { WellMeasurementDTO } from "../../interfaces";
 import dayjs from 'dayjs'
@@ -12,11 +12,20 @@ interface MonitoringWellsTableProps {
     rows: WellMeasurementDTO[]
     onOpenModal: () => void
     isWellSelected: boolean
+    onMeasurementSelect: (data: any) => void
 }
 
 interface CustomWellsFooterProps {
     onOpenModal: () => void
     isWellSelected: boolean
+}
+
+//This is needed for typescript to recognize the slotProps... see https://v6.mui.com/x/react-data-grid/components/#custom-slot-props-with-typescript
+declare module '@mui/x-data-grid' {
+    interface FooterPropsOverrides {
+        onOpenModal: () => void
+        isWellSelected: boolean
+    }
 }
 
 function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps) {
@@ -30,21 +39,21 @@ function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps
     )
 }
 
-export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: MonitoringWellsTableProps){
-    const columns = [
+export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasurementSelect}: MonitoringWellsTableProps){
+    const columns: GridColDef[] = [
         {
             field: 'timestamp',
             headerName: 'Date/Time',
             width: 200,
-            valueGetter: (params: any) => {
+            valueGetter: (value) => {
                 return dayjs
-                        .utc(params?.value)
+                        .utc(value)
                         .tz('America/Denver')
                         //.format('MM/DD/YYYY hh:mm A')
             },
-            valueFormatter: (params: any) => {
+            valueFormatter: (value) => {
                 return dayjs
-                        .utc(params?.value)
+                        .utc(value)
                         .tz('America/Denver')
                         .format('MM/DD/YYYY hh:mm A')
             },
@@ -55,8 +64,8 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
             field: 'submitting_user',
             headerName: 'User',
             width: 200 ,
-            valueGetter: (params: any) => {
-                return (params.value.full_name)
+            valueGetter: (value: WellMeasurementDTO["submitting_user"]) => {
+                return (value.full_name)
             }
         }
     ];
@@ -66,12 +75,13 @@ export function MonitoringWellsTable({rows, onOpenModal, isWellSelected}: Monito
             <DataGrid
                 rows={rows}
                 columns={columns}
-                components={{
-                    Footer: CustomWellsFooter
+                slots={{
+                    footer: CustomWellsFooter
                 }}
-                componentsProps={{
+                slotProps={{
                   footer: { onOpenModal: onOpenModal, isWellSelected: isWellSelected }
                 }}
+                onRowClick={onMeasurementSelect}
             />
         </Box>
     )

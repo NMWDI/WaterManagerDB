@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import { Grid } from '@mui/material'
 
@@ -9,11 +9,17 @@ import ControlledUserSelect from '../../../components/RHControlled/ControlledUse
 import ControlledDatepicker from '../../../components/RHControlled/ControlledDatepicker'
 import ControlledTimepicker from '../../../components/RHControlled/ControlledTimepicker'
 import ControlledCheckbox from '../../../components/RHControlled/ControlledCheckbox'
+import { ControlledWorkOrderSelect } from '../../../components/RHControlled/ControlledWorkOrderSelect'
 
 {/* Controls the selection of the meter, activity, user, and other fields from 'Activity Details' */}
 export function MeterActivitySelection({control, errors, watch, setValue}: any) {
     const authUser = useAuthUser()
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
+
+    // Clear the work order selection when the user changes
+    // useEffect(() => {
+    //     setValue('activity_details.work_order_id', null)
+    // }, [watch('activity_details.user')])
 
     return (
         <Grid container item>
@@ -41,7 +47,8 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         name="activity_details.user"
                         control={control}
                         errors={errors}
-                        hideAndSelectCurrentUser={!hasAdminScope}
+                        //hideAndSelectCurrentUser={!hasAdminScope}
+                        hideAndSelectCurrentUser={false}  //Temporary disable of this admin feature
                         setValue={setValue}
                         error={errors?.activity_details?.user?.message}
                     />
@@ -74,6 +81,15 @@ export function MeterActivitySelection({control, errors, watch, setValue}: any) 
                         control={control}
                         error={errors?.activity_details?.end_time?.message}
                         sx={{width: '100%'}}
+                    />
+                </Grid>
+            </Grid>
+            <Grid container item xs={12} sx={{mt: 1}} spacing={2}>
+                <Grid item xs={4}>
+                    <ControlledWorkOrderSelect
+                        name="activity_details.work_order_id"
+                        control={control}
+                        //option_filters={{assigned_user_id: watch('activity_details.user')?.id}}
                     />
                 </Grid>
             </Grid>

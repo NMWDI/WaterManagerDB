@@ -11,15 +11,16 @@ import { Grid } from '@mui/material';
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import ActivitiesView from './views/Activities/ActivitiesView';
 import MetersView from './views/Meters/MetersView'
-import ChloridesView from "./views/Chlorides/ChloridesView";
+//import ChloridesView from "./views/Chlorides/ChloridesView";
 import PartsView from "./views/Parts/PartsView";
+import UserManagementView from './views/UserManagement/UserManagementView';
+import WellManagementView from './views/WellManagement/WellManagementView';
+import WorkOrdersView from './views/WorkOrders/WorkOrdersView';
 
 import Sidenav from './sidenav'
 import Home from "./Home";
 import Topbar from "./components/Topbar";
 import Login from './login';
-import UserManagementView from './views/UserManagement/UserManagementView';
-import WellManagementView from './views/WellManagement/WellManagementView';
 import { SecurityScope } from './interfaces';
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
@@ -114,13 +115,13 @@ export default function App() {
                     setErrorMessage={setErrorMessage}
                 />
             }/>
-            <Route path="/chlorides" element={
+            {/* <Route path="/chlorides" element={
                 <AppLayout
                     pageComponent={<ChloridesView/>}
                     requiredScopes={["read"]}
                     setErrorMessage={setErrorMessage}
                 />
-            }/>
+            }/> */}
             <Route path="/parts" element={
                 <AppLayout
                     pageComponent={<PartsView/>}
@@ -138,7 +139,21 @@ export default function App() {
             <Route path="/wellmanagement" element={
                 <AppLayout
                     pageComponent={<WellManagementView/>}
-                    requiredScopes={["admin"]}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
+            }/>
+            <Route path="/workorders" element={
+                <AppLayout
+                    pageComponent={<WorkOrdersView/>}
+                    requiredScopes={["read"]}
+                    setErrorMessage={setErrorMessage}
+                />
+            }/>
+            <Route path='*' element={
+                <AppLayout
+                    pageComponent={<Home/>}
+                    requiredScopes={["read"]}
                     setErrorMessage={setErrorMessage}
                 />
             }/>
