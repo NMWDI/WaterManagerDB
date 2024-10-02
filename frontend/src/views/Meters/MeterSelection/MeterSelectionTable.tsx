@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
 import { Box, Button } from '@mui/material'
-import { DataGrid, GridSortModel, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridSortModel, GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import AddIcon from '@mui/icons-material/Add'
 
 import { MeterListQueryParams, SecurityScope } from '../../../interfaces'
@@ -12,6 +12,7 @@ import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
 import { useAuthUser } from 'react-auth-kit'
 import { parseMutationArgs } from 'react-query/types/core/utils'
+import { set } from 'react-hook-form'
 
 interface MeterSelectionTableProps {
     onMeterSelection: Function
@@ -38,6 +39,7 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const meterList = useGetMeterList(meterListQueryParams)
+
 
     const meterTableColumns: GridColDef[] = [
         {
@@ -80,7 +82,11 @@ export default function MeterSelectionTable({onMeterSelection, meterSearchQuery,
     }, [meterSearchQueryDebounced, gridSortModel, paginationModel, meterStatusFilter])
 
     useEffect(() => {
-        setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API
+        //If statement to prevent the gridRowCount from being set to 0 when the meterList is still loading which appears to reset pagination
+        if (meterList.data) {
+            setGridRowCount(meterList.data.total)
+        }
+        //setGridRowCount(meterList.data?.total ?? 0) // Update the meter count when new list is recieved from API
     }, [meterList])
 
     return (

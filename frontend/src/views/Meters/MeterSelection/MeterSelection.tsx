@@ -23,7 +23,6 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
     const handleTabChange = (event: React.SyntheticEvent, newTabIndex: number) => setCurrentTabIndex(newTabIndex)
 
     function handleFilterSelect(event: React.MouseEvent<HTMLElement>, newFilters: string[]) {
-        console.log(newFilters)
         //If nothing selected, force the installed filter to be selected
         if (newFilters.length === 0) {
             newFilters.push('installed')
