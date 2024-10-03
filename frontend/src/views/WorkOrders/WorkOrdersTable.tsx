@@ -22,7 +22,7 @@ import { WorkOrderStatus } from '../../enums';
 import MeterSelection from '../../components/MeterSelection';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import GridFooterWithButton from '../../components/GridFooterWithButton';
-import { MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
+import { MeterActivity, MeterListDTO, NewWorkOrder, SecurityScope } from '../../interfaces';
 import { useAuthUser } from 'react-auth-kit';
 import { Link, createSearchParams } from 'react-router-dom';
 
@@ -254,11 +254,11 @@ export default function WorkOrdersTable() {
             headerName: 'Activity IDs',
             width: 150,
             renderCell: (params) => {
-                const activityIDs = params.value as number[] ?? [];
-                const links = activityIDs.map((activityId, index) => (
-                    <span key={activityId}>
-                        <Link to={'/meters#history_section'} state={{ meter_sn: params.row.meter_serial, meter_id: params.row.meter_id, activity_id: activityId }}>
-                            {activityId}
+                const activities = params.value as MeterActivity[] ?? [];
+                const links = activities.map((activity, index) => (
+                    <span key={activity.id}>
+                        <Link to={'/meters#history_section'} state={{ meter_id: activity.meter_id, activity_id: activity.id }}>
+                            {activity.id}
                         </Link>
                         {index < params.value.length - 1 ? ', ' : ''}
                     </span>
