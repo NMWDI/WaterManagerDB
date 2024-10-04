@@ -19,11 +19,10 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 interface MeterHistoryProps {
-    selectMeterSerialNumber: string | undefined
     selectedMeterID: number | undefined
 }
 
-export default function MeterHistory({selectMeterSerialNumber, selectedMeterID}: MeterHistoryProps) {
+export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const location = useLocation()
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
