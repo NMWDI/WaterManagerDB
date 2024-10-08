@@ -241,7 +241,7 @@ export default function WorkOrdersTable() {
             headerName: 'Meter',
             width: 100,
             renderCell: (params) => {
-                return <Link to={'/meters'} state={{meter_sn: params.value, meter_id: params.row.meter_id}}>{params.value}</Link>
+                return <Link to={{ pathname: '/meters', search: `?meter_id=${params.row.meter_id}` }}>{params.value}</Link>
             }
         },
         { field: 'title', headerName: 'Title', width: 200, editable: hasAdminScope},

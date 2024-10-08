@@ -15,19 +15,18 @@ export default function MetersView() {
     const [selectedMeter, setSelectedMeter] = useState<number>()
     const [meterAddMode, setMeterAddMode] = useState<boolean>(false)
 
-    // Load page in different ways depending on if/how location.state is defined
-    // If meter_sn and meter_id are defined, pre-select the meter and load the history
-    // if activity_id is defined... todo
-    // useEffect(() => {
-    //     if (location.state) {
-    //         const { meter_sn, meter_id } = location.state as MeterInfo
-    //         if (meter_sn && meter_id) {
-    //             setSelectedMeter({ meter_sn, meter_id })
-    //         }
-    //         // Handle other cases like activity_id here
-    //         //TODO 
-    //     }
-    // }, [location.state])
+    //Load page with a pre-selected meter as determined by query string
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search)
+        const meter_id = searchParams.get('meter_id') as number | null
+        const activity_id = searchParams.get('activity_id') as number | null
+        console.log('activity_id: ', activity_id)
+
+        if (meter_id !== null) {
+            setSelectedMeter(meter_id)
+        }
+
+    }, [location.search])
 
     //Always set the meterAddMode to false when a new meter is selected 
     useEffect(() => {

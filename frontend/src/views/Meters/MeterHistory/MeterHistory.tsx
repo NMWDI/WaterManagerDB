@@ -29,35 +29,35 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
 
     // If there is a hash in the URL and location.state is defined, the component is being loaded after linking from WorkOrders
     // scroll to the history section and load the activity ID
-    useEffect(() => {
-        // Check if there is a hash in the URL and history is defined
-        if (location.hash && meterHistory.data) {
-            //Get the activity ID from state
-            const activityID = location.state?.activity_id
+    // useEffect(() => {
+    //     // Check if there is a hash in the URL and history is defined
+    //     if (location.hash && meterHistory.data) {
+    //         //Get the activity ID from state
+    //         const activityID = location.state?.activity_id
 
-            // Find the history item with the corresponding 'id'
-            const load_history_item = meterHistory.data.find((item: MeterHistoryDTO) => (item.history_item.id == activityID)&&(item.history_type == MeterHistoryType.Activity))
-            //console.log('history item: ', load_history_item)
-            if (load_history_item) {
-                setSelectedHistoryItem(load_history_item)
-            }
+    //         // Find the history item with the corresponding 'id'
+    //         const load_history_item = meterHistory.data.find((item: MeterHistoryDTO) => (item.history_item.id == activityID)&&(item.history_type == MeterHistoryType.Activity))
+    //         //console.log('history item: ', load_history_item)
+    //         if (load_history_item) {
+    //             setSelectedHistoryItem(load_history_item)
+    //         }
 
-            // Remove the '#' from the hash
-            const id = location.hash.replace('#', '');
-            //console.log('id: ', id)
-            // Find the element with the corresponding 'id'
-            const element = document.getElementById(id);
-            if (element) {
-                // Scroll to the element
-                element.scrollIntoView({ behavior: 'smooth' });
+    //         // Remove the '#' from the hash
+    //         const id = location.hash.replace('#', '');
+    //         //console.log('id: ', id)
+    //         // Find the element with the corresponding 'id'
+    //         const element = document.getElementById(id);
+    //         if (element) {
+    //             // Scroll to the element
+    //             element.scrollIntoView({ behavior: 'smooth' });
 
-                // Remove the hash from the URL so that the user can switch meters without scrolling
-                location.hash = '';
-            }else{
-                console.log('element not found')
-            }
-        }
-      }, [meterHistory]); // Re-run the effect if the location changes
+    //             // Remove the hash from the URL so that the user can switch meters without scrolling
+    //             location.hash = '';
+    //         }else{
+    //             console.log('element not found')
+    //         }
+    //     }
+    //   }, [meterHistory]); // Re-run the effect if the location changes
     
     function handleDeleteItem() {
         setSelectedHistoryItem(undefined)
@@ -139,7 +139,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
         <Box sx={{width: '100%'}}>
             <Grid container spacing={2} sx={{minHeight: '700px'}}>
                 <Grid item xs={6}>
-                    <MeterHistoryTable meter_serialnumber={selectMeterSerialNumber}  onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
+                    <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>
                 </Grid>
                 <Grid item xs={6}>
                     {getDetailsCard(selectedHistoryItem)}
