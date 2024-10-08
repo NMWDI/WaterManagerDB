@@ -257,7 +257,7 @@ export default function WorkOrdersTable() {
                 const activities = params.value as MeterActivity[] ?? [];
                 const links = activities.map((activity, index) => (
                     <span key={activity.id}>
-                        <Link to={'/meters#history_section'} state={{ meter_id: activity.meter_id, activity_id: activity.id }}>
+                        <Link to={{ pathname: '/meters', search: `?meter_id=${activity.meter_id}&activity_id=${activity.id}` }}>
                             {activity.id}
                         </Link>
                         {index < params.value.length - 1 ? ', ' : ''}
