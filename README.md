@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.42 - Fix pagination, add 'uninstall and hold'
 - V0.1.41 - Add UI for water source on wells and some other minor changes
 - V0.1.40 - Add register to UI on meter details
 - V0.1.39 - Default share ose when workorder, OSE access to register information
