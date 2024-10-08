@@ -39,8 +39,8 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
             if (load_history_item) {
                 setSelectedHistoryItem(load_history_item)
 
-                // Find the element with the corresponding 'id' and scroll into view
-                const element = document.getElementById(activity_id as unknown as string);
+                // Find the element with the corresponding id
+                const element = document.getElementById('meter_history');
                 if (element) {
                     // Scroll to the element
                     element.scrollIntoView({ behavior: 'smooth' });
@@ -132,7 +132,7 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     }
 
     return (
-        <Box sx={{width: '100%'}}>
+        <Box id="meter_history" sx={{width: '100%'}}>
             <Grid container spacing={2} sx={{minHeight: '700px'}}>
                 <Grid item xs={6}>
                     <MeterHistoryTable onHistoryItemSelection={setSelectedHistoryItem} selectedMeterHistory={meterHistory.data}/>

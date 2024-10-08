@@ -19,8 +19,6 @@ export default function MetersView() {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search)
         const meter_id = searchParams.get('meter_id') as number | null
-        const activity_id = searchParams.get('activity_id') as number | null
-        console.log('activity_id: ', activity_id)
 
         if (meter_id !== null) {
             setSelectedMeter(meter_id)
