@@ -348,3 +348,34 @@ def get_meter_information(
     )
 
     return output_meter
+
+@ose_router.get(
+    "/disapproval_response_by_request_id",
+    tags=["OSE"],
+    response_model=meter_schemas.OSEWorkOrder
+)
+def get_disapproval_response_by_request_id(
+    ose_request_id: int,
+    db: Session = Depends(get_db)
+):
+    # Get the work order associated with the OSE request ID
+    work_order = (
+        db.scalars(
+            select(workOrders)
+            .options(joinedload(workOrders.status))
+            .where(workOrders.ose_request_id == ose_request_id)
+        )
+        .first()
+    )
+
+    if not work_order:
+        raise HTTPException(status_code=404, detail="Work order not found")
+
+    # Create the response model
+    response = meter_schemas.OSEWorkOrder(
+        ose_request_id=work_order.ose_request_id,
+        status=work_order.status.name,
+        notes=work_order.notes
+    )
+
+    return response
