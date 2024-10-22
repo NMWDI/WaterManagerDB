@@ -368,7 +368,10 @@ def get_disapproval_response_by_request_id(
         .first()
     )
 
-    if not work_order:
+    # Check if work order is a disapproval as determined by title "OSE Data Issue"
+    isDisapproval = work_order.title[:14] == "OSE Data Issue"
+
+    if not work_order or not isDisapproval:
         raise HTTPException(status_code=404, detail="Work order not found")
 
     # Create the response model
