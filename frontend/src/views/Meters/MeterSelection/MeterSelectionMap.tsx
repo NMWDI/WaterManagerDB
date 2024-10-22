@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+import { CircleMarker, MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet';
 import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
@@ -37,14 +37,16 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
         setMeterMarkersMap(
             meterMarkers.data?.map((meter: MeterMapDTO) => {
                 return (
-                    <Marker
+                    <CircleMarker
                         key={meter.id}
-                        position={[meter.location?.latitude, meter.location?.longitude]}
-                        title={meter.serial_number}
+                        center={[meter.location?.latitude, meter.location?.longitude]}
+                        pathOptions={{color: 'black', fillColor: 'blue', fillOpacity: 0.8}}
+                        radius={6}
                         eventHandlers={{
                             click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
-                        }}
-                    ></Marker>
+                        }}>
+                        <Tooltip>{meter.serial_number}</Tooltip>
+                    </CircleMarker>
                 )
             })
         )
