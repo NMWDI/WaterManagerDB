@@ -8,13 +8,14 @@ import MeterHistoryTable from './MeterHistoryTable'
 import SelectedActivityDetails from './SelectedActivityDetails'
 import SelectedObservationDetails from './SelectedObservationDetails'
 import SelectedBlankCard from './SelectedBlankCard'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { useGetMeterHistory } from '../../../service/ApiServiceNew'
 import { MeterHistoryDTO, PatchActivityForm, PatchObservationForm } from '../../../interfaces'
 import { MeterHistoryType } from '../../../enums'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { set } from 'react-hook-form'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -26,13 +27,13 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
     const location = useLocation()
     const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>()
     const meterHistory = useGetMeterHistory({meter_id: selectedMeterID})
+    const [searchParams, setSearchParams] = useSearchParams()
 
     // If there is an activity_id in the URL, set the selectedHistoryItem to the corresponding item and scroll to it
     useEffect(() => {
-        const searchParams = new URLSearchParams(location.search)
         const activity_id = searchParams.get('activity_id') as number | null
 
-        if (activity_id !== null) {
+        if (meterHistory.data && activity_id !== null) {
             // Find the history item with the corresponding 'id'
             const load_history_item = meterHistory.data?.find((item: MeterHistoryDTO) => (item.history_item.id == activity_id)&&(item.history_type == MeterHistoryType.Activity))
             //console.log('history item: ', load_history_item)
@@ -51,9 +52,12 @@ export default function MeterHistory({selectedMeterID}: MeterHistoryProps) {
                     console.log('element not found')
                 }
             }
+            // Clear the activity_id from the URL so it doesn't interfere later
+            console.log('clearing query string')
+            setSearchParams()
         }
         
-    }, [meterHistory]); // Run the effect only when meter history changes otherwise there is a race condition
+    }, [meterHistory.data]); // Run the effect only when meter history changes otherwise there is a race condition
     
     function handleDeleteItem() {
         setSelectedHistoryItem(undefined)
