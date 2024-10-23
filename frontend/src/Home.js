@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.43 - Fix navigation from work orders to activity, add OSE endpoint for \"data issues\"",
             "V0.1.42 - Fix pagination, add 'uninstall and hold'",
             "V0.1.41 - Add UI for water source on wells and some other minor changes",
             "V0.1.40 - Add register to UI on meter details",
