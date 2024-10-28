@@ -26,6 +26,19 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
     const [meterSearchDebounced] = useDebounce(meterSearch, 250)
     const [meterMarkersMap, setMeterMarkersMap] = useState<any>([])
 
+    // Define marker colors which are based on the year of the last PM
+    const pm_colors: { [key: string]: string } = {
+        '2020': 'brown',
+        '2021': 'green',
+        '2022': 'purple',
+        '2023': 'turquoise',
+        '2024': 'red',
+        '2025': 'white',
+        '2026': 'yellow',
+        '2027': 'brown',
+        '2028': 'blue'
+    }
+
     const mapStyle = {
         height: '100%',
         width: '100%'
@@ -40,7 +53,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <CircleMarker
                         key={meter.id}
                         center={[meter.location?.latitude, meter.location?.longitude]}
-                        pathOptions={{color: 'black', fillColor: 'blue', fillOpacity: 0.8}}
+                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0.8} : {fillColor: pm_colors[meter.last_pm], fillOpacity: 0.8} }
                         radius={6}
                         eventHandlers={{
                             click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
