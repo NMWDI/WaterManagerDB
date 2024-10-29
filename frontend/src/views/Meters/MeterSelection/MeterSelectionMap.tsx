@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { CircleMarker, MapContainer, Marker, TileLayer, Tooltip } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
@@ -53,7 +53,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <CircleMarker
                         key={meter.id}
                         center={[meter.location?.latitude, meter.location?.longitude]}
-                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0.8} : {fillColor: pm_colors[meter.last_pm], fillOpacity: 0.8} }
+                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', fillColor: pm_colors[meter.last_pm], fillOpacity: 0.8} }
                         radius={6}
                         eventHandlers={{
                             click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
@@ -64,6 +64,32 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
             })
         )
     }, [meterMarkers.data])
+
+    // Add a legend to the map
+    const ColorLegend = () => {
+        const map = useMap();
+        const legend = new L.Control({ position: 'topright' });
+    
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'legend');
+            const grades = Object.keys(pm_colors);
+            const labels = [];
+    
+            for (let i = 0; i < grades.length; i++) {
+                labels.push(
+                    '<i style="background:' + pm_colors[grades[i]] + '"></i> ' +
+                    grades[i]
+                );
+            }
+    
+            div.innerHTML = labels.join('<br>');
+            return div;
+        };
+    
+        legend.addTo(map);
+    
+        return null;
+    };
 
     return (
             <MapContainer
@@ -78,6 +104,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 {meterMarkersMap}
+                <ColorLegend />
             </MapContainer>
         )
 }
