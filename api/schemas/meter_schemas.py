@@ -300,16 +300,6 @@ class WorkOrder(ORMBase):
     assigned_user: str | None = None
     associated_activities: list[MeterActivity] | None = None
 
-class OSEWorkOrder(BaseModel):
-    '''
-    A subset of WorkOrder with only ose_request_id, status, and notes
-
-    Used for OSE endpoint
-    '''
-    ose_request_id: int
-    status: str
-    notes: str | None = None
-
 
 class CreateWorkOrder(BaseModel):
     '''

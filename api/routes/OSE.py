@@ -53,6 +53,17 @@ class DateHistoryDTO(BaseModel):
     meters: list[MeterHistoryDTO] = []
 
 
+class DisapprovalStatus(BaseModel):
+    '''
+    Returns the status of a disapproval request and response
+    '''
+    ose_request_id: int
+    status: str
+    notes: str | None = None
+    disapproval_activity: ActivityDTO | None = None
+    new_activities: list[ActivityDTO] | None = None
+
+
 def getObservations(
     activity_start: datetime,
     activity_end: datetime,
@@ -352,7 +363,7 @@ def get_meter_information(
 @ose_router.get(
     "/disapproval_response_by_request_id",
     tags=["OSE"],
-    response_model=meter_schemas.OSEWorkOrder
+    response_model = DisapprovalStatus
 )
 def get_disapproval_response_by_request_id(
     ose_request_id: int,
@@ -374,11 +385,41 @@ def get_disapproval_response_by_request_id(
     if not work_order or not isDisapproval:
         raise HTTPException(status_code=404, detail="Work order not found")
 
+    # Get the activity that was originally disapproved of
+    # Not yet implemented return dummy ActivityDTO
+    disapproval_activity = ActivityDTO(
+        activity_id=99999,
+        activity_type="Disapproval",
+        activity_start=datetime.now(),
+        activity_end=datetime.now(),
+        description="Not yet implemented, need activity ID in disapproval",
+        services=[],
+        notes=[],
+        parts_used=[],
+        observations=[]
+    )
+
+    # Get any new activities that are associated with the disapproval work order
+    new_activities = (
+        db.scalars(
+            select(MeterActivities)
+            .options(
+                joinedload(MeterActivities.activity_type),
+                joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.meter).joinedload(Meters.well),
+                joinedload(MeterActivities.work_order)
+            )
+            .where(MeterActivities.work_order_id == work_order.id)
+        )
+        .all()
+    )
+    
     # Create the response model
     response = meter_schemas.OSEWorkOrder(
         ose_request_id=work_order.ose_request_id,
         status=work_order.status.name,
-        notes=work_order.notes
+        notes=work_order.notes,
+        disapproval_activity=disapproval_activity,
     )
 
     return response
