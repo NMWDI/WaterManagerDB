@@ -392,6 +392,8 @@ def get_disapproval_response_by_request_id(
         activity_type="Disapproval",
         activity_start=datetime.now(),
         activity_end=datetime.now(),
+        well_ra_number=None,
+        well_ose_tag=None,
         description="Not yet implemented, need activity ID in disapproval",
         services=[],
         notes=[],
@@ -413,9 +415,50 @@ def get_disapproval_response_by_request_id(
         )
         .all()
     )
+
+    # Loop through the new activities and create the ActivityDTO objects
+    # I also get observations for each activity, which might not be too performant
+    # but there will likely only be one new activity if any
+    # for na in new_activities:
+    #     notes_strings = list(map(lambda note: note.note, na.notes))
+    #     parts_used_strings = list(
+    #         map(
+    #             lambda part: f"{part.part_type.name} ({part.part_number})",
+    #             na.parts_used,
+    #         )
+    #     )
+    #     services_performed_strings = list(
+    #         map(
+    #             lambda service: service.service_name,
+    #             na.services_performed,
+    #         )
+    #     )
+    #     activity_observations = getObservations(
+    #         na.timestamp_start,
+    #         na.timestamp_end,
+    #         na.meter_id,
+    #         na.observations,
+    #     )
+
+    #     activity = ActivityDTO(
+    #         activity_id=na.id,
+    #         ose_request_id=na.work_order.ose_request_id if na.work_order else None,
+    #         activity_type=na.activity_type.name,
+    #         activity_start=na.timestamp_start,
+    #         activity_end=na.timestamp_end,
+    #         well_ra_number=na.meter.well.ra_number if na.meter.well else None,
+    #         well_ose_tag=na.meter.well.osetag if na.meter.well else None,
+    #         description=na.description,
+    #         services=services_performed_strings,
+    #         notes=notes_strings,
+    #         parts_used=parts_used_strings,
+    #         observations=activity_observations,
+    #     )
+
+    #     disapproval_activity = activity
     
     # Create the response model
-    response = meter_schemas.OSEWorkOrder(
+    response = DisapprovalStatus(
         ose_request_id=work_order.ose_request_id,
         status=work_order.status.name,
         notes=work_order.notes,
