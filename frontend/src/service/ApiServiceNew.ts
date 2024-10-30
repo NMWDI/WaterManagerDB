@@ -108,9 +108,14 @@ async function GETFetch(route: string, params: any, authHeader: string, signOut:
 }
 
 // Fetches from the NM API's ST2 subdomain (data that relates to water levels)
+// For PVACD data, measurements are every 2 hours giving 12 measurements per day and ~4000 per year
+// If I want the last 5 years of data, that's 20,000 measurements and I will need to loop through the @iot.nextLink
+// to get all the data
 async function GETST2Fetch(route: string) {
+    const starting_year = new Date().getFullYear() - 5
+
     const queryParams = formattedQueryParams({
-        $filter: 'year(phenomenonTime) gt 2021',
+        $filter: `year(phenomenonTime) gt ${starting_year}`,
         $orderby: 'phenomenonTime asc'
     })
 
@@ -126,7 +131,7 @@ async function GETST2Fetch(route: string) {
         valueList.push(...results.value)
         count++
     }
-    while (nextLink && count < 10)
+    while (nextLink && count < 20)
 
     return valueList
 }
