@@ -53,6 +53,17 @@ class DateHistoryDTO(BaseModel):
     meters: list[MeterHistoryDTO] = []
 
 
+class DisapprovalStatus(BaseModel):
+    '''
+    Returns the status of a disapproval request and response
+    '''
+    ose_request_id: int
+    status: str
+    notes: str | None = None
+    disapproval_activity: ActivityDTO | None = None
+    new_activities: list[ActivityDTO] | None = None
+
+
 def getObservations(
     activity_start: datetime,
     activity_end: datetime,
@@ -352,7 +363,7 @@ def get_meter_information(
 @ose_router.get(
     "/disapproval_response_by_request_id",
     tags=["OSE"],
-    response_model=meter_schemas.OSEWorkOrder
+    response_model = DisapprovalStatus
 )
 def get_disapproval_response_by_request_id(
     ose_request_id: int,
@@ -374,11 +385,111 @@ def get_disapproval_response_by_request_id(
     if not work_order or not isDisapproval:
         raise HTTPException(status_code=404, detail="Work order not found")
 
+    # Get the activity that was originally disapproved of
+    # Not yet implemented return dummy ActivityDTO
+    disapproval_activity = ActivityDTO(
+        activity_id=99999,
+        activity_type="Disapproval",
+        activity_start=datetime.now(),
+        activity_end=datetime.now(),
+        well_ra_number=None,
+        well_ose_tag=None,
+        description="Not yet implemented, need activity ID in disapproval",
+        services=[],
+        notes=[],
+        parts_used=[],
+        observations=[]
+    )
+
+    # Get any new activities that are associated with the disapproval work order
+    new_activities = (
+        db.scalars(
+            select(MeterActivities)
+            .options(
+                joinedload(MeterActivities.activity_type),
+                joinedload(MeterActivities.parts_used),
+                joinedload(MeterActivities.meter).joinedload(Meters.well),
+                joinedload(MeterActivities.work_order)
+            )
+            .where(MeterActivities.work_order_id == work_order.id)
+        )
+        .unique()
+        .all()
+    )
+
+    # Loop through the new activities and create the ActivityDTO objects
+    # I also get observations for each activity, which might not be too performant
+    # but there will likely only be one new activity if any
+    new_activitiesDTO = []
+    for na in new_activities:
+        notes_strings = list(map(lambda note: note.note, na.notes))
+        parts_used_strings = list(
+            map(
+                lambda part: f"{part.part_type.name} ({part.part_number})",
+                na.parts_used,
+            )
+        )
+        services_performed_strings = list(
+            map(
+                lambda service: service.service_name,
+                na.services_performed,
+            )
+        )
+  
+        # Get observations for the meter in the time range of the activity
+        observations = (
+            db.scalars(
+                select(MeterObservations)
+                .options(
+                    joinedload(MeterObservations.observed_property),
+                    joinedload(MeterObservations.unit),
+                )
+                .filter(
+                    and_(
+                        MeterObservations.timestamp >= na.timestamp_start,
+                        MeterObservations.timestamp <= na.timestamp_end,
+                        MeterObservations.meter_id == na.meter_id,
+                        MeterObservations.ose_share == True
+                    )
+                )
+            ).unique().all()
+        )
+
+        # Create the observation DTOs
+        activity_observations = []
+        for observation in observations:
+            observation = ObservationDTO(
+                observation_time=observation.timestamp.time(),
+                observation_type=observation.observed_property.name,
+                measurement=observation.value,
+                units=observation.unit.name_short,
+            )
+            activity_observations.append(observation)
+
+        activity = ActivityDTO(
+            activity_id=na.id,
+            ose_request_id=na.work_order.ose_request_id if na.work_order else None,
+            activity_type=na.activity_type.name,
+            activity_start=na.timestamp_start,
+            activity_end=na.timestamp_end,
+            well_ra_number=na.meter.well.ra_number if na.meter.well else None,
+            well_ose_tag=na.meter.well.osetag if na.meter.well else None,
+            description=na.description,
+            services=services_performed_strings,
+            notes=notes_strings,
+            parts_used=parts_used_strings,
+            observations=activity_observations,
+        )
+        new_activitiesDTO.append(activity)
+
+    
     # Create the response model
-    response = meter_schemas.OSEWorkOrder(
+    response = DisapprovalStatus(
         ose_request_id=work_order.ose_request_id,
         status=work_order.status.name,
-        notes=work_order.notes
+        notes=work_order.notes,
+        disapproval_activity=disapproval_activity,
+        new_activities=new_activitiesDTO
     )
 
     return response
