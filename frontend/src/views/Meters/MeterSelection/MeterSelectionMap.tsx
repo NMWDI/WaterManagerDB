@@ -68,21 +68,25 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
     // Add a legend to the map
     const ColorLegend = () => {
         const map = useMap();
-        const legend = new L.Control({ position: 'topright' });
+        const legend = new L.Control({ position: 'bottomleft' });
     
         legend.onAdd = function () {
-            const div = L.DomUtil.create('div', 'legend');
-            const grades = Object.keys(pm_colors);
-            const labels = [];
+            const div = L.DomUtil.create('div', 'info legend');
+            const seasons = Object.keys(pm_colors);
+
+            //Test plot
+            div.style.backgroundColor = 'white';
+            div.innerHTML ='<i>test1</i>' +
+
     
-            for (let i = 0; i < grades.length; i++) {
-                labels.push(
-                    '<i style="background:' + pm_colors[grades[i]] + '"></i> ' +
-                    grades[i]
-                );
-            }
+            // for (let i = 0; i < grades.length; i++) {
+            //     labels.push(
+            //         '<i style="background:' + pm_colors[grades[i]] + '"></i> ' +
+            //         grades[i]
+            //     );
+            // }
     
-            div.innerHTML = labels.join('<br>');
+            // div.innerHTML = labels.join('<br>');
             return div;
         };
     
