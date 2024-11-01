@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
 import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { useLeafletContext } from '@react-leaflet/core';
 import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
+
 import 'leaflet/dist/leaflet.css';
 import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
@@ -36,24 +38,31 @@ const pm_colors: { [key: string]: string } = {
 }
 
 // Map legend for PM colors
-const ColorLegend = () => {
-    const map = useMap();
-    const legend = new L.Control({ position: 'bottomleft' });
+function ColorLegend() {
+    const context = useLeafletContext()
 
-    legend.onAdd = function () {
-        const div = L.DomUtil.create('div', 'info legend');
-        const seasons = Object.keys(pm_colors);
+    useEffect(() => {
+        const legend = new L.Control({ position: 'bottomleft' });
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'info legend');
+            const seasons = Object.keys(pm_colors);
+    
+            // loop through PM seasons and generate a label with a colored square for each interval
+            for (var i = 0; i < seasons.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + pm_colors[seasons[i]] + '"></i> ' + seasons[i] + '<br>';
+                }
+        
+            return div;
+        };
 
-        // loop through PM seasons and generate a label with a colored square for each interval
-    for (var i = 0; i < seasons.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + pm_colors[seasons[i]] + '"></i> ' + seasons[i] + '<br>';
+        const container = context.map
+        container.addControl(legend)
+    
+        return () => {
+          container.removeControl(legend)
         }
-
-        return div;
-    };
-
-    legend.addTo(map);
+    })
 
     return null;
 };
@@ -106,3 +115,5 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
             </MapContainer>
         )
 }
+
+
