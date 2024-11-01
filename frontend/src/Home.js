@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.44 - Fix bug in continuous monitoring well data and added data to OSE endpoint",
             "V0.1.43 - Fix navigation from work orders to activity, add OSE endpoint for \"data issues\"",
             "V0.1.42 - Fix pagination, add 'uninstall and hold'",
             "V0.1.41 - Add UI for water source on wells and some other minor changes",
@@ -19,10 +20,6 @@ class Home extends Component{
             "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
             "V0.1.36 - Improved work orders, testing still needed",
             "V0.1.35.1 - Fix bug with well search failing on certain inputs",
-            "V0.1.35 - Update continuous data stream IDs for monitoring wells",
-            "V0.1.34 - Work orders ready for alpha testing, reordered monitoring wells",
-            "V0.1.33 - Add Meter Status Filter to Meters Table",
-            "V0.1.32 - Fix Monitoring Wells so that table updates after change"
         ]
 
         return (

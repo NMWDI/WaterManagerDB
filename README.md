@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.44 - Fix bug in continuous monitoring well data and added data to OSE endpoint
 - V0.1.43 - Fix navigation from work orders to activity, add OSE endpoint for "data issues"
 - V0.1.42 - Fix pagination, add 'uninstall and hold'
 - V0.1.41 - Add UI for water source on wells and some other minor changes
