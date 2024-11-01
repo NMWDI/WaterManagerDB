@@ -7,6 +7,7 @@ import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
 
 // The leaflet map needs this for some reason
@@ -21,23 +22,46 @@ interface MeterSelectionMapProps {
     onMeterSelection: Function
 }
 
+// Define marker colors which are based on the year of the last PM
+const pm_colors: { [key: string]: string } = {
+    '2020': 'brown',
+    '2021': 'green',
+    '2022': 'purple',
+    '2023': 'turquoise',
+    '2024': 'red',
+    '2025': 'white',
+    '2026': 'yellow',
+    '2027': 'brown',
+    '2028': 'blue'
+}
+
+// Map legend for PM colors
+const ColorLegend = () => {
+    const map = useMap();
+    const legend = new L.Control({ position: 'bottomleft' });
+
+    legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'info legend');
+        const seasons = Object.keys(pm_colors);
+
+        // loop through PM seasons and generate a label with a colored square for each interval
+    for (var i = 0; i < seasons.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + pm_colors[seasons[i]] + '"></i> ' + seasons[i] + '<br>';
+        }
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+    return null;
+};
+
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
     const [meterSearchDebounced] = useDebounce(meterSearch, 250)
     const [meterMarkersMap, setMeterMarkersMap] = useState<any>([])
-
-    // Define marker colors which are based on the year of the last PM
-    const pm_colors: { [key: string]: string } = {
-        '2020': 'brown',
-        '2021': 'green',
-        '2022': 'purple',
-        '2023': 'turquoise',
-        '2024': 'red',
-        '2025': 'white',
-        '2026': 'yellow',
-        '2027': 'brown',
-        '2028': 'blue'
-    }
 
     const mapStyle = {
         height: '100%',
@@ -64,36 +88,6 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
             })
         )
     }, [meterMarkers.data])
-
-    // Add a legend to the map
-    const ColorLegend = () => {
-        const map = useMap();
-        const legend = new L.Control({ position: 'bottomleft' });
-    
-        legend.onAdd = function () {
-            const div = L.DomUtil.create('div', 'info legend');
-            const seasons = Object.keys(pm_colors);
-
-            //Test plot
-            div.style.backgroundColor = 'white';
-            div.innerHTML ='<i>test1</i>' +
-
-    
-            // for (let i = 0; i < grades.length; i++) {
-            //     labels.push(
-            //         '<i style="background:' + pm_colors[grades[i]] + '"></i> ' +
-            //         grades[i]
-            //     );
-            // }
-    
-            // div.innerHTML = labels.join('<br>');
-            return div;
-        };
-    
-        legend.addTo(map);
-    
-        return null;
-    };
 
     return (
             <MapContainer
