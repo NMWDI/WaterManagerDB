@@ -86,10 +86,10 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <CircleMarker
                         key={meter.id}
                         center={[meter.location?.latitude, meter.location?.longitude]}
-                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', fillColor: pm_colors[meter.last_pm], fillOpacity: 0.8} }
+                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', weight: 2, fillColor: pm_colors[meter.last_pm], fillOpacity: 0.9} }
                         radius={6}
                         eventHandlers={{
-                            click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
+                            click: () => {onMeterSelection(meter.id)}
                         }}>
                         <Tooltip>{meter.serial_number}</Tooltip>
                     </CircleMarker>
