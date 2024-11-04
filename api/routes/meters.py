@@ -200,7 +200,7 @@ def get_meters_locations(
     meter_ids = [meter.id for meter in meters]
     
     # Get the date of the last PM for each meter
-    pm_query = text('select max(extract(year from timestamp_start)) ' 
+    pm_query = text('select max(timestamp_start) ' 
                     'as last_pm, meter_id from "MeterActivities" ' 
                     'where activity_type_id=4 and meter_id = ANY(:mids) '
                     'group by meter_id')

@@ -72,7 +72,7 @@ class MeterMapDTO(ORMBase):
     serial_number: str
     well: WellDTO | None = None
     location: LocationDTO | None = None
-    last_pm: int | None = None
+    last_pm: datetime | None = None
 
 
 class MeterStatusLU(ORMBase):
