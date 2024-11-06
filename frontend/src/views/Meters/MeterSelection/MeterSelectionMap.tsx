@@ -24,17 +24,17 @@ interface MeterSelectionMapProps {
     onMeterSelection: Function
 }
 
-// Define marker colors which are based on the year of the last PM
+// Define marker colors which are based on the year of the last PM (July - June)
 const pm_colors: { [key: string]: string } = {
-    '2020': 'brown',
-    '2021': 'green',
-    '2022': 'purple',
-    '2023': 'turquoise',
-    '2024': 'red',
-    '2025': 'white',
-    '2026': 'yellow',
-    '2027': 'brown',
-    '2028': 'blue'
+    '2020/2021': 'brown',
+    '2021/2022': 'green',
+    '2022/2023': 'purple',
+    '2023/2024': 'turquoise',
+    '2024/2025': 'red',
+    '2025/2026': 'white',
+    '2026/2027': 'yellow',
+    '2027/2028': 'brown',
+    '2028/2029': 'blue'
 }
 
 // Map legend for PM colors
@@ -46,6 +46,9 @@ function ColorLegend() {
         legend.onAdd = function () {
             const div = L.DomUtil.create('div', 'info legend');
             const seasons = Object.keys(pm_colors);
+
+            // Add title to legend
+            div.innerHTML = '<h4>PM Season</h4>';
     
             // loop through PM seasons and generate a label with a colored square for each interval
             for (var i = 0; i < seasons.length; i++) {
@@ -67,6 +70,20 @@ function ColorLegend() {
     return null;
 };
 
+// Function for getting color from last PM which is based on year and month
+function getMeterColor(last_pm: string) {
+    // The string has the format "YYYY-MM-DDTHH:MM:SSZ" Use month and year to determine color
+    //Convert string to a date object
+    const last_pm_date = new Date(last_pm)
+
+    // Test if the date is in or after July
+    if (last_pm_date.getMonth() >= 7) {
+        return pm_colors[last_pm_date.getFullYear() + '/' + (last_pm_date.getFullYear() + 1)]
+    }else{
+        return pm_colors[(last_pm_date.getFullYear() - 1) + '/' + last_pm_date.getFullYear()]
+    }
+}
+
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
     const [meterSearchDebounced] = useDebounce(meterSearch, 250)
@@ -86,7 +103,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     <CircleMarker
                         key={meter.id}
                         center={[meter.location?.latitude, meter.location?.longitude]}
-                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', weight: 2, fillColor: pm_colors[meter.last_pm], fillOpacity: 0.9} }
+                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', weight: 2, fillColor: getMeterColor(meter.last_pm), fillOpacity: 0.9} }
                         radius={6}
                         eventHandlers={{
                             click: () => {onMeterSelection(meter.id)}
