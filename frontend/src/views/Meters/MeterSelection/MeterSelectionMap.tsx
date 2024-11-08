@@ -2,11 +2,14 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { MapContainer, Marker, TileLayer } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { useLeafletContext } from '@react-leaflet/core';
 import { MeterMapDTO } from '../../../interfaces'
 
 import L from 'leaflet';
+
 import 'leaflet/dist/leaflet.css';
+import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
 
 // The leaflet map needs this for some reason
@@ -19,6 +22,66 @@ L.Marker.prototype.options.icon = DefaultIcon
 interface MeterSelectionMapProps {
     meterSearch: string
     onMeterSelection: Function
+}
+
+// Define marker colors which are based on the year of the last PM (July - June)
+const pm_colors: { [key: string]: string } = {
+    '2020/2021': 'brown',
+    '2021/2022': 'green',
+    '2022/2023': 'purple',
+    '2023/2024': 'turquoise',
+    '2024/2025': 'red',
+    '2025/2026': 'white',
+    '2026/2027': 'yellow',
+    '2027/2028': 'brown',
+    '2028/2029': 'blue'
+}
+
+// Map legend for PM colors
+function ColorLegend() {
+    const context = useLeafletContext()
+
+    useEffect(() => {
+        const legend = new L.Control({ position: 'bottomleft' });
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'info legend');
+            const seasons = Object.keys(pm_colors);
+
+            // Add title to legend
+            div.innerHTML = '<h4>PM Season</h4>';
+    
+            // loop through PM seasons and generate a label with a colored square for each interval
+            for (var i = 0; i < seasons.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + pm_colors[seasons[i]] + '"></i> ' + seasons[i] + '<br>';
+                }
+        
+            return div;
+        };
+
+        const container = context.map
+        container.addControl(legend)
+    
+        return () => {
+          container.removeControl(legend)
+        }
+    })
+
+    return null;
+};
+
+// Function for getting color from last PM which is based on year and month
+function getMeterColor(last_pm: string) {
+    // The string has the format "YYYY-MM-DDTHH:MM:SSZ" Use month and year to determine color
+    //Convert string to a date object
+    const last_pm_date = new Date(last_pm)
+
+    // Test if the date is in or after July
+    if (last_pm_date.getMonth() >= 7) {
+        return pm_colors[last_pm_date.getFullYear() + '/' + (last_pm_date.getFullYear() + 1)]
+    }else{
+        return pm_colors[(last_pm_date.getFullYear() - 1) + '/' + last_pm_date.getFullYear()]
+    }
 }
 
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
@@ -37,14 +100,16 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
         setMeterMarkersMap(
             meterMarkers.data?.map((meter: MeterMapDTO) => {
                 return (
-                    <Marker
+                    <CircleMarker
                         key={meter.id}
-                        position={[meter.location?.latitude, meter.location?.longitude]}
-                        title={meter.serial_number}
+                        center={[meter.location?.latitude, meter.location?.longitude]}
+                        pathOptions={ meter.last_pm == null ? {color: 'black', fillOpacity: 0} : {color:'black', weight: 2, fillColor: getMeterColor(meter.last_pm), fillOpacity: 0.9} }
+                        radius={6}
                         eventHandlers={{
-                            click: () => {onMeterSelection({meter_id: meter.id, meter_serialnumber: meter.serial_number})}
-                        }}
-                    ></Marker>
+                            click: () => {onMeterSelection(meter.id)}
+                        }}>
+                        <Tooltip>{meter.serial_number}</Tooltip>
+                    </CircleMarker>
                 )
             })
         )
@@ -63,6 +128,9 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 {meterMarkersMap}
+                <ColorLegend />
             </MapContainer>
         )
 }
+
+

@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, Query
-from sqlalchemy import or_, select, desc, and_
+from sqlalchemy import or_, select, desc, and_, text
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -161,6 +161,7 @@ def create_meter(
 
 # Get search for meters similar to /meters but no pagination and only for installed meters
 # Returns all installed meters with a location when search is None
+# Also returns year of last PM for color coding on the map
 @meter_router.get(
     "/meters_locations",
     dependencies=[Depends(ScopedUser.Read)],
@@ -194,8 +195,39 @@ def get_meters_locations(
                 Locations.trss.ilike(f"%{search_string}%"),
             )
         )
+    
+    meters = db.scalars(query_statement).all()
+    meter_ids = [meter.id for meter in meters]
+    
+    # Get the date of the last PM for each meter
+    pm_query = text('select max(timestamp_start) ' 
+                    'as last_pm, meter_id from "MeterActivities" ' 
+                    'where activity_type_id=4 and meter_id = ANY(:mids) '
+                    'group by meter_id')
+    
+    pm_years = db.execute(pm_query,{'mids':meter_ids}).fetchall()
 
-    return db.scalars(query_statement).all()
+    # Create a dictionary of meter_id to last_pm
+    pm_dict = {pm[1]: pm[0] for pm in pm_years}
+
+    # Create a list of MeterMapDTO objects
+    meter_map_list = []
+    for meter in meters:
+        # Find the last PM year for the meter
+        last_pm = pm_dict.get(meter.id, None)
+        meter_map_list.append(
+            meter_schemas.MeterMapDTO(
+                id=meter.id,
+                serial_number=meter.serial_number,
+                well=meter.well,
+                location=meter.well.location,
+                last_pm=last_pm
+            )
+        )
+
+    return meter_map_list
+
+
 
 def require_meter_id_or_serial_number(meter_id: int = None, serial_number: str = None):
     if not meter_id and not serial_number:

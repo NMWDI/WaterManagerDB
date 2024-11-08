@@ -444,6 +444,7 @@ export interface MeterMapDTO {
         longitude: number
         latitude: number
     }
+    last_pm: string
 }
 
 export interface Organization {
