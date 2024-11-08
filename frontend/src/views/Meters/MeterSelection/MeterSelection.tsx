@@ -82,6 +82,8 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
                             onChange={(e) => {setMeterSearchQuery(e.target.value)}}
                         />
                     </Grid>
+                </Grid>
+                <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
                     <Grid item sx={{mt: 1}}>
                         <ToggleButtonGroup
                             value={meterFilterButtons}
@@ -107,17 +109,15 @@ export default function MeterSelection({onMeterSelection, setMeterAddMode}: Mete
                             </ToggleButton>
                         </ToggleButtonGroup>
                     </Grid>
-                </Grid>
+                    <MeterSelectionTable onMeterSelection={onMeterSelection} meterSearchQuery={meterSearchQuery} meterStatusFilter={meterFilters} setMeterAddMode={setMeterAddMode}/>
+                </TabPanel>
 
-                <Box sx={{height: '89%'}}>
-                    <TabPanel currentTabIndex={currentTabIndex} tabIndex={0}>
-                        <MeterSelectionTable onMeterSelection={onMeterSelection} meterSearchQuery={meterSearchQuery} meterStatusFilter={meterFilters} setMeterAddMode={setMeterAddMode}/>
-                    </TabPanel>
-
-                    <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
+                <TabPanel currentTabIndex={currentTabIndex} tabIndex={1}>
+                    <Grid container sx={{mt: 1, height: 650}}>
                         <MeterSelectionMap onMeterSelection={onMeterSelection} meterSearch={meterSearchQuery}/>
-                    </TabPanel>
-                </Box>
+                    </Grid>
+                </TabPanel>
+                
                 </CardContent>
             </Card>
         )
