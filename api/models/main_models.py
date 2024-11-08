@@ -169,7 +169,7 @@ class Meters(Base):
     meter_type: Mapped["MeterTypeLU"] = relationship()
     meter_register: Mapped["meterRegisters"] = relationship()
     status: Mapped["MeterStatusLU"] = relationship()
-    well: Mapped["Wells"] = relationship()
+    well: Mapped["Wells"] = relationship("Wells", back_populates="meters")
     location: Mapped["Locations"] = relationship()
 
 
@@ -512,6 +512,8 @@ class Wells(Base):
     use_type: Mapped["WellUseLU"] = relationship()
     location: Mapped["Locations"] = relationship()
     water_source: Mapped["WaterSources"] = relationship()
+
+    meters: Mapped[List["Meters"]] = relationship("Meters", back_populates="well")
 
 
 class WellMeasurements(Base):

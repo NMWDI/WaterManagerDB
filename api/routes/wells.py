@@ -75,7 +75,7 @@ def get_wells(
 
     query_statement = (
         select(Wells)
-        .options(joinedload(Wells.location), joinedload(Wells.use_type))
+        .options(joinedload(Wells.location), joinedload(Wells.use_type), joinedload(Wells.meters))
         .join(Locations, isouter=True)
         .join(WellUseLU, isouter=True)
     )

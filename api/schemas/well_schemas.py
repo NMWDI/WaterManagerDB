@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from api.schemas.security_schemas import User
 from api.schemas.base import ORMBase
 
-
 class ORMBaseSimple(BaseModel):
     class Config:
         from_attributes = True
@@ -49,6 +48,10 @@ class WaterSources(ORMBase):
     name: str
     description: str | None = None
 
+class WellMeterInfo(ORMBase):
+    '''Subset of Meter schema'''
+    serial_number: str
+
 class Well(ORMBase):
     name: str | None = None
     ra_number: str | None = None
@@ -61,6 +64,8 @@ class Well(ORMBase):
     location: Location | None = None
     use_type: WellUseLU | None = None
     water_source: WaterSources | None = None
+
+    meters: list[WellMeterInfo] | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
