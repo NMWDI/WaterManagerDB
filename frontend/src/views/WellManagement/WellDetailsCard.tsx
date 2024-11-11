@@ -22,10 +22,8 @@ import { useAuthUser } from 'react-auth-kit';
 import { SecurityScope } from '../../interfaces';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
-    name: Yup.string().required('Please enter a well name.'),
     use_type: Yup.object().required('Please select a use type.'),
     location: Yup.object().shape({
-        name: Yup.string().required('Please enter a location name.'),
         trss: Yup.string().required('Please enter the TRSS.'),
     })
 })
@@ -106,11 +104,32 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                     <Grid container item spacing={2}>
                         <Grid item xs={6}>
                             <ControlledTextbox
-                                name="name"
+                                name="ra_number"
                                 control={control}
-                                label="Well Name"
-                                error={errors?.name?.message != undefined}
-                                helperText={errors?.name?.message}
+                                label="RA Number"
+                                error={errors?.ra_number?.message != undefined}
+                                helperText={errors?.ra_number?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledTextbox
+                                name="osetag"
+                                control={control}
+                                label="OSE Tag"
+                                error={errors?.osetag?.message != undefined}
+                                helperText={errors?.osetag?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Water Source"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -127,36 +146,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={6}>
                             <ControlledTextbox
-                                name="ra_number"
-                                control={control}
-                                label="RA Number"
-                                error={errors?.ra_number?.message != undefined}
-                                helperText={errors?.ra_number?.message}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <ControlledSelect
-                                name="water_source"
-                                label="Water Source"
-                                options={waterSources.data ?? []}
-                                getOptionLabel={(source: WaterSource) => source.name}
-                                control={control}
-                                error={errors?.water_source?.message}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid container item xs={12} spacing={2}>
-                        <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="osetag"
-                                control={control}
-                                label="OSE Tag"
-                                error={errors?.osetag?.message != undefined}
-                                helperText={errors?.osetag?.message}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <ControlledTextbox
                                 name="owners"
                                 control={control}
                                 label="Owners"
@@ -168,26 +157,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={12}>
                             <h4 style={{color: "#292929", fontWeight: '500', marginBottom: 0}}>Well Location</h4>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="location.name"
-                                control={control}
-                                label="Name"
-                                error={errors?.location?.name?.message != undefined}
-                                helperText={errors?.location?.name?.message}
-                                value={watch("location.name") ?? ''}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <ControlledTextbox
-                                name="location.trss"
-                                control={control}
-                                label="TRSS"
-                                error={errors?.location?.trss?.message != undefined}
-                                helperText={errors?.location?.trss?.message}
-                                value={watch("location.trss") ?? ''}
-                            />
                         </Grid>
                         <Grid item xs={6}>
                             <ControlledDMS
@@ -203,6 +172,16 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 control={control}
                                 dimension_type={GCSdimension.Longitude}
                                 value={watch("location.longitude") ?? 0}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledTextbox
+                                name="location.trss"
+                                control={control}
+                                label="TRSS"
+                                error={errors?.location?.trss?.message != undefined}
+                                helperText={errors?.location?.trss?.message}
+                                value={watch("location.trss") ?? ''}
                             />
                         </Grid>
                     </Grid>
