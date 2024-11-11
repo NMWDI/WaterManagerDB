@@ -1,4 +1,5 @@
 import { Box, Button } from "@mui/material"
+import { Link } from 'react-router-dom';
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import React, { useEffect, useState } from "react"
 import { useDebounce } from "use-debounce"
@@ -37,15 +38,32 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
     const hasAdminScope = authUser()?.user_role.security_scopes.map((scope: SecurityScope) => scope.scope_string).includes('admin')
 
     const cols: GridColDef[] = [
-        {field: 'name', headerName: 'Name', width: 150},
-        {field: 'ra_number', headerName: 'RA Number', width: 150},
-        {field: 'owners', headerName: 'Owners', width: 150},
+        {field: 'ra_number', headerName: 'RA Number', width: 100},
         {field: 'osetag', headerName: 'OSE Tag', width: 100},
+        {field: 'owners', headerName: 'Owners', width: 150},
         {field: 'use_type', headerName: 'Use Type', width: 150,
             valueGetter: (value, row) => row.use_type?.use_type,
         },
         {field: 'location', headerName: 'TRSS', width: 150,
             valueGetter: (value, row) => row.location?.trss,
+        },
+        {
+            field: 'meters',
+            headerName: 'Meters',
+            width: 200,
+            sortable: false,
+            renderCell: (params) => {
+                const meters = params.value as Well["meters"];
+                const links = meters.map((meter, index) => (
+                    <span key={meter.id}>
+                        <Link to={{ pathname: '/meters', search: `?meter_id=${meter.id}` }}>
+                            {meter.serial_number}
+                        </Link>
+                        {index < params.value.length - 1 ? ', ' : ''}
+                    </span>
+                ));
+                return <>{links}</>;
+            }
         },
     ]
     // Filter rows based on query params

@@ -283,6 +283,13 @@ export interface Well {
     use_type: WellUseLU | null
     water_source: WaterSource | null
     location: Location | null
+
+    meters: [
+        {
+            id: int
+            serial_number: string
+        }
+    ]
 }
 
 export interface MeterDetailsQueryParams {
