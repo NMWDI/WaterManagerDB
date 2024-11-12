@@ -142,7 +142,7 @@ def update_well(
     updated_well_model = db.scalars(
         select(Wells)
         .where(Wells.id == updated_well.id)
-        .options(joinedload(Wells.use_type), joinedload(Wells.location))
+        .options(joinedload(Wells.use_type), joinedload(Wells.location), joinedload(Wells.meters))
     ).first()
 
     # Return qualified well model
@@ -157,7 +157,7 @@ def update_well(
 def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(get_db)):
     # First, commit the new location that was added with the new well
     new_location_model = Locations(
-        name=new_well.location.name,
+        #name=new_well.location.name,
         type_id=2,
         trss=new_well.location.trss,
         latitude=new_well.location.latitude,
@@ -171,7 +171,7 @@ def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(g
     # Then, commit the well using the location we just created
     try:
         new_well_model = Wells(
-            name=new_well.name,
+            #name=new_well.name,
             use_type_id=new_well.use_type.id,
             location_id=new_location_model.id,
             ra_number=new_well.ra_number,

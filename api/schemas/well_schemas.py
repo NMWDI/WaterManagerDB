@@ -70,7 +70,7 @@ class Well(ORMBase):
 
 class SubmitWellCreate(ORMBaseSimple):
     class SubmitLocationCreate(ORMBaseSimple):
-        name: str
+        name: str | None = None
         trss: str
         longitude: float
         latitude: float
