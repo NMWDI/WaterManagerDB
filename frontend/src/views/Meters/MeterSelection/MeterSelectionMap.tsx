@@ -84,6 +84,39 @@ function getMeterColor(last_pm: string) {
     }
 }
 
+// Map button to search meters
+function ExtentSearch({ onClick }: { onClick: Function }) {
+    const context = useLeafletContext()
+
+    useEffect(() => {
+        const search_button = new L.Control({ position: 'topleft' });
+        const container = context.map
+        
+        search_button.onAdd = function () {
+            const div = L.DomUtil.create('div', 'searchbutton');
+
+            // Add title to legend
+            div.innerHTML = '<button>Search This Area</button>';
+
+            div.onclick = () => {
+                const bounds = container.getBounds();
+                onClick(bounds);
+              };
+        
+            return div;
+        };
+
+        
+        container.addControl(search_button)
+    
+        return () => {
+          container.removeControl(search_button)
+        }
+    })
+
+    return null;
+};
+
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
     const [meterSearchDebounced] = useDebounce(meterSearch, 250)
