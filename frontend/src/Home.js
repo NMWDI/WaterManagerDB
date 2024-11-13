@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.46 - Change how data is displayed in Wells table",
             "V0.1.45 - Color code meter markers on map by last PM",
             "V0.1.44 - Fix bug in continuous monitoring well data and added data to OSE endpoint",
             "V0.1.43 - Fix navigation from work orders to activity, add OSE endpoint for \"data issues\"",
@@ -19,8 +20,6 @@ class Home extends Component{
             "V0.1.38 - Change logout time to 8 hours, show work order count in navigation",
             "V0.1.37.1 - Fix various work order bugs",
             "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
-            "V0.1.36 - Improved work orders, testing still needed",
-            "V0.1.35.1 - Fix bug with well search failing on certain inputs",
         ]
 
         return (
