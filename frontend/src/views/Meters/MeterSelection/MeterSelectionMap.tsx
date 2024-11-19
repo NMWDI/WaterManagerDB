@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, GeoJSON } from 'react-leaflet';
 import { useLeafletContext } from '@react-leaflet/core';
 import { MeterMapDTO } from '../../../interfaces'
 
@@ -11,6 +11,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
+import trss_data from '../../../data/RoswellTR_test2.geojson';
+import { FeatureCollection, Feature, Geometry } from 'geojson';
 
 // The leaflet map needs this for some reason
 const icon = require('leaflet/dist/images/marker-icon.png');
@@ -83,6 +85,25 @@ function getMeterColor(last_pm: string) {
         return pm_colors[(last_pm_date.getFullYear() - 1) + '/' + last_pm_date.getFullYear()]
     }
 }
+//Test Geojson
+const trssData: FeatureCollection = trss_data
+console.log(trss_data)
+// const trss_data: FeatureCollection = 
+// {
+//     "type": "FeatureCollection",
+//     "features": [
+//     { "type": "Feature", "properties": { "OBJECTID": 776, "TWNSHPLAB": "23S 18E" }, "geometry": { 
+//         "type": "Polygon", "coordinates": [ 
+//             [ 
+//                 [ -105.150910258647997, 32.253371742509103 ], 
+//                 [ -105.047748440584996, 32.253371742509103 ], 
+//                 [ -105.047748440584996, 32.340619201250099 ], 
+//                 [ -105.150910258647997, 32.340619201250099 ], 
+//                 [ -105.150910258647997, 32.253371742509103 ] 
+//             ] 
+//         ] } }
+//     ]
+// }
 
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
@@ -128,6 +149,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 {meterMarkersMap}
+                <GeoJSON data={trssData} />
                 <ColorLegend />
             </MapContainer>
         )
