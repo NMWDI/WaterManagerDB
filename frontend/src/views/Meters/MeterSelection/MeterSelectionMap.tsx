@@ -11,7 +11,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
-import trss_data from '../../../data/RoswellTR_test2.geojson';
+import * as trss_data from '../../../data/trss_test.json';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
 
 // The leaflet map needs this for some reason
@@ -86,7 +86,7 @@ function getMeterColor(last_pm: string) {
     }
 }
 //Test Geojson
-const trssData: FeatureCollection = trss_data
+const trssData: FeatureCollection = trss_data as FeatureCollection
 console.log(trss_data)
 // const trss_data: FeatureCollection = 
 // {
