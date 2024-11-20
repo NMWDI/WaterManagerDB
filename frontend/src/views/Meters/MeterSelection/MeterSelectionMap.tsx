@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { CircleMarker, MapContainer, TileLayer, Tooltip, GeoJSON } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, GeoJSON, LayersControl, LayerGroup } from 'react-leaflet';
 import { useLeafletContext } from '@react-leaflet/core';
 import { MeterMapDTO } from '../../../interfaces'
 
@@ -11,8 +11,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
-import * as trss_data from '../../../data/RoswellTR_test.json';
+import * as trss_data from '../../../data/RoswellTR.json';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
+import { Layers } from '@mui/icons-material';
 
 // The leaflet map needs this for some reason
 const icon = require('leaflet/dist/images/marker-icon.png');
@@ -132,20 +133,24 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 {meterMarkersMap}
-                <GeoJSON 
-                    data={trssData} 
-                    style={() => ({
-                        color: 'black',
-                        weight: 2,
-                        fillOpacity: 0
-                    })}
-                    onEachFeature={(feature, layer) => {
-                        if (feature.properties && feature.properties.TWNSHPLAB) {
-                            layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
-                        }
-                    }}
-                />
                 <ColorLegend />
+                <LayersControl position="topleft">
+                    <LayersControl.Overlay checked name="Township Range">
+                        <GeoJSON 
+                            data={trssData} 
+                            style={() => ({
+                                color: 'black',
+                                weight: 2,
+                                fillOpacity: 0
+                            })}
+                            onEachFeature={(feature, layer) => {
+                                if (feature.properties && feature.properties.TWNSHPLAB) {
+                                    layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
+                                }
+                            }}
+                        />
+                    </LayersControl.Overlay>
+                </LayersControl>
             </MapContainer>
         )
 }
