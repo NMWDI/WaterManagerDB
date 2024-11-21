@@ -87,8 +87,25 @@ function getMeterColor(last_pm: string) {
     }
 }
 
-//Specify the type of the trss_data
+//Create a component for displaying the TRSS data with labels at a certain zoom level
 const trssData: FeatureCollection = trss_data as FeatureCollection
+function RoswellTRGeoJson({ zoomLevel }: { zoomLevel: number }) {
+    // Function to create labels
+    const onEachFeature = (feature: Feature, layer) => {
+        if (zoomLevel >= 15) { // Adjust the zoom level threshold as needed
+            layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
+        }
+    };
+    // GeoJSON style
+    const style = {
+        color: 'black',
+        weight: 2,
+        fillOpacity: 0
+    }
+    // Return the GeoJSON component
+    return <GeoJSON data={trssData} style={style} onEachFeature={onEachFeature} />;
+};
+
 
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
