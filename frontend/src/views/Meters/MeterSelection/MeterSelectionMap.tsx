@@ -132,8 +132,6 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {meterMarkersMap}
-                <ColorLegend />
                 <LayersControl position="topleft">
                     <LayersControl.Overlay checked name="Township Range">
                         <GeoJSON 
@@ -143,12 +141,19 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                                 weight: 2,
                                 fillOpacity: 0
                             })}
+                            interactive={false}
                             onEachFeature={(feature, layer) => {
                                 if (feature.properties && feature.properties.TWNSHPLAB) {
                                     layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
                                 }
                             }}
                         />
+                    </LayersControl.Overlay>
+                    <LayersControl.Overlay checked name="Meter Locations">
+                        <LayerGroup>
+                            {meterMarkersMap}
+                            <ColorLegend />
+                        </LayerGroup>
                     </LayersControl.Overlay>
                 </LayersControl>
             </MapContainer>
