@@ -11,7 +11,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../../css/map.css';
 import { useGetMeterLocations } from '../../../service/ApiServiceNew';
-import * as trss_data from '../../../data/RoswellTR.json';
+import * as tr_data from '../../../data/RoswellTR_v2.json';
+import * as ss_data from '../../../data/RoswellSS.json';
 import { FeatureCollection, Feature, Geometry } from 'geojson';
 import { Layers } from '@mui/icons-material';
 
@@ -88,7 +89,8 @@ function getMeterColor(last_pm: string) {
 }
 
 //Specify the type of the trss_data
-const trssData: FeatureCollection = trss_data as FeatureCollection
+const trData: FeatureCollection = tr_data as FeatureCollection
+const ssData: FeatureCollection = ss_data as FeatureCollection
 
 export default function MeterSelectionMap({onMeterSelection, meterSearch}: MeterSelectionMapProps) {
      
@@ -135,12 +137,28 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                 {meterMarkersMap}
                 <ColorLegend />
                 <LayersControl position="topleft">
+                    <LayersControl.Overlay name="Section">
+                        <GeoJSON 
+                            data={ssData} 
+                            style={() => ({
+                                color: 'red',
+                                dashArray: '5, 10',
+                                weight: 2,
+                                fillOpacity: 0
+                            })}
+                            // onEachFeature={(feature, layer) => {
+                            //     if (feature.properties && feature.properties.TWNSHPLAB) {
+                            //         layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
+                            //     }
+                            // }}
+                        />
+                    </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Township Range">
                         <GeoJSON 
-                            data={trssData} 
+                            data={trData} 
                             style={() => ({
                                 color: 'black',
-                                weight: 2,
+                                weight: 3,
                                 fillOpacity: 0
                             })}
                             onEachFeature={(feature, layer) => {
