@@ -470,6 +470,7 @@ export interface Meter {
     well_id: number
     location_id?: number
 
+    meter_register?: MeterRegister
     meter_type?: MeterType
     status?: MeterStatus
     well?: Well

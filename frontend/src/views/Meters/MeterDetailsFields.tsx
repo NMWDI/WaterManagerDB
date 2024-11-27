@@ -46,7 +46,8 @@ interface MeterDetailsProps {
 
 const MeterResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     serial_number: Yup.string().required('Please enter a serial number.'),
-    meter_type: Yup.mixed().required('Please select a meter type.'),
+    meter_type: Yup.object().required('Please select a meter type.'),
+    meter_register: Yup.object().required('Please select a meter register.'),
 })
 
 export default function MeterDetailsFields({selectedMeterID, meterAddMode}: MeterDetailsProps) {
@@ -76,7 +77,10 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
         data.well = data.well == "" ? null : data.well  // If no well selected, set to null for API
         createMeter.mutate(data)
     }
-    const onErr = (data: any) => console.log("ERR: ", data)
+    const onErr = (data: any) => {
+        console.log("ERR: ", data)
+        enqueueSnackbar('Please correct any errors before submission.', {variant: 'error'})
+    }
 
     // Populate the form with the selected meter's details
     useEffect(() => {
@@ -96,6 +100,18 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
             setIsInitialLoad(false)
         }
     }, [meterAddMode])
+
+    // Clear meter register when meter type changes
+    // const prevMeterTypeRef = React.useRef<any>();
+    // useEffect(() => {
+    //     console.log('changing meter type')
+    //     const currentMeterType = watch("meter_type");
+    //     //Only clear if changing from one meter type to another
+    //     if (prevMeterTypeRef.current !== undefined && prevMeterTypeRef.current !== currentMeterType) {
+    //         setValue('meter_register', undefined);
+    //     }
+    //     prevMeterTypeRef.current = currentMeterType;
+    // }, [watch("meter_type")]);
 
     function navigateToNewActivity() {
         navigate({
@@ -155,6 +171,8 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                                 control={control}
                                 meterType={watch("meter_type")}
                                 disabled={!hasAdminScope || isInitialLoad}
+                                error={errors?.meter_register != undefined}
+                                helperText={errors?.meter_register?.message}
                             />
                         </Grid>
                     </Grid>
@@ -261,7 +279,7 @@ export default function MeterDetailsFields({selectedMeterID, meterAddMode}: Mete
                     <Grid container item xs={12} spacing={2}>
                         {hasAdminScope &&
                             <Grid item >
-                                {hasErrors() ? <Alert severity="error" sx={{width: '50%'}}>Please correct any errors before submission.</Alert> :
+                                {
                                     meterAddMode ?
                                     <Button color="success" variant="contained" onClick={handleSubmit(onAddMeter, onErr)}><SaveIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save New Meter</Button> :
                                     <Button color="success" variant="contained" onClick={handleSubmit(onSaveChanges, onErr)}><SaveAsIcon sx={{fontSize: '1.2rem'}}/>&nbsp; Save Changes</Button>

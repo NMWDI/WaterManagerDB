@@ -23,6 +23,7 @@ import { SecurityScope } from '../../interfaces';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     use_type: Yup.object().required('Please select a use type.'),
+    water_source: Yup.object().required('Please select a water source.'),
     location: Yup.object().shape({
         trss: Yup.string().required('Please enter the TRSS.'),
     })

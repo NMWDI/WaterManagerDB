@@ -2,14 +2,17 @@
 //
 import React, { useEffect, useState } from 'react'
 import { useGetMeterRegisterList } from '../service/ApiServiceNew'
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, FormHelperText } from '@mui/material'
 import { MeterRegister, MeterType } from '../interfaces'
+
 
 //Interface for MeterRegisterSelect props
 interface MeterRegisterSelectProps {
     selectedRegister: MeterRegister | undefined;
     setSelectedRegister: (register: MeterRegister | null) => void;
     meterType: MeterType | undefined;
+    error?: boolean;
+    helperText?: string;
 }
 
 function getRegisterTitle(register: MeterRegister) {
@@ -40,7 +43,11 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
     
 
     return (
-        <FormControl size="small" fullWidth>
+        <FormControl
+            size="small"
+            fullWidth
+            error={childProps.error}
+        >
             <InputLabel>Meter Register</InputLabel>
             <Select
                 value={meterRegisterList.isLoading ? 'loading' : selectedRegister?.id ?? ''}
@@ -54,6 +61,9 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
 
                 {meterRegisterList.isLoading && <MenuItem value={'loading'} hidden>Loading...</MenuItem>}
             </Select>
+            {childProps.error && (
+                <FormHelperText>{childProps.helperText}</FormHelperText>
+            )}
         </FormControl>
     )
 }

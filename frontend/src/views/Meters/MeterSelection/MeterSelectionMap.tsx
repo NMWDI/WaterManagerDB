@@ -153,7 +153,7 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                             // }}
                         />
                     </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Township Range">
+                    <LayersControl.Overlay name="Township Range">
                         <GeoJSON 
                             data={trData} 
                             style={() => ({
