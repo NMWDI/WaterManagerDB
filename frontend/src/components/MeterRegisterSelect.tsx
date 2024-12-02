@@ -35,12 +35,21 @@ export default function MeterRegisterSelect({selectedRegister, setSelectedRegist
     //Filter the register list based on the meter type
     useEffect(() => {
         if (meterType) {
+            console.log(meterType)
             setFilteredRegisterList(meterRegisterList.data?.filter((register: MeterRegister) => (register.meter_size == meterType.size) && (register.brand.toLowerCase() == meterType.brand?.toLowerCase())))
         } else {
             setFilteredRegisterList(meterRegisterList.data)
         }
     }, [meterType, meterRegisterList.data])
-    
+
+    //Check if the selected register is in the filtered list, if not, set it to null
+    useEffect(() => {
+        console.log(selectedRegister)
+        console.log(filteredRegisterList)
+        if (selectedRegister && !filteredRegisterList?.some((register: MeterRegister) => register.id === selectedRegister.id)) {
+            setSelectedRegister(null)
+        }
+    }, [filteredRegisterList])
 
     return (
         <FormControl
