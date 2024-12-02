@@ -9,7 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
-            "V0.1.47 - Add TRSS grids to meter map",
+            "V0.1.47 - Add TRSS grids to meter map and fixed meter register save bug",
             "V0.1.46 - Change how data is displayed in Wells table",
             "V0.1.45 - Color code meter markers on map by last PM",
             "V0.1.44 - Fix bug in continuous monitoring well data and added data to OSE endpoint",
