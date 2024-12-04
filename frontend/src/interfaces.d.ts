@@ -288,6 +288,7 @@ export interface Well {
         {
             id: int
             serial_number: string
+            water_users?: string
         }
     ]
 }

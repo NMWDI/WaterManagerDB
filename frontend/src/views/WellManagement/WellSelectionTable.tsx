@@ -40,7 +40,12 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
     const cols: GridColDef[] = [
         {field: 'ra_number', headerName: 'RA Number', width: 100},
         {field: 'osetag', headerName: 'OSE Tag', width: 100},
-        {field: 'owners', headerName: 'Owners', width: 150},
+        {
+            field: 'water_users',
+            headerName: 'Water Users',
+            width: 150,
+            valueGetter: (value, row: Well) => row.meters.map((meter) => meter.water_users).join(', ')
+        },
         {field: 'use_type', headerName: 'Use Type', width: 150,
             valueGetter: (value, row) => row.use_type?.use_type,
         },
