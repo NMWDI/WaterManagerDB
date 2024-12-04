@@ -13,7 +13,6 @@ class WellSortByField(Enum):
     Name = "name"
     RANumber = "ra_number"
     OSETag = "osetag"
-    Owners = "owners"
     UseType = "use_type"
     Location = "location"
 

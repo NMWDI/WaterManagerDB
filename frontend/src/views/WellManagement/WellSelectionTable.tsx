@@ -44,6 +44,7 @@ export default function WellSelectionTable({setSelectedWell, wellSearchQueryProp
             field: 'water_users',
             headerName: 'Water Users',
             width: 150,
+            sortable: false,
             valueGetter: (value, row: Well) => row.meters.map((meter) => meter.water_users).join(', ')
         },
         {field: 'use_type', headerName: 'Use Type', width: 150,

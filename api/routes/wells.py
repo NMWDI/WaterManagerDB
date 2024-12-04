@@ -61,9 +61,6 @@ def get_wells(
             case WellSortByField.RANumber:
                 return Wells.ra_number
 
-            case WellSortByField.Owners:
-                return Wells.owners
-
             case WellSortByField.OSETag:
                 return Wells.osetag
 
@@ -85,7 +82,6 @@ def get_wells(
             or_(
                 Wells.name.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
-                Wells.owners.ilike(f"%{search_string}%"),
                 Wells.osetag.ilike(f"%{search_string}%"),
                 Locations.trss.ilike(f"%{search_string}%"),
                 WellUseLU.use_type.ilike(f"%{search_string}%"),
