@@ -51,6 +51,7 @@ class WaterSources(ORMBase):
 class WellMeterInfo(ORMBase):
     '''Subset of Meter schema'''
     serial_number: str
+    water_users: str | None = None
 
 class Well(ORMBase):
     name: str | None = None
