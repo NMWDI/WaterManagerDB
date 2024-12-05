@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.48 - Changed well owner to be meter water users",
             "V0.1.47 - Add TRSS grids to meter map and fixed meter register save bug",
             "V0.1.46 - Change how data is displayed in Wells table",
             "V0.1.45 - Color code meter markers on map by last PM",
@@ -19,8 +20,6 @@ class Home extends Component{
             "V0.1.40 - Add register to UI on meter details",
             "V0.1.39 - Default share ose when workorder, OSE access to register information",
             "V0.1.38 - Change logout time to 8 hours, show work order count in navigation",
-            "V0.1.37.1 - Fix various work order bugs",
-            "V0.1.37 - Update OSE API to include ose_request_id and new endpoint",
         ]
 
         return (

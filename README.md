@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.48 - Changed well owner to be meter water users
 - V0.1.47 - Add TRSS grids to meter map and fixed meter register save bug
 - V0.1.46 - Change how data is displayed in Wells table
 - V0.1.45 - Color code meter markers on map by last PM
