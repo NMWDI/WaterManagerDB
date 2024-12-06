@@ -137,12 +137,12 @@ def reorganizeHistory(activities: list[MeterActivities], observations: list[Mete
 
                 # Some activities are not associated with a well
                 # If well is none, set the well's RA number and OSE tag to None
-                if not activity.meter.well:
+                if not activity.well:
                     ra_number = None
                     ose_tag = None
                 else:
-                    ra_number = activity.meter.well.ra_number
-                    ose_tag = activity.meter.well.osetag
+                    ra_number = activity.well.ra_number
+                    ose_tag = activity.well.osetag
 
                 activity = ActivityDTO(
                     activity_id=activity.id,
@@ -192,8 +192,9 @@ def get_shared_history(
             .options(
                 joinedload(MeterActivities.activity_type),
                 joinedload(MeterActivities.parts_used),
-                joinedload(MeterActivities.meter).joinedload(Meters.well),
-                joinedload(MeterActivities.work_order)
+                joinedload(MeterActivities.meter),
+                joinedload(MeterActivities.work_order),
+                joinedload(MeterActivities.well),
             )
             .filter(
                 and_(

@@ -236,6 +236,7 @@ class MeterActivities(Base):
     )
     notes: Mapped[List["NoteTypeLU"]] = relationship("NoteTypeLU", secondary=Notes)
     work_order: Mapped["workOrders"] = relationship()
+    well: Mapped["Wells"] = relationship("Wells", primaryjoin='MeterActivities.location_id == Wells.location_id', foreign_keys='MeterActivities.location_id', viewonly=True)
 
 
 class ActivityTypeLU(Base):
