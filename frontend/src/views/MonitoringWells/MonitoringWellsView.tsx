@@ -26,13 +26,23 @@ const monitoredWells: MonitoredWell[] = [
     {id: 1521, name: 'Bartlett', datastream_id: 25084},
     {id: 1522, name: 'Cottonwood', datastream_id: 25085},
     {id: 1523, name: 'Zumwalt', datastream_id: 25082},
-    {id: 1524, name: 'Artesia A', datastream_id: 25090}
+    {id: 1524, name: 'Artesia A', datastream_id: 25090},
+    {id: 2596, name: 'Kelly Kids', datastream_id: -999},
+    {id: 2597, name: 'Marley/Whitney Far West Well', datastream_id: -999},
+    {id: 2598, name: 'Marley/Whitney East Well', datastream_id: -999},
+    {id: 2599, name: 'S.P. Johnson', datastream_id: -999},
+    {id: 2600, name: 'Hope', datastream_id: -999},
+    {id: 2601, name: 'J.P. White', datastream_id: -999},
+    {id: 2602, name: 'Mesa Park', datastream_id: -999},
 ]
 
 function getDatastreamID(input_wellID: number | undefined): number | undefined {
     let welldetails = monitoredWells.find(x => x.id == input_wellID)
     if (welldetails)
-        return welldetails.datastream_id
+        if (welldetails.datastream_id == -999)
+            return undefined
+        else
+            return welldetails.datastream_id
     else
         return welldetails
 }
