@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.49 - Added outside recorder wells to monitoring page",
             "V0.1.48 - Changed well owner to be meter water users",
             "V0.1.47 - Add TRSS grids to meter map and fixed meter register save bug",
             "V0.1.46 - Change how data is displayed in Wells table",
