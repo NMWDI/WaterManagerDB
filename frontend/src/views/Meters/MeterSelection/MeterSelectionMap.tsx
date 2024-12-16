@@ -2,7 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { useDebounce } from 'use-debounce'
 
-import { CircleMarker, MapContainer, TileLayer, Tooltip, GeoJSON, LayersControl, LayerGroup } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, Tooltip, GeoJSON, LayersControl, LayerGroup, Pane } from 'react-leaflet';
 import { useLeafletContext } from '@react-leaflet/core';
 import { MeterMapDTO } from '../../../interfaces'
 
@@ -134,40 +134,46 @@ export default function MeterSelectionMap({onMeterSelection, meterSearch}: Meter
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {meterMarkersMap}
+                <Pane name="custom_markers" style={{zIndex: 650}}>
+                    {meterMarkersMap}
+                </Pane>
                 <ColorLegend />
                 <LayersControl position="topleft">
-                    <LayersControl.Overlay name="Section">
-                        <GeoJSON 
-                            data={ssData} 
-                            style={() => ({
-                                color: 'red',
-                                dashArray: '5, 10',
-                                weight: 2,
-                                fillOpacity: 0
-                            })}
-                            // onEachFeature={(feature, layer) => {
-                            //     if (feature.properties && feature.properties.TWNSHPLAB) {
-                            //         layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
-                            //     }
-                            // }}
-                        />
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay name="Township Range">
-                        <GeoJSON 
-                            data={trData} 
-                            style={() => ({
-                                color: 'black',
-                                weight: 3,
-                                fillOpacity: 0
-                            })}
-                            onEachFeature={(feature, layer) => {
-                                if (feature.properties && feature.properties.TWNSHPLAB) {
-                                    layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
-                                }
-                            }}
-                        />
-                    </LayersControl.Overlay>
+                    <Pane name="section_overlay" style={{zIndex: 600}}>
+                        <LayersControl.Overlay name="Section">
+                            <GeoJSON 
+                                data={ssData} 
+                                style={() => ({
+                                    color: 'red',
+                                    dashArray: '5, 10',
+                                    weight: 2,
+                                    fillOpacity: 0
+                                })}
+                                // onEachFeature={(feature, layer) => {
+                                //     if (feature.properties && feature.properties.TWNSHPLAB) {
+                                //         layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
+                                //     }
+                                // }}
+                            />
+                        </LayersControl.Overlay>
+                    </Pane>
+                    <Pane name="township_range_overlay" style={{zIndex: 625}}>
+                        <LayersControl.Overlay name="Township Range">
+                            <GeoJSON 
+                                data={trData} 
+                                style={() => ({
+                                    color: 'black',
+                                    weight: 3,
+                                    fillOpacity: 0
+                                })}
+                                onEachFeature={(feature, layer) => {
+                                    if (feature.properties && feature.properties.TWNSHPLAB) {
+                                        layer.bindTooltip(feature.properties.TWNSHPLAB, { permanent: true, direction: 'center', className: 'geojson-label' });
+                                    }
+                                }}
+                            />
+                        </LayersControl.Overlay>
+                    </Pane>
                 </LayersControl>
             </MapContainer>
         )
