@@ -72,7 +72,7 @@ def get_wells(
 
     query_statement = (
         select(Wells)
-        .options(joinedload(Wells.location), joinedload(Wells.use_type), joinedload(Wells.meters))
+        .options(joinedload(Wells.location), joinedload(Wells.use_type), joinedload(Wells.meters), joinedload(Wells.well_status))
         .join(Locations, isouter=True)
         .join(WellUseLU, isouter=True)
     )
@@ -116,7 +116,7 @@ def update_well(
     # Update well - RA number must be unique
     updated_well_model = _get(db, Wells, updated_well.id)
 
-    for k, v in updated_well.dict(exclude_unset=True).items():
+    for k, v in updated_well.model_dump(exclude_unset=True).items():
         try:
             setattr(updated_well_model, k, v)
         except AttributeError as e:

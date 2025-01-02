@@ -48,6 +48,10 @@ class WaterSources(ORMBase):
     name: str
     description: str | None = None
 
+class WellStatus(ORMBase):
+    status: str
+    description: str | None = None
+
 class WellMeterInfo(ORMBase):
     '''Subset of Meter schema'''
     serial_number: str
@@ -58,6 +62,9 @@ class Well(ORMBase):
     ra_number: str | None = None
     owners: str | None = None
     osetag: str | None = None
+    casing: str | None = None
+    total_depth: float | None = None
+    outside_recorder: bool | None = None
 
     location_id: int | None = None
     use_type_id: int | None = None
@@ -65,6 +72,7 @@ class Well(ORMBase):
     location: Location | None = None
     use_type: WellUseLU | None = None
     water_source: WaterSources | None = None
+    well_status: WellStatus | None = None
 
     meters: list[WellMeterInfo] | None = None
 
