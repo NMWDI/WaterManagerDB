@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Button, Card, CardContent, CardHeader, Grid, Stack } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, CardHeader, Grid, Stack } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -126,7 +126,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                         <Grid item xs={6}>
                             <ControlledSelect
                                 name="water_source"
-                                label="Water Source"
+                                label="Status"
                                 options={waterSources.data ?? []}
                                 getOptionLabel={(source: WaterSource) => source.name}
                                 control={control}
@@ -137,6 +137,65 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             <ControlledSelect
                                 name="use_type"
                                 label="Use Type"
+                                options={useTypeList.data ?? []}
+                                getOptionLabel={(use: WellUseLU) => use.use_type}
+                                control={control}
+                                error={errors?.use_type?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Water Source"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2} display={wellAddMode ? 'none' : 'flex'}>
+                        <Grid item xs={12}>
+                            <h4 style={{color: "#292929", fontWeight: '500', marginBottom: 0}}>Well Properties</h4>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Name"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="Total Depth"
+                                label="Total Depth"
+                                options={useTypeList.data ?? []}
+                                getOptionLabel={(use: WellUseLU) => use.use_type}
+                                control={control}
+                                error={errors?.use_type?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2} display={wellAddMode ? 'none' : 'flex'}>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Casing"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="Total Depth"
+                                label="Outside Recorder"
                                 options={useTypeList.data ?? []}
                                 getOptionLabel={(use: WellUseLU) => use.use_type}
                                 control={control}
