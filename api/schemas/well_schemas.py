@@ -24,7 +24,7 @@ class LandOwner(ORMBase):
 
 class Location(ORMBase):
     name: str | None = None
-    type_id: int
+    type_id: int | None = None
     trss: str | None = None
     latitude: float | None = None
     longitude: float | None = None
@@ -49,7 +49,7 @@ class WaterSources(ORMBase):
     description: str | None = None
 
 class WellStatus(ORMBase):
-    status: str
+    status: str | None = None
     description: str | None = None
 
 class WellMeterInfo(ORMBase):
@@ -68,6 +68,10 @@ class Well(ORMBase):
 
     location_id: int | None = None
     use_type_id: int | None = None
+    well_status_id: int | None = None
+    water_source_id: int | None = None
+
+class WellResponse(Well):
 
     location: Location | None = None
     use_type: WellUseLU | None = None
@@ -97,26 +101,8 @@ class SubmitWellCreate(ORMBaseSimple):
     water_source: WaterSources | None = None
 
 
-class SubmitWellUpdate(ORMBaseSimple):
-    class SubmitLocationUpdate(ORMBaseSimple):
-        id: int
-        name: str
-        trss: str
-        longitude: float
-        latitude: float
-
-    class SubmitUseTypeUpdate(ORMBaseSimple):
-        id: int
-
-    id: int
-    name: str
-    ra_number: str | None = None
-    owners: str | None = None
-    osetag: str | None = None
-
-    location: SubmitLocationUpdate
-    use_type: SubmitUseTypeUpdate
-    water_source: WaterSources
+class WellUpdate(Well):
+    location: Location | None = None
 
 class SubmitWellMerge(ORMBaseSimple):
     merge_well: str
