@@ -20,6 +20,7 @@ import { isMainThread } from 'worker_threads';
 
 import { useAuthUser } from 'react-auth-kit';
 import { SecurityScope } from '../../interfaces';
+import ControlledCheckbox from '../../components/RHControlled/ControlledCheckbox';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     use_type: Yup.object().required('Please select a use type.'),
@@ -156,50 +157,45 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} spacing={2} display={wellAddMode ? 'none' : 'flex'}>
+                    <Grid container item xs={12} spacing={2} display={watch("use_type").id != 11 ? 'none' : 'flex'}>
                         <Grid item xs={12}>
                             <h4 style={{color: "#292929", fontWeight: '500', marginBottom: 0}}>Well Properties</h4>
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledSelect
-                                name="water_source"
-                                label="Name"
-                                options={waterSources.data ?? []}
-                                getOptionLabel={(source: WaterSource) => source.name}
+                            <ControlledTextbox
+                                name="name"
                                 control={control}
-                                error={errors?.water_source?.message}
+                                label="Name"
+                                //error={errors?.name?.message != undefined}
+                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledSelect
-                                name="Total Depth"
-                                label="Total Depth"
-                                options={useTypeList.data ?? []}
-                                getOptionLabel={(use: WellUseLU) => use.use_type}
+                        <ControlledTextbox
+                                name="total_depth"
                                 control={control}
-                                error={errors?.use_type?.message}
+                                label="Total Depth"
+                                //error={errors?.name?.message != undefined}
+                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} spacing={2} display={wellAddMode ? 'none' : 'flex'}>
+                    <Grid container item xs={12} spacing={2} display={watch("use_type").id != 11 ? 'none' : 'flex'}>
                         <Grid item xs={6}>
-                            <ControlledSelect
-                                name="water_source"
-                                label="Casing"
-                                options={waterSources.data ?? []}
-                                getOptionLabel={(source: WaterSource) => source.name}
+                            <ControlledTextbox
+                                name="casing"
                                 control={control}
-                                error={errors?.water_source?.message}
+                                label="Casing"
+                                //error={errors?.name?.message != undefined}
+                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <ControlledSelect
-                                name="Total Depth"
-                                label="Outside Recorder"
-                                options={useTypeList.data ?? []}
-                                getOptionLabel={(use: WellUseLU) => use.use_type}
+                            <ControlledCheckbox
+                                name="outside_recorder"
                                 control={control}
-                                error={errors?.use_type?.message}
+                                label="Outside Recorder"
+                                labelPlacement="start"
                             />
                         </Grid>
                     </Grid>
