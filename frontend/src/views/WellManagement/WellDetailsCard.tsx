@@ -157,7 +157,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} spacing={2} display={watch("use_type").id != 11 ? 'none' : 'flex'}>
+                    <Grid container item xs={12} spacing={2} display={(watch("use_type")?.id ?? 0) != 11 ? 'none' : 'flex'}>
                         <Grid item xs={12}>
                             <h4 style={{color: "#292929", fontWeight: '500', marginBottom: 0}}>Well Properties</h4>
                         </Grid>
@@ -180,7 +180,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} spacing={2} display={watch("use_type").id != 11 ? 'none' : 'flex'}>
+                    <Grid container item xs={12} spacing={2} display={(watch("use_type")?.id ?? 0) != 11 ? 'none' : 'flex'}>
                         <Grid item xs={6}>
                             <ControlledTextbox
                                 name="casing"
