@@ -232,6 +232,12 @@ export interface WaterSource {
     description: string
 }
 
+export interface WellStatus {
+    id: number
+    status: string
+    description: string
+}
+
 export interface SubmitWellUpdate {
     id: number
     name: string
@@ -276,6 +282,7 @@ export interface Well {
     name?: string | null
     location_id?: number | null
     use_type_id?: number | null
+    well_status_id?: number | null
     ra_number: string
     owners?: string | null
     osetag?: string | null
@@ -283,6 +290,7 @@ export interface Well {
     use_type: WellUseLU | null
     water_source: WaterSource | null
     location: Location | null
+    well_status: WellStatus | null
 
     meters: [
         {

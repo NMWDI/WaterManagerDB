@@ -45,6 +45,7 @@ import {
     NewWorkOrder,
     MeterRegister,
     WaterSource,
+    WellStatus,
 } from '../interfaces.js'
 import { WorkOrderStatus } from '../enums.js';
 import { useNavigate } from 'react-router-dom';
@@ -208,6 +209,18 @@ export function useGetWaterSources() {
     const signOut = useSignOut()
 
     return useQuery<WaterSource[], Error>([route], () =>
+        GETFetch(route, null, authHeader(), signOut, navigate),
+        {keepPreviousData: true}
+    )
+}
+
+export function useGetWellStatusTypes() {
+    const route = 'well_status_types'
+    const authHeader = useAuthHeader()
+    const navigate = useNavigate()
+    const signOut = useSignOut()
+
+    return useQuery<WellStatus[], Error>([route], () =>
         GETFetch(route, null, authHeader(), signOut, navigate),
         {keepPreviousData: true}
     )

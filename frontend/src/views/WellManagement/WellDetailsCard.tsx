@@ -9,9 +9,9 @@ import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 
-import { useCreateWell, useGetUseTypes, useGetWaterSources, useUpdateWell } from '../../service/ApiServiceNew'
+import { useCreateWell, useGetUseTypes, useGetWaterSources, useGetWellStatusTypes, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellStatus, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
@@ -48,6 +48,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
 
     const useTypeList = useGetUseTypes()
     const waterSources = useGetWaterSources()
+    const wellStatusTypes = useGetWellStatusTypes()
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Well!', {variant: 'success'}) }
     function onSuccessfulCreate() {
@@ -126,12 +127,11 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={6}>
                             <ControlledSelect
-                                name="water_source"
+                                name="well_status"
                                 label="Status"
-                                options={waterSources.data ?? []}
-                                getOptionLabel={(source: WaterSource) => source.name}
+                                options={wellStatusTypes.data ?? []}
+                                getOptionLabel={(status_type: WellStatus) => status_type.status}
                                 control={control}
-                                error={errors?.water_source?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -141,7 +141,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 options={useTypeList.data ?? []}
                                 getOptionLabel={(use: WellUseLU) => use.use_type}
                                 control={control}
-                                error={errors?.use_type?.message}
                             />
                         </Grid>
                     </Grid>
