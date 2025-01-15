@@ -125,8 +125,23 @@ def update_well(
     if updated_well.location:
         _patch(db, Locations, updated_well.location.id, updated_well.location)
         updated_well.location = None  # This keeps it from the model dump below which gives an error
-    
-    # Update well - RA number must be unique
+
+    # If use_type is present, update the id and remove from model
+    if updated_well.use_type:
+        updated_well.use_type_id = updated_well.use_type.id
+        updated_well.use_type = None
+
+    # If water_source is present, update the id and remove from model
+    if updated_well.water_source:
+        updated_well.water_source_id = updated_well.water_source.id
+        updated_well.water_source = None
+
+    # If well_status is present, update the id and remove from model
+    if updated_well.well_status:
+        updated_well.well_status_id = updated_well.well_status.id
+        updated_well.well_status = None
+
+    # Update well
     well_to_patch = _get(db, Wells, updated_well.id)
 
     for k, v in updated_well.model_dump(exclude_unset=True).items():

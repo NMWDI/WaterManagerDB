@@ -103,6 +103,9 @@ class SubmitWellCreate(ORMBaseSimple):
 
 class WellUpdate(Well):
     location: Location | None = None
+    use_type: WellUseLU | None = None
+    water_source: WaterSources | None = None
+    well_status: WellStatus | None = None
 
 class SubmitWellMerge(ORMBaseSimple):
     merge_well: str

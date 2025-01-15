@@ -11,7 +11,7 @@ import { enqueueSnackbar } from 'notistack'
 
 import { useCreateWell, useGetUseTypes, useGetWaterSources, useGetWellStatusTypes, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellStatus, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, WellUpdate, WaterSource, Well, WellStatus, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
@@ -36,7 +36,7 @@ interface WellDetailsCardProps {
 }
 
 export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetailsCardProps) {
-    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<SubmitWellUpdate | SubmitWellCreate>({
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<WellUpdate | SubmitWellCreate>({
         resolver: yupResolver(WellResolverSchema),
         defaultValues: {
             location: {latitude: 0, longitude: 0}
@@ -165,8 +165,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 name="name"
                                 control={control}
                                 label="Name"
-                                //error={errors?.name?.message != undefined}
-                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -174,8 +172,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 name="total_depth"
                                 control={control}
                                 label="Total Depth"
-                                //error={errors?.name?.message != undefined}
-                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                     </Grid>
@@ -185,8 +181,6 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 name="casing"
                                 control={control}
                                 label="Casing"
-                                //error={errors?.name?.message != undefined}
-                                //helperText={errors?.ra_number?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>

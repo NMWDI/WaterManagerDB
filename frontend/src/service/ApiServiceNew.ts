@@ -34,7 +34,7 @@ import {
     UpdatedUserPassword,
     WellUseLU,
     SubmitWellCreate,
-    SubmitWellUpdate,
+    WellUpdate,
     Meter,
     MeterStatus,
     PatchObservationSubmit,
@@ -707,7 +707,7 @@ export function useUpdateWell(onSuccess: Function) {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async (updatedWell: SubmitWellUpdate) => {
+        mutationFn: async (updatedWell: WellUpdate) => {
             const response = await PATCHFetch(route, updatedWell, authHeader())
 
             if (!response.ok) {
