@@ -14,11 +14,12 @@
 # limitations under the License.
 # ===============================================================================
 from fastapi import HTTPException
+from pydantic import BaseModel
 
 
-def _patch(db, table, dbid, obj):
+def _patch(db, table, dbid, obj: BaseModel):
     db_item = _get(db, table, dbid)
-    for k, v in obj.dict(exclude_unset=True).items():
+    for k, v in obj.model_dump(exclude_unset=True).items():
         try:
             setattr(db_item, k, v)
         except AttributeError as e:
