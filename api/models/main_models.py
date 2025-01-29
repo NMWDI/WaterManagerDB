@@ -492,6 +492,15 @@ class WaterSources(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String)
 
+class WellStatus(Base):
+    """
+    The status of a well
+    """
+
+    __tablename__ = "well_status"
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String)
+
 
 class Wells(Base):
     """
@@ -505,14 +514,19 @@ class Wells(Base):
     )  # RA Number is an OSE well identifier
     owners: Mapped[str] = mapped_column(String)
     osetag: Mapped[str] = mapped_column(String)
+    casing: Mapped[str] = mapped_column(String)
+    total_depth: Mapped[float] = mapped_column(Float)
+    outside_recorder: Mapped[str] = mapped_column(Boolean)
 
     use_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("WellUseLU.id"))
     location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"))
     water_source_id: Mapped[int] = mapped_column(Integer, ForeignKey("water_sources.id"))
+    well_status_id: Mapped[int] = mapped_column(Integer, ForeignKey("well_status.id"))
 
     use_type: Mapped["WellUseLU"] = relationship()
     location: Mapped["Locations"] = relationship()
     water_source: Mapped["WaterSources"] = relationship()
+    well_status: Mapped["WellStatus"] = relationship()
 
     meters: Mapped[List["Meters"]] = relationship("Meters", back_populates="well")
 

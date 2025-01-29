@@ -232,24 +232,10 @@ export interface WaterSource {
     description: string
 }
 
-export interface SubmitWellUpdate {
+export interface WellStatus {
     id: number
-    name: string
-    ra_number: string
-    owners: string
-    osetag: string
-    water_source: WaterSource
-
-    use_type: {
-        id: number
-    }
-
-    location: {
-        name: string,
-        trss: string,
-        longitude: float,
-        latitude: float
-    }
+    status: string
+    description: string
 }
 
 export interface SubmitWellCreate {
@@ -271,18 +257,26 @@ export interface SubmitWellCreate {
     }
 }
 
-export interface Well {
-    id: int
-    name?: string | null
-    location_id?: number | null
-    use_type_id?: number | null
+interface BaseWell {
+    id: number
+    name: string
     ra_number: string
-    owners?: string | null
-    osetag?: string | null
+    owners: string
+    osetag: string
+    casing: string
+    total_depth: number
+    outside_recorder: boolean
+    location_id: number
+    use_type_id: number
+    well_status_id: number
+    water_source_id: number
+}
 
+export interface Well extends BaseWell {
     use_type: WellUseLU | null
     water_source: WaterSource | null
     location: Location | null
+    well_status: WellStatus | null
 
     meters: [
         {
@@ -291,6 +285,13 @@ export interface Well {
             water_users?: string
         }
     ]
+}
+
+export interface WellUpdate extends BaseWell {
+    use_type: WellUseLU
+    water_source: WaterSource
+    location: Location
+    well_status: WellStatus
 }
 
 export interface MeterDetailsQueryParams {
