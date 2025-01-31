@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { Alert, Button, Card, CardContent, CardHeader, Grid, Stack } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, CardHeader, Grid, Stack } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -9,9 +9,9 @@ import * as Yup from "yup"
 import { yupResolver } from '@hookform/resolvers/yup'
 import { enqueueSnackbar } from 'notistack'
 
-import { useCreateWell, useGetUseTypes, useGetWaterSources, useUpdateWell } from '../../service/ApiServiceNew'
+import { useCreateWell, useGetUseTypes, useGetWaterSources, useGetWellStatusTypes, useUpdateWell } from '../../service/ApiServiceNew'
 import ControlledTextbox from '../../components/RHControlled/ControlledTextbox'
-import { SubmitWellCreate, SubmitWellUpdate, WaterSource, Well, WellUseLU } from '../../interfaces'
+import { SubmitWellCreate, WellUpdate, WaterSource, Well, WellStatus, WellUseLU } from '../../interfaces'
 import { ControlledSelect } from '../../components/RHControlled/ControlledSelect';
 import ControlledDMS from '../../components/RHControlled/ControlledDMS';
 import { GCSdimension } from '../../enums';
@@ -20,6 +20,7 @@ import { isMainThread } from 'worker_threads';
 
 import { useAuthUser } from 'react-auth-kit';
 import { SecurityScope } from '../../interfaces';
+import ControlledCheckbox from '../../components/RHControlled/ControlledCheckbox';
 
 const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     use_type: Yup.object().required('Please select a use type.'),
@@ -35,7 +36,7 @@ interface WellDetailsCardProps {
 }
 
 export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetailsCardProps) {
-    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<SubmitWellUpdate | SubmitWellCreate>({
+    const { handleSubmit, control, setValue, reset, watch, formState: { errors }} = useForm<WellUpdate | SubmitWellCreate>({
         resolver: yupResolver(WellResolverSchema),
         defaultValues: {
             location: {latitude: 0, longitude: 0}
@@ -47,6 +48,7 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
 
     const useTypeList = useGetUseTypes()
     const waterSources = useGetWaterSources()
+    const wellStatusTypes = useGetWellStatusTypes()
 
     function onSuccessfulUpdate() { enqueueSnackbar('Successfully Updated Well!', {variant: 'success'}) }
     function onSuccessfulCreate() {
@@ -125,12 +127,11 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                     <Grid container item xs={12} spacing={2}>
                         <Grid item xs={6}>
                             <ControlledSelect
-                                name="water_source"
-                                label="Water Source"
-                                options={waterSources.data ?? []}
-                                getOptionLabel={(source: WaterSource) => source.name}
+                                name="well_status"
+                                label="Status"
+                                options={wellStatusTypes.data ?? []}
+                                getOptionLabel={(status_type: WellStatus) => status_type.status}
                                 control={control}
-                                error={errors?.water_source?.message}
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -140,7 +141,54 @@ export default function WellDetailsCard({selectedWell, wellAddMode}: WellDetails
                                 options={useTypeList.data ?? []}
                                 getOptionLabel={(use: WellUseLU) => use.use_type}
                                 control={control}
-                                error={errors?.use_type?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2}>
+                        <Grid item xs={6}>
+                            <ControlledSelect
+                                name="water_source"
+                                label="Water Source"
+                                options={waterSources.data ?? []}
+                                getOptionLabel={(source: WaterSource) => source.name}
+                                control={control}
+                                error={errors?.water_source?.message}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2} display={(watch("use_type")?.id ?? 0) != 11 ? 'none' : 'flex'}>
+                        <Grid item xs={12}>
+                            <h4 style={{color: "#292929", fontWeight: '500', marginBottom: 0}}>Well Properties</h4>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledTextbox
+                                name="name"
+                                control={control}
+                                label="Name"
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                        <ControlledTextbox
+                                name="total_depth"
+                                control={control}
+                                label="Total Depth"
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container item xs={12} spacing={2} display={(watch("use_type")?.id ?? 0) != 11 ? 'none' : 'flex'}>
+                        <Grid item xs={6}>
+                            <ControlledTextbox
+                                name="casing"
+                                control={control}
+                                label="Casing"
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <ControlledCheckbox
+                                name="outside_recorder"
+                                control={control}
+                                label="Outside Recorder"
+                                labelPlacement="start"
                             />
                         </Grid>
                     </Grid>

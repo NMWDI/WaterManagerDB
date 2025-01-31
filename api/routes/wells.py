@@ -8,7 +8,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from fastapi_pagination import LimitOffsetPage
 
 from api.schemas import well_schemas
-from api.models.main_models import Locations, WaterSources, WellUseLU, Wells
+from api.models.main_models import Locations, WaterSources, WellStatus, WellUseLU, Wells
 from api.route_util import _patch, _get
 from api.session import get_db
 from api.enums import ScopedUser, WellSortByField, SortDirection
@@ -39,11 +39,23 @@ def get_water_sources(
 ):
     return db.scalars(select(WaterSources)).all()
 
+# Get well status types
+@well_router.get(
+    "/well_status_types",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.WellStatus],
+    tags=["Wells"],
+)
+def get_well_status_types(
+    db: Session = Depends(get_db),
+):
+    return db.scalars(select(WellStatus)).all()
+
 
 @well_router.get(
     "/wells",
     dependencies=[Depends(ScopedUser.Read)],
-    response_model=LimitOffsetPage[well_schemas.Well],
+    response_model=LimitOffsetPage[well_schemas.WellResponse],
     tags=["Wells"],
 )
 def get_wells(
@@ -72,7 +84,7 @@ def get_wells(
 
     query_statement = (
         select(Wells)
-        .options(joinedload(Wells.location), joinedload(Wells.use_type), joinedload(Wells.meters))
+        .options(joinedload(Wells.location), joinedload(Wells.use_type), joinedload(Wells.meters), joinedload(Wells.well_status))
         .join(Locations, isouter=True)
         .join(WellUseLU, isouter=True)
     )
@@ -101,40 +113,55 @@ def get_wells(
     return paginate(db, query_statement)
 
 
-
 @well_router.patch(
     "/wells",
     dependencies=[Depends(ScopedUser.WellWrite)],
     tags=["Wells"],
 )
 def update_well(
-    updated_well: well_schemas.SubmitWellUpdate, db: Session = Depends(get_db)
+    updated_well: well_schemas.WellUpdate, db: Session = Depends(get_db)
 ):
-    # Update location since locations are mostly associated with wells
-    _patch(db, Locations, updated_well.location.id, updated_well.location)
-    
-    # Update well - RA number must be unique
-    updated_well_model = _get(db, Wells, updated_well.id)
+    # If present, update location and remove from model
+    if updated_well.location:
+        _patch(db, Locations, updated_well.location.id, updated_well.location)
 
-    for k, v in updated_well.dict(exclude_unset=True).items():
+    # If use_type is present, update the id and remove from model
+    if updated_well.use_type:
+        updated_well.use_type_id = updated_well.use_type.id
+
+
+    # If water_source is present, update the id and remove from model
+    if updated_well.water_source:
+        updated_well.water_source_id = updated_well.water_source.id
+
+
+    # If well_status is present, update the id and remove from model
+    if updated_well.well_status:
+        updated_well.well_status_id = updated_well.well_status.id
+
+
+    # Update well
+    well_to_patch = _get(db, Wells, updated_well.id)
+
+    for k, v in updated_well.model_dump(exclude_unset=True).items():
+        # Skip updating relationships
+        if k in ['location', 'use_type', 'water_source', 'well_status']:
+            continue
+
         try:
-            setattr(updated_well_model, k, v)
+            setattr(well_to_patch, k, v)
         except AttributeError as e:
+            print(f'Attribute: {k}')
             print(e)
             continue
 
     try:
-        db.add(updated_well_model)
+        db.add(well_to_patch)
         db.commit()
     except IntegrityError as e:
         raise HTTPException(status_code=409, detail="RA number already exists")
 
-    # Update use type of well and water source
-    updated_well_model.use_type_id = updated_well.use_type.id
-    updated_well_model.water_source_id = updated_well.water_source.id
-    db.commit()
-
-    # Get qualified well model
+    # Get updated model with relationships
     updated_well_model = db.scalars(
         select(Wells)
         .where(Wells.id == updated_well.id)

@@ -7,7 +7,7 @@ services:
     image: postgis/postgis
     volumes:
       - postgis-data:/var/lib/postgresql
-      - ./api/backupdb/appdb_prod.sql:/appdb_prod.sql
+      - ./api/backupdb/appdb.sql:/appdb.sql
       - ./api/backupdb/restore.sh:/docker-entrypoint-initdb.d/restore.sh
     environment:
       # If you need to create multiple database you can add coma separated databases eg gis,data
