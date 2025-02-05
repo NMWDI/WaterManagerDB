@@ -630,3 +630,77 @@ ALTER TABLE ONLY public.well_status ALTER COLUMN id SET DEFAULT nextval('public.
 ALTER TABLE ONLY public.work_order_status_lu ALTER COLUMN id SET DEFAULT nextval('public.work_order_status_lu_id_seq'::regclass);
 
 ALTER TABLE ONLY public.work_orders ALTER COLUMN id SET DEFAULT nextval('public.work_orders_id_seq'::regclass);
+
+ALTER TABLE ONLY public."ActivityTypeLU" ADD CONSTRAINT "ActivityTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Alerts" ADD CONSTRAINT "Alerts_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."LandOwners" ADD CONSTRAINT "LandOwners_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."LocationTypeLU" ADD CONSTRAINT "LocationTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Locations" ADD CONSTRAINT "Locations_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."MeterActivities" ADD CONSTRAINT "MeterActivities_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."MeterObservations" ADD CONSTRAINT "MeterObservations_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."MeterStatusLU" ADD CONSTRAINT "MeterStatusLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."MeterTypeLU" ADD CONSTRAINT "MeterTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Meters" ADD CONSTRAINT "Meters_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."NoteTypeLU" ADD CONSTRAINT "NoteTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Notes" ADD CONSTRAINT "Notes_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."ObservedPropertyTypeLU" ADD CONSTRAINT "ObservedPropertyTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."PartAssociation" ADD CONSTRAINT "PartAssociation_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."PartTypeLU" ADD CONSTRAINT "PartTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Parts" ADD CONSTRAINT "Parts_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."PartsUsed" ADD CONSTRAINT "PartsUsed_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."PropertyUnits" ADD CONSTRAINT "PropertyUnits_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."QC" ADD CONSTRAINT "QC_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."ScopesRoles" ADD CONSTRAINT "ScopesRoles_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."ScreenIntervals" ADD CONSTRAINT "ScreenIntervals_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."SecurityScopes" ADD CONSTRAINT "SecurityScopes_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."ServiceTypeLU" ADD CONSTRAINT "ServiceTypeLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."ServicesPerformed" ADD CONSTRAINT "ServicesPerformed_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Units" ADD CONSTRAINT "Units_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."UserRoles" ADD CONSTRAINT "UserRoles_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Users" ADD CONSTRAINT "Users_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."WellConstructions" ADD CONSTRAINT "WellConstructions_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."WellMeasurements" ADD CONSTRAINT "WellMeasurements_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."WellRights" ADD CONSTRAINT "WellRights_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."WellUseLU" ADD CONSTRAINT "WellUseLU_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public."Wells" ADD CONSTRAINT "Wells_pkey" PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.meter_registers ADD CONSTRAINT meter_registers_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.water_sources ADD CONSTRAINT water_sources_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.well_status ADD CONSTRAINT well_status_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.work_order_status_lu ADD CONSTRAINT work_order_status_lu_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.work_orders ADD CONSTRAINT work_orders_pkey PRIMARY KEY (id);
