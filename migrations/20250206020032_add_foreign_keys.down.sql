@@ -13,6 +13,9 @@ DROP CONSTRAINT fk_meters_location;
 ALTER TABLE public."Meters"
 DROP CONSTRAINT fk_meters_well;
 
+ALTER TABLE public."Meters"
+DROP CONSTRAINT fk_meters_register;
+
 ALTER TABLE public."Locations"
 DROP CONSTRAINT fk_locations_type;
 
@@ -33,6 +36,9 @@ DROP CONSTRAINT fk_meter_activities_location;
 
 ALTER TABLE public."MeterActivities"
 DROP CONSTRAINT fk_meter_activities_submitting_user;
+
+ALTER TABLE public."MeterActivities"
+DROP CONSTRAINT fk_meter_activities_work_order;
 
 ALTER TABLE public."MeterObservations"
 DROP CONSTRAINT fk_meter_observations_meter;
@@ -73,11 +79,17 @@ DROP CONSTRAINT fk_parts_used_part;
 ALTER TABLE public."PropertyUnits"
 DROP CONSTRAINT fk_property_units_unit;
 
+ALTER TABLE public."PropertyUnits"
+DROP CONSTRAINT fk_property_units_property;
+
 ALTER TABLE public."ScopesRoles"
 DROP CONSTRAINT fk_scopes_roles_scope;
 
 ALTER TABLE public."ScopesRoles"
 DROP CONSTRAINT fk_scopes_roles_role;
+
+ALTER TABLE public."ScreenIntervals"
+DROP CONSTRAINT fk_screen_intervals_well_construction;
 
 ALTER TABLE public."ServicesPerformed"
 DROP CONSTRAINT fk_services_performed_meter_activity;
@@ -96,6 +108,9 @@ DROP CONSTRAINT fk_well_measurements_submitting_user;
 
 ALTER TABLE public."WellMeasurements"
 DROP CONSTRAINT fk_well_measurements_unit;
+
+ALTER TABLE public."WellMeasurements"
+DROP CONSTRAINT fk_well_measurements_observed_property;
 
 ALTER TABLE public."WellRights"
 DROP CONSTRAINT fk_well_rights_well;
@@ -123,3 +138,9 @@ DROP CONSTRAINT fk_wells_well_status;
 
 ALTER TABLE public.meter_registers
 DROP CONSTRAINT fk_meter_registers_part;
+
+ALTER TABLE public.meter_registers
+DROP CONSTRAINT fk_meter_registers_dial_units;
+
+ALTER TABLE public.meter_registers
+DROP CONSTRAINT fk_meter_registers_totalizer_units;

@@ -13,6 +13,9 @@ ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_location FOREIGN KEY (locat
 -- Meters -> Wells
 ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- Meters -> MeterRegisters
+ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_register FOREIGN KEY (register_id) REFERENCES public.meter_registers (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- Locations -> LocationTypeLU
 ALTER TABLE public."Locations" ADD CONSTRAINT fk_locations_type FOREIGN KEY (type_id) REFERENCES public."LocationTypeLU" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -33,6 +36,9 @@ ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_location
 
 -- MeterActivities -> Users (Submitting User)
 ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_submitting_user FOREIGN KEY (submitting_user_id) REFERENCES public."Users" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- MeterActivities -> WorkOrders
+ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_work_order FOREIGN KEY (work_order_id) REFERENCES public.work_orders (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- MeterObservations -> Meters
 ALTER TABLE public."MeterObservations" ADD CONSTRAINT fk_meter_observations_meter FOREIGN KEY (meter_id) REFERENCES public."Meters" (id) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -73,11 +79,17 @@ ALTER TABLE public."PartsUsed" ADD CONSTRAINT fk_parts_used_part FOREIGN KEY (pa
 -- PropertyUnits -> Units
 ALTER TABLE public."PropertyUnits" ADD CONSTRAINT fk_property_units_unit FOREIGN KEY (unit_id) REFERENCES public."Units" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- PropertyUnits -> ObservedPropertyTypeLU
+ALTER TABLE public."PropertyUnits" ADD CONSTRAINT fk_property_units_property FOREIGN KEY (property_id) REFERENCES public."ObservedPropertyTypeLU" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
 -- ScopesRoles -> SecurityScopes
 ALTER TABLE public."ScopesRoles" ADD CONSTRAINT fk_scopes_roles_scope FOREIGN KEY (security_scope_id) REFERENCES public."SecurityScopes" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ScopesRoles -> UserRoles
 ALTER TABLE public."ScopesRoles" ADD CONSTRAINT fk_scopes_roles_role FOREIGN KEY (user_role_id) REFERENCES public."UserRoles" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ScreenIntervals -> WellConstructions
+ALTER TABLE public."ScreenIntervals" ADD CONSTRAINT fk_screen_intervals_well_construction FOREIGN KEY (well_construction_id) REFERENCES public."WellConstructions" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- ServicesPerformed -> MeterActivities
 ALTER TABLE public."ServicesPerformed" ADD CONSTRAINT fk_services_performed_meter_activity FOREIGN KEY (meter_activity_id) REFERENCES public."MeterActivities" (id) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -96,6 +108,9 @@ ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_submit
 
 -- WellMeasurements -> Units
 ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_unit FOREIGN KEY (unit_id) REFERENCES public."Units" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- WellMeasurements -> ObservedPropertyTypeLU
+ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_observed_property FOREIGN KEY (observed_property_id) REFERENCES public."ObservedPropertyTypeLU" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- WellRights -> Wells
 ALTER TABLE public."WellRights" ADD CONSTRAINT fk_well_rights_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -123,3 +138,9 @@ ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_well_status FOREIGN KEY (well
 
 -- MeterRegisters -> Parts
 ALTER TABLE public.meter_registers ADD CONSTRAINT fk_meter_registers_part FOREIGN KEY (part_id) REFERENCES public."Parts" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- MeterRegisters -> Units (Dial Units)
+ALTER TABLE public.meter_registers ADD CONSTRAINT fk_meter_registers_dial_units FOREIGN KEY (dial_units_id) REFERENCES public."Units" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- MeterRegisters -> Units (Totalizer Units)
+ALTER TABLE public.meter_registers ADD CONSTRAINT fk_meter_registers_totalizer_units FOREIGN KEY (totalizer_units_id) REFERENCES public."Units" (id) ON DELETE CASCADE ON UPDATE CASCADE;
