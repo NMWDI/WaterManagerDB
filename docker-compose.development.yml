@@ -14,7 +14,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`pvacd_dev.newmexicowaterdata.org`)"
+      - "traefik.http.routers.frontend.rule=Host(`pvacd-dev.newmexicowaterdata.org`)"
       - "traefik.http.routers.frontend.entrypoints=websecure,web"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
@@ -42,14 +42,14 @@ services:
       - ./api/.env_production
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`pvacd_dev.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
+      - "traefik.http.routers.api.rule=Host(`pvacd-dev.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
       - "traefik.http.routers.api.middlewares=api-sp"
       - "traefik.http.middlewares.api-sp.stripprefix.prefixes=/api/v1"
       - "traefik.http.middlewares.api-sp.stripprefix.forceSlash=false"
-      - "traefik.http.routers.api-insecure.rule=Host(`pvacd_dev.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
+      - "traefik.http.routers.api-insecure.rule=Host(`pvacd-dev.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
       - "traefik.http.routers.api-insecure.entrypoints=web"
 
       # - "traefik.http.routers.api-insecure.middlewares=force-secure"
