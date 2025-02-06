@@ -10,6 +10,9 @@ ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_status FOREIGN KEY (status_
 -- Meters -> Locations
 ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_location FOREIGN KEY (location_id) REFERENCES public."Locations" (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+-- Meters -> Wells
+ALTER TABLE public."Meters" ADD CONSTRAINT fk_meters_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- Locations -> LocationTypeLU
 ALTER TABLE public."Locations" ADD CONSTRAINT fk_locations_type FOREIGN KEY (type_id) REFERENCES public."LocationTypeLU" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -28,6 +31,9 @@ ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_activity
 -- MeterActivities -> Locations
 ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_location FOREIGN KEY (location_id) REFERENCES public."Locations" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- MeterActivities -> Users (Submitting User)
+ALTER TABLE public."MeterActivities" ADD CONSTRAINT fk_meter_activities_submitting_user FOREIGN KEY (submitting_user_id) REFERENCES public."Users" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 -- MeterObservations -> Meters
 ALTER TABLE public."MeterObservations" ADD CONSTRAINT fk_meter_observations_meter FOREIGN KEY (meter_id) REFERENCES public."Meters" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -39,6 +45,9 @@ ALTER TABLE public."MeterObservations" ADD CONSTRAINT fk_meter_observations_unit
 
 -- MeterObservations -> Locations
 ALTER TABLE public."MeterObservations" ADD CONSTRAINT fk_meter_observations_location FOREIGN KEY (location_id) REFERENCES public."Locations" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- MeterObservations -> Users (Submitting User)
+ALTER TABLE public."MeterObservations" ADD CONSTRAINT fk_meter_observations_submitting_user FOREIGN KEY (submitting_user_id) REFERENCES public."Users" (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- Notes -> MeterActivities
 ALTER TABLE public."Notes" ADD CONSTRAINT fk_notes_meter_activity FOREIGN KEY (meter_activity_id) REFERENCES public."MeterActivities" (id) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -82,6 +91,12 @@ ALTER TABLE public."WellConstructions" ADD CONSTRAINT fk_well_constructions_well
 -- WellMeasurements -> Wells
 ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
+-- WellMeasurements -> Users (Submitting User)
+ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_submitting_user FOREIGN KEY (submitting_user_id) REFERENCES public."Users" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- WellMeasurements -> Units
+ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_unit FOREIGN KEY (unit_id) REFERENCES public."Units" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
 -- WellRights -> Wells
 ALTER TABLE public."WellRights" ADD CONSTRAINT fk_well_rights_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -105,3 +120,6 @@ ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_water_source FOREIGN KEY (wat
 
 -- Wells -> WellStatus
 ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_well_status FOREIGN KEY (well_status_id) REFERENCES public.well_status (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- MeterRegisters -> Parts
+ALTER TABLE public.meter_registers ADD CONSTRAINT fk_meter_registers_part FOREIGN KEY (part_id) REFERENCES public."Parts" (id) ON DELETE SET NULL ON UPDATE CASCADE;

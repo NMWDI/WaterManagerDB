@@ -10,6 +10,9 @@ DROP CONSTRAINT fk_meters_status;
 ALTER TABLE public."Meters"
 DROP CONSTRAINT fk_meters_location;
 
+ALTER TABLE public."Meters"
+DROP CONSTRAINT fk_meters_well;
+
 ALTER TABLE public."Locations"
 DROP CONSTRAINT fk_locations_type;
 
@@ -28,6 +31,9 @@ DROP CONSTRAINT fk_meter_activities_activity_type;
 ALTER TABLE public."MeterActivities"
 DROP CONSTRAINT fk_meter_activities_location;
 
+ALTER TABLE public."MeterActivities"
+DROP CONSTRAINT fk_meter_activities_submitting_user;
+
 ALTER TABLE public."MeterObservations"
 DROP CONSTRAINT fk_meter_observations_meter;
 
@@ -39,6 +45,9 @@ DROP CONSTRAINT fk_meter_observations_unit;
 
 ALTER TABLE public."MeterObservations"
 DROP CONSTRAINT fk_meter_observations_location;
+
+ALTER TABLE public."MeterObservations"
+DROP CONSTRAINT fk_meter_observations_submitting_user;
 
 ALTER TABLE public."Notes"
 DROP CONSTRAINT fk_notes_meter_activity;
@@ -82,6 +91,12 @@ DROP CONSTRAINT fk_well_constructions_well;
 ALTER TABLE public."WellMeasurements"
 DROP CONSTRAINT fk_well_measurements_well;
 
+ALTER TABLE public."WellMeasurements"
+DROP CONSTRAINT fk_well_measurements_submitting_user;
+
+ALTER TABLE public."WellMeasurements"
+DROP CONSTRAINT fk_well_measurements_unit;
+
 ALTER TABLE public."WellRights"
 DROP CONSTRAINT fk_well_rights_well;
 
@@ -105,3 +120,6 @@ DROP CONSTRAINT fk_wells_water_source;
 
 ALTER TABLE public."Wells"
 DROP CONSTRAINT fk_wells_well_status;
+
+ALTER TABLE public.meter_registers
+DROP CONSTRAINT fk_meter_registers_part;
