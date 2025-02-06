@@ -1,3 +1,17 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+
+Allow: /
+Allow: /home
+
+Disallow: /login
+Disallow: /meters
+Disallow: /activities
+Disallow: /wells
+Disallow: /parts
+Disallow: /usermanagement
+Disallow: /wellmanagement
+Disallow: /workorders
+
+# Block everything else
+Disallow: *
