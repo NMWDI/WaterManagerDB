@@ -84,3 +84,24 @@ ALTER TABLE public."WellMeasurements" ADD CONSTRAINT fk_well_measurements_well F
 
 -- WellRights -> Wells
 ALTER TABLE public."WellRights" ADD CONSTRAINT fk_well_rights_well FOREIGN KEY (well_id) REFERENCES public."Wells" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- WorkOrders -> Meters
+ALTER TABLE public.work_orders ADD CONSTRAINT fk_work_orders_meter FOREIGN KEY (meter_id) REFERENCES public."Meters" (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- WorkOrders -> WorkOrderStatusLU
+ALTER TABLE public.work_orders ADD CONSTRAINT fk_work_orders_status FOREIGN KEY (status_id) REFERENCES public.work_order_status_lu (id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- WorkOrders -> Users (Assigned User)
+ALTER TABLE public.work_orders ADD CONSTRAINT fk_work_orders_assigned_user FOREIGN KEY (assigned_user_id) REFERENCES public."Users" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Wells -> WellUseLU
+ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_use_type FOREIGN KEY (use_type_id) REFERENCES public."WellUseLU" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Wells -> Locations
+ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_location FOREIGN KEY (location_id) REFERENCES public."Locations" (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Wells -> WaterSources
+ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_water_source FOREIGN KEY (water_source_id) REFERENCES public.water_sources (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Wells -> WellStatus
+ALTER TABLE public."Wells" ADD CONSTRAINT fk_wells_well_status FOREIGN KEY (well_status_id) REFERENCES public.well_status (id) ON DELETE SET NULL ON UPDATE CASCADE;

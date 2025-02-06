@@ -84,3 +84,24 @@ DROP CONSTRAINT fk_well_measurements_well;
 
 ALTER TABLE public."WellRights"
 DROP CONSTRAINT fk_well_rights_well;
+
+ALTER TABLE public.work_orders
+DROP CONSTRAINT fk_work_orders_meter;
+
+ALTER TABLE public.work_orders
+DROP CONSTRAINT fk_work_orders_status;
+
+ALTER TABLE public.work_orders
+DROP CONSTRAINT fk_work_orders_assigned_user;
+
+ALTER TABLE public."Wells"
+DROP CONSTRAINT fk_wells_use_type;
+
+ALTER TABLE public."Wells"
+DROP CONSTRAINT fk_wells_location;
+
+ALTER TABLE public."Wells"
+DROP CONSTRAINT fk_wells_water_source;
+
+ALTER TABLE public."Wells"
+DROP CONSTRAINT fk_wells_well_status;
