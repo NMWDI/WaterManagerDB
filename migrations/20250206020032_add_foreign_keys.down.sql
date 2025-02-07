@@ -1,146 +1,146 @@
 ALTER TABLE public."Users"
-DROP CONSTRAINT fk_users_user_role;
+DROP CONSTRAINT IF EXISTS fk_users_user_role;
 
 ALTER TABLE public."Meters"
-DROP CONSTRAINT fk_meters_meter_type;
+DROP CONSTRAINT IF EXISTS fk_meters_meter_type;
 
 ALTER TABLE public."Meters"
-DROP CONSTRAINT fk_meters_status;
+DROP CONSTRAINT IF EXISTS fk_meters_status;
 
 ALTER TABLE public."Meters"
-DROP CONSTRAINT fk_meters_location;
+DROP CONSTRAINT IF EXISTS fk_meters_location;
 
 ALTER TABLE public."Meters"
-DROP CONSTRAINT fk_meters_well;
+DROP CONSTRAINT IF EXISTS fk_meters_well;
 
 ALTER TABLE public."Meters"
-DROP CONSTRAINT fk_meters_register;
+DROP CONSTRAINT IF EXISTS fk_meters_register;
 
 ALTER TABLE public."Locations"
-DROP CONSTRAINT fk_locations_type;
+DROP CONSTRAINT IF EXISTS fk_locations_type;
 
 ALTER TABLE public."Locations"
-DROP CONSTRAINT fk_locations_land_owner;
+DROP CONSTRAINT IF EXISTS fk_locations_land_owner;
 
 ALTER TABLE public."Alerts"
-DROP CONSTRAINT fk_alerts_meter;
+DROP CONSTRAINT IF EXISTS fk_alerts_meter;
 
 ALTER TABLE public."MeterActivities"
-DROP CONSTRAINT fk_meter_activities_meter;
+DROP CONSTRAINT IF EXISTS fk_meter_activities_meter;
 
 ALTER TABLE public."MeterActivities"
-DROP CONSTRAINT fk_meter_activities_activity_type;
+DROP CONSTRAINT IF EXISTS fk_meter_activities_activity_type;
 
 ALTER TABLE public."MeterActivities"
-DROP CONSTRAINT fk_meter_activities_location;
+DROP CONSTRAINT IF EXISTS fk_meter_activities_location;
 
 ALTER TABLE public."MeterActivities"
-DROP CONSTRAINT fk_meter_activities_submitting_user;
+DROP CONSTRAINT IF EXISTS fk_meter_activities_submitting_user;
 
 ALTER TABLE public."MeterActivities"
-DROP CONSTRAINT fk_meter_activities_work_order;
+DROP CONSTRAINT IF EXISTS fk_meter_activities_work_order;
 
 ALTER TABLE public."MeterObservations"
-DROP CONSTRAINT fk_meter_observations_meter;
+DROP CONSTRAINT IF EXISTS fk_meter_observations_meter;
 
 ALTER TABLE public."MeterObservations"
-DROP CONSTRAINT fk_meter_observations_property;
+DROP CONSTRAINT IF EXISTS fk_meter_observations_property;
 
 ALTER TABLE public."MeterObservations"
-DROP CONSTRAINT fk_meter_observations_unit;
+DROP CONSTRAINT IF EXISTS fk_meter_observations_unit;
 
 ALTER TABLE public."MeterObservations"
-DROP CONSTRAINT fk_meter_observations_location;
+DROP CONSTRAINT IF EXISTS fk_meter_observations_location;
 
 ALTER TABLE public."MeterObservations"
-DROP CONSTRAINT fk_meter_observations_submitting_user;
+DROP CONSTRAINT IF EXISTS fk_meter_observations_submitting_user;
 
 ALTER TABLE public."Notes"
-DROP CONSTRAINT fk_notes_meter_activity;
+DROP CONSTRAINT IF EXISTS fk_notes_meter_activity;
 
 ALTER TABLE public."Notes"
-DROP CONSTRAINT fk_notes_note_type;
+DROP CONSTRAINT IF EXISTS fk_notes_note_type;
 
 ALTER TABLE public."PartAssociation"
-DROP CONSTRAINT fk_part_association_meter_type;
+DROP CONSTRAINT IF EXISTS fk_part_association_meter_type;
 
 ALTER TABLE public."PartAssociation"
-DROP CONSTRAINT fk_part_association_part;
+DROP CONSTRAINT IF EXISTS fk_part_association_part;
 
 ALTER TABLE public."Parts"
-DROP CONSTRAINT fk_parts_part_type;
+DROP CONSTRAINT IF EXISTS fk_parts_part_type;
 
 ALTER TABLE public."PartsUsed"
-DROP CONSTRAINT fk_parts_used_meter_activity;
+DROP CONSTRAINT IF EXISTS fk_parts_used_meter_activity;
 
 ALTER TABLE public."PartsUsed"
-DROP CONSTRAINT fk_parts_used_part;
+DROP CONSTRAINT IF EXISTS fk_parts_used_part;
 
 ALTER TABLE public."PropertyUnits"
-DROP CONSTRAINT fk_property_units_unit;
+DROP CONSTRAINT IF EXISTS fk_property_units_unit;
 
 ALTER TABLE public."PropertyUnits"
-DROP CONSTRAINT fk_property_units_property;
+DROP CONSTRAINT IF EXISTS fk_property_units_property;
 
 ALTER TABLE public."ScopesRoles"
-DROP CONSTRAINT fk_scopes_roles_scope;
+DROP CONSTRAINT IF EXISTS fk_scopes_roles_scope;
 
 ALTER TABLE public."ScopesRoles"
-DROP CONSTRAINT fk_scopes_roles_role;
+DROP CONSTRAINT IF EXISTS fk_scopes_roles_role;
 
 ALTER TABLE public."ScreenIntervals"
-DROP CONSTRAINT fk_screen_intervals_well_construction;
+DROP CONSTRAINT IF EXISTS fk_screen_intervals_well_construction;
 
 ALTER TABLE public."ServicesPerformed"
-DROP CONSTRAINT fk_services_performed_meter_activity;
+DROP CONSTRAINT IF EXISTS fk_services_performed_meter_activity;
 
 ALTER TABLE public."ServicesPerformed"
-DROP CONSTRAINT fk_services_performed_service;
+DROP CONSTRAINT IF EXISTS fk_services_performed_service;
 
 ALTER TABLE public."WellConstructions"
-DROP CONSTRAINT fk_well_constructions_well;
+DROP CONSTRAINT IF EXISTS fk_well_constructions_well;
 
 ALTER TABLE public."WellMeasurements"
-DROP CONSTRAINT fk_well_measurements_well;
+DROP CONSTRAINT IF EXISTS fk_well_measurements_well;
 
 ALTER TABLE public."WellMeasurements"
-DROP CONSTRAINT fk_well_measurements_submitting_user;
+DROP CONSTRAINT IF EXISTS fk_well_measurements_submitting_user;
 
 ALTER TABLE public."WellMeasurements"
-DROP CONSTRAINT fk_well_measurements_unit;
+DROP CONSTRAINT IF EXISTS fk_well_measurements_unit;
 
 ALTER TABLE public."WellMeasurements"
-DROP CONSTRAINT fk_well_measurements_observed_property;
+DROP CONSTRAINT IF EXISTS fk_well_measurements_observed_property;
 
 ALTER TABLE public."WellRights"
-DROP CONSTRAINT fk_well_rights_well;
+DROP CONSTRAINT IF EXISTS fk_well_rights_well;
 
 ALTER TABLE public.work_orders
-DROP CONSTRAINT fk_work_orders_meter;
+DROP CONSTRAINT IF EXISTS fk_work_orders_meter;
 
 ALTER TABLE public.work_orders
-DROP CONSTRAINT fk_work_orders_status;
+DROP CONSTRAINT IF EXISTS fk_work_orders_status;
 
 ALTER TABLE public.work_orders
-DROP CONSTRAINT fk_work_orders_assigned_user;
+DROP CONSTRAINT IF EXISTS fk_work_orders_assigned_user;
 
 ALTER TABLE public."Wells"
-DROP CONSTRAINT fk_wells_use_type;
+DROP CONSTRAINT IF EXISTS fk_wells_use_type;
 
 ALTER TABLE public."Wells"
-DROP CONSTRAINT fk_wells_location;
+DROP CONSTRAINT IF EXISTS fk_wells_location;
 
 ALTER TABLE public."Wells"
-DROP CONSTRAINT fk_wells_water_source;
+DROP CONSTRAINT IF EXISTS fk_wells_water_source;
 
 ALTER TABLE public."Wells"
-DROP CONSTRAINT fk_wells_well_status;
+DROP CONSTRAINT IF EXISTS fk_wells_well_status;
 
 ALTER TABLE public.meter_registers
-DROP CONSTRAINT fk_meter_registers_part;
+DROP CONSTRAINT IF EXISTS fk_meter_registers_part;
 
 ALTER TABLE public.meter_registers
-DROP CONSTRAINT fk_meter_registers_dial_units;
+DROP CONSTRAINT IF EXISTS fk_meter_registers_dial_units;
 
 ALTER TABLE public.meter_registers
-DROP CONSTRAINT fk_meter_registers_totalizer_units;
+DROP CONSTRAINT IF EXISTS fk_meter_registers_totalizer_units;

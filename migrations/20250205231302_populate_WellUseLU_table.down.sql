@@ -1,18 +1,16 @@
 DELETE FROM public."WellUseLU"
-WHERE
-    id BETWEEN 1 AND 11;
+WHERE id BETWEEN 1 AND 11;
 
 SELECT
-    setval (
+    setval(
         'public."WellUseLU_id_seq"',
         COALESCE(
             (
                 SELECT
                     MAX(id)
-                FROM
-                    public."WellUseLU"
+                FROM public."WellUseLU"
             ),
             1
         ),
-        false
+        FALSE
     );

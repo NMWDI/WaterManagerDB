@@ -1,18 +1,16 @@
 DELETE FROM public."ObservedPropertyTypeLU"
-WHERE
-    id IN (1, 2, 3, 4, 5, 7);
+WHERE id IN (1, 2, 3, 4, 5, 7);
 
 SELECT
-    setval (
+    setval(
         'public."ObservedPropertyTypeLU_id_seq"',
         COALESCE(
             (
                 SELECT
                     MAX(id)
-                FROM
-                    public."ObservedPropertyTypeLU"
+                FROM public."ObservedPropertyTypeLU"
             ),
             1
         ),
-        false
+        FALSE
     );

@@ -1,18 +1,16 @@
 DELETE FROM public."LocationTypeLU"
-WHERE
-    id IN (1, 2, 3);
+WHERE id IN (1, 2, 3);
 
 SELECT
-    setval (
+    setval(
         'public."LocationTypeLU_id_seq"',
         COALESCE(
             (
                 SELECT
                     MAX(id)
-                FROM
-                    public."LocationTypeLU"
+                FROM public."LocationTypeLU"
             ),
             1
         ),
-        false
+        FALSE
     );

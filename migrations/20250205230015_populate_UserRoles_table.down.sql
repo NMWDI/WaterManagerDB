@@ -1,18 +1,16 @@
 DELETE FROM public."UserRoles"
-WHERE
-    id IN (1, 2, 3);
+WHERE id IN (1, 2, 3);
 
 SELECT
-    setval (
+    setval(
         'public."UserRoles_id_seq"',
         COALESCE(
             (
                 SELECT
                     MAX(id)
-                FROM
-                    public."UserRoles"
+                FROM public."UserRoles"
             ),
             1
         ),
-        false
+        FALSE
     );

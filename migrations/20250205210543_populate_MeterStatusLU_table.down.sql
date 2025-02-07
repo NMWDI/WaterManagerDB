@@ -1,18 +1,16 @@
 DELETE FROM public."MeterStatusLU"
-WHERE
-    id IN (1, 2, 3, 4, 5, 6, 7, 8);
+WHERE id IN (1, 2, 3, 4, 5, 6, 7, 8);
 
 SELECT
-    setval (
+    setval(
         'public."MeterStatusLU_id_seq"',
         COALESCE(
             (
                 SELECT
                     MAX(id)
-                FROM
-                    public."MeterStatusLU"
+                FROM public."MeterStatusLU"
             ),
             1
         ),
-        false
+        FALSE
     );
