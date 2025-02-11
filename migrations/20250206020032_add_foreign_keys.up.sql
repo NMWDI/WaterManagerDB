@@ -531,18 +531,18 @@ BEGIN
 END $$;
 
 -- WellRights -> Wells
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE constraint_name = 'fk_well_rights_well'
-    ) THEN
-        ALTER TABLE public."WellRights"
-        ADD CONSTRAINT fk_well_rights_well FOREIGN KEY (well_id)
-        REFERENCES public."Wells" (id)
-        ON DELETE CASCADE ON UPDATE CASCADE;
-    END IF;
-END $$;
+-- DO $$
+-- BEGIN
+--     IF NOT EXISTS (
+--         SELECT 1 FROM information_schema.table_constraints
+--         WHERE constraint_name = 'fk_well_rights_well'
+--     ) THEN
+--         ALTER TABLE public."WellRights"
+--         ADD CONSTRAINT fk_well_rights_well FOREIGN KEY (well_id)
+--         REFERENCES public."Wells" (id)
+--         ON DELETE CASCADE ON UPDATE CASCADE;
+--     END IF;
+-- END $$;
 
 -- WorkOrders -> Meters
 DO $$
