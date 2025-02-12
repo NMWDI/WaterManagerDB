@@ -229,7 +229,7 @@ def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(g
 @well_router.get(
     "/well_locations",
     dependencies=[Depends(ScopedUser.Read)],
-    response_model=List[well_schemas.Well],
+    response_model=List[well_schemas.WellResponse],
     tags=["Wells"],
 )
 def get_wells_locations(
@@ -240,8 +240,9 @@ def get_wells_locations(
     # joinedload loads relationships, outer joins on relationship tables makes them search/sortable
     query_statement = (
         select(Wells)
-        .join(Locations, isouter=True)
-        .join(WellUseLU, isouter=True)
+        .options(joinedload(Wells.location), joinedload(Wells.use_type))
+        #.join(Locations, isouter=True)
+        #.join(WellUseLU, isouter=True)
     )
 
     #  # Ensure there are coordinates and meter is installed
@@ -259,8 +260,8 @@ def get_wells_locations(
                 Wells.ra_number.ilike(f"%{search_string}%"),
                 Wells.owners.ilike(f"%{search_string}%"),
                 Wells.osetag.ilike(f"%{search_string}%"),
-                Locations.trss.ilike(f"%{search_string}%"),
-                WellUseLU.use_type.ilike(f"%{search_string}%"),
+                #Locations.trss.ilike(f"%{search_string}%"),
+                #WellUseLU.use_type.ilike(f"%{search_string}%"),
             )
         )
 
