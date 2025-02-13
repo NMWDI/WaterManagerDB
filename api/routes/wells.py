@@ -241,17 +241,7 @@ def get_wells_locations(
     query_statement = (
         select(Wells)
         .options(joinedload(Wells.location), joinedload(Wells.use_type))
-        #.join(Locations, isouter=True)
-        #.join(WellUseLU, isouter=True)
     )
-
-    #  # Ensure there are coordinates and meter is installed
-    # query_statement = query_statement.where(
-    #     and_(
-    #         Locations.latitude.is_not(None),
-    #         Locations.longitude.is_not(None)
-    #     )
-    # )
 
     if search_string:
         query_statement = query_statement.where(
@@ -259,9 +249,7 @@ def get_wells_locations(
                 Wells.name.ilike(f"%{search_string}%"),
                 Wells.ra_number.ilike(f"%{search_string}%"),
                 Wells.owners.ilike(f"%{search_string}%"),
-                Wells.osetag.ilike(f"%{search_string}%"),
-                #Locations.trss.ilike(f"%{search_string}%"),
-                #WellUseLU.use_type.ilike(f"%{search_string}%"),
+                Wells.osetag.ilike(f"%{search_string}%")
             )
         )
 
