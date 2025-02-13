@@ -169,7 +169,7 @@ def post_activity(
     meter_activity.notes.append(status_note_type)
 
     # Associate and handle parts use
-    used_parts = db.scalars(
+    used_parts: list[Parts] = db.scalars(
         select(Parts).where(Parts.id.in_(activity_form.part_used_ids))
     ).all()
     meter_activity.parts_used = used_parts
@@ -233,6 +233,18 @@ def post_activity(
             activity_meter.contact_name = activity_form.current_installation.contact_name
             activity_meter.contact_phone = activity_form.current_installation.contact_phone
             activity_meter.notes = activity_form.current_installation.notes
+
+        # If one of the parts is a register, update the meter's register
+        registers_used_part_ids = [part for part in used_parts if part.part_type_id == 17]
+        if registers_used_part_ids:
+            register_part_id = registers_used_part_ids[0].id
+            # Get the register id from the registers table
+            sql_query = text('SELECT id FROM meter_registers WHERE part_id = :part_id')
+            register_id = db.execute(sql_query, {'part_id': register_part_id}).fetchone()[0]
+
+            # Update the meter's register
+            activity_meter.register_id = register_id
+
 
     db.commit()
 
