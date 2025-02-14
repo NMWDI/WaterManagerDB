@@ -9,6 +9,7 @@ class Home extends Component{
     render() {
 
         const versionHistory = [
+            "V0.1.50 - Fixed wells map bug and update register if part used",
             "V0.1.49 - Added outside recorder wells to monitoring page",
             "V0.1.48 - Changed well owner to be meter water users",
             "V0.1.47 - Add TRSS grids to meter map and fixed meter register save bug",
@@ -17,10 +18,7 @@ class Home extends Component{
             "V0.1.44 - Fix bug in continuous monitoring well data and added data to OSE endpoint",
             "V0.1.43 - Fix navigation from work orders to activity, add OSE endpoint for \"data issues\"",
             "V0.1.42 - Fix pagination, add 'uninstall and hold'",
-            "V0.1.41 - Add UI for water source on wells and some other minor changes",
-            "V0.1.40 - Add register to UI on meter details",
-            "V0.1.39 - Default share ose when workorder, OSE access to register information",
-            "V0.1.38 - Change logout time to 8 hours, show work order count in navigation",
+            "V0.1.41 - Add UI for water source on wells and some other minor changes"
         ]
 
         return (
