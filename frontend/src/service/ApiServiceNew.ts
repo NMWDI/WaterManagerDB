@@ -47,7 +47,7 @@ import {
   WaterSource,
   WellStatus,
 } from "../interfaces.js";
-import { WorkOrderStatus } from "../enums.js";
+import { WorkOrderStatus } from "../enums";
 import { useNavigate } from "react-router-dom";
 
 // Date display util
@@ -73,25 +73,30 @@ export function toGMT6String(date: Date) {
 }
 
 // Generate a query param string with empty and null fields removed
-export const formattedQueryParams = (queryParams: Record<string, any>) => {
-  const params = new URLSearchParams();
+function formattedQueryParams(queryParams: any) {
+  if (!queryParams) return "";
 
-  Object.entries(queryParams).forEach(([key, value]) => {
-    if (value === "" || value === null || value === undefined) {
-      return; // Skip empty, null, undefined
+  let queryParamString = new URLSearchParams();
+  let params = { ...queryParams };
+
+  for (let param in params) {
+    if (params[param] === "" || params[param] == undefined) {
+      continue;
     }
-
-    if (Array.isArray(value)) {
-      value.forEach((v) => params.append(key, String(v)));
+    //Handle situation where we have an array of values
+    if (Array.isArray(params[param])) {
+      for (let value of params[param]) {
+        queryParamString.append(param, value);
+      }
     } else {
-      params.append(key, String(value));
+      queryParamString.append(param, params[param]);
     }
-  });
+  }
+  // Convert the URLSearchParams object to a string
+  let formattedString = "?" + queryParamString.toString();
 
-  const queryString = params.toString();
-
-  return queryString ? `?${queryString}` : "";
-};
+  return formattedString;
+}
 
 // Fetch function that handles incoming errors from the response. Used as the queryFn in useQuery hooks
 async function GETFetch(
@@ -223,19 +228,6 @@ export function useGetWaterSources() {
   const signOut = useSignOut();
 
   return useQuery<WaterSource[], Error>(
-    [route],
-    () => GETFetch(route, null, authHeader(), signOut, navigate),
-    { keepPreviousData: true },
-  );
-}
-
-export function useGetMonitoredWells() {
-  const route = "water_sources";
-  const authHeader = useAuthHeader();
-  const navigate = useNavigate();
-  const signOut = useSignOut();
-
-  return useQuery<WaterSourceMonitoredWell[][], Error>(
     [route],
     () => GETFetch(route, null, authHeader(), signOut, navigate),
     { keepPreviousData: true },
