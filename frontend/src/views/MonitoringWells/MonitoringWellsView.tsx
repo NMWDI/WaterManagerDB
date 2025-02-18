@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId, useState, useMemo } from "react";
 import {
   Box,
   FormControl,
@@ -9,7 +9,6 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
 import { useQuery } from "react-query";
 import { useAuthUser } from "react-auth-kit";
 import { MonitoringWellsTable } from "./MonitoringWellsTable";
@@ -21,74 +20,31 @@ import {
 import {
   NewWellMeasurement,
   PatchWellMeasurement,
+  ST2Measurement,
   SecurityScope,
-} from "../../interfaces.js";
+  WellMeasurementDTO,
+  MonitoredWell,
+} from "../../interfaces";
 import {
   useCreateWaterLevel,
-  useGetST2WaterLevels,
-  useGetWaterLevels,
   useUpdateWaterLevel,
   useDeleteWaterLevel,
 } from "../../service/ApiServiceNew";
-import axios from "axios";
 import dayjs from "dayjs";
-import { API_URL } from "../../API_config";
-
-interface MonitoredWell {
-  id: number;
-  name: string;
-  datastream_id: number;
-}
-
-async function fetchMonitoredWells(): Promise<MonitoredWell[]> {
-  const response = await axios.get(API_URL + "/wells");
-  return response.data;
-}
-
-export function useMonitoredWells() {
-  return useQuery({
-    queryKey: ["monitoredWells"],
-    queryFn: fetchMonitoredWells,
-  });
-}
-
-function getDatastreamID(
-  monitoredWells: MonitoredWell[],
-  input_wellID: number | undefined,
-): number | undefined {
-  let welldetails = monitoredWells.find((x) => x.id == input_wellID);
-  if (welldetails)
-    if (welldetails.datastream_id == -999) return undefined;
-    else return welldetails.datastream_id;
-  else return welldetails;
-}
+import { useFetchWithAuth } from "../../hooks/useFetchWithAuth";
+import { getDataStreamId } from "../../utils/DataStreamUtils";
 
 export default function MonitoringWellsView() {
-  const { data: monitoredWells, isLoading, error } = useMonitoredWells();
+  const fetchWithAuth = useFetchWithAuth();
+  const selectWellId = useId();
+  const [wellId, setWellId] = useState<number | undefined>();
 
-  if (isLoading) return <div>Loading wells...</div>;
-  if (error) return <div>Error loading wells: {error.message}</div>;
-
-  const [wellID, setWellID] = useState<number>();
-  const manualWaterLevelMeasurements = useGetWaterLevels({ well_id: wellID });
-  const st2WaterLevelMeasurements = useGetST2WaterLevels(
-    getDatastreamID(monitoredWells, wellID),
-  );
-  const createWaterLevel = useCreateWaterLevel();
-
-  function afterUpdateWaterLevel() {
-    manualWaterLevelMeasurements.refetch();
-  }
-
-  const updateWaterLevel = useUpdateWaterLevel(afterUpdateWaterLevel);
-  const deleteWaterLevel = useDeleteWaterLevel();
-  const [selectedMeasurement, setSelectedMeasurement] =
-    useState<PatchWellMeasurement>({
-      levelmeasurement_id: 0,
-      timestamp: dayjs(),
-      value: 0,
-      submitting_user_id: 0,
-    });
+  const authUser = useAuthUser();
+  const hasAdminScope = authUser()
+    ?.user_role.security_scopes.map(
+      (scope: SecurityScope) => scope.scope_string,
+    )
+    .includes("admin");
 
   const [isNewMeasurementModalOpen, setIsNewMeasurementModalOpen] =
     useState<boolean>(false);
@@ -101,19 +57,13 @@ export default function MonitoringWellsView() {
   const handleCloseUpdateMeasurementModal = () =>
     setIsUpdateMeasurementModalOpen(false);
 
-  //Limit update and delete access to admin users
-  const authUser = useAuthUser();
-  const hasAdminScope = authUser()
-    ?.user_role.security_scopes.map(
-      (scope: SecurityScope) => scope.scope_string,
-    )
-    .includes("admin");
-
-  function handleSubmitNewMeasurement(measurementData: NewWellMeasurement) {
-    if (wellID) measurementData.well_id = wellID;
-    createWaterLevel.mutate(measurementData);
-    handleCloseNewMeasurementModal();
-  }
+  const [selectedMeasurement, setSelectedMeasurement] =
+    useState<PatchWellMeasurement>({
+      levelmeasurement_id: 0,
+      timestamp: dayjs(),
+      value: 0,
+      submitting_user_id: 0,
+    });
 
   function handleMeasurementSelect(rowdata: any) {
     if (!hasAdminScope) {
@@ -128,6 +78,72 @@ export default function MonitoringWellsView() {
     };
     setSelectedMeasurement(measure_data);
     setIsUpdateMeasurementModalOpen(true);
+  }
+
+  const {
+    data: wells,
+    isLoading: isLoadingWells,
+    error: errorWells,
+  } = useQuery<{ items: MonitoredWell[] }, Error, MonitoredWell[]>({
+    queryKey: ["monitoredWells"],
+    queryFn: () =>
+      fetchWithAuth("GET", "/wells", {
+        search_string: "monitoring",
+        sort_by: "name",
+        sort_direction: "asc",
+      }),
+    select: (res) => res.items,
+  });
+
+  const {
+    data: manualMeasurements,
+    isLoading: isLoadingManualMeasurements,
+    error: errorManualMeasurements,
+    refetch: refetchManualMeasurements,
+  } = useQuery<WellMeasurementDTO[], Error>({
+    queryKey: ["manualWaterLevelMeasurements", wellId],
+    queryFn: () =>
+      fetchWithAuth("GET", "/waterlevels", {
+        well_id: wellId,
+      }),
+    enabled: wellId !== undefined,
+  });
+
+  const dataStreamId = useMemo(() => {
+    if (wells && wellId) {
+      return getDataStreamId(wells, wellId);
+    }
+    return undefined;
+  }, [wells, wellId]);
+
+  const {
+    data: st2Measurements,
+    isLoading: isLoadingSt2Measurements,
+    error: errorSt2Measurements,
+  } = useQuery<ST2Measurement[], Error>({
+    queryKey: ["st2WaterLevelMeasurements", wellId],
+    queryFn: () =>
+      fetchWithAuth("GET", `Datastreams(${dataStreamId})/Observations`, {
+        well_id: wellId,
+      }),
+    enabled: !!dataStreamId,
+  });
+
+  const createWaterLevel = useCreateWaterLevel();
+
+  const isLoading =
+    isLoadingWells || isLoadingManualMeasurements || isLoadingSt2Measurements;
+  const error = errorWells || errorManualMeasurements || errorSt2Measurements;
+
+  const updateWaterLevel = useUpdateWaterLevel(() =>
+    refetchManualMeasurements(),
+  );
+  const deleteWaterLevel = useDeleteWaterLevel();
+
+  function handleSubmitNewMeasurement(measurementData: NewWellMeasurement) {
+    if (wellId) measurementData.well_id = wellId ?? 0;
+    createWaterLevel.mutate(measurementData);
+    handleCloseNewMeasurementModal();
   }
 
   // Function for updating selected measurement values
@@ -156,57 +172,53 @@ export default function MonitoringWellsView() {
       </Typography>
       <Card sx={{ width: "95%", height: "75%" }}>
         <CardContent>
-          <FormControl sx={{ minWidth: "100px" }}>
-            <InputLabel id="plot-select-label">Site</InputLabel>
-            <Select
-              labelId="plot-select-label"
-              id="plot-select"
-              value={wellID ?? ""}
-              onChange={(event: any) => setWellID(event.target.value)}
-              label="Site"
-            >
-              <MenuItem value={0} disabled sx={{ display: "none" }}>
-                Select a Well
-              </MenuItem>
-              {monitoredWells.map((well: MonitoredWell) => (
-                <MenuItem value={well.id} key={well.id}>
-                  {well.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {isLoading && <Typography variant="h4">Loading...</Typography>}
+          {error && <Typography variant="h4">Error loading data</Typography>}
+          {!isLoading && !error && (
+            <>
+              <FormControl sx={{ minWidth: "100px" }}>
+                <InputLabel id={`${selectWellId}-label`}>Site</InputLabel>
+                <Select
+                  labelId={`${selectWellId}-label`}
+                  value={wellId ?? ""}
+                  onChange={(e) => setWellId(e.target.value as number)}
+                >
+                  <MenuItem value="" disabled>
+                    Select a Well
+                  </MenuItem>
+                  {wells?.map((well) => (
+                    <MenuItem key={well.id} value={well.id}>
+                      {well.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {manualMeasurements && wellId && (
+                <Box sx={{ marginTop: 2 }}>
+                  <Typography variant="h6">
+                    Measurements for Well ID: {wellId}
+                  </Typography>
+                  <pre>{JSON.stringify(manualMeasurements, null, 2)}</pre>
+                </Box>
+              )}
+            </>
+          )}
           <Box sx={{ mt: "10px", display: "flex" }}>
             <MonitoringWellsTable
-              rows={manualWaterLevelMeasurements.data ?? []}
-              isWellSelected={wellID != undefined ? true : false}
+              rows={manualMeasurements ?? []}
+              isWellSelected={wellId != undefined ? true : false}
               onOpenModal={handleOpenNewMeasurementModal}
               onMeasurementSelect={handleMeasurementSelect}
             />
             <MonitoringWellsPlot
               isLoading={
-                manualWaterLevelMeasurements.isLoading ||
-                st2WaterLevelMeasurements.isLoading
+                isLoadingManualMeasurements || isLoadingSt2Measurements
               }
-              manual_dates={
-                manualWaterLevelMeasurements.data?.map(
-                  (measurement) => measurement.timestamp,
-                ) ?? []
-              }
-              manual_vals={
-                manualWaterLevelMeasurements.data?.map(
-                  (measurement) => measurement.value,
-                ) ?? []
-              }
-              logger_dates={
-                st2WaterLevelMeasurements.data?.map(
-                  (measurement) => measurement.resultTime,
-                ) ?? []
-              }
-              logger_vals={
-                st2WaterLevelMeasurements.data?.map(
-                  (measurement) => measurement.result,
-                ) ?? []
-              }
+              manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
+              manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
+              logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
+              logger_vals={st2Measurements?.map((m) => m.result) ?? []}
             />
           </Box>
           <NewMeasurementModal
@@ -221,7 +233,7 @@ export default function MonitoringWellsView() {
             onUpdateMeasurement={handleUpdateMeasurement}
             onSubmitUpdate={handleSubmitMeasurementUpdate}
             onDeleteMeasurement={handleDeleteMeasurement}
-          />
+          />{" "}
         </CardContent>
       </Card>
     </Box>
