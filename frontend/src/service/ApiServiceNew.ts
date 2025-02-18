@@ -47,7 +47,7 @@ import {
     WaterSource,
     WellStatus,
 } from '../interfaces.js'
-import { WorkOrderStatus } from '../enums.js';
+import { WorkOrderStatus } from '../enums';
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';
 
