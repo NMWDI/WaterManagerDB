@@ -689,7 +689,7 @@ def patch_work_order(patch_work_order_form: meter_schemas.PatchWorkOrder, user: 
         notes = work_order.notes,
         assigned_user_id = work_order.assigned_user_id,
         assigned_user= work_order.assigned_user.username if work_order.assigned_user else None,
-        associated_activities=[activity.id for activity in associated_activities]
+        associated_activities=list(associated_activities)
     )
 
     return work_order_schema
