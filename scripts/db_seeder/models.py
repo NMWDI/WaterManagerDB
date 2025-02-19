@@ -1,4 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    ForeignKey,
+    Float,
+    Text,
+    TIMESTAMP,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2 import Geometry
@@ -107,3 +116,37 @@ class Well(Base):
     location = relationship("Location")
     water_source = relationship("WaterSource")
     well_status = relationship("WellStatus")
+
+
+class Unit(Base):
+    __tablename__ = "Units"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    name_short = Column(String)
+    description = Column(Text)
+
+
+class ObservedPropertyTypeLU(Base):
+    __tablename__ = "ObservedPropertyTypeLU"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    description = Column(String)
+    context = Column(String)
+
+
+class WellMeasurement(Base):
+    __tablename__ = "WellMeasurements"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(TIMESTAMP, nullable=False)
+    value = Column(Float, nullable=False)
+    observed_property_id = Column(
+        Integer, ForeignKey("ObservedPropertyTypeLU.id"), nullable=False
+    )
+    submitting_user_id = Column(Integer, ForeignKey("Users.id"))
+    unit_id = Column(Integer, ForeignKey("Units.id"), nullable=False)
+    well_id = Column(Integer, ForeignKey("Wells.id"), nullable=False)
+
+    observed_property = relationship("ObservedPropertyTypeLU")
+    submitting_user = relationship("User")
+    unit = relationship("Unit")
+    well = relationship("Well")
