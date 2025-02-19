@@ -79,6 +79,7 @@ origins = [
     "https://localhost:3000",
     "https://localhost:8000",
     "https://pvacd.newmexicowaterdata.org",
+    "https://pvacd-dev.newmexicowaterdata.org",
 ]
 
 app.add_middleware(

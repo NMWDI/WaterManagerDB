@@ -7,6 +7,8 @@ services:
     build:
       context: ./frontend
       dockerfile: ./Dockerfile_production
+    environment:
+      - DEVSERVER=True
     ports:
       - "3000:80"
     depends_on:
