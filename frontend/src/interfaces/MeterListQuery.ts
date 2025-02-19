@@ -1,4 +1,4 @@
-import { SortDirection } from "../enums";
+import { SortDirection, MeterListSortBy } from "../enums";
 
 export interface MeterListQuery {
   search_string: string;

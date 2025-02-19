@@ -4,4 +4,5 @@ export * from "./MeterPartParams";
 export * from "./ST2WaterLevelQueryParams";
 export * from "./WaterLevelQueryParams";
 export * from "./WellDetailsQueryParams";
+export * from "./WellMergeParams";
 export * from "./WellListQueryParams";

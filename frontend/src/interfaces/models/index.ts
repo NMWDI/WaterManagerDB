@@ -9,6 +9,7 @@ export * from "./MeterStatus";
 export * from "./MeterTypeLU";
 export * from "./NoteTypeLU";
 export * from "./ObservedPropertyTypeLU";
+export * from "./Part";
 export * from "./PartTypeLU";
 export * from "./SecurityScope";
 export * from "./ServiceTypeLU";

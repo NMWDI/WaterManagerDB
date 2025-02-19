@@ -4,7 +4,7 @@ export interface PatchActivitySubmit {
   timestamp_end: string;
   description: string;
   submitting_user_id: number;
-  meter_id: number;
+  meter_id?: number;
   activity_type_id: number;
   location_id?: number;
   ose_share: boolean;

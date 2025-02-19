@@ -1,5 +1,5 @@
 import type { Dayjs } from "dayjs";
-import { ObservationForm } from "./index";
+import { ObservationForm } from "../interfaces";
 
 export interface ActivityForm {
   activity_details?: {

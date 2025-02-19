@@ -1,9 +1,9 @@
-import { PartTypeLU, MeterTyperLU } from "./index";
+import { PartTypeLU, MeterTypeLU } from "../models";
 
 export interface Part {
   id: number;
   part_number: string;
-  part_type_id: number;
+  part_type_id?: number;
   vendor?: string;
   note?: string;
   description?: string;

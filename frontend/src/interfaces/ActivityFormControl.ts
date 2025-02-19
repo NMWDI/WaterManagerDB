@@ -4,42 +4,39 @@ import {
   ActivityTypeLU,
   User,
   MeterDetails,
-  Units,
+  Unit,
   ObservedPropertyTypeLU,
-  Well
-} from "./index";
+  Well,
+} from "../interfaces";
 
-// This might could be the full things that are selected, but for now its only the things that are submitted/validated
-// These need to be the actual interfaces eventually, meter -> MeterListDTO
 export interface ActivityFormControl {
-    activity_details: {
-        selected_meter: Partial<MeterListDTO> | null
-        activity_type: Partial<ActivityTypeLU> | null
-        user: Partial<User> | null
-        date: Dayjs
-        start_time: Dayjs
-        end_time: Dayjs
-        share_ose: boolean = false
-        work_order_id: number | null
-    },
-    current_installation: {
-        meter: Partial<MeterDetails> | null
-        well: Partial<Well> | null
-    },
-    observations: Array<{
-        time: Dayjs
-        reading: '' | number
-        property_type: Partial<ObservedPropertyTypeLU> | null
-        unit: Partial<Units> | null
-    }>,
-    maintenance_repair?: {
-        service_type_ids: number[] | null,
-        description: string
-    },
-    notes: {
-        working_on_arrival_slug: string,
-        selected_note_ids: number[] | null
-    },
-    part_used_ids?: []
+  activity_details: {
+    selected_meter?: Partial<MeterListDTO>;
+    activity_type?: Partial<ActivityTypeLU>;
+    user?: Partial<User>;
+    date: Dayjs;
+    start_time: Dayjs;
+    end_time: Dayjs;
+    share_ose: boolean;
+    work_order_id?: number;
+  };
+  current_installation: {
+    meter?: Partial<MeterDetails>;
+    well?: Partial<Well>;
+  };
+  observations: Array<{
+    time: Dayjs;
+    reading: number | string;
+    property_type?: Partial<ObservedPropertyTypeLU>;
+    unit?: Partial<Unit>;
+  }>;
+  maintenance_repair?: {
+    service_type_ids?: number[];
+    description: string;
+  };
+  notes: {
+    working_on_arrival_slug: string;
+    selected_note_ids?: number[];
+  };
+  part_used_ids?: number[];
 }
-

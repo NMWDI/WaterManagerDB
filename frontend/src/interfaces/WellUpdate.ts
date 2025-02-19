@@ -1,4 +1,4 @@
-import { WellUseLU, WaterSource, WellStatus } from "./models";
+import { WellUseLU, WaterSource, WellStatus, Location } from "./models";
 import { BaseWell } from "./BaseWell";
 
 export interface WellUpdate extends BaseWell {

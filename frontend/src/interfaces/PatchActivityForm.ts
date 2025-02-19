@@ -6,11 +6,11 @@ import {
   NoteTypeLU,
   ServiceTypeLU,
   Part,
-} from "./index";
+} from "./models";
 
 export interface PatchActivityForm {
   activity_id: number;
-  meter_id: number;
+  meter_id?: number;
   activity_date: Dayjs;
   activity_start_time: Dayjs;
   activity_end_time: Dayjs;

@@ -1,5 +1,5 @@
 import { BaseWell } from "../BaseWell";
-import { WellUseLU, WaterSource, WellStatus } from "../index";
+import { WellUseLU, WaterSource, WellStatus, Location } from "../models";
 
 export interface Well extends BaseWell {
   use_type?: WellUseLU;
