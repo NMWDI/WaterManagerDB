@@ -12,7 +12,7 @@ import {
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
-import { NewWellMeasurement, SecurityScope } from "../interfaces.js";
+import { NewWellMeasurement, SecurityScope } from "../interfaces";
 import dayjs, { Dayjs } from "dayjs";
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'

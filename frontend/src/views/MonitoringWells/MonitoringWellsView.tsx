@@ -6,7 +6,7 @@ import { useAuthUser } from 'react-auth-kit'
 import { MonitoringWellsTable } from './MonitoringWellsTable';
 import { MonitoringWellsPlot } from './MonitoringWellsPlot';
 import { NewMeasurementModal, UpdateMeasurementModal } from '../../components/WellMeasurementModals'
-import { NewWellMeasurement, PatchWellMeasurement, SecurityScope } from '../../interfaces.js';
+import { NewWellMeasurement, PatchWellMeasurement, SecurityScope } from '../../interfaces';
 import { useCreateWaterLevel, useGetST2WaterLevels, useGetWaterLevels, useUpdateWaterLevel, useDeleteWaterLevel } from '../../service/ApiServiceNew';
 import dayjs from 'dayjs'
 

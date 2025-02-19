@@ -46,7 +46,7 @@ import {
     MeterRegister,
     WaterSource,
     WellStatus,
-} from '../interfaces.js'
+} from '../interfaces'
 import { WorkOrderStatus } from '../enums';
 import { useNavigate } from 'react-router-dom';
 import { parseJsonText } from 'typescript';

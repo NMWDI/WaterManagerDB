@@ -17,7 +17,7 @@ import {
 import { useState } from 'react'
 import { useAuthUser } from 'react-auth-kit'
 import React from 'react'
-import { NewWellMeasurement, PatchWellMeasurement, SecurityScope } from "../interfaces.js";
+import { NewWellMeasurement, PatchWellMeasurement, SecurityScope } from "../interfaces";
 import dayjs, { Dayjs } from "dayjs";
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
