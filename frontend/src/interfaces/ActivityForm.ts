@@ -3,14 +3,14 @@ import { ObservationForm } from "../interfaces";
 
 export interface ActivityForm {
   activity_details?: {
-    meter_id?: number;
+    meter_id?: number | null;
     activity_type_id?: number;
     user_id?: number;
     date?: Dayjs;
     start_time?: Dayjs;
     end_time?: Dayjs;
     share_ose: boolean;
-    work_order_id?: number;
+    work_order_id?: number | null;
   };
 
   current_installation?: {

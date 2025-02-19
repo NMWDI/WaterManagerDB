@@ -10,7 +10,7 @@ import {
 
 export interface PatchActivityForm {
   activity_id: number;
-  meter_id?: number;
+  meter_id?: number | null;
   activity_date: Dayjs;
   activity_start_time: Dayjs;
   activity_end_time: Dayjs;

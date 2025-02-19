@@ -11,14 +11,14 @@ import {
 
 export interface ActivityFormControl {
   activity_details: {
-    selected_meter?: Partial<MeterListDTO>;
+    selected_meter?: Partial<MeterListDTO> | null;
     activity_type?: Partial<ActivityTypeLU>;
     user?: Partial<User>;
     date: Dayjs;
     start_time: Dayjs;
     end_time: Dayjs;
     share_ose: boolean;
-    work_order_id?: number;
+    work_order_id?: number | null;
   };
   current_installation: {
     meter?: Partial<MeterDetails>;
