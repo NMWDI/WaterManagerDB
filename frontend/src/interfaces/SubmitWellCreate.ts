@@ -1,4 +1,4 @@
-import { WaterSource } from "./index";
+import { WaterSource } from "./models";
 
 export interface SubmitWellCreate {
   name: string;

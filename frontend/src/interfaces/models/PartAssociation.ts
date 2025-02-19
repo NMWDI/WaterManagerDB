@@ -1,4 +1,4 @@
-import { Part } from "./index";
+import { Part } from "../models";
 
 export interface PartAssociation {
   id: number;

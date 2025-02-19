@@ -1,4 +1,4 @@
-import { User, Meter, ActivityTypeLU } from "./index";
+import { User, Meter, ActivityTypeLU } from "../models";
 
 export interface MeterActivity {
   id: number;

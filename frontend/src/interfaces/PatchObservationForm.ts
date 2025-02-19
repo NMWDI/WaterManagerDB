@@ -1,5 +1,5 @@
 import type { Dayjs } from "dayjs";
-import { User, Well, Unit, ObservedPropertyTypeLU } from "./index";
+import { User, Well, Unit, ObservedPropertyTypeLU } from "./models";
 
 export interface PatchObservationForm {
   observation_id: number;
