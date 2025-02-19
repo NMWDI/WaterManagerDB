@@ -13,7 +13,7 @@ import MeterInstallation from './MeterInstallation'
 import MaintenanceRepairSelection from './MaintenanceRepairSelection'
 import PartsSelection from './PartsSelection'
 
-import { ActivityFormControl, MeterListDTO } from '../../../interfaces.d'
+import { ActivityFormControl, MeterListDTO } from '../../../interfaces'
 import { ActivityType } from '../../../enums'
 import { useCreateActivity, useGetMeter, useGetWell } from '../../../service/ApiServiceNew'
 import { ActivityResolverSchema, getDefaultForm, toSubmissionForm } from './ActivityFormConfig'
@@ -38,7 +38,7 @@ export default function MeterActivityEntry() {
     const createActivity = useCreateActivity(onSuccessfulSubmit)
 
     // Set the initial meter used in the form if queryparams are defined
-    let initialMeter: Partial<MeterListDTO> | null = null
+    let initialMeter: Partial<MeterListDTO> | undefined
     const qpMeterID = searchParams.get('meter_id')
     const qpSerialNumber = searchParams.get('serial_number')
     //const qpStatus = searchParams.get('meter_status')
@@ -55,7 +55,7 @@ export default function MeterActivityEntry() {
     // React hook form
     const { handleSubmit, control, setValue, watch, formState: { errors }} = useForm<ActivityFormControl>({
         resolver: yupResolver(ActivityResolverSchema),
-        defaultValues: getDefaultForm(initialMeter, qpWorkOrderID ? parseInt(qpWorkOrderID) : null)
+        defaultValues: getDefaultForm(initialMeter, qpWorkOrderID ? parseInt(qpWorkOrderID) : undefined)
     })
 
     const onSubmit: SubmitHandler<ActivityFormControl> = data => createActivity.mutate(toSubmissionForm(data))
