@@ -12,6 +12,11 @@ from api.models.main_models import (
     Wells,
     meterRegisters,
     workOrders,
+    ActivityTypeLU,
+    ObservedPropertyTypeLU,
+    ServiceTypeLU,
+    NoteTypeLU,
+    MeterStatusLU
 )
 
 from api.schemas import meter_schemas
@@ -494,3 +499,29 @@ def get_disapproval_response_by_request_id(
     )
 
     return response
+
+@ose_router.get(
+    "/get_DB_types",
+    tags=["OSE"],
+    response_model=meter_schemas.DBTypesForOSE
+)
+def get_DB_types(db: Session = Depends(get_db)):
+    '''
+    Return DB types from lookup tables
+    '''
+    # Load all the lookup tables
+    activity_types = db.scalars(select(ActivityTypeLU)).all()
+    observed_property_types = db.scalars(select(ObservedPropertyTypeLU)).all()
+    service_types = db.scalars(select(ServiceTypeLU)).all()
+    note_types = db.scalars(select(NoteTypeLU)).all()
+    meter_status_types = db.scalars(select(MeterStatusLU)).all()
+
+    # Create the response model
+    response = meter_schemas.DBTypesForOSE(
+        activity_types=activity_types,
+        observed_property_types=observed_property_types,
+        service_types=service_types,
+        note_types=note_types,
+        meter_status_types=meter_status_types
+    )
+    
