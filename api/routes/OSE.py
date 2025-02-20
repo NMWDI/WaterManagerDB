@@ -516,6 +516,14 @@ def get_DB_types(db: Session = Depends(get_db)):
     note_types = db.scalars(select(NoteTypeLU)).all()
     meter_status_types = db.scalars(select(MeterStatusLU)).all()
 
+    # Convert to 
+    activity_types = list(
+        map(
+            lambda x: meter_schemas.DBTypesForOSE.GeneralTypeInfo(name=x.name,description=x.description), 
+            activity_types
+            )
+        )
+
     # Create the response model
     response = meter_schemas.DBTypesForOSE(
         activity_types=activity_types,
