@@ -10,6 +10,7 @@ import {
   Typography,
   ListSubheader,
   useTheme,
+  CardHeader,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { useAuthUser } from "react-auth-kit";
@@ -35,6 +36,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
+import { MonitorHeart } from "@mui/icons-material";
 
 const separateAndSortWells = (
   wells: MonitoredWell[] = [],
@@ -166,12 +168,29 @@ export default function MonitoringWellsView() {
   const [outsideRecorderWells, regularWells] = separateAndSortWells(wells);
 
   return (
-    <Box>
-      <Typography variant="h2" sx={{ color: "#292929", fontWeight: "500" }}>
+    <Box sx={{ height: "100%", width: "100%", m: 2, mt: 0 }}>
+      <Typography
+        variant="h2"
+        sx={{
+          fontSize: "24px",
+          marginBlockStart: "19.92px",
+          marginBlockEnd: "19.92px",
+          color: "#292929",
+          fontWeight: "500",
+        }}
+      >
         Monitored Well Values
       </Typography>
-
       <Card sx={{ width: "95%", height: "75%" }}>
+        <CardHeader
+          title={
+            <div className="custom-card-header">
+              <span>Monitored Well Values</span>
+              <MonitorHeart />
+            </div>
+          }
+          sx={{ mb: 0, pb: 0 }}
+        />
         <CardContent>
           {error && (
             <Typography variant="h4">
@@ -186,6 +205,7 @@ export default function MonitoringWellsView() {
             <InputLabel id={`${selectWellId}-label`}>Site</InputLabel>
             <Select
               label="Site"
+              sx={{ width: "600px" }}
               labelId={`${selectWellId}-label`}
               value={wellId ?? ""}
               onChange={(e) => setWellId(Number(e.target.value))}
