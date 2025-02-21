@@ -28,7 +28,10 @@ export const useFetchWithAuth = () => {
         Authorization: authHeader(),
         "Content-Type": "application/json",
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body:
+        body && ["POST", "PUT", "DELETE"].includes(method)
+          ? JSON.stringify(body)
+          : undefined,
     });
 
     if (!response.ok) {
