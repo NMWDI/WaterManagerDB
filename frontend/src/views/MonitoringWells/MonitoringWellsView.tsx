@@ -31,11 +31,12 @@ import {
   useDeleteWaterLevel,
 } from "../../service/ApiServiceNew";
 import dayjs from "dayjs";
-import { useFetchWithAuth } from "../../hooks/useFetchWithAuth";
+import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
 
 export default function MonitoringWellsView() {
   const fetchWithAuth = useFetchWithAuth();
+  const fetchSt2 = useFetchST2();
   const selectWellId = useId();
   const [wellId, setWellId] = useState<number>();
   const [selectedMeasurement, setSelectedMeasurement] =
@@ -92,7 +93,7 @@ export default function MonitoringWellsView() {
   } = useQuery<ST2Measurement[], Error>({
     queryKey: ["st2Measurements", dataStreamId],
     queryFn: () =>
-      fetchWithAuth("GET", `Datastreams(${dataStreamId})/Observations`),
+      fetchSt2("GET", `/Datastreams(${dataStreamId})/Observations`),
     enabled: !!dataStreamId,
   });
 
