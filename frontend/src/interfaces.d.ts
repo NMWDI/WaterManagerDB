@@ -641,4 +641,5 @@ export interface MonitoredWell {
   name: string;
   datastream_id: number;
   well_status: WellStatus;
+  outside_recorder?: boolean;
 }

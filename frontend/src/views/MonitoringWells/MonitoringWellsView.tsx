@@ -8,6 +8,8 @@ import {
   Card,
   CardContent,
   Typography,
+  ListSubheader,
+  useTheme,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { useAuthUser } from "react-auth-kit";
@@ -34,7 +36,25 @@ import dayjs, { Dayjs } from "dayjs";
 import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
 
+const separateAndSortWells = (
+  wells: MonitoredWell[] = [],
+): [MonitoredWell[], MonitoredWell[]] => {
+  const sortWells = (w: MonitoredWell[]) =>
+    w.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+  const outsideRecorderWells = sortWells(
+    wells.filter((well) => well.outside_recorder === true),
+  );
+  const regularWells = sortWells(
+    wells.filter((well) => well.outside_recorder !== true),
+  );
+
+  return [outsideRecorderWells, regularWells];
+};
+
 export default function MonitoringWellsView() {
+  const theme = useTheme();
+
   const fetchWithAuth = useFetchWithAuth();
   const fetchSt2 = useFetchST2();
   const selectWellId = useId();
@@ -143,6 +163,8 @@ export default function MonitoringWellsView() {
     setIsUpdateModalOpen(true);
   };
 
+  const [outsideRecorderWells, regularWells] = separateAndSortWells(wells);
+
   return (
     <Box>
       <Typography variant="h2" sx={{ color: "#292929", fontWeight: "500" }}>
@@ -166,11 +188,42 @@ export default function MonitoringWellsView() {
               label="Site"
               labelId={`${selectWellId}-label`}
               value={wellId ?? ""}
-              onChange={(e) => setWellId(e.target.value as number)}
+              onChange={(e) => setWellId(Number(e.target.value))}
             >
               {isLoadingWells && <MenuItem disabled>Loading...</MenuItem>}
               {errorWells && <MenuItem disabled>Error loading wells</MenuItem>}
-              {wells?.map((well) => (
+              {regularWells.length > 0 ? (
+                <ListSubheader
+                  sx={{
+                    color: theme.palette.primary.main,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    backgroundColor: theme.palette.grey[200],
+                    paddingY: "0.125rem",
+                  }}
+                >
+                  Regular Wells
+                </ListSubheader>
+              ) : null}
+              {regularWells.map((well) => (
+                <MenuItem key={well.id} value={well.id}>
+                  {well.name}
+                </MenuItem>
+              ))}
+              {outsideRecorderWells.length > 0 ? (
+                <ListSubheader
+                  sx={{
+                    color: theme.palette.primary.main,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    backgroundColor: theme.palette.grey[200],
+                    paddingY: "0.125rem",
+                  }}
+                >
+                  Outside Recorder Wells
+                </ListSubheader>
+              ) : null}
+              {outsideRecorderWells.map((well) => (
                 <MenuItem key={well.id} value={well.id}>
                   {well.name}
                 </MenuItem>
