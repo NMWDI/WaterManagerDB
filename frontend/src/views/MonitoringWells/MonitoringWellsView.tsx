@@ -30,7 +30,7 @@ import {
   useUpdateWaterLevel,
   useDeleteWaterLevel,
 } from "../../service/ApiServiceNew";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
 
@@ -123,7 +123,16 @@ export default function MonitoringWellsView() {
     }
   };
 
-  const handleMeasurementSelect = (rowdata: any) => {
+  const handleMeasurementSelect = (rowdata: {
+    row: {
+      id: number;
+      timestamp: Dayjs;
+      value: number;
+      submitting_user: {
+        id: number;
+      };
+    };
+  }) => {
     if (!isAdmin) return;
     setSelectedMeasurement({
       levelmeasurement_id: rowdata.row.id,
@@ -172,6 +181,7 @@ export default function MonitoringWellsView() {
           <Box sx={{ mt: "1rem", gap: "1rem", display: "flex", width: "100%" }}>
             <MonitoringWellsTable
               rows={manualMeasurements ?? []}
+              selectedWell={wells?.find((well) => well.id == wellId)}
               isWellSelected={!!wellId}
               onOpenModal={() => setIsNewModalOpen(true)}
               onMeasurementSelect={handleMeasurementSelect}

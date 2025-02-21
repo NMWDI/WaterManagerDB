@@ -640,4 +640,5 @@ export interface MonitoredWell {
   id: number;
   name: string;
   datastream_id: number;
+  well_status: WellStatus;
 }
