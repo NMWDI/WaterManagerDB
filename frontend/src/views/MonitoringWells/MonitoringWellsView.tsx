@@ -198,7 +198,6 @@ export default function MonitoringWellsView() {
                     color: theme.palette.primary.main,
                     fontWeight: "bold",
                     textTransform: "uppercase",
-                    backgroundColor: theme.palette.grey[200],
                     paddingY: "0.125rem",
                   }}
                 >
@@ -206,17 +205,30 @@ export default function MonitoringWellsView() {
                 </ListSubheader>
               ) : null}
               {regularWells.map((well) => (
-                <MenuItem key={well.id} value={well.id}>
+                <MenuItem
+                  key={well.id}
+                  value={well.id}
+                  sx={{
+                    "&.Mui-selected": {
+                      backgroundColor:
+                        theme.palette.primary.dark + " !important",
+                      color: theme.palette.primary.contrastText,
+                    },
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.light,
+                      color: theme.palette.primary.contrastText,
+                    },
+                  }}
+                >
                   {well.name}
                 </MenuItem>
               ))}
               {outsideRecorderWells.length > 0 ? (
                 <ListSubheader
                   sx={{
-                    color: theme.palette.primary.main,
+                    color: theme.palette.secondary.main,
                     fontWeight: "bold",
                     textTransform: "uppercase",
-                    backgroundColor: theme.palette.grey[200],
                     paddingY: "0.125rem",
                   }}
                 >
@@ -224,7 +236,21 @@ export default function MonitoringWellsView() {
                 </ListSubheader>
               ) : null}
               {outsideRecorderWells.map((well) => (
-                <MenuItem key={well.id} value={well.id}>
+                <MenuItem
+                  key={well.id}
+                  value={well.id}
+                  sx={{
+                    "&.Mui-selected": {
+                      backgroundColor:
+                        theme.palette.secondary.dark + " !important",
+                      color: theme.palette.secondary.contrastText,
+                    },
+                    "&:hover": {
+                      backgroundColor: theme.palette.secondary.light,
+                      color: theme.palette.secondary.contrastText,
+                    },
+                  }}
+                >
                   {well.name}
                 </MenuItem>
               ))}
