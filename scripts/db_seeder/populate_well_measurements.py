@@ -9,22 +9,30 @@ from models import Well, Unit, ObservedPropertyTypeLU, User, WellMeasurement, We
 fake = Faker()
 
 
-def generate_random_timestamp():
-    """Generate a random timestamp evenly distributed between 1950 and 2024."""
-    start_date = datetime(1950, 1, 1)
-    end_date = datetime(2024, 12, 31)
-    time_range = (end_date - start_date).total_seconds()
-    random_offset = random.uniform(0, time_range)
-    return start_date + timedelta(seconds=random_offset)
+def generate_uniform_timestamps(start_year=1950, end_year=2024, num_measurements=100):
+    """
+    Generate a list of `num_measurements` timestamps uniformly distributed between `start_year` and `end_year`.
+    """
+
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year, 12, 31)
+
+    timestamps = [
+        start_date + timedelta(seconds=frac * (end_date - start_date).total_seconds())
+        for frac in sorted([random.random() for _ in range(num_measurements)])
+    ]
+
+    return timestamps
 
 
-def generate_next_value(previous_value, min_value=0, max_value=250, step=5):
+def generate_next_value(previous_value, min_value=0, max_value=250, step=2):
     """
     Generate the next measurement value with a slight random fluctuation from the previous one.
     """
+
     change = random.uniform(-step, step)
     new_value = previous_value + change
-    return max(min_value, min(max_value, new_value))
+    return round(max(min_value, min(max_value, new_value)), 2)
 
 
 def populate_well_measurements():
@@ -84,16 +92,18 @@ def populate_well_measurements():
     well_measurements = []
 
     for well in wells:
-        num_measurements = random.randint(100, 150)
+        num_measurements = random.randint(100, 250)
+        timestamps = generate_uniform_timestamps(1950, 2024, num_measurements)
+
         previous_value = random.uniform(0, 250)  # Initial random starting point
 
-        for _ in range(num_measurements):
+        for timestamp in timestamps:
             value = generate_next_value(previous_value)
             previous_value = value  # Update for the next iteration
 
             measurement = WellMeasurement(
                 well_id=well.id,
-                timestamp=generate_random_timestamp(),
+                timestamp=timestamp,
                 value=value,
                 observed_property_id=observed_property_id,
                 submitting_user_id=random.choice(user_ids),
