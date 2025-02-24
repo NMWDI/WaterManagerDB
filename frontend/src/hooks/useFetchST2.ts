@@ -1,5 +1,5 @@
 import { formatQueryParams } from "../utils/HttpUtils";
-import { ST2Measurement, ST2Response } from "src/interfaces";
+import { ST2Measurement, ST2Response } from "../interfaces";
 
 export const useFetchST2 = () => {
   const ST2_API_BASE_URL =
