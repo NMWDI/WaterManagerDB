@@ -523,6 +523,30 @@ def get_DB_types(db: Session = Depends(get_db)):
             activity_types
             )
         )
+    observed_property_types = list(
+        map(
+            lambda x: meter_schemas.DBTypesForOSE.GeneralTypeInfo(name=x.name,description=x.description), 
+            observed_property_types
+            )
+        )
+    service_types = list(
+        map(
+            lambda x: meter_schemas.DBTypesForOSE.GeneralTypeInfo(name=x.service_name,description=x.description), 
+            service_types
+            )
+        )
+    note_types = list(
+        map(
+            lambda x: meter_schemas.DBTypesForOSE.GeneralTypeInfo(name=x.note,description=x.details), 
+            note_types
+            )
+        )
+    meter_status_types = list(
+        map(
+            lambda x: meter_schemas.DBTypesForOSE.GeneralTypeInfo(name=x.status_name,description=x.description), 
+            meter_status_types
+            )
+        )
 
     # Create the response model
     response = meter_schemas.DBTypesForOSE(
@@ -532,4 +556,6 @@ def get_DB_types(db: Session = Depends(get_db)):
         note_types=note_types,
         meter_status_types=meter_status_types
     )
+
+    return response
     
