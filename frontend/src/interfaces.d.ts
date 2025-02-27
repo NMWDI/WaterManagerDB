@@ -635,3 +635,11 @@ export interface PatchWorkOrder {
     notes?: string
     assigned_user_id?: number
 }
+
+export interface MonitoredWell {
+  id: number;
+  name: string;
+  datastream_id: number;
+  well_status: WellStatus;
+  outside_recorder?: boolean;
+}

@@ -6,6 +6,7 @@ from password_hashing import hash_password
 
 fake = Faker()
 
+
 def populate_users(n=10) -> None:
     """Seeds the Users table with fake data."""
     session: Session = SessionLocal()
@@ -48,6 +49,7 @@ def populate_users(n=10) -> None:
     session.commit()
     session.close()
     print(f"Inserted {len(users)} users into the database.")
+
 
 if __name__ == "__main__":
     init_db()
