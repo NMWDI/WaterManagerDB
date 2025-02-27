@@ -1,88 +1,121 @@
-import { Box, Button } from "@mui/material";
-import { DataGrid, GridPagination, gridDateComparator, GridColDef } from '@mui/x-data-grid';
-import React from 'react'
-import { WellMeasurementDTO } from "../../interfaces";
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-dayjs.extend(utc)
-dayjs.extend(timezone)
+import React, { useMemo } from "react";
+import { Box, Button, Tooltip } from "@mui/material";
+import { DataGrid, GridPagination, GridColDef } from "@mui/x-data-grid";
+import { MonitoredWell, WellMeasurementDTO } from "../../interfaces";
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
-interface MonitoringWellsTableProps {
-    rows: WellMeasurementDTO[]
-    onOpenModal: () => void
-    isWellSelected: boolean
-    onMeasurementSelect: (data: any) => void
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+declare module "@mui/x-data-grid" {
+  interface FooterPropsOverrides {
+    onOpenModal: () => void;
+    isWellSelected: boolean;
+    selectedWell?: MonitoredWell;
+  }
 }
 
-interface CustomWellsFooterProps {
-    onOpenModal: () => void
-    isWellSelected: boolean
-}
+export const MonitoringWellsTable = ({
+  rows,
+  onOpenModal,
+  isWellSelected,
+  selectedWell,
+  onMeasurementSelect,
+}: {
+  rows: WellMeasurementDTO[];
+  onOpenModal: () => void;
+  isWellSelected: boolean;
+  selectedWell?: MonitoredWell;
+  onMeasurementSelect: (data: {
+    row: {
+      id: number;
+      timestamp: Dayjs;
+      value: number;
+      submitting_user: {
+        id: number;
+      };
+    };
+  }) => void;
+}) => {
+  const columns: GridColDef[] = useMemo(
+    () => [
+      {
+        field: "timestamp",
+        headerName: "Date/Time",
+        width: 200,
+        valueGetter: (value) => dayjs.utc(value).tz("America/Denver"),
+        valueFormatter: (value) =>
+          dayjs.utc(value).tz("America/Denver").format("MM/DD/YYYY hh:mm A"),
+        type: "dateTime",
+      },
+      { field: "value", headerName: "Depth to Water (ft)", width: 175 },
+      {
+        field: "submitting_user",
+        headerName: "User",
+        width: 200,
+        valueGetter: (value: WellMeasurementDTO["submitting_user"]) =>
+          value.full_name,
+      },
+    ],
+    [],
+  );
 
-//This is needed for typescript to recognize the slotProps... see https://v6.mui.com/x/react-data-grid/components/#custom-slot-props-with-typescript
-declare module '@mui/x-data-grid' {
-    interface FooterPropsOverrides {
-        onOpenModal: () => void
-        isWellSelected: boolean
-    }
-}
+  return (
+    <Box sx={{ width: 600, height: 600 }}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        slots={{
+          footer: Footer,
+        }}
+        slotProps={{
+          footer: {
+            onOpenModal: onOpenModal,
+            isWellSelected: isWellSelected,
+            selectedWell: selectedWell,
+          },
+        }}
+        onRowClick={onMeasurementSelect}
+      />
+    </Box>
+  );
+};
 
-function CustomWellsFooter({onOpenModal, isWellSelected}: CustomWellsFooterProps) {
-    return (
-        <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <Box sx={{my: 'auto'}}>
-                {isWellSelected ? <Button variant="text" onClick={onOpenModal}>+ Add Measurement</Button> : null}
-            </Box>
-            <GridPagination />
-        </Box>
-    )
-}
+const Footer = ({
+  onOpenModal,
+  isWellSelected,
+  selectedWell,
+}: {
+  onOpenModal: () => void;
+  isWellSelected: boolean;
+  selectedWell?: MonitoredWell;
+}) => {
+  const isPlugged = selectedWell?.well_status.status === "plugged";
 
-export function MonitoringWellsTable({rows, onOpenModal, isWellSelected, onMeasurementSelect}: MonitoringWellsTableProps){
-    const columns: GridColDef[] = [
-        {
-            field: 'timestamp',
-            headerName: 'Date/Time',
-            width: 200,
-            valueGetter: (value) => {
-                return dayjs
-                        .utc(value)
-                        .tz('America/Denver')
-                        //.format('MM/DD/YYYY hh:mm A')
-            },
-            valueFormatter: (value) => {
-                return dayjs
-                        .utc(value)
-                        .tz('America/Denver')
-                        .format('MM/DD/YYYY hh:mm A')
-            },
-            type: 'dateTime'
-        },
-        { field: 'value', headerName: 'Depth to Water (ft)', width: 175 },
-        {
-            field: 'submitting_user',
-            headerName: 'User',
-            width: 200 ,
-            valueGetter: (value: WellMeasurementDTO["submitting_user"]) => {
-                return (value.full_name)
+  return (
+    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Box sx={{ my: "auto" }}>
+        {isWellSelected ? (
+          <Tooltip
+            title={
+              isPlugged
+                ? "This well is plugged and no longer accepting new measurements."
+                : ""
             }
-        }
-    ];
-
-    return(
-        <Box sx={{ width: 600, height: 600 }}>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                slots={{
-                    footer: CustomWellsFooter
-                }}
-                slotProps={{
-                  footer: { onOpenModal: onOpenModal, isWellSelected: isWellSelected }
-                }}
-                onRowClick={onMeasurementSelect}
-            />
-        </Box>
-    )
-}
+            placement="top"
+            arrow
+          >
+            <span>
+              <Button disabled={isPlugged} variant="text" onClick={onOpenModal}>
+                + Add Measurement
+              </Button>
+            </span>
+          </Tooltip>
+        ) : null}
+      </Box>
+      <GridPagination />
+    </Box>
+  );
+};
