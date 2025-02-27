@@ -221,7 +221,7 @@ export default function MonitoringWellsView() {
                     paddingY: "0.125rem",
                   }}
                 >
-                  Regular Wells
+                  Wells
                 </ListSubheader>
               ) : null}
               {regularWells.map((well) => (
