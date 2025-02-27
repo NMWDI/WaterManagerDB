@@ -331,4 +331,18 @@ class PatchWorkOrder(BaseModel):
     notes: str | None = None
     creator: str | None = None
     assigned_user_id: int | None = None
+
+class DBTypesForOSE(BaseModel):
+    '''
+    Descriptions from the various look up tables that are relevant to the OSE.
+    '''
+    class GeneralTypeInfo(BaseModel):
+        name: str
+        description: str | None = None
+
+    activity_types: list[GeneralTypeInfo]
+    observed_property_types: list[GeneralTypeInfo]
+    service_types: list[GeneralTypeInfo]
+    note_types: list[GeneralTypeInfo]
+    meter_status_types: list[GeneralTypeInfo]
     
