@@ -104,8 +104,8 @@ export default function MonitoringWellsView() {
   });
 
   const dataStreamId = useMemo(
-    () => (wells && wellId ? getDataStreamId(wells, wellId) : undefined),
-    [wells, wellId],
+    () => (wellId ? getDataStreamId(wellId) : undefined),
+    [wellId],
   );
 
   const {

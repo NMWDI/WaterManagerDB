@@ -21,7 +21,8 @@ const monitoredWellDataStreamIds: Record<number, number> = {
 };
 
 export const getDataStreamId = (wellId: number): number | undefined => {
-  return monitoredWellDataStreamIds[wellId];
+  const datastream_id = monitoredWellDataStreamIds[wellId];
+  return datastream_id === -999 ? undefined : datastream_id;
 };
 
 // export const getDataStreamId = (
