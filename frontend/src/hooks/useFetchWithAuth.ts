@@ -9,18 +9,13 @@ export const useFetchWithAuth = () => {
   const signOut = useSignOut();
   const navigate = useNavigate();
 
-  const API_BASE_URL =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:8000"
-      : "https://pvacd.newmexicowaterdata.org/api/v1";
-
   return async (
     method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
     route: string,
     params: Record<string, any> = {},
     body?: any,
   ) => {
-    const url = `${API_BASE_URL}${route}${formatQueryParams(params)}`;
+    const url = `/api${route}${formatQueryParams(params)}`;
 
     const response = await fetch(url, {
       method,

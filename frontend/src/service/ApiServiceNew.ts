@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { API_URL } from "../API_config.js";
 import { useAuthHeader, useSignOut } from "react-auth-kit";
 import { enqueueSnackbar, useSnackbar } from "notistack";
 import {
@@ -107,10 +106,9 @@ async function GETFetch(
   navigate: Function,
 ) {
   const headers = { Authorization: authHeader };
-  const response = await fetch(
-    API_URL + `/${route}` + formattedQueryParams(params),
-    { headers: headers },
-  );
+  const response = await fetch(`api/${route}` + formattedQueryParams(params), {
+    headers: headers,
+  });
 
   if (!response.ok) {
     // If backend indicates that user's token is expired, log them out and notify
@@ -188,7 +186,7 @@ async function POSTFetch(route: string, object: any, authHeader: string) {
     "Content-type": "application/json",
   };
 
-  return fetch(API_URL + `/${route}`, {
+  return fetch(`api/${route}`, {
     method: "POST",
     headers: headers,
     body: JSON.stringify(object),
@@ -201,7 +199,7 @@ async function PATCHFetch(route: string, object: any, authHeader: string) {
     "Content-type": "application/json",
   };
 
-  return fetch(API_URL + `/${route}`, {
+  return fetch(`api/${route}`, {
     method: "PATCH",
     headers: headers,
     body: JSON.stringify(object),
@@ -1209,13 +1207,12 @@ export function useUpdateObservation(onSuccess: Function) {
 
 export function useDeleteObservation(onSuccess: Function) {
   const { enqueueSnackbar } = useSnackbar();
-  const route = "observations";
   const authHeader = useAuthHeader();
 
   return useMutation({
     mutationFn: async (observation_id: number) => {
       const response = await fetch(
-        API_URL + `/observations?observation_id=${observation_id}`,
+        `api/observations?observation_id=${observation_id}`,
         {
           method: "DELETE",
           headers: {
@@ -1275,13 +1272,12 @@ export function useUpdateActivity(onSuccess: Function) {
 
 export function useDeleteActivity(onSuccess: Function) {
   const { enqueueSnackbar } = useSnackbar();
-  const route = "activities";
   const authHeader = useAuthHeader();
 
   return useMutation({
     mutationFn: async (activity_id: number) => {
       const response = await fetch(
-        API_URL + `/activities?activity_id=${activity_id}`,
+        `api/activities?activity_id=${activity_id}`,
         {
           method: "DELETE",
           headers: {
@@ -1444,7 +1440,6 @@ export function useCreateWaterLevel() {
 
 export function useUpdateWaterLevel(onSuccess: Function) {
   const { enqueueSnackbar } = useSnackbar();
-  const queryClient = useQueryClient();
   const route = "waterlevels";
   const authHeader = useAuthHeader();
 
@@ -1494,13 +1489,12 @@ export function useUpdateWaterLevel(onSuccess: Function) {
 
 export function useDeleteWaterLevel() {
   const { enqueueSnackbar } = useSnackbar();
-  const queryClient = useQueryClient();
   const authHeader = useAuthHeader();
 
   return useMutation({
     mutationFn: async (waterLevelID: number) => {
       const response = await fetch(
-        API_URL + `/waterlevels?waterlevel_id=${waterLevelID}`,
+        `api/waterlevels?waterlevel_id=${waterLevelID}`,
         {
           method: "DELETE",
           headers: {
@@ -1589,13 +1583,12 @@ export function useUpdateWorkOrder() {
 
 export function useDeleteWorkOrder(onSuccess: Function) {
   const { enqueueSnackbar } = useSnackbar();
-  const route = "work_orders";
   const authHeader = useAuthHeader();
 
   return useMutation({
     mutationFn: async (workOrderID: number) => {
       const response = await fetch(
-        API_URL + `/work_orders?work_order_id=${workOrderID}`,
+        `api/work_orders?work_order_id=${workOrderID}`,
         {
           method: "DELETE",
           headers: {
