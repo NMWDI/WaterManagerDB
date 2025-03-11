@@ -5,7 +5,7 @@ import MeterSelectionTable from './MeterSelectionTable'
 import MeterSelectionMap from './MeterSelectionMap'
 import TabPanel from '../../../components/TabPanel'
 
-import { Box, Tabs, Tab, TextField, Grid, Card, CardContent, CardHeader, Button, ToggleButtonGroup, ToggleButton } from '@mui/material'
+import { Tabs, Tab, TextField, Grid, Card, CardContent, CardHeader, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 import { MeterStatusNames } from '../../../enums'
 

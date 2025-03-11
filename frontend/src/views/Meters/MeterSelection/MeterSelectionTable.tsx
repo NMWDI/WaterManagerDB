@@ -11,8 +11,6 @@ import { SortDirection, MeterSortByField, MeterStatusNames } from '../../../enum
 import { useGetMeterList } from '../../../service/ApiServiceNew'
 import GridFooterWithButton from '../../../components/GridFooterWithButton'
 import { useAuthUser } from 'react-auth-kit'
-import { parseMutationArgs } from 'react-query/types/core/utils'
-import { set } from 'react-hook-form'
 
 interface MeterSelectionTableProps {
     onMeterSelection: Function

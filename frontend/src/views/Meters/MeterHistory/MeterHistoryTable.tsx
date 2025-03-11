@@ -1,6 +1,4 @@
 import React from 'react'
-import { useEffect } from 'react'
-
 import { Box, Card, CardContent, CardHeader } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import HistoryIcon from '@mui/icons-material/History'

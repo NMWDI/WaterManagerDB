@@ -10,7 +10,6 @@ import {
   LayersControl,
   Pane,
 } from "react-leaflet";
-import { useLeafletContext } from "@react-leaflet/core";
 import { MeterMapDTO } from "../../../interfaces";
 
 import L from "leaflet";
@@ -20,7 +19,6 @@ import "../../../css/map.css";
 import { useGetMeterLocations } from "../../../service/ApiServiceNew";
 import * as tr_data from "../../../data/RoswellTR_v2.json";
 import * as ss_data from "../../../data/RoswellSS.json";
-import { FeatureCollection } from "geojson";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
