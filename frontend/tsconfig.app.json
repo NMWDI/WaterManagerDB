@@ -16,7 +16,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "resolveJsonModule": true,
-    "esModuleInterlop": true,
+    "esModuleInterop": true,
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
