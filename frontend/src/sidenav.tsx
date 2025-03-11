@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TableViewIcon from "@mui/icons-material/TableView";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
-import { Grid, List, SvgIconProps } from "@mui/material";
+import { Grid, SvgIconProps } from "@mui/material";
 import { useGetWorkOrders } from "./service/ApiServiceNew";
 import { WorkOrderStatus } from "./enums";
 import { WorkOrder } from "./interfaces";
