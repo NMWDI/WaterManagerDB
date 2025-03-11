@@ -8,7 +8,7 @@ services:
       context: ./frontend
       dockerfile: ./Dockerfile_production
     ports:
-      - "3000:80"
+      - "5173:80"
     depends_on:
       - api
       - traefik
