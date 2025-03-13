@@ -181,7 +181,7 @@ export default function MonitoringWellsView() {
       >
         Monitored Well Values
       </Typography>
-      <Card sx={{ width: "95%", height: "75%" }}>
+      <Card sx={{ width: "100%", height: "100%" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
@@ -205,7 +205,7 @@ export default function MonitoringWellsView() {
             <InputLabel id={`${selectWellId}-label`}>Site</InputLabel>
             <Select
               label="Site"
-              sx={{ width: "600px" }}
+              sx={{ width: "100%", maxWidth: "600px" }}
               labelId={`${selectWellId}-label`}
               value={wellId ?? ""}
               onChange={(e) => setWellId(Number(e.target.value))}
@@ -277,21 +277,36 @@ export default function MonitoringWellsView() {
             </Select>
           </FormControl>
 
-          <Box sx={{ mt: "1rem", gap: "1rem", display: "flex", width: "100%" }}>
-            <MonitoringWellsTable
-              rows={manualMeasurements ?? []}
-              selectedWell={wells?.find((well) => well.id == wellId)}
-              isWellSelected={!!wellId}
-              onOpenModal={() => setIsNewModalOpen(true)}
-              onMeasurementSelect={handleMeasurementSelect}
-            />
-            <MonitoringWellsPlot
-              isLoading={isLoadingManual || isLoadingSt2}
-              manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
-              manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
-              logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
-              logger_vals={st2Measurements?.map((m) => m.result) ?? []}
-            />
+          <Box
+            sx={{
+              mt: "1rem",
+              gap: "1rem",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              width: "100%",
+              height: 600,
+            }}
+          >
+            <Box sx={{ flex: { xs: 1, md: 1 / 3 }, minWidth: 0 }}>
+              <MonitoringWellsTable
+                rows={manualMeasurements ?? []}
+                selectedWell={wells?.find((well) => well.id == wellId)}
+                isWellSelected={!!wellId}
+                onOpenModal={() => setIsNewModalOpen(true)}
+                onMeasurementSelect={handleMeasurementSelect}
+              />
+            </Box>
+            <Box sx={{ flex: { xs: 1, md: 2 / 3 }, minWidth: 0 }}>
+              <MonitoringWellsPlot
+                isLoading={isLoadingManual || isLoadingSt2}
+                manual_dates={
+                  manualMeasurements?.map((m) => m.timestamp) ?? []
+                }
+                manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
+                logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
+                logger_vals={st2Measurements?.map((m) => m.result) ?? []}
+              />
+            </Box>
           </Box>
 
           <NewMeasurementModal
