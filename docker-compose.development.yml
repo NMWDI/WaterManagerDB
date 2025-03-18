@@ -9,6 +9,8 @@ services:
       dockerfile: ./Dockerfile_production
     environment:
       - DEVSERVER=True
+    env_file:
+      - ./frontend/env.development
     ports:
       - "5173:80"
     depends_on:
