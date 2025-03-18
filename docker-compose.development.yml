@@ -10,7 +10,7 @@ services:
     environment:
       - DEVSERVER=True
     env_file:
-      - ./frontend/env.development
+      - ./frontend/env.devserver
     ports:
       - "5173:80"
     depends_on:
