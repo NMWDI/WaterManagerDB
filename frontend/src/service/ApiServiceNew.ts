@@ -48,6 +48,7 @@ import {
 } from "../interfaces.js";
 import { WorkOrderStatus } from "../enums";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 // Date display util
 export function toGMT6String(date: Date) {
@@ -106,7 +107,7 @@ async function GETFetch(
   navigate: Function,
 ) {
   const headers = { Authorization: authHeader };
-  const response = await fetch(`api/${route}` + formattedQueryParams(params), {
+  const response = await fetch(`${API_URL}/${route}` + formattedQueryParams(params), {
     headers: headers,
   });
 
@@ -160,7 +161,7 @@ async function POSTFetch(route: string, object: any, authHeader: string) {
     "Content-type": "application/json",
   };
 
-  return fetch(`api/${route}`, {
+  return fetch(`${API_URL}/${route}`, {
     method: "POST",
     headers: headers,
     body: JSON.stringify(object),
@@ -173,7 +174,7 @@ async function PATCHFetch(route: string, object: any, authHeader: string) {
     "Content-type": "application/json",
   };
 
-  return fetch(`api/${route}`, {
+  return fetch(`${API_URL}/${route}`, {
     method: "PATCH",
     headers: headers,
     body: JSON.stringify(object),
@@ -1186,7 +1187,7 @@ export function useDeleteObservation(onSuccess: Function) {
   return useMutation({
     mutationFn: async (observation_id: number) => {
       const response = await fetch(
-        `api/observations?observation_id=${observation_id}`,
+        `${API_URL}/observations?observation_id=${observation_id}`,
         {
           method: "DELETE",
           headers: {
@@ -1251,7 +1252,7 @@ export function useDeleteActivity(onSuccess: Function) {
   return useMutation({
     mutationFn: async (activity_id: number) => {
       const response = await fetch(
-        `api/activities?activity_id=${activity_id}`,
+        `${API_URL}/activities?activity_id=${activity_id}`,
         {
           method: "DELETE",
           headers: {
@@ -1468,7 +1469,7 @@ export function useDeleteWaterLevel() {
   return useMutation({
     mutationFn: async (waterLevelID: number) => {
       const response = await fetch(
-        `api/waterlevels?waterlevel_id=${waterLevelID}`,
+        `${API_URL}/waterlevels?waterlevel_id=${waterLevelID}`,
         {
           method: "DELETE",
           headers: {
@@ -1562,7 +1563,7 @@ export function useDeleteWorkOrder(onSuccess: Function) {
   return useMutation({
     mutationFn: async (workOrderID: number) => {
       const response = await fetch(
-        `api/work_orders?work_order_id=${workOrderID}`,
+        `${API_URL}/work_orders?work_order_id=${workOrderID}`,
         {
           method: "DELETE",
           headers: {
