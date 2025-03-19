@@ -169,18 +169,6 @@ export default function MonitoringWellsView() {
 
   return (
     <Box sx={{ height: "100%", width: "100%", m: 2, mt: 0 }}>
-      <Typography
-        variant="h2"
-        sx={{
-          fontSize: "24px",
-          marginBlockStart: "19.92px",
-          marginBlockEnd: "19.92px",
-          color: "#292929",
-          fontWeight: "500",
-        }}
-      >
-        Monitored Well Values
-      </Typography>
       <Card sx={{ width: "100%", height: "100%" }}>
         <CardHeader
           title={
