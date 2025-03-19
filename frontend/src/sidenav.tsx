@@ -16,6 +16,7 @@ import {
   MonitorHeart,
   People,
   Plumbing,
+  Science,
   ScreenshotMonitor,
 } from "@mui/icons-material";
 
@@ -103,6 +104,7 @@ export default function Sidenav() {
       <NavLink route="/meters" label="Meters" Icon={ScreenshotMonitor} />
       <NavLink route="/activities" label="Activities" Icon={Construction} />
       <NavLink route="/wells" label="Monitoring Wells" Icon={MonitorHeart} />
+      <NavLink route="/chlorides" label="Chlorides (beta)" Icon={Science} />
       <NavLink route="/wellmanagement" label="Wells" Icon={Plumbing} />
 
       {hasAdminScope && (
