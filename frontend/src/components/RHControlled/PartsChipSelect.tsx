@@ -1,38 +1,45 @@
-/*
+import ChipSelect from "../ChipSelect";
+import { Part } from "../../interfaces";
+import { useGetMeterPartsList } from "../../service/ApiServiceNew";
+import { Controller } from "react-hook-form";
 
-A controlled chip select specific to parts. 
+export default function PartsChipSelect({ name, control, meterid }: any) {
+  const partsList = useGetMeterPartsList({ meter_id: meterid });
 
-*/
-
-import React, { useState } from 'react'
-import ChipSelect from '../ChipSelect'
-import { Part } from '../../interfaces'
-import { useGetMeterPartsList } from '../../service/ApiServiceNew'
-import { Controller } from 'react-hook-form'
-
-export default function PartsChipSelect({name, control, meterid}: any) {
-    const partsList = useGetMeterPartsList({meter_id: meterid})
-
-    return (
-        <Controller
-            name={name}
-            control={control}
-            //defaultValue={[]}
-            render={({ field }) => {
-                return (
-                    <ChipSelect
-                        selected_values={field.value?.map((part: Part) => ({id: part.id, name: part.part_type?.name + ' ' + part.part_number})) ?? []}
-                        options={partsList.data?.map((part: Part) => ({id: part.id, name: part.part_type?.name + ' ' + part.part_number})) ?? []}
-                        label="Parts Used"
-                        onSelect={(selected_id) => {
-                            field.onChange([...field.value, partsList.data?.find((part: Part) => part.id === selected_id)])
-                        }}
-                        onDelete={(delete_id) => {
-                            field.onChange(field.value.filter((part: Part) => part.id !== delete_id))
-                        }}
-                    />
-                )}
-           }
-        />
-    )
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => {
+        return (
+          <ChipSelect
+            selected_values={
+              field.value?.map((part: Part) => ({
+                id: part.id,
+                name: part.part_type?.name + " " + part.part_number,
+              })) ?? []
+            }
+            options={
+              partsList.data?.map((part: Part) => ({
+                id: part.id,
+                name: part.part_type?.name + " " + part.part_number,
+              })) ?? []
+            }
+            label="Parts Used"
+            onSelect={(selected_id) => {
+              field.onChange([
+                ...field.value,
+                partsList.data?.find((part: Part) => part.id === selected_id),
+              ]);
+            }}
+            onDelete={(delete_id) => {
+              field.onChange(
+                field.value.filter((part: Part) => part.id !== delete_id),
+              );
+            }}
+          />
+        );
+      }}
+    />
+  );
 }

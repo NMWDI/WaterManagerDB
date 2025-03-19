@@ -154,32 +154,6 @@ async function GETST2Fetch(route: string) {
   return valueList;
 }
 
-// Fetches from the NM API's nmenv subdomain (data that relates to chlorides) | Not used but leaving for now
-async function GETNMEnvFetch(route: string) {
-  const url = `https://nmenv.newmexicowaterdata.org/FROST-Server/v1.1/`;
-
-  // The API returns data in chunks of 1000, get each chunk and return them all
-  let valueList: ST2Measurement[] = [];
-  let nextLink = url + route;
-  let count = 0; // Ensure that it doesn't get stuck in an infinite loop, if somehow iot.nextLink is always defined
-  do {
-    const results: ST2Response = await fetch(nextLink).then((r) => r.json());
-    nextLink = results["@iot.nextLink"];
-    valueList.push(...results.value);
-    count++;
-  } while (nextLink && count < 10);
-
-  // Extract the float value from the measurement string
-  const extractFloatPattern = /-?\d+(\.\d+)?/;
-  for (let value of valueList) {
-    const match = value.result.toString().match(extractFloatPattern);
-    const floatString = match ? match[0] : "0";
-    value.result = parseFloat(floatString);
-  }
-
-  return valueList;
-}
-
 async function POSTFetch(route: string, object: any, authHeader: string) {
   const headers = {
     Authorization: authHeader,

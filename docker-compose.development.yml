@@ -70,7 +70,7 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
 
       # for production deployment testing  make sure the next line is uncommented. Comment out once you know all app components are working
-#      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=newmexicowaterdata@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=acme.json"
@@ -83,5 +83,3 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-
-  
