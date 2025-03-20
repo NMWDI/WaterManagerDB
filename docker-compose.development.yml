@@ -43,7 +43,7 @@ services:
     depends_on:
       - traefik
     env_file:
-      - ./api/.env_production
+      - ./api/.env_devserver
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`pvacd-dev.newmexicowaterdata.org`) && PathPrefix(`/api/v1`)"
