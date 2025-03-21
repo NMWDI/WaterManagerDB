@@ -1,0 +1,1 @@
+DELETE FROM "Units" WHERE id = 14;
