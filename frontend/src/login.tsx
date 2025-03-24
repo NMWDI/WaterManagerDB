@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
 import { SecurityScope } from "./interfaces";
+import { API_URL } from "./config";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -32,7 +33,7 @@ const Login = () => {
     body.append("username", username);
     body.append("password", password);
 
-    fetch("/api/token", { method: "POST", body })
+    fetch(`${API_URL}/token`, { method: "POST", body })
       .then(handleLogin)
       .catch((_) => {
         setError(

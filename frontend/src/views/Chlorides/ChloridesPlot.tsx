@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import Plot from "react-plotly.js";
 import { Data } from "plotly.js";
 
-export const MonitoringWellsPlot = ({
+export const ChloridesPlot = ({
   manual_dates,
   manual_vals,
   logger_dates,

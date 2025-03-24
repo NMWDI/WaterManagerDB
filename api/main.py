@@ -73,11 +73,8 @@ app = FastAPI(
 
 origins = [
     "http://localhost",
-    "http://localhost:3000",
+    "http://localhost:5173",
     "http://localhost:8000",
-    "https://localhost",
-    "https://localhost:3000",
-    "https://localhost:8000",
     "https://pvacd.newmexicowaterdata.org",
     "https://pvacd-dev.newmexicowaterdata.org",
 ]

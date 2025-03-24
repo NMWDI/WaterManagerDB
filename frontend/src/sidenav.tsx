@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TableViewIcon from "@mui/icons-material/TableView";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthUser } from "react-auth-kit";
-import { Grid, List, SvgIconProps } from "@mui/material";
+import { Grid, SvgIconProps } from "@mui/material";
 import { useGetWorkOrders } from "./service/ApiServiceNew";
 import { WorkOrderStatus } from "./enums";
 import { WorkOrder } from "./interfaces";
@@ -16,6 +16,7 @@ import {
   MonitorHeart,
   People,
   Plumbing,
+  Science,
   ScreenshotMonitor,
 } from "@mui/icons-material";
 
@@ -103,6 +104,7 @@ export default function Sidenav() {
       <NavLink route="/meters" label="Meters" Icon={ScreenshotMonitor} />
       <NavLink route="/activities" label="Activities" Icon={Construction} />
       <NavLink route="/wells" label="Monitoring Wells" Icon={MonitorHeart} />
+      <NavLink route="/chlorides" label="Chlorides (beta)" Icon={Science} />
       <NavLink route="/wellmanagement" label="Wells" Icon={Plumbing} />
 
       {hasAdminScope && (

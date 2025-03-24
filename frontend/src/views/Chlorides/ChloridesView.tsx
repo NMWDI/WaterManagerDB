@@ -14,8 +14,8 @@ import {
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { useAuthUser } from "react-auth-kit";
-import { MonitoringWellsTable } from "./MonitoringWellsTable";
-import { MonitoringWellsPlot } from "./MonitoringWellsPlot";
+import { ChloridesTable } from "./ChloridesTable";
+import { ChloridesPlot } from "./ChloridesPlot";
 import {
   NewMeasurementModal,
   UpdateMeasurementModal,
@@ -54,7 +54,7 @@ const separateAndSortWells = (
   return [outsideRecorderWells, regularWells];
 };
 
-export default function MonitoringWellsView() {
+export default function ChloridesView() {
   const theme = useTheme();
 
   const fetchWithAuth = useFetchWithAuth();
@@ -278,14 +278,14 @@ export default function MonitoringWellsView() {
           </FormControl>
 
           <Box sx={{ mt: "1rem", gap: "1rem", display: "flex", width: "100%" }}>
-            <MonitoringWellsTable
+            <ChloridesTable
               rows={manualMeasurements ?? []}
               selectedWell={wells?.find((well) => well.id == wellId)}
               isWellSelected={!!wellId}
               onOpenModal={() => setIsNewModalOpen(true)}
               onMeasurementSelect={handleMeasurementSelect}
             />
-            <MonitoringWellsPlot
+            <ChloridesPlot
               isLoading={isLoadingManual || isLoadingSt2}
               manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
               manual_vals={manualMeasurements?.map((m) => m.value) ?? []}

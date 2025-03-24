@@ -17,7 +17,7 @@ declare module "@mui/x-data-grid" {
   }
 }
 
-export const MonitoringWellsTable = ({
+export const ChloridesTable = ({
   rows,
   onOpenModal,
   isWellSelected,
