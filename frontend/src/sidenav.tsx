@@ -16,7 +16,7 @@ import {
   MonitorHeart,
   People,
   Plumbing,
-  Science,
+  //Science,
   ScreenshotMonitor,
 } from "@mui/icons-material";
 

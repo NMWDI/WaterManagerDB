@@ -13,6 +13,8 @@ import {
 import { MeterMapDTO } from "../../../interfaces";
 
 import L from "leaflet";
+import { useLeafletContext } from '@react-leaflet/core';
+import { FeatureCollection } from 'geojson';
 
 import "leaflet/dist/leaflet.css";
 import "../../../css/map.css";
