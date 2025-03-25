@@ -44,17 +44,19 @@ export const MonitoringWellsTable = ({
       {
         field: "timestamp",
         headerName: "Date/Time",
-        width: 200,
+        flex: 1,
+        minWidth: 150,
         valueGetter: (value) => dayjs.utc(value).tz("America/Denver"),
         valueFormatter: (value) =>
           dayjs.utc(value).tz("America/Denver").format("MM/DD/YYYY hh:mm A"),
         type: "dateTime",
       },
-      { field: "value", headerName: "Depth to Water (ft)", width: 175 },
+      { field: "value", headerName: "Depth to Water (ft)", flex: 1, minWidth: 100 },
       {
         field: "submitting_user",
         headerName: "User",
-        width: 200,
+        flex: 1,
+        minWidth: 150,
         valueGetter: (value: WellMeasurementDTO["submitting_user"]) =>
           value.full_name,
       },
@@ -63,7 +65,7 @@ export const MonitoringWellsTable = ({
   );
 
   return (
-    <Box sx={{ width: 600, height: 600 }}>
+    <Box sx={{ width: "100%", height: "100%", maxHeight: 600 }}>
       <DataGrid
         rows={rows}
         columns={columns}
