@@ -64,7 +64,7 @@ function AppLayout({
         <Grid item xs={12}>
           <Topbar />
         </Grid>
-        <Grid container item xs={12} spacing={4}>
+        <Grid container item xs={12}>
           <Grid container item width="15%">
             <Sidenav />
           </Grid>
