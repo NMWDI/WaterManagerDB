@@ -528,6 +528,14 @@ export interface WellMeasurementDTO {
     submitting_user: {full_name: string}
 }
 
+export interface RegionMeasurementDTO {
+    id: number
+    timestamp: Date
+    value: number
+    submitting_user: {full_name: string}
+    well_id: number
+}
+
 // Single value from a NM ST2 endpoint, many other fields are returned, these are the only ones used at the moment
 export interface ST2Measurement {
     result: number
@@ -550,6 +558,21 @@ export interface NewWellMeasurement {
 }
 
 export interface PatchWellMeasurement {
+    levelmeasurement_id: number
+    submitting_user_id: number
+    timestamp: dayjs.Dayjs
+    value: number
+}
+
+export interface NewRegionMeasurement {
+    region_id: number
+    timestamp: Date
+    value: number
+    submitting_user_id: number
+    well_id: number
+}
+
+export interface PatchRegionMeasurement {
     levelmeasurement_id: number
     submitting_user_id: number
     timestamp: dayjs.Dayjs
@@ -637,6 +660,14 @@ export interface PatchWorkOrder {
 }
 
 export interface MonitoredWell {
+  id: number;
+  name: string;
+  datastream_id: number;
+  well_status: WellStatus;
+  outside_recorder?: boolean;
+}
+
+export interface MonitoredRegion {
   id: number;
   name: string;
   datastream_id: number;

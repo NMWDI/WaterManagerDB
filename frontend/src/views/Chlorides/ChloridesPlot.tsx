@@ -59,7 +59,7 @@ export const ChloridesPlot = ({
         data={data}
         layout={{
           autosize: true,
-          title: "Depth to Water Over Time",
+          title: "Chlorides Over Time",
           titlefont: { size: 18 },
           legend: {
             title: { text: "Datastreams", font: { size: 14 } },
@@ -67,7 +67,7 @@ export const ChloridesPlot = ({
           xaxis: { title: { text: "Date", font: { size: 16 } } },
           yaxis: {
             autorange: "reversed",
-            title: { text: "Depth to Water (ft)", font: { size: 16 } },
+            title: { text: "Chlorides (ppm)", font: { size: 16 } },
           },
           margin: { t: 40, b: 50, l: 60, r: 10 },
         }}
