@@ -8,8 +8,6 @@ import {
   Card,
   CardContent,
   Typography,
-  ListSubheader,
-  useTheme,
   CardHeader,
 } from "@mui/material";
 import { useQuery } from "react-query";
@@ -19,14 +17,14 @@ import { ChloridesPlot } from "./ChloridesPlot";
 import {
   NewMeasurementModal,
   UpdateMeasurementModal,
-} from "../../components/WellMeasurementModals";
+} from "../../components/RegionMeasurementModals";
 import {
-  NewWellMeasurement,
-  PatchWellMeasurement,
+  NewRegionMeasurement,
+  PatchRegionMeasurement,
   ST2Measurement,
   SecurityScope,
-  WellMeasurementDTO,
-  MonitoredWell,
+  RegionMeasurementDTO,
+  MonitoredRegion,
 } from "../../interfaces";
 import {
   useCreateWaterLevel,
@@ -36,33 +34,15 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
-import { MonitorHeart } from "@mui/icons-material";
-
-const separateAndSortWells = (
-  wells: MonitoredWell[] = [],
-): [MonitoredWell[], MonitoredWell[]] => {
-  const sortWells = (w: MonitoredWell[]) =>
-    w.slice().sort((a, b) => a.name.localeCompare(b.name));
-
-  const outsideRecorderWells = sortWells(
-    wells.filter((well) => well.outside_recorder === true),
-  );
-  const regularWells = sortWells(
-    wells.filter((well) => well.outside_recorder !== true),
-  );
-
-  return [outsideRecorderWells, regularWells];
-};
+import { Science } from "@mui/icons-material";
 
 export default function ChloridesView() {
-  const theme = useTheme();
-
   const fetchWithAuth = useFetchWithAuth();
   const fetchSt2 = useFetchST2();
-  const selectWellId = useId();
-  const [wellId, setWellId] = useState<number>();
+  const selectedRegionId = useId();
+  const [regionId, setregionId] = useState<number>();
   const [selectedMeasurement, setSelectedMeasurement] =
-    useState<PatchWellMeasurement>({
+    useState<PatchRegionMeasurement>({
       levelmeasurement_id: 0,
       timestamp: dayjs(),
       value: 0,
@@ -78,11 +58,11 @@ export default function ChloridesView() {
   );
 
   const {
-    data: wells,
-    isLoading: isLoadingWells,
-    error: errorWells,
-  } = useQuery<{ items: MonitoredWell[] }, Error, MonitoredWell[]>({
-    queryKey: ["wells"],
+    data: regions,
+    isLoading: isLoadingRegions,
+    error: errorRegions,
+  } = useQuery<{ items: MonitoredRegion[] }, Error, MonitoredRegion[]>({
+    queryKey: ["regions"],
     queryFn: () =>
       fetchWithAuth("GET", "/wells", {
         search_string: "monitoring",
@@ -97,15 +77,15 @@ export default function ChloridesView() {
     isLoading: isLoadingManual,
     error: errorManual,
     refetch: refetchManual,
-  } = useQuery<WellMeasurementDTO[], Error>({
-    queryKey: ["manualMeasurements", wellId],
-    queryFn: () => fetchWithAuth("GET", "/waterlevels", { well_id: wellId }),
-    enabled: !!wellId,
+  } = useQuery<RegionMeasurementDTO[], Error>({
+    queryKey: ["manualMeasurements", regionId],
+    queryFn: () => fetchWithAuth("GET", "/waterlevels", { well_id: regionId }),
+    enabled: !!regionId,
   });
 
   const dataStreamId = useMemo(
-    () => (wellId ? getDataStreamId(wellId) : undefined),
-    [wellId],
+    () => (regionId ? getDataStreamId(regionId) : undefined),
+    [regionId],
   );
 
   const {
@@ -123,11 +103,11 @@ export default function ChloridesView() {
   const updateMeasurement = useUpdateWaterLevel(() => refetchManual());
   const deleteMeasurement = useDeleteWaterLevel();
 
-  const error = errorWells || errorManual || errorSt2;
+  const error = errorRegions || errorManual || errorSt2;
 
-  const handleSubmitNewMeasurement = (data: NewWellMeasurement) => {
-    if (wellId) {
-      data.well_id = wellId;
+  const handleSubmitNewMeasurement = (data: NewRegionMeasurement) => {
+    if (regionId) {
+      data.region_id = regionId;
       createMeasurement.mutate(data, { onSuccess: () => refetchManual() });
     }
     setIsNewModalOpen(false);
@@ -165,28 +145,14 @@ export default function ChloridesView() {
     setIsUpdateModalOpen(true);
   };
 
-  const [outsideRecorderWells, regularWells] = separateAndSortWells(wells);
-
   return (
     <Box sx={{ height: "100%", width: "100%", m: 2, mt: 0 }}>
-      <Typography
-        variant="h2"
-        sx={{
-          fontSize: "24px",
-          marginBlockStart: "19.92px",
-          marginBlockEnd: "19.92px",
-          color: "#292929",
-          fontWeight: "500",
-        }}
-      >
-        Monitored Well Values
-      </Typography>
       <Card sx={{ width: "95%", height: "75%" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
-              <span>Monitored Well Values</span>
-              <MonitorHeart />
+              <span>Chlorides</span>
+              <Science />
             </div>
           }
           sx={{ mb: 0, pb: 0 }}
@@ -200,78 +166,23 @@ export default function ChloridesView() {
 
           <FormControl
             sx={{ minWidth: "100px" }}
-            disabled={isLoadingWells || !!errorWells}
+            disabled={isLoadingRegions || !!errorRegions}
           >
-            <InputLabel id={`${selectWellId}-label`}>Site</InputLabel>
+            <InputLabel id={`${selectedRegionId}-label`}>Region</InputLabel>
             <Select
-              label="Site"
+              label="Region"
               sx={{ width: "600px" }}
-              labelId={`${selectWellId}-label`}
-              value={wellId ?? ""}
-              onChange={(e) => setWellId(Number(e.target.value))}
+              labelId={`${selectedRegionId}-label`}
+              value={regionId ?? ""}
+              onChange={(e) => setregionId(Number(e.target.value))}
             >
-              {isLoadingWells && <MenuItem disabled>Loading...</MenuItem>}
-              {errorWells && <MenuItem disabled>Error loading wells</MenuItem>}
-              {regularWells.length > 0 ? (
-                <ListSubheader
-                  sx={{
-                    color: theme.palette.primary.main,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    paddingY: "0.125rem",
-                  }}
-                >
-                  Wells
-                </ListSubheader>
-              ) : null}
-              {regularWells.map((well) => (
-                <MenuItem
-                  key={well.id}
-                  value={well.id}
-                  sx={{
-                    "&.Mui-selected": {
-                      backgroundColor:
-                        theme.palette.primary.dark + " !important",
-                      color: theme.palette.primary.contrastText,
-                    },
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.light,
-                      color: theme.palette.primary.contrastText,
-                    },
-                  }}
-                >
-                  {well.name}
-                </MenuItem>
-              ))}
-              {outsideRecorderWells.length > 0 ? (
-                <ListSubheader
-                  sx={{
-                    color: theme.palette.secondary.main,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    paddingY: "0.125rem",
-                  }}
-                >
-                  Outside Recorder Wells
-                </ListSubheader>
-              ) : null}
-              {outsideRecorderWells.map((well) => (
-                <MenuItem
-                  key={well.id}
-                  value={well.id}
-                  sx={{
-                    "&.Mui-selected": {
-                      backgroundColor:
-                        theme.palette.secondary.dark + " !important",
-                      color: theme.palette.secondary.contrastText,
-                    },
-                    "&:hover": {
-                      backgroundColor: theme.palette.secondary.light,
-                      color: theme.palette.secondary.contrastText,
-                    },
-                  }}
-                >
-                  {well.name}
+              {isLoadingRegions && <MenuItem disabled>Loading...</MenuItem>}
+              {errorRegions && (
+                <MenuItem disabled>Error loading Regions</MenuItem>
+              )}
+              {regions?.map((region) => (
+                <MenuItem key={region.id} value={region.id}>
+                  {region.name}
                 </MenuItem>
               ))}
             </Select>
@@ -280,8 +191,7 @@ export default function ChloridesView() {
           <Box sx={{ mt: "1rem", gap: "1rem", display: "flex", width: "100%" }}>
             <ChloridesTable
               rows={manualMeasurements ?? []}
-              selectedWell={wells?.find((well) => well.id == wellId)}
-              isWellSelected={!!wellId}
+              isRegionSelected={!!regionId}
               onOpenModal={() => setIsNewModalOpen(true)}
               onMeasurementSelect={handleMeasurementSelect}
             />

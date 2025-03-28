@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { formatQueryParams } from "../utils/HttpUtils";
 import { enqueueSnackbar } from "notistack";
 import { HttpStatus } from "../enums";
+import { API_URL } from "../config";
 
 export const useFetchWithAuth = () => {
   const authHeader = useAuthHeader();
@@ -15,7 +16,7 @@ export const useFetchWithAuth = () => {
     params: Record<string, any> = {},
     body?: any,
   ) => {
-    const url = `/api${route}${formatQueryParams(params)}`;
+    const url = `${API_URL}${route}${formatQueryParams(params)}`;
 
     const response = await fetch(url, {
       method,

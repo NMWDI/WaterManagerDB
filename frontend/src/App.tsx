@@ -26,6 +26,7 @@ import Home from "./Home";
 import Topbar from "./components/Topbar";
 import Login from "./login";
 import { SecurityScope } from "./interfaces";
+import ChloridesView from "./views/Chlorides/ChloridesView";
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
 function AppLayout({
@@ -144,13 +145,16 @@ export default function App() {
                     />
                   }
                 />
-                {/* <Route path="/chlorides" element={
-                <AppLayout
-                    pageComponent={<ChloridesView/>}
-                    requiredScopes={["read"]}
-                    setErrorMessage={setErrorMessage}
+                <Route
+                  path="/chlorides"
+                  element={
+                    <AppLayout
+                      pageComponent={<ChloridesView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
                 />
-            }/> */}
                 <Route
                   path="/parts"
                   element={
