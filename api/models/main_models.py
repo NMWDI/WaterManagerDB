@@ -522,6 +522,7 @@ class Wells(Base):
     location_id: Mapped[int] = mapped_column(Integer, ForeignKey("Locations.id"))
     water_source_id: Mapped[int] = mapped_column(Integer, ForeignKey("water_sources.id"))
     well_status_id: Mapped[int] = mapped_column(Integer, ForeignKey("well_status.id"))
+    chloride_group_id: Mapped[int] = mapped_column(Integer)
 
     use_type: Mapped["WellUseLU"] = relationship()
     location: Mapped["Locations"] = relationship()

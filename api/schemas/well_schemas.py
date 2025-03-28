@@ -120,7 +120,8 @@ class LocationTypeLU(ORMBase):
     description: str | None = None
 
 
-class WellMeasurement(ORMBase):
+class WellMeasurement(BaseModel):
+    id: int
     timestamp: datetime
     value: float
 
@@ -129,8 +130,10 @@ class WellMeasurement(ORMBase):
     unit_id: int
     well_id: int
 
+class ChlorideMeasurement(WellMeasurement):
+    # Add on chloride group
+    chloride_group_id: int
     submitting_user: User | None = None
-
 
 class WellMeasurementDTO(ORMBase):
     class UserDTO(ORMBase):
@@ -148,7 +151,6 @@ class WaterLevel(ORMBase):
     value: float
     well_id: int
     submitting_user_name: str
-
 
 class NewWaterLevelMeasurement(ORMBase):
     well_id: int
