@@ -128,35 +128,69 @@ def read_chlorides(group_id: int = None, db: Session = Depends(get_db)):
 @well_measurement_router.post(
     "/chlorides",
     dependencies=[Depends(ScopedUser.WellMeasurementWrite)],
-    response_model=well_schemas.WellMeasurement,
-    tags=["WaterLevels"],
+    response_model=well_schemas.ChlorideMeasurement,
+    tags=["Chlorides"],
 )
 def add_chloride_measurement(
-    chloride_measurement: well_schemas.NewWaterLevelMeasurement,
+    chloride_measurement: well_schemas.WellMeasurement,
     db: Session = Depends(get_db),
 ):
-    # Create the well measurement from the form, qualify with units and property type
+    # Create a new chloride measurement as a WellMeasurement
     well_measurement = WellMeasurements(
-        timestamp=datetime.combine(
-            chloride_measurement.timestamp.date(), chloride_measurement.timestamp.time()
-        ),  # Convert to UTC
-        value=chloride_measurement.value,
-        observed_property_id=db.scalars(
-            select(ObservedPropertyTypeLU.id).where(
-                ObservedPropertyTypeLU.name == "Chloride Concentration"
-            )
-        ).first(),
-        submitting_user_id=chloride_measurement.submitting_user_id,
-        unit_id=db.scalars(
-            select(Units.id).where(Units.name == "Micrograms per Liter")
-        ).first(),
-        well_id=chloride_measurement.well_id,
+        timestamp = chloride_measurement.timestamp,
+        value = chloride_measurement.value,
+        observed_property_id = 5,  # Chloride Concentration
+        submitting_user_id = chloride_measurement.submitting_user_id,
+        unit_id = chloride_measurement.unit_id,
+        well_id = chloride_measurement.well_id
     )
 
     db.add(well_measurement)
     db.commit()
 
     return well_measurement
+
+@well_measurement_router.patch(
+    "/chlorides",
+    dependencies=[Depends(ScopedUser.WellMeasurementWrite)],
+    response_model=well_schemas.WellMeasurement,
+    tags=["Chlorides"],
+)
+def patch_chloride_measurement(
+    chloride_measurement_patch: well_schemas.PatchChlorideMeasurement,
+    db: Session = Depends(get_db),
+):
+    # Find the measurement
+    well_measurement = (
+        db.scalars(select(WellMeasurements).where(WellMeasurements.id == chloride_measurement_patch.id)).first()
+    )
+
+    # Update the fields, all are mandatory
+    well_measurement.submitting_user_id = chloride_measurement_patch.submitting_user_id
+    well_measurement.timestamp = chloride_measurement_patch.timestamp
+    well_measurement.value = chloride_measurement_patch.value
+    well_measurement.unit_id = chloride_measurement_patch.unit_id
+    well_measurement.well_id = chloride_measurement_patch.well_id
+
+    db.commit()
+
+    return well_measurement
+
+@well_measurement_router.delete(
+    "/chlorides",
+    dependencies=[Depends(ScopedUser.Admin)],
+    tags=["Chlorides"],
+)
+def delete_chloride_measurement(chloride_measurement_id: int, db: Session = Depends(get_db)):
+    # Find the measurement
+    well_measurement = (
+        db.scalars(select(WellMeasurements).where(WellMeasurements.id == chloride_measurement_id)).first()
+    )
+
+    db.delete(well_measurement)
+    db.commit()
+
+    return True
 
 
 

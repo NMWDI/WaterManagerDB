@@ -121,19 +121,22 @@ class LocationTypeLU(ORMBase):
 
 
 class WellMeasurement(BaseModel):
-    id: int
     timestamp: datetime
     value: float
 
-    observed_property_id: int
     submitting_user_id: int
     unit_id: int
     well_id: int
 
 class ChlorideMeasurement(WellMeasurement):
     # Add on chloride group
+    id: int
     chloride_group_id: int
     submitting_user: User | None = None
+
+class PatchChlorideMeasurement(WellMeasurement):
+    # Require additional id
+    id: int
 
 class WellMeasurementDTO(ORMBase):
     class UserDTO(ORMBase):
