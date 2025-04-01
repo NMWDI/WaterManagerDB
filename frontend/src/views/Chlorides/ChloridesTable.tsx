@@ -35,7 +35,9 @@ export const ChloridesTable = ({
       submitting_user: {
         id: number;
       };
-      well: number;
+      well: {
+        id: number;
+      };
     };
   }) => void;
 }) => {
@@ -58,7 +60,12 @@ export const ChloridesTable = ({
         valueGetter: (value: RegionMeasurementDTO["submitting_user"]) =>
           value.full_name,
       },
-      { field: "well", headerName: "Well", width: 175 },
+      {
+        field: "well",
+        headerName: "Well",
+        width: 175,
+        valueGetter: (value: RegionMeasurementDTO["well"]) => value.ra_number,
+      },
     ],
     [],
   );

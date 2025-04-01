@@ -1,4 +1,4 @@
-import { useId, useState, useMemo } from "react";
+import { useId, useState } from "react";
 import {
   Box,
   FormControl,
@@ -21,10 +21,8 @@ import {
 import {
   NewRegionMeasurement,
   PatchRegionMeasurement,
-  ST2Measurement,
   SecurityScope,
   RegionMeasurementDTO,
-  MonitoredRegion,
 } from "../../interfaces";
 import {
   useCreateWaterLevel,
@@ -32,13 +30,11 @@ import {
   useDeleteWaterLevel,
 } from "../../service/ApiServiceNew";
 import dayjs, { Dayjs } from "dayjs";
-import { useFetchWithAuth, useFetchST2 } from "../../hooks";
-import { getDataStreamId } from "../../utils/DataStreamUtils";
+import { useFetchWithAuth } from "../../hooks";
 import { Science } from "@mui/icons-material";
 
 export default function ChloridesView() {
   const fetchWithAuth = useFetchWithAuth();
-  const fetchSt2 = useFetchST2();
   const selectedRegionId = useId();
   const [regionId, setregionId] = useState<number>();
   const [selectedMeasurement, setSelectedMeasurement] =
@@ -61,15 +57,12 @@ export default function ChloridesView() {
     data: regions,
     isLoading: isLoadingRegions,
     error: errorRegions,
-  } = useQuery<{ items: MonitoredRegion[] }, Error, MonitoredRegion[]>({
+  } = useQuery<{ id: number; names: string[] }[], Error>({
     queryKey: ["regions"],
     queryFn: () =>
-      fetchWithAuth("GET", "/wells", {
-        search_string: "monitoring",
-        sort_by: "name",
+      fetchWithAuth("GET", "/chloride_groups", {
         sort_direction: "asc",
       }),
-    select: (res) => res.items,
   });
 
   const {
@@ -78,32 +71,17 @@ export default function ChloridesView() {
     error: errorManual,
     refetch: refetchManual,
   } = useQuery<RegionMeasurementDTO[], Error>({
-    queryKey: ["manualMeasurements", regionId],
-    queryFn: () => fetchWithAuth("GET", "/waterlevels", { well_id: regionId }),
-    enabled: !!regionId,
-  });
-
-  const dataStreamId = useMemo(
-    () => (regionId ? getDataStreamId(regionId) : undefined),
-    [regionId],
-  );
-
-  const {
-    data: st2Measurements,
-    isLoading: isLoadingSt2,
-    error: errorSt2,
-  } = useQuery<ST2Measurement[], Error>({
-    queryKey: ["st2Measurements", dataStreamId],
+    queryKey: ["chlorides", regionId],
     queryFn: () =>
-      fetchSt2("GET", `/Datastreams(${dataStreamId})/Observations`),
-    enabled: !!dataStreamId,
+      fetchWithAuth("GET", "/chlorides", { chloride_group_id: regionId }),
+    enabled: !!regionId,
   });
 
   const createMeasurement = useCreateWaterLevel();
   const updateMeasurement = useUpdateWaterLevel(() => refetchManual());
   const deleteMeasurement = useDeleteWaterLevel();
 
-  const error = errorRegions || errorManual || errorSt2;
+  const error = errorRegions || errorManual;
 
   const handleSubmitNewMeasurement = (data: NewRegionMeasurement) => {
     if (regionId) {
@@ -182,7 +160,8 @@ export default function ChloridesView() {
               )}
               {regions?.map((region) => (
                 <MenuItem key={region.id} value={region.id}>
-                  {region.name}
+                  Region {region.id}: {region.names.slice(0, 3).join(", ")}
+                  {region.names.length > 3 ? "..." : ""}
                 </MenuItem>
               ))}
             </Select>
@@ -196,11 +175,9 @@ export default function ChloridesView() {
               onMeasurementSelect={handleMeasurementSelect}
             />
             <ChloridesPlot
-              isLoading={isLoadingManual || isLoadingSt2}
+              isLoading={isLoadingManual}
               manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
               manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
-              logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
-              logger_vals={st2Measurements?.map((m) => m.result) ?? []}
             />
           </Box>
 

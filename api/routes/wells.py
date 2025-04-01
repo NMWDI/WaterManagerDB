@@ -330,3 +330,42 @@ def merge_well(well: well_schemas.SubmitWellMerge, db: Session = Depends(get_db)
     db.commit()
 
     return True
+
+
+@well_router.get(
+    "/chloride_groups",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.ChlorideGroupResponse],
+    tags=["Chlorides"],
+)
+def get_chloride_groups(
+    sort_direction: SortDirection = SortDirection.Ascending,
+    db: Session = Depends(get_db),
+):
+    query = (
+        select(Wells)
+        .options(joinedload(Wells.location), joinedload(Wells.use_type))
+        .join(Locations, isouter=True)
+        .join(WellUseLU, isouter=True)
+        .where(Wells.chloride_group_id.isnot(None))
+    )
+
+    if sort_direction == SortDirection.Ascending:
+        query = query.order_by(Wells.chloride_group_id.asc())
+    else:
+        query = query.order_by(Wells.chloride_group_id.desc())
+
+    wells = db.scalars(query).all()
+
+    groups = {}
+    for well in wells:
+        group_id = well.chloride_group_id
+        if group_id not in groups:
+            groups[group_id] = []
+        if well.name:
+            groups[group_id].append(well.name)
+
+    return [
+        {"id": group_id, "names": sorted(names)}
+        for group_id, names in groups.items()
+    ]

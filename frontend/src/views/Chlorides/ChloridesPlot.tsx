@@ -6,14 +6,10 @@ import { Data } from "plotly.js";
 export const ChloridesPlot = ({
   manual_dates,
   manual_vals,
-  logger_dates,
-  logger_vals,
   isLoading,
 }: {
   manual_dates: Date[];
   manual_vals: number[];
-  logger_dates: Date[];
-  logger_vals: number[];
   isLoading: boolean;
 }) => {
   if (isLoading) {
@@ -42,15 +38,8 @@ export const ChloridesPlot = ({
         marker: { color: "red" },
         name: "Manual",
       },
-      {
-        x: logger_dates,
-        y: logger_vals,
-        type: "scatter",
-        marker: { color: "blue" },
-        name: "Continuous",
-      },
     ],
-    [manual_dates, manual_vals, logger_dates, logger_vals],
+    [manual_dates, manual_vals],
   );
 
   return (
