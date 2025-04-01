@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime
 
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, and_
 
@@ -107,20 +107,26 @@ def delete_waterlevel(waterlevel_id: int, db: Session = Depends(get_db)):
 @well_measurement_router.get(
     "/chlorides",
     dependencies=[Depends(ScopedUser.Read)],
-    response_model=List[well_schemas.ChlorideMeasurement],
+    response_model=List[well_schemas.WellMeasurementDTO],
     tags=["Chlorides"],
 )
-def read_chlorides(group_id: int = None, db: Session = Depends(get_db)):
+def read_chlorides(
+    chloride_group_id: int = Query(..., description="Chloride group ID to filter by"),
+    db: Session = Depends(get_db)
+):
     chloride_concentration_group_id = 5
 
     return db.scalars(
-        select(WellMeasurements, Wells.chloride_group_id)
-        .options(joinedload(WellMeasurements.submitting_user))
-        .join(Wells)
+        select(WellMeasurements)
+        .options(
+            joinedload(WellMeasurements.submitting_user),
+            joinedload(WellMeasurements.well)
+        )
+        .join(Wells, Wells.id == WellMeasurements.well_id)
         .where(
             and_(
                 WellMeasurements.observed_property_id == chloride_concentration_group_id,
-                Wells.chloride_group_id == group_id
+                Wells.chloride_group_id == chloride_group_id
             )
         )
     ).all()

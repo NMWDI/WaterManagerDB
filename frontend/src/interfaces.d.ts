@@ -532,8 +532,8 @@ export interface RegionMeasurementDTO {
     id: number
     timestamp: Date
     value: number
-    submitting_user: {full_name: string}
-    well_id: number
+    submitting_user: { id: number, full_name: string }
+    well: { id: number, ra_number: string }
 }
 
 // Single value from a NM ST2 endpoint, many other fields are returned, these are the only ones used at the moment

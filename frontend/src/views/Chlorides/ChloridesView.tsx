@@ -23,7 +23,6 @@ import {
   PatchRegionMeasurement,
   SecurityScope,
   RegionMeasurementDTO,
-  MonitoredRegion,
 } from "../../interfaces";
 import {
   useCreateWaterLevel,
@@ -58,15 +57,12 @@ export default function ChloridesView() {
     data: regions,
     isLoading: isLoadingRegions,
     error: errorRegions,
-  } = useQuery<{ items: MonitoredRegion[] }, Error, MonitoredRegion[]>({
+  } = useQuery<{ id: number; names: string[] }[], Error>({
     queryKey: ["regions"],
     queryFn: () =>
-      fetchWithAuth("GET", "/wells", {
-        search_string: "monitoring",
-        sort_by: "name",
+      fetchWithAuth("GET", "/chloride_groups", {
         sort_direction: "asc",
       }),
-    select: (res) => res.items,
   });
 
   const {
@@ -75,8 +71,9 @@ export default function ChloridesView() {
     error: errorManual,
     refetch: refetchManual,
   } = useQuery<RegionMeasurementDTO[], Error>({
-    queryKey: ["manualMeasurements", regionId],
-    queryFn: () => fetchWithAuth("GET", "/waterlevels", { well_id: regionId }),
+    queryKey: ["chlorides", regionId],
+    queryFn: () =>
+      fetchWithAuth("GET", "/chlorides", { chloride_group_id: regionId }),
     enabled: !!regionId,
   });
 
@@ -163,7 +160,8 @@ export default function ChloridesView() {
               )}
               {regions?.map((region) => (
                 <MenuItem key={region.id} value={region.id}>
-                  {region.name}
+                  Region {region.id}: {region.names.slice(0, 3).join(", ")}
+                  {region.names.length > 3 ? "..." : ""}
                 </MenuItem>
               ))}
             </Select>

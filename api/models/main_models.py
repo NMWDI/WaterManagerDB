@@ -451,25 +451,6 @@ class UserRoles(Base):
     )
 
 
-# Not used
-# class Alerts(Base):
-#     alert = mapped_column(String)
-#     open_timestamp = mapped_column(DateTime, default=func.now())
-#     closed_timestamp = mapped_column(DateTime)
-
-#     meter_id = mapped_column(Integer, ForeignKey("Meters.id"))
-
-#     meter = relationship("Meters")
-
-#     @property
-#     def meter_serial_number(self):
-#         return self.meter.serial_number
-
-#     @property
-#     def active(self):
-#         return not bool(self.closed_timestamp)
-
-
 # ------------ Wells --------------
 
 
@@ -561,7 +542,6 @@ class WellMeasurements(Base):
     unit: Mapped["Units"] = relationship()
     well: Mapped["Wells"] = relationship()
 
-    submitting_user: Mapped["Users"] = relationship()
 
 class workOrderStatusLU(Base):
     '''
