@@ -1,4 +1,4 @@
-import { useId, useState, useMemo } from "react";
+import { useId, useState } from "react";
 import {
   Box,
   FormControl,
@@ -21,7 +21,6 @@ import {
 import {
   NewRegionMeasurement,
   PatchRegionMeasurement,
-  ST2Measurement,
   SecurityScope,
   RegionMeasurementDTO,
   MonitoredRegion,
@@ -32,13 +31,11 @@ import {
   useDeleteWaterLevel,
 } from "../../service/ApiServiceNew";
 import dayjs, { Dayjs } from "dayjs";
-import { useFetchWithAuth, useFetchST2 } from "../../hooks";
-import { getDataStreamId } from "../../utils/DataStreamUtils";
+import { useFetchWithAuth } from "../../hooks";
 import { Science } from "@mui/icons-material";
 
 export default function ChloridesView() {
   const fetchWithAuth = useFetchWithAuth();
-  const fetchSt2 = useFetchST2();
   const selectedRegionId = useId();
   const [regionId, setregionId] = useState<number>();
   const [selectedMeasurement, setSelectedMeasurement] =
@@ -83,27 +80,11 @@ export default function ChloridesView() {
     enabled: !!regionId,
   });
 
-  const dataStreamId = useMemo(
-    () => (regionId ? getDataStreamId(regionId) : undefined),
-    [regionId],
-  );
-
-  const {
-    data: st2Measurements,
-    isLoading: isLoadingSt2,
-    error: errorSt2,
-  } = useQuery<ST2Measurement[], Error>({
-    queryKey: ["st2Measurements", dataStreamId],
-    queryFn: () =>
-      fetchSt2("GET", `/Datastreams(${dataStreamId})/Observations`),
-    enabled: !!dataStreamId,
-  });
-
   const createMeasurement = useCreateWaterLevel();
   const updateMeasurement = useUpdateWaterLevel(() => refetchManual());
   const deleteMeasurement = useDeleteWaterLevel();
 
-  const error = errorRegions || errorManual || errorSt2;
+  const error = errorRegions || errorManual;
 
   const handleSubmitNewMeasurement = (data: NewRegionMeasurement) => {
     if (regionId) {
@@ -196,11 +177,9 @@ export default function ChloridesView() {
               onMeasurementSelect={handleMeasurementSelect}
             />
             <ChloridesPlot
-              isLoading={isLoadingManual || isLoadingSt2}
+              isLoading={isLoadingManual}
               manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
               manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
-              logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
-              logger_vals={st2Measurements?.map((m) => m.result) ?? []}
             />
           </Box>
 
