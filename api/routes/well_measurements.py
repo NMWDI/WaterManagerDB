@@ -101,24 +101,25 @@ def delete_waterlevel(waterlevel_id: int, db: Session = Depends(get_db)):
     return True
 
 
+# ----------------- Chloride Concentration ----------------- #
 
-
-#----------------- Chloride Concentration -----------------#
 
 @well_measurement_router.get(
     "/chlorides",
     dependencies=[Depends(ScopedUser.Read)],
-    #response_model=List[well_schemas.ChlorideMeasurement],
+    response_model=List[well_schemas.ChlorideMeasurement],
     tags=["Chlorides"],
 )
 def read_chlorides(group_id: int = None, db: Session = Depends(get_db)):
+    chloride_concentration_group_id = 5
+
     return db.scalars(
-        select(WellMeasurements, Wells.chloride_group_id)  
+        select(WellMeasurements, Wells.chloride_group_id)
         .options(joinedload(WellMeasurements.submitting_user))
         .join(Wells)
         .where(
             and_(
-                WellMeasurements.observed_property_id == 5,  # Chloride Concentration
+                WellMeasurements.observed_property_id == chloride_concentration_group_id,
                 Wells.chloride_group_id == group_id
             )
         )
