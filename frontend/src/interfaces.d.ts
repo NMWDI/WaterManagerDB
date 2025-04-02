@@ -575,6 +575,7 @@ export interface NewRegionMeasurement {
 export interface PatchRegionMeasurement {
     levelmeasurement_id: number
     submitting_user_id: number
+    well_id: number
     timestamp: dayjs.Dayjs
     value: number
 }
@@ -662,6 +663,7 @@ export interface PatchWorkOrder {
 export interface MonitoredWell {
   id: number;
   name: string;
+  ra_number: string;
   datastream_id: number;
   well_status: WellStatus;
   outside_recorder?: boolean;

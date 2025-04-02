@@ -43,6 +43,7 @@ export default function ChloridesView() {
       timestamp: dayjs(),
       value: 0,
       submitting_user_id: 0,
+      well_id: 0,
     });
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -111,6 +112,9 @@ export default function ChloridesView() {
       submitting_user: {
         id: number;
       };
+      well: {
+        id: number;
+      };
     };
   }) => {
     if (!isAdmin) return;
@@ -119,6 +123,7 @@ export default function ChloridesView() {
       timestamp: dayjs.utc(rowdata.row.timestamp).tz("America/Denver"),
       value: rowdata.row.value,
       submitting_user_id: rowdata.row.submitting_user.id,
+      well_id: rowdata.row.well.id,
     });
     setIsUpdateModalOpen(true);
   };
@@ -160,7 +165,9 @@ export default function ChloridesView() {
               )}
               {regions?.map((region) => (
                 <MenuItem key={region.id} value={region.id}>
-                  Region {region.id}: {region.names.slice(0, 3).join(", ")}
+                  Region {region.id}
+                  {region.names.length > 0 ? ":" : null}{" "}
+                  {region.names.slice(0, 3).join(", ")}
                   {region.names.length > 3 ? "..." : ""}
                 </MenuItem>
               ))}
