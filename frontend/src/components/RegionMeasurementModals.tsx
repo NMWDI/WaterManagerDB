@@ -257,9 +257,6 @@ export const UpdateMeasurementModal = ({
     select: (res) => res.items,
   });
 
-  console.log({ measurement, wells });
-  console.log(wells?.find((w) => w.id === measurement.well_id) || null);
-
   return (
     <Modal open={isMeasurementModalOpen} onClose={handleCloseMeasurementModal}>
       <Box
