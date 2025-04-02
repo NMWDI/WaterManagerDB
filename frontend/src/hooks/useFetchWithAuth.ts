@@ -11,7 +11,7 @@ export const useFetchWithAuth = () => {
   const navigate = useNavigate();
 
   return async (
-    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE" = "GET",
     route: string,
     params: Record<string, any> = {},
     body?: any,
