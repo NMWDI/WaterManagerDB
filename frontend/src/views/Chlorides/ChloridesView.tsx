@@ -56,8 +56,12 @@ export default function ChloridesView() {
   } = useQuery<{ id: number; names: string[] }[], Error>({
     queryKey: ["regions"],
     queryFn: () =>
-      fetchWithAuth("GET", "/chloride_groups", {
-        sort_direction: "asc",
+      fetchWithAuth({
+        method: "GET",
+        route: "/chloride_groups",
+        params: {
+          sort_direction: "asc",
+        },
       }),
   });
 
@@ -69,7 +73,11 @@ export default function ChloridesView() {
   } = useQuery<RegionMeasurementDTO[], Error>({
     queryKey: ["chlorides", regionId],
     queryFn: () =>
-      fetchWithAuth("GET", "/chlorides", { chloride_group_id: regionId }),
+      fetchWithAuth({
+        method: "GET",
+        route: "/chlorides",
+        params: { chloride_group_id: regionId },
+      }),
     enabled: !!regionId,
   });
 
@@ -77,40 +85,45 @@ export default function ChloridesView() {
   const { mutateAsync: createChlorideLevel } = useMutation({
     mutationKey: ["regions", "creation"],
     mutationFn: (body: NewRegionMeasurement) =>
-      fetchWithAuth("POST", "/chlorides", {
-        body: JSON.stringify({
+      fetchWithAuth({
+        method: "POST",
+        route: "/chlorides",
+        body: {
           timestamp: body.timestamp,
           value: body.value,
           submitting_user_id: body.submitting_user_id,
           chloride_group_id: body.region_id,
           unit_id: milligramPerLiterUnitId,
           well_id: body.well_id,
-        }),
+        },
       }),
   });
 
   const { mutateAsync: updateChlorideLevel } = useMutation({
     mutationKey: ["regions", "modification"],
     mutationFn: (body: PatchRegionMeasurement) =>
-      fetchWithAuth("PATCH", "/chlorides", {
-        body: JSON.stringify({
+      fetchWithAuth({
+        method: "PATCH",
+        route: "/chlorides",
+        body: {
+          id: body.levelmeasurement_id,
           timestamp: body.timestamp,
           value: body.value,
           submitting_user_id: body.submitting_user_id,
           chloride_group_id: regionId,
           unit_id: milligramPerLiterUnitId,
           well_id: body.well_id,
-        }),
+        },
       }),
   });
 
   const { mutateAsync: deleteChlorideLevel } = useMutation({
     mutationKey: ["regions", "deletion"],
     mutationFn: (levelmeasurement_id: number) =>
-      fetchWithAuth("DELETE", "/chlorides", {
-        body: JSON.stringify({
-          chloride_measurement_id: levelmeasurement_id,
-        }),
+      fetchWithAuth({
+        method: "DELETE",
+        route: "/chlorides",
+        params: { chloride_measurement_id: levelmeasurement_id },
       }),
   });
 

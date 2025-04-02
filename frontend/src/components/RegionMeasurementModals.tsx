@@ -51,11 +51,15 @@ export const NewMeasurementModal = ({
   >({
     queryKey: ["wells", "has_chloride_groups"],
     queryFn: () =>
-      fetchWithAuth("GET", "/wells", {
-        sort_by: "ra_number",
-        sort_direction: "asc",
-        has_chloride_group: true,
-        limit: 100,
+      fetchWithAuth({
+        method: "GET",
+        route: "/wells",
+        params: {
+          sort_by: "ra_number",
+          sort_direction: "asc",
+          has_chloride_group: true,
+          limit: 100,
+        },
       }),
     enabled: isNewMeasurementModalOpen,
     select: (res) => res.items,
@@ -247,11 +251,15 @@ export const UpdateMeasurementModal = ({
   >({
     queryKey: ["wells", "has_chloride_groups"],
     queryFn: () =>
-      fetchWithAuth("GET", "/wells", {
-        sort_by: "ra_number",
-        sort_direction: "asc",
-        has_chloride_group: true,
-        limit: 100,
+      fetchWithAuth({
+        method: "GET",
+        route: "/wells",
+        params: {
+          sort_by: "ra_number",
+          sort_direction: "asc",
+          has_chloride_group: true,
+          limit: 100,
+        },
       }),
     enabled: isMeasurementModalOpen,
     select: (res) => res.items,
