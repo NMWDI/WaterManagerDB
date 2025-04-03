@@ -63,6 +63,7 @@ def get_wells(
     search_string: str = None,
     sort_by: WellSortByField = WellSortByField.Name,
     sort_direction: SortDirection = SortDirection.Ascending,
+    has_chloride_group: bool = None,
     db: Session = Depends(get_db),
 ):
     def sort_by_field_to_schema_field(name: WellSortByField):
@@ -99,6 +100,9 @@ def get_wells(
                 WellUseLU.use_type.ilike(f"%{search_string}%"),
             )
         )
+
+    if has_chloride_group is not None:
+        query_statement = query_statement.where(Wells.chloride_group_id.isnot(None))
 
     if sort_by:
         schema_field_name = sort_by_field_to_schema_field(sort_by)

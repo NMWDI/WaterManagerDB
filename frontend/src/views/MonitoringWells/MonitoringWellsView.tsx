@@ -38,15 +38,14 @@ import { useFetchWithAuth, useFetchST2 } from "../../hooks";
 import { getDataStreamId } from "../../utils/DataStreamUtils";
 import { MonitorHeart } from "@mui/icons-material";
 
-
 const separateAndSortWells = (
   wells: MonitoredWell[] = [],
 ): [MonitoredWell[], MonitoredWell[]] => {
-    const sortWells = (w: MonitoredWell[]) =>
-        w.slice().sort((a, b) => {
-          if (!a.name) return 1; // Move undefined/null names to the bottom
-          if (!b.name) return -1;
-          return a.name.localeCompare(b.name);
+  const sortWells = (w: MonitoredWell[]) =>
+    w.slice().sort((a, b) => {
+      if (!a.name) return 1; // Move undefined/null names to the bottom
+      if (!b.name) return -1;
+      return a.name.localeCompare(b.name);
     });
 
   const outsideRecorderWells = sortWells(
@@ -58,7 +57,6 @@ const separateAndSortWells = (
 
   return [outsideRecorderWells, regularWells];
 };
-
 
 export default function MonitoringWellsView() {
   const theme = useTheme();
@@ -90,10 +88,14 @@ export default function MonitoringWellsView() {
   } = useQuery<{ items: MonitoredWell[] }, Error, MonitoredWell[]>({
     queryKey: ["wells"],
     queryFn: () =>
-      fetchWithAuth("GET", "/wells", {
-        search_string: "monitoring",
-        sort_by: "name",
-        sort_direction: "asc",
+      fetchWithAuth({
+        method: "GET",
+        route: "/wells",
+        params: {
+          search_string: "monitoring",
+          sort_by: "name",
+          sort_direction: "asc",
+        },
       }),
     select: (res) => res.items,
   });
@@ -105,7 +107,12 @@ export default function MonitoringWellsView() {
     refetch: refetchManual,
   } = useQuery<WellMeasurementDTO[], Error>({
     queryKey: ["manualMeasurements", wellId],
-    queryFn: () => fetchWithAuth("GET", "/waterlevels", { well_id: wellId }),
+    queryFn: () =>
+      fetchWithAuth({
+        method: "GET",
+        route: "/waterlevels",
+        params: { well_id: wellId },
+      }),
     enabled: !!wellId,
   });
 
@@ -293,9 +300,7 @@ export default function MonitoringWellsView() {
             <Box sx={{ flex: { xs: 1, md: 2 / 3 }, minWidth: 0 }}>
               <MonitoringWellsPlot
                 isLoading={isLoadingManual || isLoadingSt2}
-                manual_dates={
-                  manualMeasurements?.map((m) => m.timestamp) ?? []
-                }
+                manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
                 manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
                 logger_dates={st2Measurements?.map((m) => m.resultTime) ?? []}
                 logger_vals={st2Measurements?.map((m) => m.result) ?? []}

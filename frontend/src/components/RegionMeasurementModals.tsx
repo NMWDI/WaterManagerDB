@@ -12,8 +12,9 @@ import {
 import { useState } from "react";
 import { useAuthUser } from "react-auth-kit";
 import {
+  MonitoredWell,
   NewRegionMeasurement,
-  PatchWellMeasurement,
+  PatchRegionMeasurement,
   SecurityScope,
 } from "../interfaces.js";
 import dayjs, { Dayjs } from "dayjs";
@@ -23,8 +24,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { useGetUserList } from "../service/ApiServiceNew";
+import { useQuery } from "react-query";
+import { useFetchWithAuth } from "../hooks/useFetchWithAuth.js";
 
-export function NewMeasurementModal({
+export const NewMeasurementModal = ({
   isNewMeasurementModalOpen,
   handleCloseNewMeasurementModal,
   handleSubmitNewMeasurement,
@@ -32,7 +35,7 @@ export function NewMeasurementModal({
   isNewMeasurementModalOpen: boolean;
   handleCloseNewMeasurementModal: () => void;
   handleSubmitNewMeasurement: (newMeasurement: NewRegionMeasurement) => void;
-}) {
+}) => {
   const authUser = useAuthUser();
   const hasAdminScope = authUser()
     ?.user_role.security_scopes.map(
@@ -40,9 +43,32 @@ export function NewMeasurementModal({
     )
     .includes("admin");
 
+  const fetchWithAuth = useFetchWithAuth();
+  const { data: wells, isLoading: isLoadingWells } = useQuery<
+    { items: MonitoredWell[] },
+    Error,
+    MonitoredWell[]
+  >({
+    queryKey: ["wells", "has_chloride_groups"],
+    queryFn: () =>
+      fetchWithAuth({
+        method: "GET",
+        route: "/wells",
+        params: {
+          sort_by: "ra_number",
+          sort_direction: "asc",
+          has_chloride_group: true,
+          limit: 100,
+        },
+      }),
+    enabled: isNewMeasurementModalOpen,
+    select: (res) => res.items,
+  });
+
   const userList = useGetUserList();
   const [value, setValue] = useState<number | null>(null);
   const [selectedUserID, setSelectedUserID] = useState<number | string>("");
+  const [selectedWellID, setSelectedWellID] = useState<number | string>("");
   const [date, setDate] = useState<Dayjs | null>(dayjs.utc());
   const [time, setTime] = useState<Dayjs | null>(dayjs.utc());
 
@@ -56,7 +82,7 @@ export function NewMeasurementModal({
 
     handleSubmitNewMeasurement({
       region_id: 0, // Set by parent
-      well_id: -1, // Set by parent
+      well_id: selectedWellID as number,
       timestamp: new Date(Date.parse(d + " " + t)),
       value: value as number,
       submitting_user_id: selectedUserID as number,
@@ -97,16 +123,16 @@ export function NewMeasurementModal({
       <FormControl size="small" fullWidth required>
         <InputLabel>Well</InputLabel>
         <Select
-          value={userList.isLoading ? "loading" : selectedUserID}
-          onChange={(event: any) => setSelectedUserID(event.target.value)}
-          label="User"
+          value={isLoadingWells ? "loading" : selectedWellID}
+          onChange={(event: any) => setSelectedWellID(event.target.value)}
+          label="Well"
         >
-          {userList.data?.map((user: any) => (
-            <MenuItem key={user.id} value={user.id}>
-              {user.full_name}
+          {wells?.map((well: MonitoredWell) => (
+            <MenuItem key={well.id} value={well.id}>
+              {well.ra_number}
             </MenuItem>
           ))}
-          {userList.isLoading && (
+          {isLoadingWells && (
             <MenuItem value={"loading"} hidden>
               Loading...
             </MenuItem>
@@ -199,26 +225,45 @@ export function NewMeasurementModal({
       </Box>
     </Modal>
   );
-}
+};
 
-interface UpdateMeasurementModalProps {
-  isMeasurementModalOpen: boolean;
-  handleCloseMeasurementModal: () => void;
-  measurement: PatchWellMeasurement;
-  onUpdateMeasurement: (value: Partial<PatchWellMeasurement>) => void;
-  onSubmitUpdate: () => void;
-  onDeleteMeasurement: () => void;
-}
-
-export function UpdateMeasurementModal({
+export const UpdateMeasurementModal = ({
   isMeasurementModalOpen,
   handleCloseMeasurementModal,
   measurement,
   onUpdateMeasurement,
   onSubmitUpdate,
   onDeleteMeasurement,
-}: UpdateMeasurementModalProps) {
+}: {
+  isMeasurementModalOpen: boolean;
+  handleCloseMeasurementModal: () => void;
+  measurement: PatchRegionMeasurement;
+  onUpdateMeasurement: (value: Partial<PatchRegionMeasurement>) => void;
+  onSubmitUpdate: () => void;
+  onDeleteMeasurement: () => void;
+}) => {
   const userList = useGetUserList();
+  const fetchWithAuth = useFetchWithAuth();
+  const { data: wells, isLoading: isLoadingWells } = useQuery<
+    { items: MonitoredWell[] },
+    Error,
+    MonitoredWell[]
+  >({
+    queryKey: ["wells", "has_chloride_groups"],
+    queryFn: () =>
+      fetchWithAuth({
+        method: "GET",
+        route: "/wells",
+        params: {
+          sort_by: "ra_number",
+          sort_direction: "asc",
+          has_chloride_group: true,
+          limit: 100,
+        },
+      }),
+    enabled: isMeasurementModalOpen,
+    select: (res) => res.items,
+  });
 
   return (
     <Modal open={isMeasurementModalOpen} onClose={handleCloseMeasurementModal}>
@@ -311,24 +356,20 @@ export function UpdateMeasurementModal({
             <FormControl size="small" fullWidth required>
               <InputLabel>Well</InputLabel>
               <Select
-                value={
-                  userList.isLoading
-                    ? "loading"
-                    : measurement.submitting_user_id
-                }
+                value={isLoadingWells ? "loading" : measurement.well_id}
                 onChange={(event: any) =>
                   onUpdateMeasurement({
-                    submitting_user_id: event.target.value,
+                    well_id: event.target.value,
                   })
                 }
-                label="User"
+                label="Well"
               >
-                {userList.data?.map((user: any) => (
-                  <MenuItem key={user.id} value={user.id}>
-                    {user.full_name}
+                {wells?.map((well: MonitoredWell) => (
+                  <MenuItem key={well.id} value={well.id}>
+                    {well.ra_number}
                   </MenuItem>
                 ))}
-                {userList.isLoading && (
+                {isLoadingWells && (
                   <MenuItem value={"loading"} hidden>
                     Loading...
                   </MenuItem>
@@ -367,4 +408,4 @@ export function UpdateMeasurementModal({
       </Box>
     </Modal>
   );
-}
+};

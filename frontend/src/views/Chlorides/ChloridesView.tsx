@@ -10,7 +10,7 @@ import {
   Typography,
   CardHeader,
 } from "@mui/material";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useAuthUser } from "react-auth-kit";
 import { ChloridesTable } from "./ChloridesTable";
 import { ChloridesPlot } from "./ChloridesPlot";
@@ -24,11 +24,6 @@ import {
   SecurityScope,
   RegionMeasurementDTO,
 } from "../../interfaces";
-import {
-  useCreateWaterLevel,
-  useUpdateWaterLevel,
-  useDeleteWaterLevel,
-} from "../../service/ApiServiceNew";
 import dayjs, { Dayjs } from "dayjs";
 import { useFetchWithAuth } from "../../hooks";
 import { Science } from "@mui/icons-material";
@@ -43,6 +38,7 @@ export default function ChloridesView() {
       timestamp: dayjs(),
       value: 0,
       submitting_user_id: 0,
+      well_id: 0,
     });
 
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -60,8 +56,12 @@ export default function ChloridesView() {
   } = useQuery<{ id: number; names: string[] }[], Error>({
     queryKey: ["regions"],
     queryFn: () =>
-      fetchWithAuth("GET", "/chloride_groups", {
-        sort_direction: "asc",
+      fetchWithAuth({
+        method: "GET",
+        route: "/chloride_groups",
+        params: {
+          sort_direction: "asc",
+        },
       }),
   });
 
@@ -73,33 +73,83 @@ export default function ChloridesView() {
   } = useQuery<RegionMeasurementDTO[], Error>({
     queryKey: ["chlorides", regionId],
     queryFn: () =>
-      fetchWithAuth("GET", "/chlorides", { chloride_group_id: regionId }),
+      fetchWithAuth({
+        method: "GET",
+        route: "/chlorides",
+        params: { chloride_group_id: regionId },
+      }),
     enabled: !!regionId,
   });
 
-  const createMeasurement = useCreateWaterLevel();
-  const updateMeasurement = useUpdateWaterLevel(() => refetchManual());
-  const deleteMeasurement = useDeleteWaterLevel();
+  const milligramPerLiterUnitId = 14;
+  const { mutateAsync: createChlorideLevel } = useMutation({
+    mutationKey: ["regions", "creation"],
+    mutationFn: (body: NewRegionMeasurement) =>
+      fetchWithAuth({
+        method: "POST",
+        route: "/chlorides",
+        body: {
+          timestamp: body.timestamp,
+          value: body.value,
+          submitting_user_id: body.submitting_user_id,
+          chloride_group_id: body.region_id,
+          unit_id: milligramPerLiterUnitId,
+          well_id: body.well_id,
+        },
+      }),
+  });
+
+  const { mutateAsync: updateChlorideLevel } = useMutation({
+    mutationKey: ["regions", "modification"],
+    mutationFn: (body: PatchRegionMeasurement) =>
+      fetchWithAuth({
+        method: "PATCH",
+        route: "/chlorides",
+        body: {
+          id: body.levelmeasurement_id,
+          timestamp: body.timestamp,
+          value: body.value,
+          submitting_user_id: body.submitting_user_id,
+          chloride_group_id: regionId,
+          unit_id: milligramPerLiterUnitId,
+          well_id: body.well_id,
+        },
+      }),
+  });
+
+  const { mutateAsync: deleteChlorideLevel } = useMutation({
+    mutationKey: ["regions", "deletion"],
+    mutationFn: (levelmeasurement_id: number) =>
+      fetchWithAuth({
+        method: "DELETE",
+        route: "/chlorides",
+        params: { chloride_measurement_id: levelmeasurement_id },
+      }),
+  });
 
   const error = errorRegions || errorManual;
 
   const handleSubmitNewMeasurement = (data: NewRegionMeasurement) => {
     if (regionId) {
       data.region_id = regionId;
-      createMeasurement.mutate(data, { onSuccess: () => refetchManual() });
+      createChlorideLevel(data, { onSuccess: () => refetchManual() });
     }
     setIsNewModalOpen(false);
   };
 
   const handleSubmitMeasurementUpdate = () => {
-    updateMeasurement.mutate(selectedMeasurement);
+    updateChlorideLevel(selectedMeasurement, {
+      onSuccess: () => refetchManual(),
+    });
     setIsUpdateModalOpen(false);
   };
 
   const handleDeleteMeasurement = () => {
     setIsUpdateModalOpen(false);
     if (window.confirm("Are you sure you want to delete this measurement?")) {
-      deleteMeasurement.mutate(selectedMeasurement.levelmeasurement_id);
+      deleteChlorideLevel(selectedMeasurement.levelmeasurement_id, {
+        onSuccess: () => refetchManual(),
+      });
     }
   };
 
@@ -111,6 +161,9 @@ export default function ChloridesView() {
       submitting_user: {
         id: number;
       };
+      well: {
+        id: number;
+      };
     };
   }) => {
     if (!isAdmin) return;
@@ -119,6 +172,7 @@ export default function ChloridesView() {
       timestamp: dayjs.utc(rowdata.row.timestamp).tz("America/Denver"),
       value: rowdata.row.value,
       submitting_user_id: rowdata.row.submitting_user.id,
+      well_id: rowdata.row.well.id,
     });
     setIsUpdateModalOpen(true);
   };
@@ -160,7 +214,9 @@ export default function ChloridesView() {
               )}
               {regions?.map((region) => (
                 <MenuItem key={region.id} value={region.id}>
-                  Region {region.id}: {region.names.slice(0, 3).join(", ")}
+                  Region {region.id}
+                  {region.names.length > 0 ? ":" : null}{" "}
+                  {region.names.slice(0, 3).join(", ")}
                   {region.names.length > 3 ? "..." : ""}
                 </MenuItem>
               ))}

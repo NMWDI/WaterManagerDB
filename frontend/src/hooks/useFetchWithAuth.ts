@@ -10,12 +10,17 @@ export const useFetchWithAuth = () => {
   const signOut = useSignOut();
   const navigate = useNavigate();
 
-  return async (
-    method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
-    route: string,
-    params: Record<string, any> = {},
-    body?: any,
-  ) => {
+  return async ({
+    method = "GET",
+    route,
+    params = {},
+    body,
+  }: {
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+    route: string;
+    params?: Record<string, any>;
+    body?: any;
+  }) => {
     const url = `${API_URL}${route}${formatQueryParams(params)}`;
 
     const response = await fetch(url, {
@@ -25,7 +30,7 @@ export const useFetchWithAuth = () => {
         "Content-Type": "application/json",
       },
       body:
-        body && ["POST", "PUT", "DELETE"].includes(method)
+        body && ["PATCH", "POST", "PUT", "DELETE"].includes(method)
           ? JSON.stringify(body)
           : undefined,
     });

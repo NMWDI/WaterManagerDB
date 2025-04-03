@@ -37,6 +37,7 @@ export const ChloridesTable = ({
       };
       well: {
         id: number;
+        ra_number: string;
       };
     };
   }) => void;
