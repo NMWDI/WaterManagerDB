@@ -366,8 +366,8 @@ def get_chloride_groups(
         group_id = well.chloride_group_id
         if group_id not in groups:
             groups[group_id] = []
-        if well.name:
-            groups[group_id].append(well.name)
+        if well.ra_number:
+            groups[group_id].append(well.ra_number)
 
     return [
         {"id": group_id, "names": sorted(names)}
