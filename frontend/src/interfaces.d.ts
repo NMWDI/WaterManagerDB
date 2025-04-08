@@ -667,6 +667,7 @@ export interface MonitoredWell {
   datastream_id: number;
   well_status: WellStatus;
   outside_recorder?: boolean;
+  chloride_group_id?: number;
 }
 
 export interface MonitoredRegion {
