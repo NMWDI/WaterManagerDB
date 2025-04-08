@@ -139,7 +139,7 @@ class WellMeasurement(BaseModel):
 class ChlorideMeasurement(WellMeasurement):
     # Add on chloride group
     id: int
-    chloride_group_id: int
+    chloride_group_id: int | None = None
     submitting_user: User | None = None
 
 
