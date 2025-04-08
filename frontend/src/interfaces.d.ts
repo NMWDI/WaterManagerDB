@@ -270,6 +270,7 @@ interface BaseWell {
     use_type_id: number
     well_status_id: number
     water_source_id: number
+    chloride_group_id: number | null
 }
 
 export interface Well extends BaseWell {

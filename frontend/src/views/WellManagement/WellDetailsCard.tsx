@@ -195,7 +195,32 @@ export default function WellDetailsCard({
                 error={errors?.water_source?.message}
               />
             </Grid>
+            <Grid item xs={6}>
+              <ControlledCheckbox
+                name="chloride_monitoring"
+                control={control}
+                label="Chloride Monitoring"
+                labelPlacement="start"
+                checked={Boolean(watch("chloride_group_id"))}
+                onChange={(e: any) => setValue("chloride_group_id", e.target.checked ? 1 : null)}
+              />
+            </Grid>
           </Grid>
+          {Boolean(watch("chloride_group_id")) && (
+            <Grid container item xs={12} spacing={2}>
+              <Grid item xs={6}>
+                <ControlledTextbox
+                  name="chloride_group_id"
+                  control={control}
+                  label="Region ID"
+                  type="number"
+                  inputProps={{ min: 1, max: 128 }}
+                  //error={errors?.chloride_group_id?.message != undefined}
+                  //helperText={errors?.chloride_group_id?.message}
+                />
+              </Grid>
+            </Grid>
+          )}
           <Grid
             container
             item
