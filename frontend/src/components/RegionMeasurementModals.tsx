@@ -232,6 +232,7 @@ const WellSelection = ({ region_id }: { region_id: number }) => {
 };
 
 export const UpdateMeasurementModal = ({
+  region_id, //Used to filter wells
   isMeasurementModalOpen,
   handleCloseMeasurementModal,
   measurement,
@@ -239,6 +240,7 @@ export const UpdateMeasurementModal = ({
   onSubmitUpdate,
   onDeleteMeasurement,
 }: {
+  region_id: number; //Used to filter wells
   isMeasurementModalOpen: boolean;
   handleCloseMeasurementModal: () => void;
   measurement: PatchRegionMeasurement;
@@ -368,11 +370,13 @@ export const UpdateMeasurementModal = ({
                 }
                 label="Well"
               >
-                {wells?.map((well: MonitoredWell) => (
-                  <MenuItem key={well.id} value={well.id}>
-                    {well.ra_number}
-                  </MenuItem>
-                ))}
+                {wells
+                  ?.filter((well: MonitoredWell) => well.chloride_group_id === region_id)
+                  .map((well: MonitoredWell) => (
+                    <MenuItem key={well.id} value={well.id}>
+                      {well.ra_number}
+                    </MenuItem>
+                  ))}
                 {isLoadingWells && (
                   <MenuItem value={"loading"} hidden>
                     Loading...

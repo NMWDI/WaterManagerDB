@@ -245,6 +245,7 @@ export default function ChloridesView() {
           />
 
           <UpdateMeasurementModal
+            region_id={regionId ?? 0}
             isMeasurementModalOpen={isUpdateModalOpen}
             handleCloseMeasurementModal={() => setIsUpdateModalOpen(false)}
             measurement={selectedMeasurement}
