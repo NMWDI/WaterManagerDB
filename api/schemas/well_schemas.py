@@ -82,8 +82,8 @@ class WellResponse(Well):
     use_type: WellUseLU | None = None
     water_source: WaterSources | None = None
     well_status: WellStatus | None = None
-
     meters: list[WellMeterInfo] | None = None
+    chloride_group_id: int | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
