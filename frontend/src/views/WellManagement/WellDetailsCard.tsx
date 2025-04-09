@@ -6,6 +6,8 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
+  FormControlLabel,
   Grid,
   Stack,
 } from "@mui/material";
@@ -49,26 +51,19 @@ const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
   }),
 });
 
-export default function WellDetailsCard({
-  selectedWell,
-  wellAddMode,
-}: {
-  selectedWell?: Well;
-  wellAddMode: boolean;
-}) {
-  const {
+export default function WellDetailsCard(
+    {selectedWell, wellAddMode,}: {selectedWell?: Well; wellAddMode: boolean;}) {
+    const {
     handleSubmit,
     control,
     setValue,
     reset,
     watch,
     formState: { errors },
-  } = useForm<WellUpdate | SubmitWellCreate>({
-    resolver: yupResolver(WellResolverSchema),
-    defaultValues: {
-      location: { latitude: 0, longitude: 0 },
-    },
-  });
+    } = useForm<WellUpdate | SubmitWellCreate>({
+        resolver: yupResolver(WellResolverSchema),
+        defaultValues: {location: { latitude: 0, longitude: 0 }}
+    });
 
   const authUser = useAuthUser();
   const hasAdminScope = authUser()
@@ -196,13 +191,17 @@ export default function WellDetailsCard({
               />
             </Grid>
             <Grid item xs={6}>
-              <ControlledCheckbox
-                name="chloride_monitoring"
-                control={control}
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={Boolean(watch("chloride_group_id"))}
+                    name="chloride_group_checkbox"
+                    onChange={(e) => {setValue("chloride_group_id", e.target.checked ? 1 : null);}}
+                    size="small"
+                  />
+                }
                 label="Chloride Monitoring"
                 labelPlacement="start"
-                checked={Boolean(watch("chloride_group_id"))}
-                onChange={(e: any) => setValue("chloride_group_id", e.target.checked ? 1 : null)}
               />
             </Grid>
           </Grid>

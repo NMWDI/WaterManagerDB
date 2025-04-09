@@ -244,6 +244,7 @@ export interface SubmitWellCreate {
     owners: string
     osetag: string
     water_source: WaterSource | null
+    chloride_group_id: number | null
 
     use_type: {
         id: number
