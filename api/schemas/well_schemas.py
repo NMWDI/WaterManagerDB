@@ -74,6 +74,7 @@ class Well(ORMBase):
     use_type_id: int | None = None
     well_status_id: int | None = None
     water_source_id: int | None = None
+    chloride_group_id: int | None = None
 
 
 class WellResponse(Well):
@@ -104,6 +105,8 @@ class SubmitWellCreate(ORMBaseSimple):
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
     water_source: WaterSources | None = None
+    well_status: WellStatus | None = None
+    chloride_group_id: int | None = None
 
 
 class WellUpdate(Well):
