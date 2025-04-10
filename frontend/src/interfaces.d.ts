@@ -244,6 +244,7 @@ export interface SubmitWellCreate {
     owners: string
     osetag: string
     water_source: WaterSource | null
+    chloride_group_id: number | null
 
     use_type: {
         id: number
@@ -270,6 +271,7 @@ interface BaseWell {
     use_type_id: number
     well_status_id: number
     water_source_id: number
+    chloride_group_id: number | null
 }
 
 export interface Well extends BaseWell {
@@ -667,6 +669,7 @@ export interface MonitoredWell {
   datastream_id: number;
   well_status: WellStatus;
   outside_recorder?: boolean;
+  chloride_group_id?: number;
 }
 
 export interface MonitoredRegion {

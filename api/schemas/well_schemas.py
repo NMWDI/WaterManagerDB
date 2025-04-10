@@ -74,6 +74,7 @@ class Well(ORMBase):
     use_type_id: int | None = None
     well_status_id: int | None = None
     water_source_id: int | None = None
+    chloride_group_id: int | None = None
 
 
 class WellResponse(Well):
@@ -82,8 +83,8 @@ class WellResponse(Well):
     use_type: WellUseLU | None = None
     water_source: WaterSources | None = None
     well_status: WellStatus | None = None
-
     meters: list[WellMeterInfo] | None = None
+    chloride_group_id: int | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
@@ -104,6 +105,8 @@ class SubmitWellCreate(ORMBaseSimple):
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
     water_source: WaterSources | None = None
+    well_status: WellStatus | None = None
+    chloride_group_id: int | None = None
 
 
 class WellUpdate(Well):
@@ -139,7 +142,7 @@ class WellMeasurement(BaseModel):
 class ChlorideMeasurement(WellMeasurement):
     # Add on chloride group
     id: int
-    chloride_group_id: int
+    chloride_group_id: int | None = None
     submitting_user: User | None = None
 
 
