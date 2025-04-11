@@ -9,7 +9,7 @@ export const ChloridesPlot = ({
   isLoading,
 }: {
   manual_dates: Date[];
-  manual_vals: number[];
+  manual_vals: { value: number; well: string }[];
   isLoading: boolean;
 }) => {
   if (isLoading) {
@@ -28,19 +28,26 @@ export const ChloridesPlot = ({
     );
   }
 
-  const data: Partial<Data>[] = useMemo(
-    () => [
-      {
-        x: manual_dates,
-        y: manual_vals,
-        type: "scatter",
-        mode: "markers",
-        marker: { color: "red" },
-        name: "Manual",
-      },
-    ],
-    [manual_dates, manual_vals],
-  );
+  const data: Partial<Data>[] = useMemo(() => {
+    const wellData: Record<string, { x: Date[]; y: number[] }> = {};
+
+    manual_vals.forEach((entry, idx) => {
+      if (!wellData[entry.well]) {
+        wellData[entry.well] = { x: [], y: [] };
+      }
+      wellData[entry.well].x.push(manual_dates[idx]);
+      wellData[entry.well].y.push(entry.value);
+    });
+
+    return Object.entries(wellData).map(([well, { x, y }], index) => ({
+      x,
+      y,
+      type: "scatter",
+      mode: "markers",
+      marker: { color: generateColorScale(index) },
+      name: `Well ${well}`,
+    }));
+  }, [manual_dates, manual_vals]);
 
   return (
     <Box sx={{ height: 600, width: 800 }}>
@@ -62,4 +69,20 @@ export const ChloridesPlot = ({
       />
     </Box>
   );
+};
+
+const generateColorScale = (n: number) => {
+  const colors = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+  ];
+  return colors[n % colors.length];
 };
