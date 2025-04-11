@@ -48,14 +48,11 @@ export const ChloridesPlot = ({
         data={data}
         layout={{
           autosize: true,
-          title: "Chlorides Over Time",
-          titlefont: { size: 18 },
           legend: {
             title: { text: "Datastreams", font: { size: 14 } },
           },
           xaxis: { title: { text: "Date", font: { size: 16 } } },
           yaxis: {
-            autorange: "reversed",
             title: { text: "Chlorides (ppm)", font: { size: 16 } },
           },
           margin: { t: 40, b: 50, l: 60, r: 10 },

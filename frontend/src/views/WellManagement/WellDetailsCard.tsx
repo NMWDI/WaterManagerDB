@@ -6,6 +6,8 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
+  FormControlLabel,
   Grid,
   Stack,
 } from "@mui/material";
@@ -49,26 +51,19 @@ const WellResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
   }),
 });
 
-export default function WellDetailsCard({
-  selectedWell,
-  wellAddMode,
-}: {
-  selectedWell?: Well;
-  wellAddMode: boolean;
-}) {
-  const {
+export default function WellDetailsCard(
+    {selectedWell, wellAddMode,}: {selectedWell?: Well; wellAddMode: boolean;}) {
+    const {
     handleSubmit,
     control,
     setValue,
     reset,
     watch,
     formState: { errors },
-  } = useForm<WellUpdate | SubmitWellCreate>({
-    resolver: yupResolver(WellResolverSchema),
-    defaultValues: {
-      location: { latitude: 0, longitude: 0 },
-    },
-  });
+    } = useForm<WellUpdate | SubmitWellCreate>({
+        resolver: yupResolver(WellResolverSchema),
+        defaultValues: {location: { latitude: 0, longitude: 0 }}
+    });
 
   const authUser = useAuthUser();
   const hasAdminScope = authUser()
@@ -195,7 +190,36 @@ export default function WellDetailsCard({
                 error={errors?.water_source?.message}
               />
             </Grid>
+            <Grid item xs={6}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={Boolean(watch("chloride_group_id"))}
+                    name="chloride_group_checkbox"
+                    onChange={(e) => {setValue("chloride_group_id", e.target.checked ? 1 : null);}}
+                    size="small"
+                  />
+                }
+                label="Chloride Monitoring"
+                labelPlacement="start"
+              />
+            </Grid>
           </Grid>
+          {Boolean(watch("chloride_group_id")) && (
+            <Grid container item xs={12} spacing={2}>
+              <Grid item xs={6}>
+                <ControlledTextbox
+                  name="chloride_group_id"
+                  control={control}
+                  label="Region ID"
+                  type="number"
+                  inputProps={{ min: 1, max: 128 }}
+                  //error={errors?.chloride_group_id?.message != undefined}
+                  //helperText={errors?.chloride_group_id?.message}
+                />
+              </Grid>
+            </Grid>
+          )}
           <Grid
             container
             item

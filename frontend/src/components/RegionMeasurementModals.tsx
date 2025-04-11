@@ -28,10 +28,12 @@ import { useQuery } from "react-query";
 import { useFetchWithAuth } from "../hooks/useFetchWithAuth.js";
 
 export const NewMeasurementModal = ({
+  region_id, //Used to filter wells
   isNewMeasurementModalOpen,
   handleCloseNewMeasurementModal,
   handleSubmitNewMeasurement,
 }: {
+  region_id: number; //Used to filter wells
   isNewMeasurementModalOpen: boolean;
   handleCloseNewMeasurementModal: () => void;
   handleSubmitNewMeasurement: (newMeasurement: NewRegionMeasurement) => void;
@@ -118,7 +120,7 @@ export const NewMeasurementModal = ({
     }
   };
 
-  const WellSelection = () => {
+const WellSelection = ({ region_id }: { region_id: number }) => {
     return (
       <FormControl size="small" fullWidth required>
         <InputLabel>Well</InputLabel>
@@ -127,11 +129,13 @@ export const NewMeasurementModal = ({
           onChange={(event: any) => setSelectedWellID(event.target.value)}
           label="Well"
         >
-          {wells?.map((well: MonitoredWell) => (
-            <MenuItem key={well.id} value={well.id}>
-              {well.ra_number}
-            </MenuItem>
-          ))}
+          {wells
+            ?.filter((well: MonitoredWell) => well.chloride_group_id === region_id)
+            .map((well: MonitoredWell) => (
+              <MenuItem key={well.id} value={well.id}>
+                {well.ra_number}
+              </MenuItem>
+            ))}
           {isLoadingWells && (
             <MenuItem value={"loading"} hidden>
               Loading...
@@ -201,7 +205,7 @@ export const NewMeasurementModal = ({
             />
           </Grid>
           <Grid container item sx={{ mr: "auto", ml: "auto", mb: 2 }}>
-            <WellSelection />
+            <WellSelection region_id={region_id} />
           </Grid>
           <Grid
             container
@@ -228,6 +232,7 @@ export const NewMeasurementModal = ({
 };
 
 export const UpdateMeasurementModal = ({
+  region_id, //Used to filter wells
   isMeasurementModalOpen,
   handleCloseMeasurementModal,
   measurement,
@@ -235,6 +240,7 @@ export const UpdateMeasurementModal = ({
   onSubmitUpdate,
   onDeleteMeasurement,
 }: {
+  region_id: number; //Used to filter wells
   isMeasurementModalOpen: boolean;
   handleCloseMeasurementModal: () => void;
   measurement: PatchRegionMeasurement;
@@ -364,11 +370,13 @@ export const UpdateMeasurementModal = ({
                 }
                 label="Well"
               >
-                {wells?.map((well: MonitoredWell) => (
-                  <MenuItem key={well.id} value={well.id}>
-                    {well.ra_number}
-                  </MenuItem>
-                ))}
+                {wells
+                  ?.filter((well: MonitoredWell) => well.chloride_group_id === region_id)
+                  .map((well: MonitoredWell) => (
+                    <MenuItem key={well.id} value={well.id}>
+                      {well.ra_number}
+                    </MenuItem>
+                  ))}
                 {isLoadingWells && (
                   <MenuItem value={"loading"} hidden>
                     Loading...
