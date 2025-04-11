@@ -233,7 +233,12 @@ export default function ChloridesView() {
             <ChloridesPlot
               isLoading={isLoadingManual}
               manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
-              manual_vals={manualMeasurements?.map((m) => m.value) ?? []}
+              manual_vals={
+                manualMeasurements?.map((m) => ({
+                  value: m.value,
+                  well: m.well.ra_number,
+                })) ?? []
+              }
             />
           </Box>
 
