@@ -59,7 +59,7 @@ const Login = () => {
         if (
           signIn({
             token: data.access_token,
-            expiresIn: 30,
+            expiresIn: 300,
             tokenType: "bearer",
             authState: data.user,
           })
