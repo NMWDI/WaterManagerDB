@@ -72,7 +72,7 @@ export const ChloridesTable = ({
   );
 
   return (
-    <Box sx={{ width: 600, height: 600 }}>
+    <Box sx={{ width: "100%", height: "100%", maxHeight: 600 }}>
       <DataGrid
         rows={rows}
         columns={columns}

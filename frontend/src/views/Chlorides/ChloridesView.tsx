@@ -179,7 +179,7 @@ export default function ChloridesView() {
 
   return (
     <Box sx={{ height: "100%", width: "100%", m: 2, mt: 0 }}>
-      <Card sx={{ width: "95%", height: "75%" }}>
+      <Card sx={{ width: "100%", height: "100%" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
@@ -223,23 +223,36 @@ export default function ChloridesView() {
             </Select>
           </FormControl>
 
-          <Box sx={{ mt: "1rem", gap: "1rem", display: "flex", width: "100%" }}>
-            <ChloridesTable
-              rows={manualMeasurements ?? []}
-              isRegionSelected={!!regionId}
-              onOpenModal={() => setIsNewModalOpen(true)}
-              onMeasurementSelect={handleMeasurementSelect}
-            />
-            <ChloridesPlot
-              isLoading={isLoadingManual}
-              manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
-              manual_vals={
-                manualMeasurements?.map((m) => ({
-                  value: m.value,
-                  well: m.well.ra_number,
-                })) ?? []
-              }
-            />
+          <Box
+            sx={{
+              mt: "1rem",
+              gap: "1rem",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              width: "100%",
+              height: 600,
+            }}
+          >
+            <Box sx={{ flex: { xs: 1, md: 1 / 3 }, minWidth: 0 }}>
+              <ChloridesTable
+                rows={manualMeasurements ?? []}
+                isRegionSelected={!!regionId}
+                onOpenModal={() => setIsNewModalOpen(true)}
+                onMeasurementSelect={handleMeasurementSelect}
+              />
+            </Box>
+            <Box sx={{ flex: { xs: 1, md: 2 / 3 }, minWidth: 0 }}>
+              <ChloridesPlot
+                isLoading={isLoadingManual}
+                manual_dates={manualMeasurements?.map((m) => m.timestamp) ?? []}
+                manual_vals={
+                  manualMeasurements?.map((m) => ({
+                    value: m.value,
+                    well: m.well.ra_number,
+                  })) ?? []
+                }
+              />
+            </Box>
           </Box>
 
           <NewMeasurementModal

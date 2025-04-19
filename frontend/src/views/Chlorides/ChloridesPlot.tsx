@@ -50,13 +50,18 @@ export const ChloridesPlot = ({
   }, [manual_dates, manual_vals]);
 
   return (
-    <Box sx={{ height: 600, width: 800 }}>
+    <Box sx={{ height: 600, width: 700 }}> {/* Added margin of 5 pixels */}
       <Plot
         data={data}
         layout={{
           autosize: true,
           legend: {
-            title: { text: "Datastreams", font: { size: 14 } },
+            x: 1,
+            y: 1,
+            xanchor: "right",
+            yanchor: "top",
+            bordercolor: "grey", // Add border color
+            borderwidth: 1, // Add border width
           },
           xaxis: { title: { text: "Date", font: { size: 16 } } },
           yaxis: {
