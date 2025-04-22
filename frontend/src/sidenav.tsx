@@ -104,7 +104,6 @@ export default function Sidenav() {
       <NavLink route="/meters" label="Meters" Icon={ScreenshotMonitor} />
       <NavLink route="/activities" label="Activities" Icon={Construction} />
       <NavLink route="/wells" label="Monitoring Wells" Icon={MonitorHeart} />
-      <NavLink route="/chlorides" label="Chlorides (beta)" Icon={Science} />
       <NavLink route="/wellmanagement" label="Wells" Icon={Plumbing} />
 
       {hasAdminScope && (
@@ -114,6 +113,7 @@ export default function Sidenav() {
           </Grid>
           <NavLink route="/parts" label="Parts" Icon={Build} />
           <NavLink route="/usermanagement" label="Users" Icon={People} />
+          <NavLink route="/chlorides" label="Chlorides" Icon={Science} />
         </>
       )}
     </Grid>

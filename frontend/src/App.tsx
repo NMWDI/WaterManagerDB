@@ -150,7 +150,7 @@ export default function App() {
                   element={
                     <AppLayout
                       pageComponent={<ChloridesView />}
-                      requiredScopes={["read"]}
+                      requiredScopes={["admin"]}
                       setErrorMessage={setErrorMessage}
                     />
                   }
