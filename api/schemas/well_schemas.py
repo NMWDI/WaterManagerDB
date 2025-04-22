@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Optional, Any
 from pydantic import BaseModel
-
+from typing import List
 from api.schemas.security_schemas import User
 from api.schemas.base import ORMBase
+
 
 class ORMBaseSimple(BaseModel):
     class Config:
@@ -44,18 +44,22 @@ class WellUseLU(ORMBase):
     code: str | None = None
     description: str | None = None
 
+
 class WaterSources(ORMBase):
     name: str
     description: str | None = None
+
 
 class WellStatus(ORMBase):
     status: str | None = None
     description: str | None = None
 
+
 class WellMeterInfo(ORMBase):
     '''Subset of Meter schema'''
     serial_number: str
     water_users: str | None = None
+
 
 class Well(ORMBase):
     name: str | None = None
@@ -70,6 +74,8 @@ class Well(ORMBase):
     use_type_id: int | None = None
     well_status_id: int | None = None
     water_source_id: int | None = None
+    chloride_group_id: int | None = None
+
 
 class WellResponse(Well):
 
@@ -77,8 +83,8 @@ class WellResponse(Well):
     use_type: WellUseLU | None = None
     water_source: WaterSources | None = None
     well_status: WellStatus | None = None
-
     meters: list[WellMeterInfo] | None = None
+    chloride_group_id: int | None = None
 
 
 class SubmitWellCreate(ORMBaseSimple):
@@ -99,6 +105,8 @@ class SubmitWellCreate(ORMBaseSimple):
     location: SubmitLocationCreate
     use_type: SubmitUseTypeCreate
     water_source: WaterSources | None = None
+    well_status: WellStatus | None = None
+    chloride_group_id: int | None = None
 
 
 class WellUpdate(Well):
@@ -107,9 +115,11 @@ class WellUpdate(Well):
     water_source: WaterSources | None = None
     well_status: WellStatus | None = None
 
+
 class SubmitWellMerge(ORMBaseSimple):
     merge_well: str
     target_well: str
+
 
 class WellListDTO(ORMBase):
     name: str | None = None
@@ -120,26 +130,47 @@ class LocationTypeLU(ORMBase):
     description: str | None = None
 
 
-class WellMeasurement(ORMBase):
+class WellMeasurement(BaseModel):
     timestamp: datetime
     value: float
 
-    observed_property_id: int
     submitting_user_id: int
     unit_id: int
     well_id: int
 
+
+class ChlorideMeasurement(WellMeasurement):
+    # Add on chloride group
+    id: int
+    chloride_group_id: int | None = None
     submitting_user: User | None = None
 
 
+class PatchChlorideMeasurement(WellMeasurement):
+    # Require additional id
+    id: int
+
+
+class ChlorideGroupResponse(BaseModel):
+    id: int
+    names: List[str]
+
+
 class WellMeasurementDTO(ORMBase):
+    class config:
+        orm_mode = True
+
     class UserDTO(ORMBase):
         full_name: str
+
+    class WellDTO(ORMBase):
+        ra_number: str
 
     id: int
     timestamp: datetime
     value: float
     submitting_user: UserDTO
+    well: WellDTO
 
 
 class WaterLevel(ORMBase):
@@ -156,10 +187,10 @@ class NewWaterLevelMeasurement(ORMBase):
     value: float
     submitting_user_id: int
 
+
 # Well and units should stay the same, so are not included in the patch
 class PatchWaterLevel(BaseModel):
     levelmeasurement_id: int
     submitting_user_id: int
     timestamp: datetime
     value: float | None = None
-

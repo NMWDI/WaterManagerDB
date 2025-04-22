@@ -63,6 +63,7 @@ def get_wells(
     search_string: str = None,
     sort_by: WellSortByField = WellSortByField.Name,
     sort_direction: SortDirection = SortDirection.Ascending,
+    has_chloride_group: bool = None,
     db: Session = Depends(get_db),
 ):
     def sort_by_field_to_schema_field(name: WellSortByField):
@@ -100,6 +101,9 @@ def get_wells(
             )
         )
 
+    if has_chloride_group is not None:
+        query_statement = query_statement.where(Wells.chloride_group_id.isnot(None))
+
     if sort_by:
         schema_field_name = sort_by_field_to_schema_field(sort_by)
 
@@ -116,6 +120,7 @@ def get_wells(
 @well_router.patch(
     "/wells",
     dependencies=[Depends(ScopedUser.WellWrite)],
+    response_model=well_schemas.WellResponse,
     tags=["Wells"],
 )
 def update_well(
@@ -200,6 +205,9 @@ def create_well(new_well: well_schemas.SubmitWellCreate, db: Session = Depends(g
             ra_number=new_well.ra_number,
             owners=new_well.owners,
             osetag=new_well.osetag,
+            water_source_id=new_well.water_source.id,
+            well_status_id=new_well.well_status.id,
+            chloride_group_id=new_well.chloride_group_id,
         )
 
         db.add(new_well_model)
@@ -330,3 +338,42 @@ def merge_well(well: well_schemas.SubmitWellMerge, db: Session = Depends(get_db)
     db.commit()
 
     return True
+
+
+@well_router.get(
+    "/chloride_groups",
+    dependencies=[Depends(ScopedUser.Read)],
+    response_model=List[well_schemas.ChlorideGroupResponse],
+    tags=["Chlorides"],
+)
+def get_chloride_groups(
+    sort_direction: SortDirection = SortDirection.Ascending,
+    db: Session = Depends(get_db),
+):
+    query = (
+        select(Wells)
+        .options(joinedload(Wells.location), joinedload(Wells.use_type))
+        .join(Locations, isouter=True)
+        .join(WellUseLU, isouter=True)
+        .where(Wells.chloride_group_id.isnot(None))
+    )
+
+    if sort_direction == SortDirection.Ascending:
+        query = query.order_by(Wells.chloride_group_id.asc())
+    else:
+        query = query.order_by(Wells.chloride_group_id.desc())
+
+    wells = db.scalars(query).all()
+
+    groups = {}
+    for well in wells:
+        group_id = well.chloride_group_id
+        if group_id not in groups:
+            groups[group_id] = []
+        if well.ra_number:
+            groups[group_id].append(well.ra_number)
+
+    return [
+        {"id": group_id, "names": sorted(names)}
+        for group_id, names in groups.items()
+    ]

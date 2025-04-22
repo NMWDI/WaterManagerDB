@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { Box, Button, Tooltip } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { DataGrid, GridPagination, GridColDef } from "@mui/x-data-grid";
-import { MonitoredWell, WellMeasurementDTO } from "../../interfaces";
+import { RegionMeasurementDTO } from "../../interfaces";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -10,24 +10,23 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 declare module "@mui/x-data-grid" {
-  interface FooterPropsOverrides {
-    onOpenModal: () => void;
-    isWellSelected: boolean;
-    selectedWell?: MonitoredWell;
-  }
+  interface FooterPropsOverrides extends Partial<FooterExtraProps> {}
+}
+
+interface FooterExtraProps {
+  onOpenModal: () => void;
+  isRegionSelected: boolean;
 }
 
 export const ChloridesTable = ({
   rows,
   onOpenModal,
-  isWellSelected,
-  selectedWell,
+  isRegionSelected,
   onMeasurementSelect,
 }: {
-  rows: WellMeasurementDTO[];
+  rows: RegionMeasurementDTO[];
   onOpenModal: () => void;
-  isWellSelected: boolean;
-  selectedWell?: MonitoredWell;
+  isRegionSelected: boolean;
   onMeasurementSelect: (data: {
     row: {
       id: number;
@@ -35,6 +34,10 @@ export const ChloridesTable = ({
       value: number;
       submitting_user: {
         id: number;
+      };
+      well: {
+        id: number;
+        ra_number: string;
       };
     };
   }) => void;
@@ -50,20 +53,26 @@ export const ChloridesTable = ({
           dayjs.utc(value).tz("America/Denver").format("MM/DD/YYYY hh:mm A"),
         type: "dateTime",
       },
-      { field: "value", headerName: "Depth to Water (ft)", width: 175 },
+      { field: "value", headerName: "Chlorides (ppm)", width: 175 },
       {
         field: "submitting_user",
         headerName: "User",
         width: 200,
-        valueGetter: (value: WellMeasurementDTO["submitting_user"]) =>
+        valueGetter: (value: RegionMeasurementDTO["submitting_user"]) =>
           value.full_name,
+      },
+      {
+        field: "well",
+        headerName: "Well",
+        width: 175,
+        valueGetter: (value: RegionMeasurementDTO["well"]) => value.ra_number,
       },
     ],
     [],
   );
 
   return (
-    <Box sx={{ width: 600, height: 600 }}>
+    <Box sx={{ width: "100%", height: "100%", maxHeight: 600 }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -73,8 +82,7 @@ export const ChloridesTable = ({
         slotProps={{
           footer: {
             onOpenModal: onOpenModal,
-            isWellSelected: isWellSelected,
-            selectedWell: selectedWell,
+            isRegionSelected: isRegionSelected,
           },
         }}
         onRowClick={onMeasurementSelect}
@@ -85,34 +93,18 @@ export const ChloridesTable = ({
 
 const Footer = ({
   onOpenModal,
-  isWellSelected,
-  selectedWell,
+  isRegionSelected,
 }: {
-  onOpenModal: () => void;
-  isWellSelected: boolean;
-  selectedWell?: MonitoredWell;
+  onOpenModal?: () => void;
+  isRegionSelected?: boolean;
 }) => {
-  const isPlugged = selectedWell?.well_status.status === "plugged";
-
   return (
     <Box sx={{ display: "flex", justifyContent: "space-between" }}>
       <Box sx={{ my: "auto" }}>
-        {isWellSelected ? (
-          <Tooltip
-            title={
-              isPlugged
-                ? "This well is plugged and no longer accepting new measurements."
-                : ""
-            }
-            placement="top"
-            arrow
-          >
-            <span>
-              <Button disabled={isPlugged} variant="text" onClick={onOpenModal}>
-                + Add Measurement
-              </Button>
-            </span>
-          </Tooltip>
+        {isRegionSelected ? (
+          <Button variant="text" onClick={onOpenModal}>
+            + Add Measurement
+          </Button>
         ) : null}
       </Box>
       <GridPagination />

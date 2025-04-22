@@ -244,6 +244,7 @@ export interface SubmitWellCreate {
     owners: string
     osetag: string
     water_source: WaterSource | null
+    chloride_group_id: number | null
 
     use_type: {
         id: number
@@ -270,6 +271,7 @@ interface BaseWell {
     use_type_id: number
     well_status_id: number
     water_source_id: number
+    chloride_group_id: number | null
 }
 
 export interface Well extends BaseWell {
@@ -528,6 +530,14 @@ export interface WellMeasurementDTO {
     submitting_user: {full_name: string}
 }
 
+export interface RegionMeasurementDTO {
+    id: number
+    timestamp: Date
+    value: number
+    submitting_user: { id: number, full_name: string }
+    well: { id: number, ra_number: string }
+}
+
 // Single value from a NM ST2 endpoint, many other fields are returned, these are the only ones used at the moment
 export interface ST2Measurement {
     result: number
@@ -552,6 +562,22 @@ export interface NewWellMeasurement {
 export interface PatchWellMeasurement {
     levelmeasurement_id: number
     submitting_user_id: number
+    timestamp: dayjs.Dayjs
+    value: number
+}
+
+export interface NewRegionMeasurement {
+    region_id: number
+    timestamp: Date
+    value: number
+    submitting_user_id: number
+    well_id: number
+}
+
+export interface PatchRegionMeasurement {
+    levelmeasurement_id: number
+    submitting_user_id: number
+    well_id: number
     timestamp: dayjs.Dayjs
     value: number
 }
@@ -637,6 +663,16 @@ export interface PatchWorkOrder {
 }
 
 export interface MonitoredWell {
+  id: number;
+  name: string;
+  ra_number: string;
+  datastream_id: number;
+  well_status: WellStatus;
+  outside_recorder?: boolean;
+  chloride_group_id?: number;
+}
+
+export interface MonitoredRegion {
   id: number;
   name: string;
   datastream_id: number;

@@ -6,14 +6,10 @@ import { Data } from "plotly.js";
 export const ChloridesPlot = ({
   manual_dates,
   manual_vals,
-  logger_dates,
-  logger_vals,
   isLoading,
 }: {
   manual_dates: Date[];
-  manual_vals: number[];
-  logger_dates: Date[];
-  logger_vals: number[];
+  manual_vals: { value: number; well: string }[];
   isLoading: boolean;
 }) => {
   if (isLoading) {
@@ -32,42 +28,44 @@ export const ChloridesPlot = ({
     );
   }
 
-  const data: Partial<Data>[] = useMemo(
-    () => [
-      {
-        x: manual_dates,
-        y: manual_vals,
-        type: "scatter",
-        mode: "markers",
-        marker: { color: "red" },
-        name: "Manual",
-      },
-      {
-        x: logger_dates,
-        y: logger_vals,
-        type: "scatter",
-        marker: { color: "blue" },
-        name: "Continuous",
-      },
-    ],
-    [manual_dates, manual_vals, logger_dates, logger_vals],
-  );
+  const data: Partial<Data>[] = useMemo(() => {
+    const wellData: Record<string, { x: Date[]; y: number[] }> = {};
+
+    manual_vals.forEach((entry, idx) => {
+      if (!wellData[entry.well]) {
+        wellData[entry.well] = { x: [], y: [] };
+      }
+      wellData[entry.well].x.push(manual_dates[idx]);
+      wellData[entry.well].y.push(entry.value);
+    });
+
+    return Object.entries(wellData).map(([well, { x, y }], index) => ({
+      x,
+      y,
+      type: "scatter",
+      mode: "markers",
+      marker: { color: generateColorScale(index) },
+      name: `Well ${well}`,
+    }));
+  }, [manual_dates, manual_vals]);
 
   return (
-    <Box sx={{ height: 600, width: 800 }}>
+    <Box sx={{ height: 600, width: 700 }}> {/* Added margin of 5 pixels */}
       <Plot
         data={data}
         layout={{
           autosize: true,
-          title: "Depth to Water Over Time",
-          titlefont: { size: 18 },
           legend: {
-            title: { text: "Datastreams", font: { size: 14 } },
+            x: 1,
+            y: 1,
+            xanchor: "right",
+            yanchor: "top",
+            bordercolor: "grey", // Add border color
+            borderwidth: 1, // Add border width
           },
           xaxis: { title: { text: "Date", font: { size: 16 } } },
           yaxis: {
-            autorange: "reversed",
-            title: { text: "Depth to Water (ft)", font: { size: 16 } },
+            title: { text: "Chlorides (ppm)", font: { size: 16 } },
           },
           margin: { t: 40, b: 50, l: 60, r: 10 },
         }}
@@ -76,4 +74,20 @@ export const ChloridesPlot = ({
       />
     </Box>
   );
+};
+
+const generateColorScale = (n: number) => {
+  const colors = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+  ];
+  return colors[n % colors.length];
 };
