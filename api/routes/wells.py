@@ -120,6 +120,7 @@ def get_wells(
 @well_router.patch(
     "/wells",
     dependencies=[Depends(ScopedUser.WellWrite)],
+    response_model=well_schemas.WellResponse,
     tags=["Wells"],
 )
 def update_well(

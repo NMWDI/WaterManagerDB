@@ -4,6 +4,7 @@
 [![Format code](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml/badge.svg)](https://github.com/NMWDI/WaterManagerDB/actions/workflows/format_code.yml)
 
 ## Versions
+- V0.1.52 - Deploy chlorides for admin testing
 - V0.1.51 - Improved monitoring well page
 - V0.1.50 - Fixed wells map bug and update register if part used
 - V0.1.49 - Added outside recorder wells to monitoring page
