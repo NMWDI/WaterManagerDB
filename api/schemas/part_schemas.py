@@ -16,10 +16,9 @@ class Part(ORMBase):
     in_use: bool
     commonly_used: bool
     price: float | None = None
-
     part_type_id: int
-    part_type: PartTypeLU | None = None
 
+    part_type: PartTypeLU | None = None
     meter_types: list[MeterTypeLU] | None = None
 
 

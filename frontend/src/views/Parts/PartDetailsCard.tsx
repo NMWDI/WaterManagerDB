@@ -192,6 +192,15 @@ export default function PartDetailsCard({
                 helperText={errors?.count?.message}
               />
             </Grid>
+            <Grid item xs={12} xl={6}>
+              <ControlledTextbox
+                name="price"
+                control={control}
+                label="Price"
+                type="number"
+                inputProps={{ step: "0.01" }}
+              />
+            </Grid>
           </Grid>
           <Grid container xs={12} sx={{ mt: 2 }}>
             <ControlledTextbox
