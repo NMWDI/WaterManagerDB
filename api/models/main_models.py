@@ -69,6 +69,7 @@ class Parts(Base):
     note: Mapped[Optional[str]]
     in_use: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     commonly_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    price: Mapped[Optional[float]] = mapped_column(Float)
 
     part_type_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("PartTypeLU.id"), nullable=False

@@ -115,6 +115,7 @@ def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
         note=new_part.note,
         in_use=new_part.in_use,
         commonly_used=new_part.commonly_used,
+        price=new_part.price,
     )
 
     try:
