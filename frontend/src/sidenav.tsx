@@ -9,6 +9,7 @@ import { WorkOrder } from "./interfaces";
 
 import "./sidenav.css";
 import {
+  Assessment,
   Build,
   Construction,
   FormatListBulletedOutlined,
@@ -101,18 +102,23 @@ export default function Sidenav() {
         label={workOrderLabel}
         Icon={FormatListBulletedOutlined}
       />
-      <NavLink route="/meters" label="Meters" Icon={ScreenshotMonitor} />
+      <NavLink
+        route="/meters"
+        label="Meters Information"
+        Icon={ScreenshotMonitor}
+      />
       <NavLink route="/activities" label="Activities" Icon={Construction} />
       <NavLink route="/wells" label="Monitoring Wells" Icon={MonitorHeart} />
-      <NavLink route="/wellmanagement" label="Wells" Icon={Plumbing} />
+      <NavLink route="/wellmanagement" label="Manage Wells" Icon={Plumbing} />
+      <NavLink route="/reports" label="Reports" Icon={Assessment} />
 
       {hasAdminScope && (
         <>
           <Grid item sx={{ mt: 3, mb: 1 }}>
             <h5 style={{ margin: 0, color: "#555555" }}>Admin Management</h5>
           </Grid>
-          <NavLink route="/parts" label="Parts" Icon={Build} />
-          <NavLink route="/usermanagement" label="Users" Icon={People} />
+          <NavLink route="/parts" label="Manage Parts" Icon={Build} />
+          <NavLink route="/usermanagement" label="Manage Users" Icon={People} />
           <NavLink route="/chlorides" label="Chlorides" Icon={Science} />
         </>
       )}
