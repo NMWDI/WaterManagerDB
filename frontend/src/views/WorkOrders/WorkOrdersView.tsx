@@ -5,8 +5,10 @@ import WorkOrdersTable from "./WorkOrdersTable";
 
 export default function WorkOrdersView() {
   return (
-    <Box sx={{ m: 2, mt: 0, width: "95%" }}>
-      <Card sx={{ height: "100%" }}>
+    <Box
+      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+    >
+      <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
