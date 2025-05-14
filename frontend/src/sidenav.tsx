@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
-import TableViewIcon from "@mui/icons-material/TableView";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuthUser } from "react-auth-kit";
-import { Grid, SvgIconProps } from "@mui/material";
+import { Grid } from "@mui/material";
 import { useGetWorkOrders } from "./service/ApiServiceNew";
 import { WorkOrderStatus } from "./enums";
 import { WorkOrder } from "./interfaces";
@@ -20,9 +18,9 @@ import {
   Science,
   ScreenshotMonitor,
 } from "@mui/icons-material";
+import { NavLink } from "./components/NavLink";
 
 export default function Sidenav() {
-  let location = useLocation();
   const authUser = useAuthUser();
   const hasAdminScope = authUser()
     ?.user_role.security_scopes.map((scope: any) => scope.scope_string)
@@ -53,32 +51,6 @@ export default function Sidenav() {
     }, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  const NavLink = ({
-    route,
-    label,
-    Icon,
-  }: {
-    route: string;
-    label: string;
-    Icon?: React.ComponentType<SvgIconProps>;
-  }) => {
-    return (
-      <Grid item>
-        <Link
-          to={route}
-          className={`navbar-link ${location.pathname == route ? "navbar-link-active" : ""}`}
-        >
-          {Icon ? (
-            <Icon sx={{ fontSize: "20px", marginRight: "5px" }} />
-          ) : (
-            <TableViewIcon sx={{ fontSize: "20px", marginRight: "5px" }} />
-          )}
-          <div style={{ fontSize: "16px" }}>{label}</div>
-        </Link>
-      </Grid>
-    );
-  };
 
   return (
     <Grid
