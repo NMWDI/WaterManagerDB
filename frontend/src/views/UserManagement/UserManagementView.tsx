@@ -23,9 +23,7 @@ export default function UserManagementView() {
   }, [selectedRole]);
 
   return (
-    <Box sx={{ m: 2, mt: 0, width: "100%" }}>
-      <h2 style={{ color: "#292929", fontWeight: "500" }}>Manage Users</h2>
-
+    <Box sx={{ m: 2, mt: 1, width: "100%" }}>
       <Grid container spacing={2}>
         <Grid
           container
