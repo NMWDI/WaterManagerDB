@@ -66,6 +66,8 @@ def update_part(updated_part: part_schemas.Part, db: Session = Depends(get_db)):
     # Update the part (this won't include secondary attributes like associations)
     part_db = _get(db, Parts, updated_part.id)
     for k, v in updated_part.model_dump(exclude_unset=True).items():
+        if k in ["part_type", "meter_types"]:
+            continue
         try:
             setattr(part_db, k, v)
         except AttributeError as e:
@@ -115,6 +117,7 @@ def create_part(new_part: part_schemas.Part, db: Session = Depends(get_db)):
         note=new_part.note,
         in_use=new_part.in_use,
         commonly_used=new_part.commonly_used,
+        price=new_part.price,
     )
 
     try:
