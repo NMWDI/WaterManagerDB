@@ -14,7 +14,7 @@ import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { Grid } from "@mui/material";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
-import ActivitiesView from "./views/Activities/ActivitiesView";
+import { ActivitiesView } from "./views/Activities/ActivitiesView";
 import MetersView from "./views/Meters/MetersView";
 import PartsView from "./views/Parts/PartsView";
 import UserManagementView from "./views/UserManagement/UserManagementView";
@@ -22,11 +22,12 @@ import WellManagementView from "./views/WellManagement/WellManagementView";
 import WorkOrdersView from "./views/WorkOrders/WorkOrdersView";
 
 import Sidenav from "./sidenav";
-import Home from "./Home";
+import { Home } from "./Home";
 import Topbar from "./components/Topbar";
 import Login from "./login";
 import { SecurityScope } from "./interfaces";
 import ChloridesView from "./views/Chlorides/ChloridesView";
+import { ReportsView } from "./views/Reports";
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
 function AppLayout({
@@ -140,6 +141,16 @@ export default function App() {
                   element={
                     <AppLayout
                       pageComponent={<MonitoringWellsView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <AppLayout
+                      pageComponent={<ReportsView />}
                       requiredScopes={["read"]}
                       setErrorMessage={setErrorMessage}
                     />

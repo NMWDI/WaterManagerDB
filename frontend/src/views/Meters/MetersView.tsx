@@ -32,8 +32,7 @@ export default function MetersView() {
   }, [selectedMeter]);
 
   return (
-    <Box sx={{ height: "100%", m: 2, mt: 0 }}>
-      <h2 style={{ color: "#292929", fontWeight: "500" }}>Meter Information</h2>
+    <Box sx={{ height: "100%", m: 2, mt: 1 }}>
       <Grid
         container
         item

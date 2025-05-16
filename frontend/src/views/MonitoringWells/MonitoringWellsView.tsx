@@ -181,8 +181,10 @@ export default function MonitoringWellsView() {
   const [outsideRecorderWells, regularWells] = separateAndSortWells(wells);
 
   return (
-    <Box sx={{ height: "100%", width: "100%", m: 2, mt: 0 }}>
-      <Card sx={{ width: "100%", height: "100%" }}>
+    <Box
+      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+    >
+      <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
