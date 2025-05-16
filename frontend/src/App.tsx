@@ -28,6 +28,12 @@ import Login from "./login";
 import { SecurityScope } from "./interfaces";
 import ChloridesView from "./views/Chlorides/ChloridesView";
 import { ReportsView } from "./views/Reports";
+import { WorkOrdersReportView } from "./views/Reports/WorkOrders";
+import { MonitoringWellsReportView } from "./views/Reports/MonitoringWells";
+import { RepairsReportView } from "./views/Reports/Repairs";
+import { InventoryReportView } from "./views/Reports/Inventory";
+import { BoardReportView } from "./views/Reports/Board";
+import { ChloridesReportView } from "./views/Reports/Chlorides";
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
 function AppLayout({
@@ -151,6 +157,66 @@ export default function App() {
                   element={
                     <AppLayout
                       pageComponent={<ReportsView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/workorders"
+                  element={
+                    <AppLayout
+                      pageComponent={<WorkOrdersReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/wells"
+                  element={
+                    <AppLayout
+                      pageComponent={<MonitoringWellsReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/repairs"
+                  element={
+                    <AppLayout
+                      pageComponent={<RepairsReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/inventory"
+                  element={
+                    <AppLayout
+                      pageComponent={<InventoryReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/board"
+                  element={
+                    <AppLayout
+                      pageComponent={<BoardReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/chlorides"
+                  element={
+                    <AppLayout
+                      pageComponent={<ChloridesReportView />}
                       requiredScopes={["read"]}
                       setErrorMessage={setErrorMessage}
                     />
