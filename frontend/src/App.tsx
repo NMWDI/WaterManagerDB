@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import { ActivitiesView } from "./views/Activities/ActivitiesView";
@@ -72,14 +72,28 @@ function AppLayout({
         <Grid item xs={12}>
           <Topbar />
         </Grid>
-        <Grid container item xs={12}>
-          <Grid container item width="15%">
+        <Box display="flex" flexGrow={1} overflow="hidden">
+          <Box
+            sx={{
+              minWidth: "15rem",
+              maxWidth: "20rem",
+              flexShrink: 0,
+              overflowY: "hidden",
+            }}
+          >
             <Sidenav />
-          </Grid>
-          <Grid item width="85%" sx={{ mt: 1 }}>
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflow: "auto",
+              mt: 1,
+              px: 2,
+            }}
+          >
             {pageComponent}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Grid>
     );
   return null;

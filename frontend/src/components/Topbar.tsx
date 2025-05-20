@@ -28,8 +28,20 @@ export default function Topbar() {
     <Grid container sx={styles.container}>
       <Grid item xs={2}>
         <Typography
+          sx={{
+            color: "darkblue",
+            cursor: "pointer",
+            marginLeft: "10px",
+            fontWeight: "bold",
+            whiteSpace: "nowrap",
+            fontSize: {
+              xs: "1.5rem",
+              md: "1.625rem",
+              lg: "1.75rem",
+              xl: "2rem",
+            },
+          }}
           variant="h1"
-          sx={styles.logo}
           onClick={() => navigate("/home")}
         >
           Meter Manager
@@ -73,13 +85,6 @@ const styles = {
     backgroundColor: "white",
     py: 1,
     boxShadow: "3px 2px 5px -2px rgba(0,0,0,0.2)",
-  },
-  logo: {
-    fontWeight: "bold",
-    fontSize: "32px",
-    color: "darkblue",
-    cursor: "pointer",
-    marginLeft: "10px",
   },
   button: {
     marginTop: "auto",
