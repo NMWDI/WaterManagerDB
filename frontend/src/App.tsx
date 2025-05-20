@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
 import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
 import { ActivitiesView } from "./views/Activities/ActivitiesView";
@@ -28,6 +28,12 @@ import Login from "./login";
 import { SecurityScope } from "./interfaces";
 import ChloridesView from "./views/Chlorides/ChloridesView";
 import { ReportsView } from "./views/Reports";
+import { WorkOrdersReportView } from "./views/Reports/WorkOrders";
+import { MonitoringWellsReportView } from "./views/Reports/MonitoringWells";
+import { RepairsReportView } from "./views/Reports/Repairs";
+import { InventoryReportView } from "./views/Reports/Inventory";
+import { BoardReportView } from "./views/Reports/Board";
+import { ChloridesReportView } from "./views/Reports/Chlorides";
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
 function AppLayout({
@@ -66,14 +72,28 @@ function AppLayout({
         <Grid item xs={12}>
           <Topbar />
         </Grid>
-        <Grid container item xs={12}>
-          <Grid container item width="15%">
+        <Box display="flex" flexGrow={1} overflow="hidden">
+          <Box
+            sx={{
+              minWidth: "15rem",
+              maxWidth: "20rem",
+              flexShrink: 0,
+              overflowY: "hidden",
+            }}
+          >
             <Sidenav />
-          </Grid>
-          <Grid item width="85%" sx={{ mt: 1 }}>
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflow: "auto",
+              mt: 1,
+              px: 2,
+            }}
+          >
             {pageComponent}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Grid>
     );
   return null;
@@ -151,6 +171,66 @@ export default function App() {
                   element={
                     <AppLayout
                       pageComponent={<ReportsView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/workorders"
+                  element={
+                    <AppLayout
+                      pageComponent={<WorkOrdersReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/wells"
+                  element={
+                    <AppLayout
+                      pageComponent={<MonitoringWellsReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/repairs"
+                  element={
+                    <AppLayout
+                      pageComponent={<RepairsReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/inventory"
+                  element={
+                    <AppLayout
+                      pageComponent={<InventoryReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/board"
+                  element={
+                    <AppLayout
+                      pageComponent={<BoardReportView />}
+                      requiredScopes={["read"]}
+                      setErrorMessage={setErrorMessage}
+                    />
+                  }
+                />
+                <Route
+                  path="/reports/chlorides"
+                  element={
+                    <AppLayout
+                      pageComponent={<ChloridesReportView />}
                       requiredScopes={["read"]}
                       setErrorMessage={setErrorMessage}
                     />
