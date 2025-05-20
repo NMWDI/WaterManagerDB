@@ -26,7 +26,7 @@ export const ReportsView = () => {
           sx={{ mb: 0, pb: 0 }}
         />
         <CardContent>
-          <Box width="15%" py={1}>
+          <Box sx={{ minWidth: "15rem", maxWidth: "15%" }} py={1}>
             <NavLink
               route="/reports/workorders"
               label="Work Orders"
