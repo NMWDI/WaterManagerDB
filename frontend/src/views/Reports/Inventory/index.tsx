@@ -10,6 +10,7 @@ import {
   IconButton,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import ControlledDatepicker from "../../../components/RHControlled/ControlledDatepicker";
@@ -20,6 +21,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs, { Dayjs } from "dayjs";
 import { API_URL } from "../../../config";
 import { useAuthHeader } from "react-auth-kit";
+import { useEffect, useState } from "react";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 export interface MeterType {
   id: number;
@@ -75,7 +78,7 @@ const defaultSchema = {
 };
 
 export const InventoryReportView = () => {
-  const { control, reset } = useForm({
+  const { control, reset, watch } = useForm({
     resolver: yupResolver(schema),
     defaultValues: defaultSchema,
   });
@@ -95,6 +98,64 @@ export const InventoryReportView = () => {
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
     cacheTime: 1000 * 60 * 60 * 24, // cache in memory for 24 hours
   });
+
+  const [quantities, setQuantities] = useState<Record<number, number>>({});
+  const selectedParts = (partsQuery?.data ?? []).filter((part) =>
+    watch("parts")?.includes(part.id),
+  );
+
+  const rows = selectedParts.map((part) => {
+    const quantity = quantities[part.id] ?? 0;
+    const unitPrice = part.price ?? 0;
+
+    return {
+      id: part.id,
+      part_number: part.part_number,
+      description: part.description,
+      price: unitPrice,
+      quantity,
+      total: quantity * unitPrice,
+    };
+  });
+
+  useEffect(() => {
+    const newQuantities: Record<number, number> = {};
+    for (const part of selectedParts) {
+      if (!(part.id in quantities)) {
+        newQuantities[part.id] = Math.floor(Math.random() * 100) + 1;
+      }
+    }
+    setQuantities((prev) => ({ ...prev, ...newQuantities }));
+  }, [selectedParts]);
+
+  const columns: GridColDef[] = [
+    { field: "part_number", headerName: "Part", flex: 1 },
+    { field: "description", headerName: "Description", flex: 2 },
+    {
+      field: "price",
+      headerName: "Cost per unit",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        typeof params?.value === "number"
+          ? `$${params?.value?.toFixed(2)}`
+          : "$0.00",
+    },
+    {
+      field: "quantity",
+      headerName: "Number of units",
+      flex: 1,
+      type: "number",
+    },
+    {
+      field: "total",
+      headerName: "Total cost",
+      flex: 1,
+      valueFormatter: (params: any) =>
+        typeof params?.value === "number"
+          ? `$${params?.value?.toFixed(2)}`
+          : "$0.00",
+    },
+  ];
 
   return (
     <Box
@@ -211,7 +272,24 @@ export const InventoryReportView = () => {
               />
             </Grid>
           </Grid>
-          <Grid container></Grid>
+          <Grid container>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              disableColumnMenu
+              hideFooterSelectedRowCount
+              pageSizeOptions={[5, 10, 25]}
+              initialState={{
+                pagination: {
+                  paginationModel: { pageSize: 5, page: 0 },
+                },
+              }}
+            />
+
+            <Typography variant="h6" align="right" sx={{ mt: 2 }}>
+              Total: ${rows.reduce((acc, row) => acc + row.total, 0).toFixed(2)}
+            </Typography>
+          </Grid>
           <Grid container>
             <Grid item>
               <Button onClick={() => reset()}>Reset</Button>
