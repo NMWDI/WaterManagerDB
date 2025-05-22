@@ -10,7 +10,6 @@ import {
   IconButton,
   TextField,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import ControlledDatepicker from "../../../components/RHControlled/ControlledDatepicker";
@@ -21,7 +20,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs, { Dayjs } from "dayjs";
 import { API_URL } from "../../../config";
 import { useAuthHeader } from "react-auth-kit";
-import { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 export interface MeterType {
@@ -99,14 +97,20 @@ export const InventoryReportView = () => {
     cacheTime: 1000 * 60 * 60 * 24, // cache in memory for 24 hours
   });
 
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
   const selectedParts = (partsQuery?.data ?? []).filter((part) =>
     watch("parts")?.includes(part.id),
   );
 
+  let runningTotal = 0;
+
   const rows = selectedParts.map((part) => {
-    const quantity = quantities[part.id] ?? 0;
     const unitPrice = part.price ?? 0;
+    const quantity = part.count ?? 0;
+    const total = quantity * unitPrice;
+
+    runningTotal += total;
+
+    console.log({ runningTotal });
 
     return {
       id: part.id,
@@ -114,19 +118,12 @@ export const InventoryReportView = () => {
       description: part.description,
       price: unitPrice,
       quantity,
-      total: quantity * unitPrice,
+      total,
+      running_total: runningTotal,
     };
   });
 
-  useEffect(() => {
-    const newQuantities: Record<number, number> = {};
-    for (const part of selectedParts) {
-      if (!(part.id in quantities)) {
-        newQuantities[part.id] = Math.floor(Math.random() * 100) + 1;
-      }
-    }
-    setQuantities((prev) => ({ ...prev, ...newQuantities }));
-  }, [selectedParts]);
+  console.log({ selectedParts, rows });
 
   const columns: GridColDef[] = [
     { field: "part_number", headerName: "Part", flex: 1 },
@@ -135,10 +132,8 @@ export const InventoryReportView = () => {
       field: "price",
       headerName: "Cost per unit",
       flex: 1,
-      valueFormatter: (params: any) =>
-        typeof params?.value === "number"
-          ? `$${params?.value?.toFixed(2)}`
-          : "$0.00",
+      valueFormatter: (param: number) =>
+        typeof param === "number" ? `$${param?.toFixed(2)}` : "$0.00",
     },
     {
       field: "quantity",
@@ -150,10 +145,15 @@ export const InventoryReportView = () => {
       field: "total",
       headerName: "Total cost",
       flex: 1,
-      valueFormatter: (params: any) =>
-        typeof params?.value === "number"
-          ? `$${params?.value?.toFixed(2)}`
-          : "$0.00",
+      valueFormatter: (param: number) =>
+        typeof param === "number" ? `$${param?.toFixed(2)}` : "$0.00",
+    },
+    {
+      field: "running_total",
+      headerName: "Running Total",
+      flex: 1,
+      valueFormatter: (param: number) =>
+        typeof param === "number" ? `$${param.toFixed(2)}` : "$0.00",
     },
   ];
 
@@ -285,10 +285,6 @@ export const InventoryReportView = () => {
                 },
               }}
             />
-
-            <Typography variant="h6" align="right" sx={{ mt: 2 }}>
-              Total: ${rows.reduce((acc, row) => acc + row.total, 0).toFixed(2)}
-            </Typography>
           </Grid>
           <Grid container>
             <Grid item>
