@@ -1,5 +1,6 @@
 import { ArrowBack, Build, PictureAsPdf } from "@mui/icons-material";
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -12,34 +13,87 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import ControlledDatepicker from "../../../components/RHControlled/ControlledDatepicker";
-import ControlledAutocomplete from "../../../components/RHControlled/ControlledAutocomplete";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import { API_URL } from "../../../config";
+import { useAuthHeader } from "react-auth-kit";
+
+export interface MeterType {
+  id: number;
+  brand: string;
+  series: string | null;
+  model: string;
+  size: number;
+  description: string;
+  in_use: boolean;
+}
+
+export interface PartType {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface Part {
+  id: number;
+  part_number: string;
+  description: string;
+  vendor: string | null;
+  count: number;
+  note: string;
+  in_use: boolean;
+  commonly_used: boolean;
+  price: number | null;
+  part_type_id: number;
+  part_type: PartType;
+  meter_types: MeterType[];
+}
 
 const schema = yup.object().shape({
-  from: yup.mixed().nullable().required("From date is required"),
-  to: yup.mixed().nullable().required("To date is required"),
-  parts: yup.string().required("At least one Part is required"),
+  from: yup.mixed<Dayjs>().nullable().required("From date is required"),
+  to: yup
+    .mixed<Dayjs>()
+    .nullable()
+    .required("To date is required")
+    .test("is-after", "'To' date must be after 'From'", function (value) {
+      const { from } = this.parent;
+      return !from || !value || dayjs(value).isAfter(dayjs(from));
+    }),
+  parts: yup
+    .array()
+    .of(yup.number().required())
+    .min(1, "At least one Part is required"),
 });
 
 const defaultSchema = {
   from: dayjs(),
   to: dayjs(),
-  parts: "",
+  parts: [],
 };
 
 export const InventoryReportView = () => {
-  const partsQuery = useQuery({
-    queryKey: ["Inventory", "report", "parts"],
-    queryFn: async () => {},
-  });
-
   const { control, reset } = useForm({
     resolver: yupResolver(schema),
     defaultValues: defaultSchema,
+  });
+
+  const authHeader = useAuthHeader();
+  const partsQuery = useQuery<Part[]>({
+    queryKey: ["Inventory", "report", "parts"],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/parts`, {
+        headers: { Authorization: authHeader() },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch parts");
+      }
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    cacheTime: 1000 * 60 * 60 * 24, // cache in memory for 24 hours
   });
 
   return (
@@ -106,25 +160,44 @@ export const InventoryReportView = () => {
               />
             </Grid>
             <Grid item>
-              <ControlledAutocomplete
+              <Controller
                 name="parts"
-                options={partsQuery?.data ?? []}
                 control={control}
-                disableClearable={false}
-                defaultValue={null}
-                renderInput={(params: any) => {
-                  if (partsQuery.isLoading)
-                    params.inputProps.value = "Loading...";
-                  return (
-                    <TextField
-                      {...params}
-                      sx={{ minWidth: "15rem" }}
-                      label="Parts"
-                      size="small"
-                      placeholder="Begin typing to search"
-                    />
-                  );
-                }}
+                render={({ field }) => (
+                  <Autocomplete
+                    disableClearable
+                    filterOptions={(options: Part[], state: any) =>
+                      options.filter((opt) =>
+                        `${opt.part_number} ${opt.description}`
+                          .toLowerCase()
+                          .includes(state.inputValue.toLowerCase()),
+                      )
+                    }
+                    options={
+                      partsQuery?.data?.filter(
+                        (opt: Part) => opt && opt.id != null,
+                      ) ?? []
+                    }
+                    getOptionLabel={(option: Part) =>
+                      typeof option === "string"
+                        ? option
+                        : `${option.part_number} ${option.description}`
+                    }
+                    isOptionEqualToValue={(a: Part, b: Part) => a?.id === b?.id}
+                    value={field.value ?? null}
+                    onChange={(_, value) => field.onChange(value?.id ?? null)}
+                    loading={partsQuery.isLoading}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        sx={{ minWidth: "30rem" }}
+                        label="Parts"
+                        size="small"
+                        placeholder="Begin typing to search"
+                      />
+                    )}
+                  />
+                )}
               />
             </Grid>
           </Grid>
