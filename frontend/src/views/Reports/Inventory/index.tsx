@@ -172,7 +172,12 @@ export const InventoryReportView = () => {
           sx={{ mb: 0, pb: 0 }}
         />
         <CardContent>
-          <Grid container justifyContent="space-between" alignContent="center">
+          <Grid
+            container
+            justifyContent="space-between"
+            alignContent="center"
+            paddingBottom={2}
+          >
             <Grid item>
               <Link to="/reports">
                 <Tooltip title="Go back" placement="right">
@@ -195,8 +200,7 @@ export const InventoryReportView = () => {
             justifyContent="flex-start"
             alignContent="center"
             gap={2}
-            paddingTop={2}
-            paddingBottom={2}
+            padding={2}
           >
             <Grid item>
               <ControlledDatepicker
@@ -272,7 +276,7 @@ export const InventoryReportView = () => {
               />
             </Grid>
           </Grid>
-          <Grid container>
+          <Grid container padding={2}>
             <DataGrid
               rows={rows}
               columns={columns}
@@ -286,7 +290,7 @@ export const InventoryReportView = () => {
               }}
             />
           </Grid>
-          <Grid container>
+          <Grid container padding={2}>
             <Grid item>
               <Button onClick={() => reset()}>Reset</Button>
             </Grid>
