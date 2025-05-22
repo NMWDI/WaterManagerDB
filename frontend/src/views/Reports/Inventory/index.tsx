@@ -142,6 +142,7 @@ export const InventoryReportView = () => {
                 label="From"
                 sx={{ minWidth: "15rem" }}
                 control={control}
+                size="medium"
                 name="from"
                 views={["year", "month"]}
                 openTo="year"
@@ -153,6 +154,7 @@ export const InventoryReportView = () => {
                 label="To"
                 sx={{ minWidth: "15rem" }}
                 control={control}
+                size="medium"
                 name="to"
                 views={["year", "month"]}
                 openTo="year"
@@ -163,41 +165,49 @@ export const InventoryReportView = () => {
               <Controller
                 name="parts"
                 control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    disableClearable
-                    filterOptions={(options: Part[], state: any) =>
-                      options.filter((opt) =>
-                        `${opt.part_number} ${opt.description}`
-                          .toLowerCase()
-                          .includes(state.inputValue.toLowerCase()),
-                      )
-                    }
-                    options={
-                      partsQuery?.data?.filter(
-                        (opt: Part) => opt && opt.id != null,
-                      ) ?? []
-                    }
-                    getOptionLabel={(option: Part) =>
-                      typeof option === "string"
-                        ? option
-                        : `${option.part_number} ${option.description}`
-                    }
-                    isOptionEqualToValue={(a: Part, b: Part) => a?.id === b?.id}
-                    value={field.value ?? null}
-                    onChange={(_, value) => field.onChange(value?.id ?? null)}
-                    loading={partsQuery.isLoading}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        sx={{ minWidth: "30rem" }}
-                        label="Parts"
-                        size="small"
-                        placeholder="Begin typing to search"
-                      />
-                    )}
-                  />
-                )}
+                render={({ field }) => {
+                  // Convert stored IDs to Part objects for the `value` prop
+                  const selectedParts = (partsQuery?.data ?? []).filter(
+                    (part) => field?.value?.includes(part.id),
+                  );
+
+                  return (
+                    <Autocomplete
+                      multiple
+                      disableClearable
+                      options={
+                        partsQuery?.data?.filter(
+                          (opt: Part) => opt && opt.id != null,
+                        ) ?? []
+                      }
+                      getOptionLabel={(option: Part) =>
+                        `${option.part_number} ${option.description}`
+                      }
+                      isOptionEqualToValue={(a: Part, b: Part) => a.id === b.id}
+                      value={selectedParts}
+                      onChange={(_, selectedOptions) =>
+                        field.onChange(selectedOptions.map((p) => p.id))
+                      }
+                      filterOptions={(options: Part[], state: any) =>
+                        options.filter((opt) =>
+                          `${opt.part_number} ${opt.description}`
+                            .toLowerCase()
+                            .includes(state.inputValue.toLowerCase()),
+                        )
+                      }
+                      loading={partsQuery.isLoading}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="medium"
+                          sx={{ minWidth: "30rem" }}
+                          label="Parts"
+                          placeholder="Begin typing to search"
+                        />
+                      )}
+                    />
+                  );
+                }}
               />
             </Grid>
           </Grid>
