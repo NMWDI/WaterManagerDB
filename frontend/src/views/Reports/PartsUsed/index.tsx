@@ -1,11 +1,9 @@
 import { ArrowBack, Build, PictureAsPdf } from "@mui/icons-material";
 import {
   Autocomplete,
-  Box,
   Button,
   Card,
   CardContent,
-  CardHeader,
   Grid,
   IconButton,
   TextField,
@@ -21,6 +19,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { API_URL } from "../../../config";
 import { useAuthHeader } from "react-auth-kit";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { BackgroundBox } from "../../../components/BackgroundBox";
+import { CustomCardHeader } from "../../../components/CustomCardHeader";
 
 export interface MeterType {
   id: number;
@@ -75,7 +75,7 @@ const defaultSchema = {
   parts: [],
 };
 
-export const InventoryReportView = () => {
+export const PartsUsedReportView = () => {
   const { control, reset, watch } = useForm({
     resolver: yupResolver(schema),
     defaultValues: defaultSchema,
@@ -154,25 +154,9 @@ export const InventoryReportView = () => {
   ];
 
   return (
-    <Box
-      sx={{
-        height: "fit-content",
-        width: "calc(100% - 16px)",
-        m: 2,
-        mt: 1,
-        pb: 3,
-      }}
-    >
-      <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
-        <CardHeader
-          title={
-            <div className="custom-card-header">
-              <span>Parts Used Report</span>
-              <Build />
-            </div>
-          }
-          sx={{ mb: 0, pb: 0 }}
-        />
+    <BackgroundBox>
+      <Card sx={{ height: "fit-content" }}>
+        <CustomCardHeader title="Parts Used Report" icon={Build} />
         <CardContent>
           <Grid
             container
@@ -299,6 +283,6 @@ export const InventoryReportView = () => {
           </Grid>
         </CardContent>
       </Card>
-    </Box>
+    </BackgroundBox>
   );
 };

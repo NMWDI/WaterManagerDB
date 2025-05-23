@@ -1,4 +1,3 @@
-import "./App.css";
 import { useEffect, useRef, useState } from "react";
 import { AuthProvider, useAuthUser } from "react-auth-kit";
 import {
@@ -11,36 +10,34 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
-import { Box, Grid } from "@mui/material";
-
-import MonitoringWellsView from "./views/MonitoringWells/MonitoringWellsView";
+import { Box } from "@mui/material";
+import { MonitoringWellsView } from "./views/MonitoringWells/MonitoringWellsView";
 import { ActivitiesView } from "./views/Activities/ActivitiesView";
-import MetersView from "./views/Meters/MetersView";
-import PartsView from "./views/Parts/PartsView";
-import UserManagementView from "./views/UserManagement/UserManagementView";
+import { MetersView } from "./views/Meters/MetersView";
+import { PartsView } from "./views/Parts/PartsView";
+import { UserManagementView } from "./views/UserManagement/UserManagementView";
 import WellManagementView from "./views/WellManagement/WellManagementView";
 import WorkOrdersView from "./views/WorkOrders/WorkOrdersView";
-
 import Sidenav from "./sidenav";
 import { Home } from "./Home";
 import Topbar from "./components/Topbar";
 import Login from "./login";
 import { SecurityScope } from "./interfaces";
-import ChloridesView from "./views/Chlorides/ChloridesView";
+import { ChloridesView } from "./views/Chlorides/ChloridesView";
 import { ReportsView } from "./views/Reports";
 import { WorkOrdersReportView } from "./views/Reports/WorkOrders";
 import { MonitoringWellsReportView } from "./views/Reports/MonitoringWells";
 import { RepairsReportView } from "./views/Reports/Repairs";
-import { InventoryReportView } from "./views/Reports/Inventory";
+import { PartsUsedReportView } from "./views/Reports/PartsUsed";
 import { BoardReportView } from "./views/Reports/Board";
 import { ChloridesReportView } from "./views/Reports/Chlorides";
 
 // A wrapper that handles checking that the user is logged in and has any necessary scopes
-function AppLayout({
+const AppLayout = ({
   pageComponent,
   requiredScopes = null,
   setErrorMessage = null,
-}: any) {
+}: any) => {
   const authUser = useAuthUser();
   const navigate = useNavigate();
 
@@ -137,7 +134,7 @@ function AppLayout({
               flexGrow: 1,
               height: "100%",
               overflowY: "auto",
-              padding: 2,
+              p: 3,
             }}
           >
             {pageComponent}
@@ -146,9 +143,9 @@ function AppLayout({
       </Box>
     );
   return null;
-}
+};
 
-export default function App() {
+export const App = () => {
   const queryClient = new QueryClient();
 
   // Showing messages between navigation (eg: accessing forbidden page, accessing while not logged in) results in duplicated snackbars, this is a workaround
@@ -256,10 +253,10 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/reports/inventory"
+                  path="/reports/partsused"
                   element={
                     <AppLayout
-                      pageComponent={<InventoryReportView />}
+                      pageComponent={<PartsUsedReportView />}
                       requiredScopes={["read"]}
                       setErrorMessage={setErrorMessage}
                     />
@@ -352,4 +349,4 @@ export default function App() {
       </LocalizationProvider>
     </QueryClientProvider>
   );
-}
+};

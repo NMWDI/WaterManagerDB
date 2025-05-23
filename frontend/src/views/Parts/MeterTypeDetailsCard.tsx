@@ -23,6 +23,7 @@ import {
 import ControlledTextbox from "../../components/RHControlled/ControlledTextbox";
 import { MeterTypeLU } from "../../interfaces";
 import { ControlledSelectNonObject } from "../../components/RHControlled/ControlledSelect";
+import { CustomCardHeader } from "../../components/CustomCardHeader";
 
 const MeterTypeResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
   brand: Yup.string().required("Please enter a brand."),
@@ -35,13 +36,13 @@ const MeterTypeResolverSchema: Yup.ObjectSchema<any> = Yup.object().shape({
     .required("Please indicate if part is in use."),
 });
 
-export default function MeterTypeDetailsCard({
+export const MeterTypeDetailsCard = ({
   selectedMeterType,
   meterTypeAddMode,
 }: {
-  selectedMeterType: MeterTypeLU | undefined;
+  selectedMeterType?: MeterTypeLU;
   meterTypeAddMode: boolean;
-}) {
+}) => {
   const {
     handleSubmit,
     control,
@@ -82,27 +83,13 @@ export default function MeterTypeDetailsCard({
   }, [meterTypeAddMode]);
 
   // Determine if form is valid, {errors} in useEffect or formState's isValid don't work
-  function hasErrors() {
-    return Object.keys(errors).length > 0;
-  }
+  const hasErrors = () => Object.keys(errors).length > 0;
 
   return (
     <Card>
-      <CardHeader
-        title={
-          meterTypeAddMode ? (
-            <div className="custom-card-header">
-              <span>Create Meter Type</span>
-              <AddIcon style={{ fontSize: "1rem" }} />{" "}
-            </div>
-          ) : (
-            <div className="custom-card-header">
-              <span>Edit Meter Type</span>
-              <EditIcon style={{ fontSize: "1rem" }} />{" "}
-            </div>
-          )
-        }
-        sx={{ mb: 0, pb: 0 }}
+      <CustomCardHeader
+        title={meterTypeAddMode ? "Create Meter Type" : "Edit Meter Type"}
+        icon={meterTypeAddMode ? AddIcon : EditIcon}
       />
       <CardContent>
         <Grid container>
@@ -181,4 +168,4 @@ export default function MeterTypeDetailsCard({
       </CardContent>
     </Card>
   );
-}
+};
