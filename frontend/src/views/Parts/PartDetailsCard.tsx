@@ -202,6 +202,61 @@ export default function PartDetailsCard({
               />
             </Grid>
           </Grid>
+          <Grid container xs={12} columnSpacing={2} sx={{ mt: 1 }} display={(watch("part_type")?.id ?? 0) === 17 ? "flex" : "none"}>
+            <Grid item xs={12}>
+            <h4>Register Properties</h4>
+            </Grid>
+            <Grid item xs={12} xl={4}>
+                <ControlledTextbox
+                name="ratio"
+                control={control}
+                label="Ratio"
+                type="number"
+                inputProps={{ step: "0.01" }}
+                // error={errors?.ratio?.message != undefined}
+                // helperText={errors?.ratio?.message}
+                />
+            </Grid>
+            <Grid item xs={12} xl={4}>
+                <ControlledTextbox
+                name="dial_digits"
+                control={control}
+                label="Dial Digits"
+                type="number"
+                // error={errors?.dial_digits?.message != undefined}
+                // helperText={errors?.dial_digits?.message}
+                />
+            </Grid>
+            <Grid item xs={12} xl={4}>
+                <ControlledTextbox
+                name="multiplier"
+                control={control}
+                label="Multiplier"
+                type="number"
+                inputProps={{ step: "0.01" }}
+                // error={errors?.multiplier?.message != undefined}
+                // helperText={errors?.multiplier?.message}
+                />
+            </Grid>
+            <Grid item xs={12} xl={6}>
+                <ControlledTextbox
+                name="dial_units"
+                control={control}
+                label="Dial Units"
+                // error={errors?.dial_units?.message != undefined}
+                // helperText={errors?.dial_units?.message}
+                />
+            </Grid>
+            <Grid item xs={12} xl={6}>
+                <ControlledTextbox
+                name="totalizer_units"
+                control={control}
+                label="Totalizer Units"
+                // error={errors?.totalizer_units?.message != undefined}
+                // helperText={errors?.totalizer_units?.message}
+                />
+            </Grid>
+          </Grid>
           <Grid container xs={12} sx={{ mt: 2 }}>
             <ControlledTextbox
               name="description"
@@ -268,6 +323,7 @@ export default function PartDetailsCard({
               </FormControl>
             </Grid>
           </Grid>
+          
         </Grid>
         <Grid container item xs={12} sx={{ mt: 2 }}>
           {hasErrors() ? (
