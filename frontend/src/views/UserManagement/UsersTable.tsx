@@ -96,7 +96,7 @@ export default function UsersTable({
         sx={{ mb: 0, pb: 0 }}
       />
       <CardContent sx={{ height: "100%" }}>
-        <Grid container xs={12}>
+        <Grid container>
           <Grid item xs={5}>
             <TextField
               label={

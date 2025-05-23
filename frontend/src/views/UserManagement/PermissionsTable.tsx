@@ -50,7 +50,7 @@ export default function PermissionsTable() {
         sx={{ mb: 0, pb: 0 }}
       />
       <CardContent sx={{ height: "100%" }}>
-        <Grid container xs={12}>
+        <Grid container>
           <TextField
             label={
               <div style={{ display: "inline-flex", alignItems: "center" }}>

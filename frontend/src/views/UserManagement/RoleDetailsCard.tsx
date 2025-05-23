@@ -181,7 +181,7 @@ export default function RoleDetailsCard({
                             .includes(x.id),
                       )
                       .map((scope: SecurityScope) => (
-                        <MenuItem value={scope.id}>
+                        <MenuItem key={scope.id} value={scope.id}>
                           {scope.scope_string}
                         </MenuItem>
                       ))}

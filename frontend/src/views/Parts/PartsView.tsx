@@ -22,7 +22,7 @@ export default function PartsView() {
   }, [selectedMeterType]);
 
   return (
-    <Box sx={{ m: 2, mt: 1, width: "100%" }}>
+    <Box sx={{ m: 2, mt: 1, pb: 3, width: "100%" }}>
       <Grid container spacing={4}>
         <Grid
           container

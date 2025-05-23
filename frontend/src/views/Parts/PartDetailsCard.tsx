@@ -202,14 +202,14 @@ export default function PartDetailsCard({
               />
             </Grid>
           </Grid>
-          <Grid container xs={12} sx={{ mt: 2 }}>
+          <Grid item xs={12} sx={{ mt: 2 }}>
             <ControlledTextbox
               name="description"
               control={control}
               label="Description"
             />
           </Grid>
-          <Grid container xs={12} sx={{ mt: 2 }}>
+          <Grid item xs={12} sx={{ mt: 2 }}>
             <ControlledTextbox
               name="note"
               control={control}
@@ -261,6 +261,7 @@ export default function PartDetailsCard({
                     )
                     .map((type: MeterTypeLU) => (
                       <MenuItem
+                        key={type.id}
                         value={type.id}
                       >{`${type.brand} - ${type.model}`}</MenuItem>
                     ))}

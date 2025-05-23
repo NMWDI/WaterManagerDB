@@ -110,8 +110,6 @@ export const InventoryReportView = () => {
 
     runningTotal += total;
 
-    console.log({ runningTotal });
-
     return {
       id: part.id,
       part_number: part.part_number,
@@ -122,8 +120,6 @@ export const InventoryReportView = () => {
       running_total: runningTotal,
     };
   });
-
-  console.log({ selectedParts, rows });
 
   const columns: GridColDef[] = [
     { field: "part_number", headerName: "Part", flex: 1 },
@@ -159,13 +155,19 @@ export const InventoryReportView = () => {
 
   return (
     <Box
-      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+      sx={{
+        height: "fit-content",
+        width: "calc(100% - 16px)",
+        m: 2,
+        mt: 1,
+        pb: 3,
+      }}
     >
       <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader
           title={
             <div className="custom-card-header">
-              <span>Inventory Report</span>
+              <span>Parts Used Report</span>
               <Build />
             </div>
           }

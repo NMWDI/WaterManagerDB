@@ -23,7 +23,7 @@ export default function UserManagementView() {
   }, [selectedRole]);
 
   return (
-    <Box sx={{ m: 2, mt: 1, width: "100%" }}>
+    <Box sx={{ m: 2, mt: 1, pb: 3, width: "100%" }}>
       <Grid container spacing={2}>
         <Grid
           container

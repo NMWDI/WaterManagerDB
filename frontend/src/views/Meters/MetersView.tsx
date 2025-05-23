@@ -32,7 +32,7 @@ export default function MetersView() {
   }, [selectedMeter]);
 
   return (
-    <Box sx={{ height: "100%", m: 2, mt: 1 }}>
+    <Box sx={{ height: "fit-content", m: 2, mt: 1, pb: 3 }}>
       <Grid
         container
         item

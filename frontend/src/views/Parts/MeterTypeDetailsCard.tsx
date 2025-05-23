@@ -145,7 +145,7 @@ export default function MeterTypeDetailsCard({
               />
             </Grid>
           </Grid>
-          <Grid container xs={12} sx={{ mt: 2 }}>
+          <Grid item xs={12} sx={{ mt: 2 }}>
             <ControlledTextbox
               name="description"
               control={control}

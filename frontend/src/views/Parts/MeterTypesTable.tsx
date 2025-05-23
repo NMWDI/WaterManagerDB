@@ -31,7 +31,11 @@ export default function MeterTypesTable({
 
   const cols: GridColDef[] = [
     { field: "brand", headerName: "Brand", width: 200 },
-    { field: "series", headerName: "Series", width: 100 },
+    {
+      field: "series",
+      headerName: "Series",
+      width: 100,
+    },
     { field: "model", headerName: "Model Number", width: 200 },
     { field: "size", headerName: "Size", width: 100 },
     { field: "description", headerName: "Description", width: 200 },
@@ -76,7 +80,7 @@ export default function MeterTypesTable({
         sx={{ mb: 0, pb: 0 }}
       />
       <CardContent sx={{ height: "100%" }}>
-        <Grid container xs={12}>
+        <Grid container>
           <Grid item xs={5}>
             <TextField
               label={

@@ -37,7 +37,7 @@ export default function PartsTable({
       field: "part_type",
       headerName: "Part Type",
       width: 200,
-      valueGetter: (params: any) => params.value?.name,
+      valueGetter: (params: any) => params?.name,
     },
     { field: "count", headerName: "Count" },
     {

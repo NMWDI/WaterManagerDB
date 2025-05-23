@@ -6,7 +6,13 @@ import WorkOrdersTable from "./WorkOrdersTable";
 export default function WorkOrdersView() {
   return (
     <Box
-      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+      sx={{
+        height: "fit-content",
+        width: "calc(100% - 16px)",
+        m: 2,
+        mt: 1,
+        pb: 3,
+      }}
     >
       <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader

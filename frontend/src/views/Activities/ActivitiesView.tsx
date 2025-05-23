@@ -1,11 +1,4 @@
-import {
-  Box,
-  Grid,
-  CardContent,
-  Card,
-  CardHeader,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, CardContent, Card, CardHeader } from "@mui/material";
 import MeterActivityEntry from "./MeterActivityEntry/MeterActivityEntry";
 import { Construction } from "@mui/icons-material";
 
@@ -17,7 +10,13 @@ export const toggleStyle = {
 export const ActivitiesView = () => {
   return (
     <Box
-      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+      sx={{
+        height: "fit-content",
+        width: "calc(100% - 16px)",
+        m: 2,
+        mt: 1,
+        pb: 3,
+      }}
     >
       <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader

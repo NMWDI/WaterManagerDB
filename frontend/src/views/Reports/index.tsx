@@ -13,7 +13,13 @@ import { NavLink } from "../../components/NavLink";
 export const ReportsView = () => {
   return (
     <Box
-      sx={{ height: "fit-content", width: "calc(100% - 16px)", m: 2, mt: 1 }}
+      sx={{
+        height: "fit-content",
+        width: "calc(100% - 16px)",
+        m: 2,
+        mt: 1,
+        pb: 3,
+      }}
     >
       <Card sx={{ height: "fit-content", width: "calc(100% - 16px)" }}>
         <CardHeader
@@ -40,7 +46,7 @@ export const ReportsView = () => {
             <NavLink route="/reports/repairs" label="Repairs" Icon={Plumbing} />
             <NavLink
               route="/reports/inventory"
-              label="Inventory"
+              label="Parts Used"
               Icon={Build}
             />
             <NavLink route="/reports/board" label="Board" Icon={People} />
