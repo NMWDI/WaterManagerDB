@@ -47,12 +47,7 @@ const getUserDisplayName = (session: AdminUserSessionSummary) =>
   session.display_name || session.full_name || session.username;
 
 const getDeviceDisplayName = (session: AdminUserSessionSummary) =>
-  [
-    session.device_label,
-    session.browser,
-    session.operating_system,
-    session.device_type,
-  ]
+  [session.browser, session.operating_system, session.device_type]
     .filter(Boolean)
     .join(" / ") || "-";
 
@@ -69,15 +64,13 @@ export const AdminActions = () => {
     string | null
   >(null);
 
-  const activeSessionColumns = useMemo<
-    GridColDef<AdminUserSessionSummary>[]
-  >(
+  const activeSessionColumns = useMemo<GridColDef<AdminUserSessionSummary>[]>(
     () => [
       {
         field: "display_name",
         headerName: "User",
-        flex: 1.2,
-        minWidth: 180,
+        flex: 1,
+        minWidth: 150,
         valueGetter: (_, row) => getUserDisplayName(row),
         renderCell: (params) => (
           <Stack spacing={0.25} sx={{ py: 0.5 }}>
@@ -113,19 +106,19 @@ export const AdminActions = () => {
       {
         field: "signed_in_at",
         headerName: "Signed In",
-        width: 190,
+        width: 200,
         valueFormatter: (value) => formatDateTime(value as string),
       },
       {
         field: "last_seen_at",
         headerName: "Last Active",
-        width: 190,
+        width: 200,
         valueFormatter: (value) => formatDateTime(value as string),
       },
       {
         field: "actions",
         headerName: "Actions",
-        width: 150,
+        width: 175,
         sortable: false,
         filterable: false,
         renderCell: (params) => {
