@@ -22,8 +22,10 @@ import {
   Sync,
 } from "@mui/icons-material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useNavigate } from "@tanstack/react-router";
 import { BackgroundBox, CustomCardHeader, RoleChip } from "@/components";
 import { AdminUserSessionSummary } from "@/interfaces";
+import { Route } from "@/routes/admin-actions";
 import {
   useCreateDatabaseBackup,
   useGetAdminActiveUserSessions,
@@ -52,17 +54,25 @@ const getDeviceDisplayName = (session: AdminUserSessionSummary) =>
     .join(" / ") || "-";
 
 export const AdminActions = () => {
+  const navigate = useNavigate();
+  const search = Route.useSearch();
   const runOSEOwnerSync = useRunOSEOwnerSync();
   const createDatabaseBackup = useCreateDatabaseBackup();
   const activeUserSessionsQuery = useGetAdminActiveUserSessions({
     refetchInterval: 60_000,
   });
   const revokeAdminUserSession = useRevokeAdminUserSession();
-  const [oseSyncWarningAcknowledged, setOSESyncWarningAcknowledged] =
-    useState(false);
   const [closingSessionIdentifier, setClosingSessionIdentifier] = useState<
     string | null
   >(null);
+
+  const setSearch = (updater: (prev: typeof search) => any) => {
+    navigate({
+      to: "/admin-actions",
+      search: (prev) => updater(prev as any),
+      replace: true,
+    });
+  };
 
   const activeSessionColumns = useMemo<GridColDef<AdminUserSessionSummary>[]>(
     () => [
@@ -185,12 +195,17 @@ export const AdminActions = () => {
                           color="inherit"
                           size="small"
                           disabled={
-                            oseSyncWarningAcknowledged ||
+                            search.ose_acknowledged ||
                             runOSEOwnerSync.isLoading
                           }
-                          onClick={() => setOSESyncWarningAcknowledged(true)}
+                          onClick={() =>
+                            setSearch((prev) => ({
+                              ...prev,
+                              ose_acknowledged: true,
+                            }))
+                          }
                         >
-                          {oseSyncWarningAcknowledged
+                          {search.ose_acknowledged
                             ? "Acknowledged"
                             : "Acknowledge"}
                         </Button>
@@ -218,7 +233,7 @@ export const AdminActions = () => {
                         }
                         disabled={
                           runOSEOwnerSync.isLoading ||
-                          !oseSyncWarningAcknowledged
+                          !search.ose_acknowledged
                         }
                         onClick={() => runOSEOwnerSync.mutate()}
                       >
@@ -350,12 +365,19 @@ export const AdminActions = () => {
                   getRowId={(row) => row.session_identifier}
                   loading={activeUserSessionsQuery.isLoading}
                   pagination
-                  pageSizeOptions={[10, 25, 50, 100]}
-                  initialState={{
-                    pagination: {
-                      paginationModel: { page: 0, pageSize: 10 },
-                    },
+                  paginationModel={{
+                    page: search.au_page,
+                    pageSize: search.au_pageSize,
                   }}
+                  onPaginationModelChange={(model) =>
+                    setSearch((prev) => ({
+                      ...prev,
+                      au_pageSize: model.pageSize,
+                      au_page:
+                        model.pageSize !== prev.au_pageSize ? 0 : model.page,
+                    }))
+                  }
+                  pageSizeOptions={[10, 25, 50, 100]}
                   disableRowSelectionOnClick
                   disableColumnMenu
                   getRowHeight={() => "auto"}
