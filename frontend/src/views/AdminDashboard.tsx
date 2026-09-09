@@ -25,7 +25,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useNavigate } from "@tanstack/react-router";
 import { BackgroundBox, CustomCardHeader, RoleChip } from "@/components";
 import { AdminUserSessionSummary } from "@/interfaces";
-import { Route } from "@/routes/admin-actions";
+import { Route } from "@/routes/admin-dashboard";
 import {
   useCreateDatabaseBackup,
   useGetAdminActiveUserSessions,
@@ -53,7 +53,7 @@ const getDeviceDisplayName = (session: AdminUserSessionSummary) =>
     .filter(Boolean)
     .join(" / ") || "-";
 
-export const AdminActions = () => {
+export const AdminDashboard = () => {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const runOSEOwnerSync = useRunOSEOwnerSync();
@@ -68,7 +68,7 @@ export const AdminActions = () => {
 
   const setSearch = (updater: (prev: typeof search) => any) => {
     navigate({
-      to: "/admin-actions",
+      to: "/admin-dashboard",
       search: (prev) => updater(prev as any),
       replace: true,
     });
@@ -174,7 +174,7 @@ export const AdminActions = () => {
         <Grid item xs={12}>
           <Card sx={{ height: "fit-content" }}>
             <CustomCardHeader
-              title="Admin Actions"
+              title="Admin Dashboard"
               icon={AdminPanelSettingsOutlined}
             />
             <CardContent>
