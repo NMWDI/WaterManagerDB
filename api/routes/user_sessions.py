@@ -158,6 +158,8 @@ def list_admin_active_user_sessions(
             UserSessions.is_active.is_(True),
             UserSessions.signed_out_at.is_(None),
             Users.disabled.is_(False),
+            Users.is_test_account.is_(False),
+            Users.is_service_account.is_(False),
         )
         .order_by(UserSessions.last_seen_at.desc(), UserSessions.signed_in_at.desc())
         .all()

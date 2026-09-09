@@ -335,7 +335,13 @@ def get_activity_types(db: Session, user: Users):
 
 def get_users(db: Session):
     return db.scalars(
-        select(Users).options(undefer(Users.user_role_id)).where(Users.disabled == False)
+        select(Users)
+        .options(undefer(Users.user_role_id))
+        .where(
+            Users.disabled.is_(False),
+            Users.is_test_account.is_(False),
+            Users.is_service_account.is_(False),
+        )
     ).all()
 
 

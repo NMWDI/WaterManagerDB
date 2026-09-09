@@ -329,6 +329,9 @@ export function useUpdateUser(onSuccess: Function) {
       } else {
         onSuccess();
         const responseJson = await response.json();
+        queryClient.invalidateQueries({
+          queryKey: [route],
+        });
 
         queryClient.setQueryData(["usersadmin"], (old: User[] | undefined) => {
           if (old != undefined) {
