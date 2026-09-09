@@ -7,7 +7,6 @@ from fastapi.responses import StreamingResponse
 from weasyprint import HTML
 from io import BytesIO
 from collections import defaultdict
-from matplotlib.pyplot import figure, close
 from api.models.location import Locations
 from api.models.meter import ActivityTypeLU, MeterActivities, Meters
 from api.models.user import Users
@@ -33,6 +32,12 @@ templates = Environment(
 authenticated_maintenance_router = APIRouter()
 public_maintenance_router = APIRouter()
 
+PREVENTATIVE_MAINTENANCE_ACTIVITY_TYPES = [
+    "Preventative Maintenance",
+    "Location Only",
+]
+
+
 @public_maintenance_router.get(
     "/maintenance/home_summary",
     tags=["Maintenance"],
@@ -52,7 +57,7 @@ def get_home_summary(db: Session = Depends(get_db)):
         .join(MeterActivities, MeterActivities.activity_type_id == ActivityTypeLU.id)
         .filter(
             ActivityTypeLU.name.in_(
-                ["Repair", "Re-install", "Preventative Maintenance"]
+                ["Repair", "Re-install", *PREVENTATIVE_MAINTENANCE_ACTIVITY_TYPES]
             )
         )
         .group_by(ActivityTypeLU.name)
@@ -63,8 +68,9 @@ def get_home_summary(db: Session = Depends(get_db)):
         "completed_work_orders": completed_work_orders,
         "repairs_processed": activity_counts.get("Repair", 0),
         "reinstallations_processed": activity_counts.get("Re-install", 0),
-        "preventative_maintenance_processed": activity_counts.get(
-            "Preventative Maintenance", 0
+        "preventative_maintenance_processed": sum(
+            activity_counts.get(activity_type, 0)
+            for activity_type in PREVENTATIVE_MAINTENANCE_ACTIVITY_TYPES
         ),
     }
 
@@ -155,7 +161,7 @@ def get_maintenance_summary(
             repairs_by_meter[row.meter] += 1
             grouped_rows[key]["number_of_repairs"] += 1
             total_repairs += 1
-        elif row.activity_type == "Preventative Maintenance":
+        elif row.activity_type in PREVENTATIVE_MAINTENANCE_ACTIVITY_TYPES:
             pms_by_meter[row.meter] += 1
             grouped_rows[key]["number_of_pms"] += 1
             total_pms += 1
