@@ -4,23 +4,23 @@ import { useMutation, useQuery } from "react-query";
 import dayjs, { Dayjs } from "dayjs";
 import { useAuthHeader } from "@/utils/AuthKitCompat";
 import {
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  Tooltip,
-  Typography,
-  Alert,
-  Skeleton,
-  Stack,
-  Divider,
-  Box,
+	Button,
+	Card,
+	CardContent,
+	Grid,
+	Tooltip,
+	Typography,
+	Alert,
+	Skeleton,
+	Stack,
+	Divider,
+	Box,
 } from "@mui/material";
 import {
-  LayersControl,
-  MapContainer,
-  Marker,
-  Tooltip as MapTooltip,
+	LayersControl,
+	MapContainer,
+	Marker,
+	Tooltip as MapTooltip,
 } from "react-leaflet";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
@@ -30,32 +30,34 @@ import L from "leaflet";
 import { Route } from "@/routes/reports/chlorides";
 import { API_URL } from "@/config";
 import {
-  ControlledDatepicker,
-  CustomCardHeader,
-  BackgroundBox,
-  DirectionCard,
-  MapFullscreenToggle,
-  MapUrlStateSync,
-  ReportBreadcrumbTitle,
-  SoutheastGuideLayer,
-  SatelliteLayer,
-  OpenStreetMapLayer,
-  WellMapLegend,
-  TransporationLayer,
-  BoundariesLayer,
+	ControlledDatepicker,
+	CustomCardHeader,
+	BackgroundBox,
+	DirectionCard,
+	MapFullscreenToggle,
+	MapUrlStateSync,
+	ReportBreadcrumbTitle,
+	SoutheastGuideLayer,
+	SatelliteLayer,
+	OpenStreetMapLayer,
+	WellMapLegend,
+	TransporationLayer,
+	BoundariesLayer,
 } from "@/components";
+import { ChloridesGuideFit } from "@/components/maps/layers/SoutheastGuideLayer";
 import { RedMapIcon, BlackMapIcon } from "@/components/maps/icons";
 import { useFetchWithAuth } from "@/hooks";
+import { useChloridesReportGeometry } from "@/service/chloridesReport";
 import { useGetWellLocations } from "@/service";
 import { Well } from "@/interfaces";
 import { WellStatus } from "@/enums";
 import {
-  DEFAULT_MAP_CENTER,
-  DEFAULT_MAP_ZOOM,
-  getMapLayersControlKey,
-  normalizeMapBaseLayer,
-  normalizeMapOverlayNames,
-  parseMapView,
+	DEFAULT_MAP_CENTER,
+	DEFAULT_MAP_ZOOM,
+	getMapLayersControlKey,
+	normalizeMapBaseLayer,
+	normalizeMapOverlayNames,
+	parseMapView,
 } from "@/utils";
 
 // @ts-ignore
@@ -64,371 +66,393 @@ import "leaflet/dist/leaflet.css";
 import "@changey/react-leaflet-markercluster/dist/styles.min.css";
 
 type FormValues = {
-  from: Dayjs;
-  to: Dayjs;
+	from: Dayjs;
+	to: Dayjs;
 };
 
 const schema = yup.object().shape({
-  from: yup.mixed<Dayjs>().nullable().required("From date is required"),
-  to: yup
-    .mixed<Dayjs>()
-    .nullable()
-    .required("To date is required")
-    .test("is-after", "'To' date must be after 'From'", function (value) {
-      const { from } = this.parent;
-      return !from || !value || dayjs(value).isAfter(dayjs(from));
-    }),
+	from: yup.mixed<Dayjs>().nullable().required("From date is required"),
+	to: yup
+		.mixed<Dayjs>()
+		.nullable()
+		.required("To date is required")
+		.test("is-after", "'To' date must be after 'From'", function (value) {
+			const { from } = this.parent;
+			return !from || !value || dayjs(value).isAfter(dayjs(from));
+		}),
 });
 
 interface iMinMaxAvgMedCount {
-  min?: number;
-  max?: number;
-  avg?: number;
-  median?: number;
-  count?: number;
+	min?: number;
+	max?: number;
+	avg?: number;
+	median?: number;
+	count?: number;
 }
 
 interface iChlorideReportNums {
-  north_west: iMinMaxAvgMedCount;
-  north_east: iMinMaxAvgMedCount;
-  south_west: iMinMaxAvgMedCount;
-  south_east: iMinMaxAvgMedCount;
+	north_west: iMinMaxAvgMedCount;
+	north_east: iMinMaxAvgMedCount;
+	south_west: iMinMaxAvgMedCount;
+	south_east: iMinMaxAvgMedCount;
 }
 
 const isoToDayjs = (s?: string, fallback?: Dayjs) =>
-  s ? dayjs(s, "YYYY-MM-DD") : (fallback ?? dayjs());
+	s ? dayjs(s, "YYYY-MM-DD") : (fallback ?? dayjs());
 
 const BASE_LAYER_NAMES = ["Satellite", "OpenStreetMap"] as const;
 const OVERLAY_NAMES = [
-  "Wells",
-  "Clorides Report Region Guide",
-  "Transportation",
-  "Boundaries and Places",
+	"Wells",
+	"Clorides Report Region Guide",
+	"Transportation",
+	"Boundaries and Places",
 ] as const;
 const DEFAULT_BASE_LAYER = "OpenStreetMap";
 const DEFAULT_OVERLAYS = ["Clorides Report Region Guide", "Wells"];
 const REPORT_SECTIONS = [
-  { title: "North West", key: "north_west" },
-  { title: "North East", key: "north_east" },
-  { title: "South West", key: "south_west" },
-  { title: "South East", key: "south_east" },
+	{ title: "North West", key: "north_west" },
+	{ title: "North East", key: "north_east" },
+	{ title: "South West", key: "south_west" },
+	{ title: "South East", key: "south_east" },
 ] as const;
 
 export const ChloridesReportView = () => {
-  const navigate = useNavigate();
-  const search = Route.useSearch();
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapBaseLayer = normalizeMapBaseLayer(
-    search.mapBase,
-    BASE_LAYER_NAMES,
-    DEFAULT_BASE_LAYER,
-  );
-  const mapOverlayNames = normalizeMapOverlayNames(
-    search.mapOverlays,
-    OVERLAY_NAMES,
-    DEFAULT_OVERLAYS,
-  );
-  const mapView = parseMapView(search, {
-    center: DEFAULT_MAP_CENTER,
-    zoom: DEFAULT_MAP_ZOOM,
-  });
+	const navigate = useNavigate();
+	const search = Route.useSearch();
+	const preserveInitialMapView = useRef(
+		search.mapLat !== undefined ||
+			search.mapLng !== undefined ||
+			search.mapZoom !== undefined,
+	).current;
+	const mapContainerRef = useRef<HTMLDivElement | null>(null);
+	const mapBaseLayer = normalizeMapBaseLayer(
+		search.mapBase,
+		BASE_LAYER_NAMES,
+		DEFAULT_BASE_LAYER,
+	);
+	const mapOverlayNames = normalizeMapOverlayNames(
+		search.mapOverlays,
+		OVERLAY_NAMES,
+		DEFAULT_OVERLAYS,
+	);
+	const mapView = parseMapView(search, {
+		center: DEFAULT_MAP_CENTER,
+		zoom: DEFAULT_MAP_ZOOM,
+	});
 
-  const defaultValues = useMemo<FormValues>(() => {
-    const fallbackFrom = dayjs().startOf("month");
-    const fallbackTo = dayjs().endOf("month");
+	const defaultValues = useMemo<FormValues>(() => {
+		const fallbackFrom = dayjs().startOf("month");
+		const fallbackTo = dayjs().endOf("month");
 
-    return {
-      from: isoToDayjs(search.from, fallbackFrom),
-      to: isoToDayjs(search.to, fallbackTo),
-    };
-  }, [search.from, search.to]);
+		return {
+			from: isoToDayjs(search.from, fallbackFrom),
+			to: isoToDayjs(search.to, fallbackTo),
+		};
+	}, [search.from, search.to]);
 
-  const { control, reset, watch } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues,
-  });
+	const { control, reset, watch } = useForm({
+		resolver: yupResolver(schema),
+		defaultValues,
+	});
 
-  // If user hits back/forward or URL is edited, keep form in sync
-  useEffect(() => {
-    reset(defaultValues, { keepDirty: false, keepTouched: false });
-  }, [defaultValues, reset]);
+	// If user hits back/forward or URL is edited, keep form in sync
+	useEffect(() => {
+		reset(defaultValues, { keepDirty: false, keepTouched: false });
+	}, [defaultValues, reset]);
 
-  const from = watch("from");
-  const to = watch("to");
+	const from = watch("from");
+	const to = watch("to");
 
-  const setSearch = (updater: (prev: typeof search) => any) => {
-    navigate({
-      to: "/reports/chlorides",
-      search: (prev) => updater(prev as any),
-      replace: true,
-    });
-  };
+	const setSearch = (updater: (prev: typeof search) => any) => {
+		navigate({
+			to: "/reports/chlorides",
+			search: (prev) => updater(prev as any),
+			replace: true,
+		});
+	};
 
-  // form -> URL
-  useEffect(() => {
-    if (!from || !to) return;
+	// form -> URL
+	useEffect(() => {
+		if (!from || !to) return;
 
-    setSearch((prev) => ({
-      ...(prev as any),
-      from: from.format("YYYY-MM-DD"),
-      to: to.format("YYYY-MM-DD"),
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from?.valueOf(), to?.valueOf()]);
+		setSearch((prev) => ({
+			...(prev as any),
+			from: from.format("YYYY-MM-DD"),
+			to: to.format("YYYY-MM-DD"),
+		}));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [from?.valueOf(), to?.valueOf()]);
 
-  const authHeader = useAuthHeader();
-  const fetchWithAuth = useFetchWithAuth();
+	const authHeader = useAuthHeader();
+	const fetchWithAuth = useFetchWithAuth();
 
-  const chloridesQuery = useQuery<iChlorideReportNums, Error>({
-    queryKey: ["Chlorides", "Reports", from, to],
-    queryFn: async () => {
-      const searchParams = new URLSearchParams({
-        from_date: from?.format("YYYY-MM-DD"),
-        to_date: to?.format("YYYY-MM-DD"),
-      });
+	const geometryQuery = useChloridesReportGeometry();
 
-      return fetchWithAuth({
-        method: "GET",
-        route: `/chlorides/report?${searchParams.toString()}`,
-      });
-    },
-    enabled: !!from && !!to,
-  });
+	const chloridesQuery = useQuery<iChlorideReportNums, Error>({
+		queryKey: ["Chlorides", "Reports", from, to],
+		queryFn: async () => {
+			const searchParams = new URLSearchParams({
+				from_date: from?.format("YYYY-MM-DD"),
+				to_date: to?.format("YYYY-MM-DD"),
+			});
 
-  const downloadPDFMutation = useMutation({
-    mutationFn: async ({ from, to }: { from: Dayjs; to: Dayjs }) => {
-      const params = new URLSearchParams({
-        from_date: from?.format("YYYY-MM-DD"),
-        to_date: to?.format("YYYY-MM-DD"),
-      });
+			return fetchWithAuth({
+				method: "GET",
+				route: `/chlorides/report?${searchParams.toString()}`,
+			});
+		},
+		enabled: !!from && !!to,
+	});
 
-      const response = await fetch(
-        `${API_URL}/chlorides/report/pdf?${params.toString()}`,
-        {
-          headers: { Authorization: authHeader() },
-        },
-      );
+	const downloadPDFMutation = useMutation({
+		mutationFn: async ({ from, to }: { from: Dayjs; to: Dayjs }) => {
+			const params = new URLSearchParams({
+				from_date: from?.format("YYYY-MM-DD"),
+				to_date: to?.format("YYYY-MM-DD"),
+			});
 
-      if (!response.ok) {
-        throw new Error("PDF generation failed");
-      }
+			const response = await fetch(
+				`${API_URL}/chlorides/report/pdf?${params.toString()}`,
+				{
+					headers: { Authorization: authHeader() },
+				},
+			);
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "chlorides_report.pdf";
-      a.click();
-      window.URL.revokeObjectURL(url);
-    },
-  });
+			if (!response.ok) {
+				throw new Error("PDF generation failed");
+			}
 
-  const handleDownloadPDF = () => {
-    if (!from || !to) return;
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "chlorides_report.pdf";
+			a.click();
+			window.URL.revokeObjectURL(url);
+		},
+	});
 
-    downloadPDFMutation.mutate({
-      from,
-      to,
-    });
-  };
+	const handleDownloadPDF = () => {
+		if (!from || !to) return;
 
-  const wellQuery = useGetWellLocations("", true);
+		downloadPDFMutation.mutate({
+			from,
+			to,
+		});
+	};
 
-  useEffect(() => {
-    if (wellQuery.hasNextPage && !wellQuery.isFetchingNextPage) {
-      wellQuery.fetchNextPage();
-    }
-  }, [wellQuery.hasNextPage, wellQuery.isFetchingNextPage]);
+	const wellQuery = useGetWellLocations("", true);
 
-  const wellMarkers = wellQuery.data?.pages.flat() ?? [];
+	useEffect(() => {
+		if (wellQuery.hasNextPage && !wellQuery.isFetchingNextPage) {
+			wellQuery.fetchNextPage();
+		}
+	}, [wellQuery.hasNextPage, wellQuery.isFetchingNextPage]);
 
-  return (
-    <BackgroundBox>
-      <Card sx={{ height: "fit-content" }}>
-        <CustomCardHeader
-          title={<ReportBreadcrumbTitle current="Chlorides" />}
-          icon={ScienceOutlined}
-        />
-        <CardContent>
-          <Grid
-            container
-            justifyContent="flex-start"
-            alignContent="center"
-            spacing={2}
-            padding={2}
-          >
-            <Grid item xs={12} sm={6} md={3}>
-              <ControlledDatepicker
-                sx={{ width: "100%" }}
-                size="small"
-                label="From"
-                control={control}
-                name="from"
-                views={["year", "month", "day"]}
-                openTo="year"
-                format="YYYY MMMM DD"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <ControlledDatepicker
-                sx={{ width: "100%" }}
-                size="small"
-                label="To"
-                control={control}
-                name="to"
-                views={["year", "month", "day"]}
-                openTo="year"
-                format="YYYY MMMM DD"
-              />
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              sx={{
-                display: "flex",
-                justifyContent: {
-                  xs: "center",
-                  md: "flex-end",
-                },
-              }}
-            >
-              <Tooltip title="Export report as PDF" placement="bottom">
-                <span>
-                  <Button
-                    variant="outlined"
-                    startIcon={<PictureAsPdf />}
-                    aria-label="export report as pdf"
-                    onClick={handleDownloadPDF}
-                    disabled={downloadPDFMutation.isLoading}
-                    sx={{
-                      width: { xs: "100%", sm: "fit-content" },
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    PDF
-                  </Button>
-                </span>
-              </Tooltip>
-            </Grid>
-          </Grid>
-          <Grid
-            container
-            columnSpacing={3}
-            rowSpacing={3}
-            sx={{ py: 3, px: 2 }}
-          >
-            <Grid item xs={12} md={6}>
-              <Typography variant="h4" sx={{ textTransform: "uppercase" }}>
-                Chlorides Reading:
-              </Typography>
-              {chloridesQuery.isLoading && (
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {REPORT_SECTIONS.map(({ key }) => (
-                    <Grid key={key} item xs={12}>
-                      <Card
-                        variant="outlined"
-                        sx={{ height: 140, borderRadius: 3 }}
-                      >
-                        <CardContent>
-                          <Skeleton width="40%" />
-                          <Divider sx={{ my: 1.5 }} />
-                          <Stack
-                            direction="row"
-                            spacing={2}
-                            justifyContent="space-between"
-                          >
-                            <Skeleton width={60} height={36} />
-                            <Skeleton width={60} height={36} />
-                            <Skeleton width={60} height={36} />
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
-              {chloridesQuery.isError && (
-                <Alert severity="error" sx={{ mt: 2 }}>
-                  {chloridesQuery.error?.message ||
-                    "Failed to load chloride readings."}
-                </Alert>
-              )}
-              {!chloridesQuery.isLoading && !chloridesQuery.isError && (
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {REPORT_SECTIONS.map(({ title, key }) => (
-                    <Grid key={key} item xs={12}>
-                      <DirectionCard
-                        title={title}
-                        min={chloridesQuery.data?.[key]?.min}
-                        avg={chloridesQuery.data?.[key]?.avg}
-                        max={chloridesQuery.data?.[key]?.max}
-                        median={chloridesQuery.data?.[key]?.median}
-                        count={chloridesQuery.data?.[key]?.count}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box
-                ref={mapContainerRef}
-                sx={{
-                  height: { xs: 360, md: "100%" },
-                  minHeight: 360,
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  position: "relative",
-                  "&:fullscreen": {
-                    borderRadius: 0,
-                    minHeight: "100vh",
-                  },
-                  "& .leaflet-container": { height: "100%", width: "100%" },
-                }}
-              >
-                <MapContainer
-                  center={mapView.center}
-                  zoom={mapView.zoom}
-                  style={{ height: "100%", width: "100%" }}
-                  maxZoom={18}
-                >
-                  <MapUrlStateSync
-                    allowedBaseLayers={BASE_LAYER_NAMES}
-                    allowedOverlays={OVERLAY_NAMES}
-                    defaultBaseLayer={DEFAULT_BASE_LAYER}
-                    defaultOverlays={DEFAULT_OVERLAYS}
-                    search={search}
-                    setSearch={setSearch}
-                  />
-                  <LayersControl
-                    key={getMapLayersControlKey(mapBaseLayer, mapOverlayNames)}
-                    position="topleft"
-                  >
-                    {/* Base Layers */}
-                    <SatelliteLayer checked={mapBaseLayer === "Satellite"} />
-                    <OpenStreetMapLayer
-                      checked={mapBaseLayer === "OpenStreetMap"}
-                    />
-                    <SoutheastGuideLayer
-                      checked={mapOverlayNames.includes(
-                        "Clorides Report Region Guide",
-                      )}
-                    />
+	const wellMarkers = wellQuery.data?.pages.flat() ?? [];
 
-                    {/* Wells Cluster Overlay */}
-                    <LayersControl.Overlay
-                      checked={mapOverlayNames.includes("Wells")}
-                      name="Wells"
-                    >
-                      <MarkerClusterGroup
-                        chunkedLoading
-                        maxClusterRadius={35}
-                        disableClusteringAtZoom={12}
-                        iconCreateFunction={(cluster: any) => {
-                          const count = cluster.getChildCount();
-                          return L.divIcon({
-                            html: `<div style="
+	return (
+		<BackgroundBox>
+			<Card sx={{ height: "fit-content" }}>
+				<CustomCardHeader
+					title={<ReportBreadcrumbTitle current="Chlorides" />}
+					icon={ScienceOutlined}
+				/>
+				<CardContent>
+					<Grid
+						container
+						justifyContent="flex-start"
+						alignContent="center"
+						spacing={2}
+						padding={2}
+					>
+						<Grid item xs={12} sm={6} md={3}>
+							<ControlledDatepicker
+								sx={{ width: "100%" }}
+								size="small"
+								label="From"
+								control={control}
+								name="from"
+								views={["year", "month", "day"]}
+								openTo="year"
+								format="YYYY MMMM DD"
+							/>
+						</Grid>
+						<Grid item xs={12} sm={6} md={3}>
+							<ControlledDatepicker
+								sx={{ width: "100%" }}
+								size="small"
+								label="To"
+								control={control}
+								name="to"
+								views={["year", "month", "day"]}
+								openTo="year"
+								format="YYYY MMMM DD"
+							/>
+						</Grid>
+						<Grid
+							item
+							xs={12}
+							md={6}
+							sx={{
+								display: "flex",
+								justifyContent: {
+									xs: "center",
+									md: "flex-end",
+								},
+							}}
+						>
+							<Tooltip title="Export report as PDF" placement="bottom">
+								<span>
+									<Button
+										variant="outlined"
+										startIcon={<PictureAsPdf />}
+										aria-label="export report as pdf"
+										onClick={handleDownloadPDF}
+										disabled={downloadPDFMutation.isLoading}
+										sx={{
+											width: { xs: "100%", sm: "fit-content" },
+											whiteSpace: "nowrap",
+										}}
+									>
+										PDF
+									</Button>
+								</span>
+							</Tooltip>
+						</Grid>
+					</Grid>
+					{geometryQuery.isError && (
+						<Alert severity="error" sx={{ mx: 2 }}>
+							Unable to load the report boundary guide.{" "}
+							{geometryQuery.error.message}
+						</Alert>
+					)}
+					<Grid
+						container
+						columnSpacing={3}
+						rowSpacing={3}
+						sx={{ py: 3, px: 2 }}
+					>
+						<Grid item xs={12} md={6}>
+							<Typography variant="h4" sx={{ textTransform: "uppercase" }}>
+								Chlorides Reading:
+							</Typography>
+							{chloridesQuery.isLoading && (
+								<Grid container spacing={2} sx={{ mt: 2 }}>
+									{REPORT_SECTIONS.map(({ key }) => (
+										<Grid key={key} item xs={12}>
+											<Card
+												variant="outlined"
+												sx={{ height: 140, borderRadius: 3 }}
+											>
+												<CardContent>
+													<Skeleton width="40%" />
+													<Divider sx={{ my: 1.5 }} />
+													<Stack
+														direction="row"
+														spacing={2}
+														justifyContent="space-between"
+													>
+														<Skeleton width={60} height={36} />
+														<Skeleton width={60} height={36} />
+														<Skeleton width={60} height={36} />
+													</Stack>
+												</CardContent>
+											</Card>
+										</Grid>
+									))}
+								</Grid>
+							)}
+							{chloridesQuery.isError && (
+								<Alert severity="error" sx={{ mt: 2 }}>
+									{chloridesQuery.error?.message ||
+										"Failed to load chloride readings."}
+								</Alert>
+							)}
+							{!chloridesQuery.isLoading && !chloridesQuery.isError && (
+								<Grid container spacing={2} sx={{ mt: 2 }}>
+									{REPORT_SECTIONS.map(({ title, key }) => (
+										<Grid key={key} item xs={12}>
+											<DirectionCard
+												title={title}
+												min={chloridesQuery.data?.[key]?.min}
+												avg={chloridesQuery.data?.[key]?.avg}
+												max={chloridesQuery.data?.[key]?.max}
+												median={chloridesQuery.data?.[key]?.median}
+												count={chloridesQuery.data?.[key]?.count}
+											/>
+										</Grid>
+									))}
+								</Grid>
+							)}
+						</Grid>
+						<Grid item xs={12} md={6}>
+							<Box
+								ref={mapContainerRef}
+								sx={{
+									height: { xs: 360, md: "100%" },
+									minHeight: 360,
+									borderRadius: 2,
+									overflow: "hidden",
+									position: "relative",
+									"&:fullscreen": {
+										borderRadius: 0,
+										minHeight: "100vh",
+									},
+									"& .leaflet-container": { height: "100%", width: "100%" },
+								}}
+							>
+								<MapContainer
+									center={mapView.center}
+									zoom={mapView.zoom}
+									style={{ height: "100%", width: "100%" }}
+									maxZoom={18}
+								>
+									<MapUrlStateSync
+										allowedBaseLayers={BASE_LAYER_NAMES}
+										allowedOverlays={OVERLAY_NAMES}
+										defaultBaseLayer={DEFAULT_BASE_LAYER}
+										defaultOverlays={DEFAULT_OVERLAYS}
+										search={search}
+										setSearch={setSearch}
+									/>
+									{geometryQuery.data && (
+										<ChloridesGuideFit
+											geometry={geometryQuery.data}
+											preserveView={preserveInitialMapView}
+										/>
+									)}
+									<LayersControl
+										key={getMapLayersControlKey(mapBaseLayer, mapOverlayNames)}
+										position="topleft"
+									>
+										{/* Base Layers */}
+										<SatelliteLayer checked={mapBaseLayer === "Satellite"} />
+										<OpenStreetMapLayer
+											checked={mapBaseLayer === "OpenStreetMap"}
+										/>
+										{geometryQuery.data && (
+											<SoutheastGuideLayer
+												geometry={geometryQuery.data}
+												checked={mapOverlayNames.includes(
+													"Clorides Report Region Guide",
+												)}
+											/>
+										)}
+
+										{/* Wells Cluster Overlay */}
+										<LayersControl.Overlay
+											checked={mapOverlayNames.includes("Wells")}
+											name="Wells"
+										>
+											<MarkerClusterGroup
+												chunkedLoading
+												maxClusterRadius={35}
+												disableClusteringAtZoom={12}
+												iconCreateFunction={(cluster: any) => {
+													const count = cluster.getChildCount();
+													return L.divIcon({
+														html: `<div style="
                       background-color: rgba(0, 123, 255, 0.8);
                       color: white;
                       width: 40px;
@@ -440,131 +464,157 @@ export const ChloridesReportView = () => {
                       font-weight: bold;
                       border: 2px solid white;
                     ">${count}</div>`,
-                            className: "",
-                            iconSize: [40, 40],
-                          });
-                        }}
-                      >
-                        {wellQuery.isSuccess &&
-                          wellMarkers.map((well: Well) => (
-                            <Marker
-                              key={well.id}
-                              position={[
-                                well.location?.latitude ?? 0,
-                                well.location?.longitude ?? 0,
-                              ]}
-                              icon={
-                                well.well_status_id === WellStatus.PLUGGED
-                                  ? BlackMapIcon
-                                  : RedMapIcon
-                              }
-                            >
-                              <MapTooltip>
-                                {well.name || well.ra_number || well.id}
-                              </MapTooltip>
-                            </Marker>
-                          ))}
-                      </MarkerClusterGroup>
-                    </LayersControl.Overlay>
-                    <TransporationLayer
-                      checked={mapOverlayNames.includes("Transportation")}
-                    />
-                    <BoundariesLayer
-                      checked={mapOverlayNames.includes(
-                        "Boundaries and Places",
-                      )}
-                    />
-                  </LayersControl>
-                  <MapFullscreenToggle containerRef={mapContainerRef} />
-                  <WellMapLegend />
-                </MapContainer>
-              </Box>
-              {/* Loading first page */}
-              {wellQuery.isLoading && (
-                <Box py={2}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  >
-                    Loading well markers...
-                  </Typography>
-                </Box>
-              )}
-              {/* Loading additional pages */}
-              {wellQuery.isFetchingNextPage && (
-                <Box py={2}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  >
-                    Loading more wells...
-                  </Typography>
-                </Box>
-              )}
-              {wellQuery.isSuccess && wellMarkers.length === 0 && (
-                <Box py={2}>
-                  <Typography
-                    variant="h6"
-                    color="text.secondary"
-                    sx={{
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  >
-                    No wells found for that search.
-                  </Typography>
-                </Box>
-              )}
-              {/* Error */}
-              {wellQuery.isError && (
-                <Box py={2}>
-                  <Typography
-                    variant="h6"
-                    color="error"
-                    sx={{
-                      pointerEvents: "none",
-                      userSelect: "none",
-                    }}
-                  >
-                    Failed to load wells: {wellQuery.error.message}
-                  </Typography>
-                </Box>
-              )}
-            </Grid>
-          </Grid>
-          <Grid container>
-            <Grid item px={2}>
-              <Button
-                onClick={() => {
-                  const hardFrom = dayjs().startOf("month");
-                  const hardTo = dayjs().endOf("month");
+														className: "",
+														iconSize: [40, 40],
+													});
+												}}
+											>
+												{wellQuery.isSuccess &&
+													wellMarkers.map((well: Well) => (
+														<Marker
+															key={well.id}
+															position={[
+																well.location?.latitude ?? 0,
+																well.location?.longitude ?? 0,
+															]}
+															icon={
+																well.well_status_id === WellStatus.PLUGGED
+																	? BlackMapIcon
+																	: RedMapIcon
+															}
+														>
+															<MapTooltip>
+																{well.name || well.ra_number || well.id}
+															</MapTooltip>
+														</Marker>
+													))}
+											</MarkerClusterGroup>
+										</LayersControl.Overlay>
+										<TransporationLayer
+											checked={mapOverlayNames.includes("Transportation")}
+										/>
+										<BoundariesLayer
+											checked={mapOverlayNames.includes(
+												"Boundaries and Places",
+											)}
+										/>
+									</LayersControl>
+									<MapFullscreenToggle containerRef={mapContainerRef} />
+									<WellMapLegend />
+								</MapContainer>
+							</Box>
+							{/* Loading first page */}
+							{wellQuery.isLoading && (
+								<Box py={2}>
+									<Typography
+										variant="h6"
+										sx={{
+											pointerEvents: "none",
+											userSelect: "none",
+										}}
+									>
+										Loading well markers...
+									</Typography>
+								</Box>
+							)}
+							{/* Loading additional pages */}
+							{wellQuery.isFetchingNextPage && (
+								<Box py={2}>
+									<Typography
+										variant="h6"
+										sx={{
+											pointerEvents: "none",
+											userSelect: "none",
+										}}
+									>
+										Loading more wells...
+									</Typography>
+								</Box>
+							)}
+							{wellQuery.isSuccess && wellMarkers.length === 0 && (
+								<Box py={2}>
+									<Typography
+										variant="h6"
+										color="text.secondary"
+										sx={{
+											pointerEvents: "none",
+											userSelect: "none",
+										}}
+									>
+										No wells found for that search.
+									</Typography>
+								</Box>
+							)}
+							{/* Error */}
+							{wellQuery.isError && (
+								<Box py={2}>
+									<Typography
+										variant="h6"
+										color="error"
+										sx={{
+											pointerEvents: "none",
+											userSelect: "none",
+										}}
+									>
+										Failed to load wells: {wellQuery.error.message}
+									</Typography>
+								</Box>
+							)}
+						</Grid>
+					</Grid>
+					<Grid container>
+						<Grid item px={2}>
+							<Button
+								onClick={() => {
+									const hardFrom = dayjs().startOf("month");
+									const hardTo = dayjs().endOf("month");
 
-                  // update URL first
-                  navigate({
-                    to: "/reports/chlorides",
-                    search: (prev) => ({
-                      ...(prev as any),
-                      from: hardFrom.format("YYYY-MM-DD"),
-                      to: hardTo.format("YYYY-MM-DD"),
-                    }),
-                    replace: true,
-                  });
+									// update URL first
+									navigate({
+										to: "/reports/chlorides",
+										search: (prev) => ({
+											...(prev as any),
+											from: hardFrom.format("YYYY-MM-DD"),
+											to: hardTo.format("YYYY-MM-DD"),
+										}),
+										replace: true,
+									});
 
-                  reset({ from: hardFrom, to: hardTo });
-                }}
-              >
-                Reset
-              </Button>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </BackgroundBox>
-  );
+									reset({ from: hardFrom, to: hardTo });
+								}}
+							>
+								Reset
+							</Button>
+
+							{geometryQuery.data && (
+								<Box sx={{ px: 2, pt: 2 }}>
+									<Typography variant="body2">
+										{geometryQuery.data.description}
+									</Typography>
+									<Typography variant="body2">
+										Boundary version: {geometryQuery.data.version}. Dividers
+										follow Hwy. 285 via Main Street and Hwy. 380, including the
+										US 70 overlap. Counts represent measurements.
+									</Typography>
+									<Box component="ul" sx={{ my: 1, pl: 3 }}>
+										{geometryQuery.data.features
+											.filter((f) => f.properties.kind === "anchor")
+											.map((f) => (
+												<Typography
+													component="li"
+													variant="body2"
+													key={f.properties.id}
+												>
+													{f.properties.label}: {f.properties.coordinate_label}
+												</Typography>
+											))}
+									</Box>
+								</Box>
+							)}
+						</Grid>
+					</Grid>
+				</CardContent>
+			</Card>
+		</BackgroundBox>
+	);
 };
